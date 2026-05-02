@@ -165,14 +165,16 @@ packages:
       "persistent": true
     },
     "typecheck": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^typecheck"]
     },
     "test": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^typecheck"]
     }
   }
 }
 ```
+
+(Why `^typecheck` rather than `^build`: every package in this monorepo runs with `noEmit: true` and exposes `./src/index.ts` as `main` — there are no built artifacts. `^typecheck` chains type-checking through dependencies without forcing useless build steps.)
 
 - [ ] **Step 4: Create `tsconfig.base.json`**
 
@@ -226,6 +228,10 @@ dist/
 # expo
 .expo/
 .expo-shared/
+
+# IDE
+.vscode/
+.idea/
 
 # system
 .DS_Store
