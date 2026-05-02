@@ -1,0 +1,24 @@
+{
+  "name": "chiaro",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20.10.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "db:start": "pnpm --filter @chiaro/db supabase:start",
+    "db:stop": "pnpm --filter @chiaro/db supabase:stop",
+    "db:reset": "pnpm --filter @chiaro/db supabase:reset",
+    "db:test": "pnpm --filter @chiaro/db supabase:test",
+    "db:gen-types": "pnpm --filter @chiaro/db supabase:gen-types"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.0"
+  }
+}

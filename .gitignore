@@ -1,0 +1,28 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# build
+dist/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# supabase local artifacts
+**/supabase/.branches/
+**/supabase/.temp/
+**/supabase/seed.sql.bak
+
+# expo
+.expo/
+.expo-shared/
+
+# system
+.DS_Store
+Thumbs.db
