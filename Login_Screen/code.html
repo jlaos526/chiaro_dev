@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chiaro — Set Up Your Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Manrope:wght@200..800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: { extend: { fontFamily: { headline: ["Newsreader","serif"], body: ["Manrope","sans-serif"] } } }
+  }
+</script>
+<style>
+  body {
+    font-family: 'Manrope', sans-serif;
+    background-color: #1a1714;
+    color: #f5f0e8;
+    min-height: max(884px, 100dvh);
+  }
+  .chiaro-logo { position: relative; display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; }
+  .chiaro-logo::before { content: ''; position: absolute; inset: -16px -32px; background: radial-gradient(ellipse at center, rgba(255,245,220,0.07), transparent 70%); pointer-events: none; z-index: 0; }
+  .chiaro-mark { font-family: 'DM Serif Display', serif; font-weight: 400; color: #f5f0e8; letter-spacing: 0.12em; line-height: 1; position: relative; z-index: 1; font-size: 28px; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+  .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400; }
+  .field { border-bottom: 1px solid #2E2E2B; padding-bottom: 6px; transition: border-color 0.2s; }
+  .field:focus-within { border-bottom-color: #C8D6CD; }
+  .field input, .field select {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: #E8E5DE;
+    font-size: 17px;
+    outline: none;
+  }
+  .field input::placeholder, .field select option:first-child { color: #3A3A36; }
+  .field select { appearance: none; }
+  .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 700; color: #8A8880; margin-bottom: 4px; display: block; }
+  /* Toggle */
+  .toggle { position: relative; width: 44px; height: 24px; background: #3A3A36; border-radius: 12px; cursor: pointer; transition: background 0.2s; }
+  .toggle.active { background: #C8D6CD; }
+  .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #0F0F0E; border-radius: 50%; transition: transform 0.2s; }
+  .toggle.active::after { transform: translateX(20px); }
+</style>
+</head>
+<body>
+
+<header class="flex justify-between items-center w-full px-5 h-16 border-b border-[#2E2E2B]">
+  <a href="../Onboarding/code.html" class="w-8 h-8 flex items-center justify-center hover:bg-[#1A1A18] rounded-full transition-colors">
+    <span class="material-symbols-outlined text-[#E8E5DE]" style="font-size:22px">arrow_back</span>
+  </a>
+  <div class="chiaro-logo"><span class="chiaro-mark">CHIARO</span></div>
+  <a href="../Home_Screen/code.html" class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880] hover:text-[#C8D6CD] transition-colors">Skip</a>
+</header>
+
+<main class="max-w-2xl mx-auto px-6 py-10 pb-32">
+
+  <!-- Heading -->
+  <div class="mb-10">
+    <p class="text-[10px] uppercase tracking-widest font-bold text-[#C8D6CD] mb-3">Optional · Account Setup</p>
+    <h2 class="font-headline text-4xl font-bold tracking-tight text-[#E8E5DE] mb-3">Create a Profile</h2>
+    <p class="text-[#8A8880] text-base leading-relaxed max-w-md">
+      Save your Home location, follow officials, and get notified on votes that matter to you. <span class="text-[#E8E5DE]">You can use Chiaro without an account</span> — your Home location stays on this device.
+    </p>
+  </div>
+
+  <!-- Avatar -->
+  <section class="mb-10 flex flex-col items-start">
+    <div class="relative">
+      <div class="w-28 h-28 rounded-full bg-[#1A1A18] border border-[#2E2E2B] flex items-center justify-center overflow-hidden">
+        <span class="material-symbols-outlined text-[#3A3A36]" style="font-size:42px">person</span>
+      </div>
+      <button class="absolute bottom-0 right-0 bg-[#C8D6CD] text-[#0F0F0E] p-2 rounded-full shadow-lg hover:bg-[#E8E5DE] transition-colors">
+        <span class="material-symbols-outlined" style="font-size:16px">add_a_photo</span>
+      </button>
+    </div>
+    <p class="mt-3 text-[10px] uppercase tracking-widest font-bold text-[#8A8880]">Add Portrait · Optional</p>
+  </section>
+
+  <!-- Form -->
+  <form class="space-y-7">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
+      <div class="field">
+        <span class="label">First Name</span>
+        <input type="text" placeholder="Jordan"/>
+      </div>
+      <div class="field">
+        <span class="label">Last Name</span>
+        <input type="text" placeholder="Reyes"/>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
+      <div class="field">
+        <span class="label">Email · for follows / notifications</span>
+        <input type="email" placeholder="jordan@example.com"/>
+      </div>
+      <div class="field">
+        <span class="label">Date of Birth · optional</span>
+        <input type="text" placeholder="MM/DD/YYYY"/>
+      </div>
+    </div>
+
+    <!-- Home Location -->
+    <div class="pt-4">
+      <p class="text-[10px] uppercase tracking-widest font-bold text-[#C8D6CD] mb-4 flex items-center gap-2">
+        <span class="material-symbols-outlined fill-icon" style="font-size:13px">location_on</span>
+        Home Location
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
+        <div class="field">
+          <span class="label">City</span>
+          <input type="text" placeholder="Columbus" value="Columbus"/>
+        </div>
+        <div class="field">
+          <span class="label">State</span>
+          <select>
+            <option value="OH" selected>Ohio</option>
+            <option value="">Select State</option>
+            <option value="SC">South Carolina</option>
+            <option value="NY">New York</option>
+            <option value="CA">California</option>
+            <option value="TX">Texas</option>
+            <option value="FL">Florida</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-7 mt-7">
+        <div class="field">
+          <span class="label">Zipcode</span>
+          <input type="text" placeholder="43215" value="43215"/>
+        </div>
+        <div class="field">
+          <span class="label">County · auto-detected</span>
+          <input type="text" placeholder="Franklin County" value="Franklin County" readonly/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Location Services Card -->
+    <div class="p-5 bg-[#1A1A18] border border-[#2E2E2B] flex items-center justify-between mt-8 rounded">
+      <div class="flex items-center gap-4">
+        <div class="bg-[#232320] p-2.5 rounded-full">
+          <span class="material-symbols-outlined fill-icon text-[#C8D6CD]" style="font-size:20px">my_location</span>
+        </div>
+        <div>
+          <h4 class="font-bold text-[#E8E5DE] text-sm">Use Device Location</h4>
+          <p class="text-[11px] text-[#8A8880] leading-relaxed mt-0.5">Auto-update reps when you move districts</p>
+        </div>
+      </div>
+      <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+    </div>
+
+    <!-- Notifications Card -->
+    <div class="p-5 bg-[#1A1A18] border border-[#2E2E2B] flex items-center justify-between rounded">
+      <div class="flex items-center gap-4">
+        <div class="bg-[#232320] p-2.5 rounded-full">
+          <span class="material-symbols-outlined fill-icon text-[#C8D6CD]" style="font-size:20px">notifications</span>
+        </div>
+        <div>
+          <h4 class="font-bold text-[#E8E5DE] text-sm">Voting Activity Alerts</h4>
+          <p class="text-[11px] text-[#8A8880] leading-relaxed mt-0.5">Get notified when your reps vote on key bills</p>
+        </div>
+      </div>
+      <div class="toggle" onclick="this.classList.toggle('active')"></div>
+    </div>
+
+    <!-- Submit -->
+    <div class="pt-6 space-y-3">
+      <a href="../Home_Screen/code.html" class="block w-full bg-[#C8D6CD] text-[#0F0F0E] py-4 text-center text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#E8E5DE] transition-colors">
+        Create Account & Continue
+      </a>
+      <a href="../Home_Screen/code.html" class="block w-full border border-[#2E2E2B] text-[#8A8880] py-4 text-center text-[11px] uppercase tracking-[0.2em] font-bold hover:border-[#C8D6CD] hover:text-[#C8D6CD] transition-colors">
+        Continue Without Account
+      </a>
+    </div>
+
+    <p class="text-[10px] text-[#8A8880] text-center pt-4 leading-relaxed">
+      By creating an account you agree to Chiaro's <a class="text-[#C8D6CD] underline">Terms</a> and <a class="text-[#C8D6CD] underline">Privacy Policy</a>.<br/>
+      We do not sell user data. Ever.
+    </p>
+  </form>
+</main>
+
+</body>
+</html>

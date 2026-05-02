@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hearcel F. Craig — Chiaro Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Manrope:wght@200..800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        fontFamily: {
+          headline: ["Newsreader", "serif"],
+          body:     ["Manrope", "sans-serif"],
+        },
+      }
+    }
+  }
+</script>
+<style>
+  :root {
+    --bg:        #0F0F0E;
+    --surface:   #1A1A18;
+    --elevated:  #232320;
+    --muted:     #2E2E2B;
+    --deep-muted:#3A3A36;
+    --text:      #E8E5DE;
+    --secondary: #8A8880;
+    --accent:    #C8D6CD;
+    --accent-dim:#7A9B8E;
+    --red:       #E05C5C;
+    --blue:      #6A9BB5;
+    --gold:      #C9A84C;
+    --green:     #6BAF7A;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Manrope', sans-serif;
+    background-color: #1a1714;
+    color: #f5f0e8;
+    min-height: max(884px, 100dvh);
+  }
+  .chiaro-logo { position: relative; display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; }
+  .chiaro-logo::before { content: ''; position: absolute; inset: -16px -32px; background: radial-gradient(ellipse at center, rgba(255,245,220,0.07), transparent 70%); pointer-events: none; z-index: 0; }
+  .chiaro-mark { font-family: 'DM Serif Display', serif; font-weight: 400; color: #f5f0e8; letter-spacing: 0.12em; line-height: 1; position: relative; z-index: 1; font-size: 28px; }
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+  /* Tabs */
+  .profile-tab { padding: 12px 0; margin-right: 24px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; border-bottom: 2px solid transparent; color: var(--secondary); white-space: nowrap; cursor: pointer; transition: color 0.15s, border-color 0.15s; }
+  .profile-tab.active { border-bottom-color: var(--accent); color: var(--accent); }
+
+  /* Stat tiles */
+  .stat-tile { background: var(--surface); padding: 16px; border: 1px solid var(--muted); }
+  .stat-tile .label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; color: var(--secondary); margin-bottom: 6px; }
+  .stat-tile .value { font-family: 'Newsreader', serif; font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; }
+  .stat-tile .sub { font-size: 10px; color: var(--secondary); margin-top: 4px; }
+
+  /* Vote rows */
+  .vote-row { padding: 14px 0; border-bottom: 1px solid var(--muted); display: flex; gap: 12px; align-items: flex-start; }
+  .vote-badge { flex-shrink: 0; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 800; padding: 3px 8px; }
+  .vote-yea  { background: #0F2A14; color: var(--green); }
+  .vote-nay  { background: #2A0F0F; color: var(--red); }
+  .vote-abs  { background: #2A2A0F; color: var(--gold); }
+
+  /* Bill rows */
+  .bill-row { padding: 14px 0; border-bottom: 1px solid var(--muted); }
+  .bill-status { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; padding: 2px 7px; }
+  .status-passed   { background: #0F2A14; color: var(--green); }
+  .status-pending  { background: #2A2A0F; color: var(--gold); }
+  .status-failed   { background: #2A0F0F; color: var(--red); }
+  .status-signed   { background: #0F1E2A; color: var(--blue); }
+
+  /* Donut ring (SVG based inline) */
+  .donut-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+  .donut-wrap .donut-label { position: absolute; text-align: center; }
+
+  /* Bar chart */
+  .bar-chart-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .bar-chart-row .bar-label { font-size: 10px; color: var(--secondary); width: 80px; flex-shrink: 0; }
+  .bar-chart-row .bar-track { flex: 1; height: 6px; background: var(--muted); border-radius: 2px; overflow: hidden; }
+  .bar-chart-row .bar-fill  { height: 100%; border-radius: 2px; }
+  .bar-chart-row .bar-val   { font-size: 10px; font-weight: 700; color: var(--text); width: 32px; text-align: right; flex-shrink: 0; }
+
+  /* Tag chips */
+  .chip { display: inline-flex; align-items: center; gap: 4px; background: var(--elevated); border: 1px solid var(--muted); padding: 4px 10px; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: var(--secondary); margin: 3px 3px 3px 0; }
+
+  .section-title { font-family: 'Newsreader', serif; font-size: 18px; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--muted); padding-bottom: 10px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+  .section-title span.see-all { font-family: 'Manrope', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); cursor: pointer; }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body class="dark">
+
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 flex items-center justify-between px-4 h-14 bg-[#0F0F0E] border-b border-[#2E2E2B]">
+  <div class="flex items-center gap-3">
+    <a href="../Home_Screen/code.html" class="w-8 h-8 flex items-center justify-center hover:bg-[#1A1A18] rounded-full transition-colors">
+      <span class="material-symbols-outlined text-[#E8E5DE]" style="font-size:20px">arrow_back</span>
+    </a>
+    <div class="chiaro-logo"><span class="chiaro-mark">CHIARO</span></div>
+  </div>
+  <div class="flex items-center gap-1">
+    <button class="w-8 h-8 flex items-center justify-center hover:bg-[#1A1A18] rounded-full transition-colors">
+      <span class="material-symbols-outlined text-[#E8E5DE]" style="font-size:20px">bookmark_add</span>
+    </button>
+    <button class="w-8 h-8 flex items-center justify-center hover:bg-[#1A1A18] rounded-full transition-colors">
+      <span class="material-symbols-outlined text-[#E8E5DE]" style="font-size:20px">share</span>
+    </button>
+  </div>
+</header>
+
+<main class="pt-14 pb-24 max-w-2xl mx-auto">
+
+  <!-- Profile Hero -->
+  <section class="flex gap-5 px-5 pt-6 pb-5 border-b border-[#2E2E2B]">
+    <div class="w-24 h-28 bg-[#1A1A18] flex-shrink-0 overflow-hidden flex items-center justify-center">
+      <span class="material-symbols-outlined text-[#3A3A36]" style="font-size:40px">person</span>
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-[9px] uppercase tracking-widest font-bold text-[#8A8880]">State Senator · District 15</span>
+        <span class="text-[9px] uppercase tracking-widest font-bold px-2 py-0.5" style="background:#1D3A5C; color:#6A9BB5;">Dem</span>
+      </div>
+      <h1 class="font-headline text-3xl font-bold text-[#E8E5DE] leading-tight tracking-tight">Hearcel F. Craig</h1>
+      <p class="text-[11px] text-[#8A8880] mt-1">Ohio General Assembly</p>
+      <div class="flex items-center gap-1.5 mt-3">
+        <span class="material-symbols-outlined fill-icon text-[#C8D6CD]" style="font-size:12px">location_on</span>
+        <span class="text-[10px] text-[#8A8880]">Columbus, OH · Represents your Home district</span>
+      </div>
+      <!-- Follow / Notify row -->
+      <div class="flex gap-2 mt-4">
+        <button class="flex items-center gap-1.5 bg-[#C8D6CD] text-[#0F0F0E] px-4 py-2 text-[9px] uppercase tracking-widest font-bold hover:bg-[#E8E5DE] transition-colors">
+          <span class="material-symbols-outlined" style="font-size:13px">notifications</span>
+          Follow
+        </button>
+        <button class="flex items-center gap-1.5 bg-[#1A1A18] border border-[#2E2E2B] px-4 py-2 text-[9px] uppercase tracking-widest font-bold text-[#8A8880] hover:border-[#C8D6CD] hover:text-[#C8D6CD] transition-colors">
+          <span class="material-symbols-outlined" style="font-size:13px">mail</span>
+          Contact
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- At-a-glance stat row -->
+  <div class="grid grid-cols-4 border-b border-[#2E2E2B]">
+    <div class="flex flex-col items-center py-4 border-r border-[#2E2E2B]">
+      <span class="font-headline text-2xl font-bold text-[#E8E5DE]">7</span>
+      <span class="text-[8px] uppercase tracking-widest text-[#8A8880] mt-1 text-center leading-tight">Yrs in<br/>Office</span>
+    </div>
+    <div class="flex flex-col items-center py-4 border-r border-[#2E2E2B]">
+      <span class="font-headline text-2xl font-bold text-[#6BAF7A]">82%</span>
+      <span class="text-[8px] uppercase tracking-widest text-[#8A8880] mt-1 text-center leading-tight">Vote<br/>Alignment</span>
+    </div>
+    <div class="flex flex-col items-center py-4 border-r border-[#2E2E2B]">
+      <span class="font-headline text-2xl font-bold text-[#E8E5DE]">62</span>
+      <span class="text-[8px] uppercase tracking-widest text-[#8A8880] mt-1 text-center leading-tight">Bills<br/>Sponsored</span>
+    </div>
+    <div class="flex flex-col items-center py-4">
+      <span class="font-headline text-2xl font-bold text-[#E8E5DE]">3rd</span>
+      <span class="text-[8px] uppercase tracking-widest text-[#8A8880] mt-1 text-center leading-tight">Current<br/>Term</span>
+    </div>
+  </div>
+
+  <!-- Profile Tab Bar -->
+  <div class="flex overflow-x-auto border-b border-[#2E2E2B] px-5 scrollbar-hide" style="scrollbar-width:none;">
+    <button class="profile-tab active" onclick="showTab('overview', this)">Overview</button>
+    <button class="profile-tab" onclick="showTab('votes', this)">Voting Record</button>
+    <button class="profile-tab" onclick="showTab('bills', this)">Bills</button>
+    <button class="profile-tab" onclick="showTab('finance', this)">Finance</button>
+  </div>
+
+  <!-- ─── TAB: OVERVIEW ─── -->
+  <div id="tab-overview" class="px-5 pt-5 space-y-7">
+
+    <!-- Bio -->
+    <div>
+      <div class="section-title">General Info</div>
+      <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+        <div>
+          <p class="text-[9px] uppercase tracking-widest text-[#8A8880] mb-1">Full Name</p>
+          <p class="font-headline text-lg font-semibold text-[#E8E5DE]">Hearcel F. Craig</p>
+        </div>
+        <div>
+          <p class="text-[9px] uppercase tracking-widest text-[#8A8880] mb-1">Age</p>
+          <p class="font-headline text-lg font-semibold text-[#E8E5DE]">68</p>
+        </div>
+        <div>
+          <p class="text-[9px] uppercase tracking-widest text-[#8A8880] mb-1">Party</p>
+          <p class="font-headline text-lg font-semibold text-[#E8E5DE]">Democratic</p>
+        </div>
+        <div>
+          <p class="text-[9px] uppercase tracking-widest text-[#8A8880] mb-1">Hometown</p>
+          <p class="font-headline text-lg font-semibold text-[#E8E5DE]">Columbus, OH</p>
+        </div>
+        <div>
+          <p class="text-[9px] uppercase tracking-widest text-[#8A8880] mb-1">In Office Since</p>
+          <p class="font-headline text-lg font-semibold text-[#E8E5DE]">Jan 2017</p>
+        </div>
+        <div>
+          <p class="text-[9px] uppercase tracking-widest text-[#8A8880] mb-1">Term Ends</p>
+          <p class="font-headline text-lg font-semibold text-[#E8E5DE]">Nov 2028</p>
+        </div>
+        <div>
+          <p class="text-[9px] uppercase tracking-widest text-[#8A8880] mb-1">Education</p>
+          <p class="font-headline text-lg font-semibold text-[#E8E5DE]">Capital University</p>
+        </div>
+        <div>
+          <p class="text-[9px] uppercase tracking-widest text-[#8A8880] mb-1">Prior Career</p>
+          <p class="font-headline text-lg font-semibold text-[#E8E5DE]">City Council</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Committee Memberships -->
+    <div>
+      <div class="section-title">Committee Memberships</div>
+      <div class="space-y-2.5">
+        <div class="flex items-start gap-3 py-2.5 border-b border-[#2E2E2B]">
+          <span class="material-symbols-outlined text-[#C8D6CD]" style="font-size:16px">groups</span>
+          <div>
+            <p class="text-sm font-semibold text-[#E8E5DE] leading-snug">Finance Subcommittee on Education</p>
+            <p class="text-[10px] text-[#C9A84C] uppercase tracking-wider font-bold mt-0.5">Chair</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 py-2.5 border-b border-[#2E2E2B]">
+          <span class="material-symbols-outlined text-[#8A8880]" style="font-size:16px">groups</span>
+          <div>
+            <p class="text-sm font-semibold text-[#E8E5DE] leading-snug">Senate Judiciary Committee</p>
+            <p class="text-[10px] text-[#8A8880] uppercase tracking-wider font-bold mt-0.5">Member</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 py-2.5 border-b border-[#2E2E2B]">
+          <span class="material-symbols-outlined text-[#8A8880]" style="font-size:16px">groups</span>
+          <div>
+            <p class="text-sm font-semibold text-[#E8E5DE] leading-snug">Labor, Commerce & Industry Committee</p>
+            <p class="text-[10px] text-[#8A8880] uppercase tracking-wider font-bold mt-0.5">Member</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Issues / Priorities -->
+    <div>
+      <div class="section-title">Key Issue Areas</div>
+      <div class="flex flex-wrap">
+        <span class="chip">Criminal Justice Reform</span>
+        <span class="chip">Education Funding</span>
+        <span class="chip">Women's Rights</span>
+        <span class="chip">Infrastructure</span>
+        <span class="chip">Small Business</span>
+        <span class="chip">Bipartisan Legislation</span>
+      </div>
+    </div>
+
+    <!-- Voting Snapshot -->
+    <div>
+      <div class="section-title">Voting Snapshot <span class="see-all" onclick="showTab('votes', document.querySelectorAll('.profile-tab')[1])">See Full Record</span></div>
+      <div class="grid grid-cols-3 gap-3 mb-5">
+        <div class="stat-tile">
+          <div class="label">Total Votes</div>
+          <div class="value">312</div>
+          <div class="sub">2023–2024 session</div>
+        </div>
+        <div class="stat-tile">
+          <div class="label">With Party</div>
+          <div class="value" style="color:var(--accent)">78%</div>
+          <div class="sub">244 votes</div>
+        </div>
+        <div class="stat-tile">
+          <div class="label">Bipartisan</div>
+          <div class="value" style="color:var(--blue)">14%</div>
+          <div class="sub">44 votes</div>
+        </div>
+      </div>
+      <!-- Category breakdown bars -->
+      <div class="bar-chart-row">
+        <span class="bar-label" style="font-size:10px; color:var(--secondary);">Economy</span>
+        <div class="bar-track"><div class="bar-fill" style="width:88%; background:#C8D6CD;"></div></div>
+        <span class="bar-val">88%</span>
+      </div>
+      <div class="bar-chart-row">
+        <span class="bar-label" style="font-size:10px; color:var(--secondary);">Education</span>
+        <div class="bar-track"><div class="bar-fill" style="width:72%; background:#C8D6CD;"></div></div>
+        <span class="bar-val">72%</span>
+      </div>
+      <div class="bar-chart-row">
+        <span class="bar-label" style="font-size:10px; color:var(--secondary);">Criminal Justice</span>
+        <div class="bar-track"><div class="bar-fill" style="width:55%; background:#C9A84C;"></div></div>
+        <span class="bar-val">55%</span>
+      </div>
+      <div class="bar-chart-row">
+        <span class="bar-label" style="font-size:10px; color:var(--secondary);">Healthcare</span>
+        <div class="bar-track"><div class="bar-fill" style="width:81%; background:#C8D6CD;"></div></div>
+        <span class="bar-val">81%</span>
+      </div>
+      <p class="text-[9px] text-[#8A8880] mt-2">% = votes aligned with party position</p>
+    </div>
+
+    <!-- Bills Snapshot -->
+    <div class="pb-4">
+      <div class="section-title">Bills Overview <span class="see-all" onclick="showTab('bills', document.querySelectorAll('.profile-tab')[2])">See All Bills</span></div>
+      <div class="grid grid-cols-3 gap-3">
+        <div class="stat-tile">
+          <div class="label">Sponsored</div>
+          <div class="value">47</div>
+          <div class="sub">Career total</div>
+        </div>
+        <div class="stat-tile">
+          <div class="label">Passed</div>
+          <div class="value" style="color:var(--green)">19</div>
+          <div class="sub">40% pass rate</div>
+        </div>
+        <div class="stat-tile">
+          <div class="label">Co-Sponsored</div>
+          <div class="value">83</div>
+          <div class="sub">Career total</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-overview -->
+
+  <!-- ─── TAB: VOTING RECORD ─── -->
+  <div id="tab-votes" class="hidden px-5 pt-5">
+
+    <!-- Filter strip -->
+    <div class="flex gap-2 overflow-x-auto pb-4" style="scrollbar-width:none;">
+      <button class="chip" style="border-color:#C8D6CD; color:#C8D6CD;">All</button>
+      <button class="chip">Economy</button>
+      <button class="chip">Education</button>
+      <button class="chip">Criminal Justice</button>
+      <button class="chip">Healthcare</button>
+      <button class="chip">Environment</button>
+    </div>
+
+    <!-- Session selector -->
+    <div class="flex items-center justify-between mb-4">
+      <span class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880]">2023–2024 Legislative Session</span>
+      <button class="flex items-center gap-1 text-[10px] uppercase tracking-widest font-bold text-[#C8D6CD]">
+        Change <span class="material-symbols-outlined" style="font-size:14px">expand_more</span>
+      </button>
+    </div>
+
+    <!-- Vote rows -->
+    <div class="vote-row" onclick="window.location='../Bill_Detail/code.html'" style="cursor:pointer;">
+      <div>
+        <span class="vote-badge vote-yea">Yea</span>
+      </div>
+      <div class="flex-1">
+        <p class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880] mb-1">H.3119 · Economy · Apr 14, 2024</p>
+        <p class="text-sm font-semibold text-[#E8E5DE] leading-snug">Broadband Infrastructure Expansion Act</p>
+        <p class="text-[11px] text-[#8A8880] mt-1">Extends rural broadband funding statewide. Passed 38–6.</p>
+      </div>
+    </div>
+
+    <div class="vote-row" onclick="window.location='../Bill_Detail/code.html'" style="cursor:pointer;">
+      <div>
+        <span class="vote-badge vote-nay">Nay</span>
+      </div>
+      <div class="flex-1">
+        <p class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880] mb-1">S.0443 · Criminal Justice · Mar 28, 2024</p>
+        <p class="text-sm font-semibold text-[#E8E5DE] leading-snug">Mandatory Minimum Sentencing Enhancement Act</p>
+        <p class="text-[11px] text-[#8A8880] mt-1">Would increase minimums for nonviolent drug offenses. Failed 21–23. <span style="color:#C9A84C;">Cross-party vote.</span></p>
+      </div>
+    </div>
+
+    <div class="vote-row" onclick="window.location='../Bill_Detail/code.html'" style="cursor:pointer;">
+      <div>
+        <span class="vote-badge vote-yea">Yea</span>
+      </div>
+      <div class="flex-1">
+        <p class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880] mb-1">H.4766 · Education · Mar 5, 2024</p>
+        <p class="text-sm font-semibold text-[#E8E5DE] leading-snug">K–12 Per-Pupil Funding Equity Reform</p>
+        <p class="text-[11px] text-[#8A8880] mt-1">Redistribution of state education funds to underserved districts. Passed 28–16.</p>
+      </div>
+    </div>
+
+    <div class="vote-row" onclick="window.location='../Bill_Detail/code.html'" style="cursor:pointer;">
+      <div>
+        <span class="vote-badge vote-yea">Yea</span>
+      </div>
+      <div class="flex-1">
+        <p class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880] mb-1">S.0892 · Housing · Feb 19, 2024</p>
+        <p class="text-sm font-semibold text-[#E8E5DE] leading-snug">Affordable Housing Preservation Fund</p>
+        <p class="text-[11px] text-[#8A8880] mt-1">Establishes $40M fund for low-income housing. Passed 32–12. <span style="color:#C9A84C;">Cross-party vote.</span></p>
+      </div>
+    </div>
+
+    <div class="vote-row" onclick="window.location='../Bill_Detail/code.html'" style="cursor:pointer;">
+      <div>
+        <span class="vote-badge vote-abs">Absent</span>
+      </div>
+      <div class="flex-1">
+        <p class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880] mb-1">H.5012 · Healthcare · Jan 31, 2024</p>
+        <p class="text-sm font-semibold text-[#E8E5DE] leading-snug">Medicaid Expansion Pilot Program</p>
+        <p class="text-[11px] text-[#8A8880] mt-1">3-year pilot for expanded Medicaid eligibility. Passed 25–19.</p>
+      </div>
+    </div>
+
+    <div class="vote-row" onclick="window.location='../Bill_Detail/code.html'" style="cursor:pointer;">
+      <div>
+        <span class="vote-badge vote-nay">Nay</span>
+      </div>
+      <div class="flex-1">
+        <p class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880] mb-1">S.0771 · Environment · Jan 15, 2024</p>
+        <p class="text-sm font-semibold text-[#E8E5DE] leading-snug">Carbon Emission Reporting Requirements</p>
+        <p class="text-[11px] text-[#8A8880] mt-1">Would mandate annual emissions reporting for large businesses. Failed 18–26.</p>
+      </div>
+    </div>
+
+    <div class="vote-row" onclick="window.location='../Bill_Detail/code.html'" style="cursor:pointer;">
+      <div>
+        <span class="vote-badge vote-yea">Yea</span>
+      </div>
+      <div class="flex-1">
+        <p class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880] mb-1">H.3880 · Economy · Dec 4, 2023</p>
+        <p class="text-sm font-semibold text-[#E8E5DE] leading-snug">Small Business Tax Relief & Simplification Act</p>
+        <p class="text-[11px] text-[#8A8880] mt-1">Reduces filing burden for businesses under $2M revenue. Passed 40–4.</p>
+      </div>
+    </div>
+
+    <button class="w-full py-4 text-[10px] uppercase tracking-widest font-bold text-[#C8D6CD] hover:text-[#E8E5DE] transition-colors mt-2">
+      Load More Votes
+    </button>
+
+  </div><!-- /tab-votes -->
+
+  <!-- ─── TAB: BILLS ─── -->
+  <div id="tab-bills" class="hidden px-5 pt-5">
+
+    <!-- Summary stats -->
+    <div class="grid grid-cols-4 gap-2 mb-5">
+      <div class="stat-tile text-center">
+        <div class="label">Sponsored</div>
+        <div class="value text-center" style="font-size:20px;">47</div>
+      </div>
+      <div class="stat-tile text-center">
+        <div class="label">Passed</div>
+        <div class="value text-center" style="font-size:20px; color:var(--green);">19</div>
+      </div>
+      <div class="stat-tile text-center">
+        <div class="label">Pending</div>
+        <div class="value text-center" style="font-size:20px; color:var(--gold);">11</div>
+      </div>
+      <div class="stat-tile text-center">
+        <div class="label">Failed</div>
+        <div class="value text-center" style="font-size:20px; color:var(--red);">17</div>
+      </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="flex gap-2 overflow-x-auto pb-4" style="scrollbar-width:none;">
+      <button class="chip" style="border-color:#C8D6CD; color:#C8D6CD;">All</button>
+      <button class="chip">Sponsored</button>
+      <button class="chip">Co-Sponsored</button>
+      <button class="chip">Passed</button>
+      <button class="chip">Pending</button>
+    </div>
+
+    <!-- Bill rows -->
+    <div class="bill-row">
+      <div class="flex items-start justify-between gap-2 mb-1.5">
+        <span class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880]">S.0412 · Sponsored · Education · 2023</span>
+        <span class="bill-status status-passed">Passed</span>
+      </div>
+      <p class="text-sm font-bold text-[#E8E5DE] leading-snug mb-1">Classroom Teacher Retention Incentive Act</p>
+      <p class="text-[11px] text-[#8A8880] leading-relaxed">Provides $5,000 annual retention bonuses for public school teachers in high-need districts after 3 years of service. Signed by Governor Jan 2024.</p>
+      <div class="flex flex-wrap mt-2">
+        <span class="chip">Education</span><span class="chip">Bipartisan</span>
+      </div>
+    </div>
+
+    <div class="bill-row">
+      <div class="flex items-start justify-between gap-2 mb-1.5">
+        <span class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880]">S.0788 · Sponsored · Criminal Justice · 2023</span>
+        <span class="bill-status status-signed">Signed</span>
+      </div>
+      <p class="text-sm font-bold text-[#E8E5DE] leading-snug mb-1">Expungement Modernization Act</p>
+      <p class="text-[11px] text-[#8A8880] leading-relaxed">Streamlines the process for expunging nonviolent first-offense records, expanding access to employment for reformed individuals.</p>
+      <div class="flex flex-wrap mt-2">
+        <span class="chip">Criminal Justice</span><span class="chip">Reform</span>
+      </div>
+    </div>
+
+    <div class="bill-row">
+      <div class="flex items-start justify-between gap-2 mb-1.5">
+        <span class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880]">S.1102 · Sponsored · Economy · 2024</span>
+        <span class="bill-status status-pending">Pending</span>
+      </div>
+      <p class="text-sm font-bold text-[#E8E5DE] leading-snug mb-1">Port of Charleston Economic Competitiveness Act</p>
+      <p class="text-[11px] text-[#8A8880] leading-relaxed">Allocates $120M in infrastructure improvements to the Port of Charleston to attract international trade and protect 15,000 port-related jobs.</p>
+      <div class="flex flex-wrap mt-2">
+        <span class="chip">Economy</span><span class="chip">Infrastructure</span>
+      </div>
+    </div>
+
+    <div class="bill-row">
+      <div class="flex items-start justify-between gap-2 mb-1.5">
+        <span class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880]">S.0229 · Co-Sponsored · Healthcare · 2022</span>
+        <span class="bill-status status-passed">Passed</span>
+      </div>
+      <p class="text-sm font-bold text-[#E8E5DE] leading-snug mb-1">Maternal Mortality Review Committee Expansion</p>
+      <p class="text-[11px] text-[#8A8880] leading-relaxed">Expands the state maternal mortality review committee and requires annual public reporting of findings with recommended policy interventions.</p>
+      <div class="flex flex-wrap mt-2">
+        <span class="chip">Healthcare</span><span class="chip">Women's Health</span>
+      </div>
+    </div>
+
+    <div class="bill-row">
+      <div class="flex items-start justify-between gap-2 mb-1.5">
+        <span class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880]">S.0554 · Sponsored · Economy · 2021</span>
+        <span class="bill-status status-failed">Failed</span>
+      </div>
+      <p class="text-sm font-bold text-[#E8E5DE] leading-snug mb-1">Remote Work Tax Credit for SC Residents</p>
+      <p class="text-[11px] text-[#8A8880] leading-relaxed">Would have created a 3-year tax credit for businesses relocating remote workers to South Carolina. Did not advance out of committee.</p>
+      <div class="flex flex-wrap mt-2">
+        <span class="chip">Economy</span><span class="chip">Tax Policy</span>
+      </div>
+    </div>
+
+    <button class="w-full py-4 text-[10px] uppercase tracking-widest font-bold text-[#C8D6CD] hover:text-[#E8E5DE] transition-colors mt-2">
+      Load More Bills
+    </button>
+
+  </div><!-- /tab-bills -->
+
+  <!-- ─── TAB: FINANCE ─── -->
+  <div id="tab-finance" class="hidden px-5 pt-5">
+    <div class="section-title">Campaign Finance <span style="font-family:Manrope; font-size:10px; color:var(--secondary);">2022 Election Cycle</span></div>
+    <div class="grid grid-cols-2 gap-3 mb-6">
+      <div class="stat-tile">
+        <div class="label">Total Raised</div>
+        <div class="value">$412K</div>
+        <div class="sub">2022 cycle</div>
+      </div>
+      <div class="stat-tile">
+        <div class="label">Total Spent</div>
+        <div class="value">$388K</div>
+        <div class="sub">2022 cycle</div>
+      </div>
+      <div class="stat-tile">
+        <div class="label">Small Donors</div>
+        <div class="value" style="color:var(--green)">61%</div>
+        <div class="sub">Under $200</div>
+      </div>
+      <div class="stat-tile">
+        <div class="label">PAC Funding</div>
+        <div class="value" style="color:var(--gold)">18%</div>
+        <div class="sub">$74K total</div>
+      </div>
+    </div>
+
+    <div class="section-title">Top Donor Sectors</div>
+    <div class="bar-chart-row">
+      <span class="bar-label">Legal / Law</span>
+      <div class="bar-track"><div class="bar-fill" style="width:68%; background:#C8D6CD;"></div></div>
+      <span class="bar-val">$82K</span>
+    </div>
+    <div class="bar-chart-row">
+      <span class="bar-label">Real Estate</span>
+      <div class="bar-track"><div class="bar-fill" style="width:44%; background:#C8D6CD;"></div></div>
+      <span class="bar-val">$53K</span>
+    </div>
+    <div class="bar-chart-row">
+      <span class="bar-label">Finance</span>
+      <div class="bar-track"><div class="bar-fill" style="width:32%; background:#C8D6CD;"></div></div>
+      <span class="bar-val">$39K</span>
+    </div>
+    <div class="bar-chart-row">
+      <span class="bar-label">Healthcare</span>
+      <div class="bar-track"><div class="bar-fill" style="width:21%; background:#7A9B8E;"></div></div>
+      <span class="bar-val">$25K</span>
+    </div>
+    <div class="bar-chart-row">
+      <span class="bar-label">Other</span>
+      <div class="bar-track"><div class="bar-fill" style="width:18%; background:#3A3A36;"></div></div>
+      <span class="bar-val">$213K</span>
+    </div>
+    <p class="text-[9px] text-[#8A8880] mt-3 mb-6">Source: OH Secretary of State · FEC public filings</p>
+  </div><!-- /tab-finance -->
+
+</main>
+
+<!-- Bottom Nav -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end bg-[#0F0F0E] border-t border-[#2E2E2B] px-4 pt-2 pb-4">
+  <a class="flex flex-col items-center gap-1 text-[#8A8880] hover:text-[#E8E5DE] transition-colors" href="#">
+    <span class="material-symbols-outlined" style="font-size:22px">explore</span>
+    <span class="text-[9px] uppercase tracking-widest font-bold">Explore</span>
+  </a>
+  <a class="flex flex-col items-center gap-1 text-[#C8D6CD]" href="../Home_Screen/code.html">
+    <span class="material-symbols-outlined fill-icon" style="font-size:22px">location_on</span>
+    <span class="text-[9px] uppercase tracking-widest font-bold border-t border-[#C8D6CD] pt-1 -mt-1 px-1">My Reps</span>
+  </a>
+  <a class="flex flex-col items-center gap-1 text-[#3A3A36] cursor-not-allowed" href="#" title="Coming soon">
+    <span class="material-symbols-outlined" style="font-size:22px">flag</span>
+    <span class="text-[9px] uppercase tracking-widest font-bold">Federal · Soon</span>
+  </a>
+  <a class="flex flex-col items-center gap-1 text-[#8A8880] hover:text-[#E8E5DE] transition-colors" href="#">
+    <span class="material-symbols-outlined" style="font-size:22px">person</span>
+    <span class="text-[9px] uppercase tracking-widest font-bold">Profile</span>
+  </a>
+</nav>
+
+<script>
+  function showTab(name, btn) {
+    document.querySelectorAll('[id^="tab-"]').forEach(el => el.classList.add('hidden'));
+    document.getElementById('tab-' + name).classList.remove('hidden');
+    document.querySelectorAll('.profile-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+</script>
+</body>
+</html>

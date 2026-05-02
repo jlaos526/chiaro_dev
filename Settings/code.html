@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Settings · Chiaro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Manrope:wght@200..800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = { darkMode:"class", theme:{extend:{fontFamily:{headline:["Newsreader","serif"], body:["Manrope","sans-serif"]}}}}
+</script>
+<style>
+  body { font-family:'Manrope',sans-serif; background-color:#1a1714; color:#f5f0e8; min-height:max(884px,100dvh); }
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 300; }
+  .fill-icon { font-variation-settings:'FILL' 1,'wght' 400; }
+  .chiaro-logo { position:relative; display:inline-flex; align-items:center; justify-content:center; padding:0 12px; }
+  .chiaro-logo::before { content:''; position:absolute; inset:-16px -32px; background:radial-gradient(ellipse at center,rgba(255,245,220,0.07),transparent 70%); pointer-events:none; z-index:0; }
+  .chiaro-mark { font-family:'DM Serif Display',serif; font-weight:400; color:#f5f0e8; letter-spacing:0.12em; line-height:1; position:relative; z-index:1; font-size:28px; }
+
+  .settings-row {
+    display: flex; align-items: center; gap: 16px; padding: 16px 20px;
+    border-bottom: 1px solid #2E2A24;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .settings-row:hover { background: #232017; }
+  .settings-row .icon-bg {
+    width: 36px; height: 36px; flex-shrink: 0;
+    background: #232017; border: 1px solid #34302A;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 2px;
+  }
+  .settings-section-label {
+    padding: 24px 20px 8px;
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em;
+    font-weight: 800; color: #948D80;
+  }
+  .toggle { position:relative; width:40px; height:22px; background:#34302A; border-radius:11px; cursor:pointer; transition:background 0.2s; flex-shrink:0; }
+  .toggle.active { background:#C8D6CD; }
+  .toggle::after { content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; background:#1a1714; border-radius:50%; transition:transform 0.2s; }
+  .toggle.active::after { transform:translateX(18px); }
+</style>
+</head>
+<body>
+
+<header class="fixed top-0 w-full z-50 flex items-center justify-between px-4 h-14 bg-[#1a1714] border-b border-[#34302A]">
+  <div class="flex items-center gap-3">
+    <a href="../Home_Screen/code.html" class="w-8 h-8 flex items-center justify-center hover:bg-[#232017] rounded-full transition-colors">
+      <span class="material-symbols-outlined" style="font-size:20px; color:#f5f0e8;">arrow_back</span>
+    </a>
+    <div class="chiaro-logo"><span class="chiaro-mark">CHIARO</span></div>
+  </div>
+  <div></div>
+</header>
+
+<main class="pt-14 pb-24 max-w-2xl mx-auto">
+
+  <!-- Profile Card -->
+  <section class="px-5 pt-8 pb-6 flex items-center gap-5 border-b border-[#34302A]">
+    <div class="w-20 h-20 rounded-full bg-[#232017] border border-[#34302A] flex items-center justify-center overflow-hidden flex-shrink-0">
+      <span class="material-symbols-outlined" style="font-size:36px; color:#34302A;">person</span>
+    </div>
+    <div class="flex-1 min-w-0">
+      <h1 class="font-headline text-2xl font-bold text-[#f5f0e8] tracking-tight">Jordan Reyes</h1>
+      <p class="text-[12px] text-[#948D80] mt-0.5">jordan@example.com</p>
+      <p class="text-[10px] uppercase tracking-widest font-bold text-[#C8D6CD] mt-2">Account · Optional Sync</p>
+    </div>
+    <button class="text-[10px] uppercase tracking-widest font-bold text-[#C8D6CD] hover:text-[#f5f0e8]">Edit</button>
+  </section>
+
+  <!-- ─── Personal Alignment Section ─── -->
+  <p class="settings-section-label">Personalization</p>
+
+  <a href="../Calibration/code.html" class="block">
+    <div class="settings-row">
+      <div class="icon-bg">
+        <span class="material-symbols-outlined fill-icon" style="font-size:18px; color:#C8D6CD;">tune</span>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-[14px] font-bold text-[#f5f0e8] mb-0.5">Alignment Calibration</p>
+        <p class="text-[11px] text-[#948D80] leading-snug">Set your positions on 12 issue categories with importance weights</p>
+        <div class="flex items-center gap-2 mt-2">
+          <div class="flex-1 h-1 bg-[#34302A] rounded-full max-w-[180px]">
+            <div class="h-1 rounded-full" style="width:0%; background:#C8D6CD;"></div>
+          </div>
+          <span class="text-[10px] uppercase tracking-widest font-bold text-[#C9A84C]">0 / 12 Calibrated</span>
+        </div>
+      </div>
+      <span class="material-symbols-outlined" style="font-size:18px; color:#34302A;">chevron_right</span>
+    </div>
+  </a>
+
+  <a href="#" class="block">
+    <div class="settings-row">
+      <div class="icon-bg">
+        <span class="material-symbols-outlined" style="font-size:18px; color:#948D80;">bookmark</span>
+      </div>
+      <div class="flex-1">
+        <p class="text-[14px] font-bold text-[#f5f0e8] mb-0.5">Followed Officials</p>
+        <p class="text-[11px] text-[#948D80]">3 reps followed · Manage notifications per rep</p>
+      </div>
+      <span class="material-symbols-outlined" style="font-size:18px; color:#34302A;">chevron_right</span>
+    </div>
+  </a>
+
+  <!-- ─── Location ─── -->
+  <p class="settings-section-label">Location</p>
+
+  <a href="#" class="block">
+    <div class="settings-row">
+      <div class="icon-bg">
+        <span class="material-symbols-outlined fill-icon" style="font-size:18px; color:#C8D6CD;">location_on</span>
+      </div>
+      <div class="flex-1">
+        <p class="text-[14px] font-bold text-[#f5f0e8] mb-0.5">Home Location</p>
+        <p class="text-[11px] text-[#948D80]">Columbus, OH · 43215 · Franklin County</p>
+      </div>
+      <span class="material-symbols-outlined" style="font-size:18px; color:#34302A;">chevron_right</span>
+    </div>
+  </a>
+
+  <div class="settings-row" style="cursor:default;">
+    <div class="icon-bg">
+      <span class="material-symbols-outlined" style="font-size:18px; color:#948D80;">my_location</span>
+    </div>
+    <div class="flex-1">
+      <p class="text-[14px] font-bold text-[#f5f0e8] mb-0.5">Use Device Location</p>
+      <p class="text-[11px] text-[#948D80]">Auto-update reps when you move districts</p>
+    </div>
+    <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+  </div>
+
+  <!-- ─── Notifications ─── -->
+  <p class="settings-section-label">Notifications</p>
+
+  <div class="settings-row" style="cursor:default;">
+    <div class="icon-bg"><span class="material-symbols-outlined" style="font-size:18px; color:#948D80;">how_to_vote</span></div>
+    <div class="flex-1">
+      <p class="text-[14px] font-bold text-[#f5f0e8]">Major Vote Alerts</p>
+      <p class="text-[11px] text-[#948D80]">When followed reps vote on bills</p>
+    </div>
+    <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+  </div>
+
+  <div class="settings-row" style="cursor:default;">
+    <div class="icon-bg"><span class="material-symbols-outlined" style="font-size:18px; color:#948D80;">draw</span></div>
+    <div class="flex-1">
+      <p class="text-[14px] font-bold text-[#f5f0e8]">New Bills Sponsored</p>
+      <p class="text-[11px] text-[#948D80]">When followed reps introduce legislation</p>
+    </div>
+    <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+  </div>
+
+  <div class="settings-row" style="cursor:default;">
+    <div class="icon-bg"><span class="material-symbols-outlined" style="font-size:18px; color:#948D80;">campaign</span></div>
+    <div class="flex-1">
+      <p class="text-[14px] font-bold text-[#f5f0e8]">Town Halls & Events</p>
+      <p class="text-[11px] text-[#948D80]">Open meetings in your district</p>
+    </div>
+    <div class="toggle" onclick="this.classList.toggle('active')"></div>
+  </div>
+
+  <div class="settings-row" style="cursor:default;">
+    <div class="icon-bg"><span class="material-symbols-outlined" style="font-size:18px; color:#948D80;">how_to_reg</span></div>
+    <div class="flex-1">
+      <p class="text-[14px] font-bold text-[#f5f0e8]">Election Reminders</p>
+      <p class="text-[11px] text-[#948D80]">Local & state primary, general, special</p>
+    </div>
+    <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+  </div>
+
+  <!-- ─── Privacy & Data ─── -->
+  <p class="settings-section-label">Privacy & Data</p>
+
+  <a href="#" class="block">
+    <div class="settings-row">
+      <div class="icon-bg"><span class="material-symbols-outlined" style="font-size:18px; color:#948D80;">policy</span></div>
+      <div class="flex-1">
+        <p class="text-[14px] font-bold text-[#f5f0e8]">Data Sources</p>
+        <p class="text-[11px] text-[#948D80]">Where Chiaro gets bills, votes, and finance data</p>
+      </div>
+      <span class="material-symbols-outlined" style="font-size:18px; color:#34302A;">chevron_right</span>
+    </div>
+  </a>
+
+  <a href="#" class="block">
+    <div class="settings-row">
+      <div class="icon-bg"><span class="material-symbols-outlined" style="font-size:18px; color:#948D80;">download</span></div>
+      <div class="flex-1">
+        <p class="text-[14px] font-bold text-[#f5f0e8]">Export My Data</p>
+        <p class="text-[11px] text-[#948D80]">Download your calibration, follows, settings (JSON)</p>
+      </div>
+      <span class="material-symbols-outlined" style="font-size:18px; color:#34302A;">chevron_right</span>
+    </div>
+  </a>
+
+  <a href="#" class="block">
+    <div class="settings-row">
+      <div class="icon-bg"><span class="material-symbols-outlined" style="font-size:18px; color:#948D80;">privacy_tip</span></div>
+      <div class="flex-1">
+        <p class="text-[14px] font-bold text-[#f5f0e8]">Privacy Policy</p>
+        <p class="text-[11px] text-[#948D80]">Chiaro never sells user data</p>
+      </div>
+      <span class="material-symbols-outlined" style="font-size:18px; color:#34302A;">chevron_right</span>
+    </div>
+  </a>
+
+  <!-- ─── About ─── -->
+  <p class="settings-section-label">About</p>
+
+  <a href="#" class="block">
+    <div class="settings-row">
+      <div class="icon-bg"><span class="material-symbols-outlined" style="font-size:18px; color:#948D80;">info</span></div>
+      <div class="flex-1">
+        <p class="text-[14px] font-bold text-[#f5f0e8]">Chiaro Methodology</p>
+        <p class="text-[11px] text-[#948D80]">How we score bills, alignment, and tenure</p>
+      </div>
+      <span class="material-symbols-outlined" style="font-size:18px; color:#34302A;">chevron_right</span>
+    </div>
+  </a>
+
+  <a href="#" class="block">
+    <div class="settings-row">
+      <div class="icon-bg"><span class="material-symbols-outlined" style="font-size:18px; color:#948D80;">feedback</span></div>
+      <div class="flex-1">
+        <p class="text-[14px] font-bold text-[#f5f0e8]">Send Feedback</p>
+        <p class="text-[11px] text-[#948D80]">Suggest a category, flag a bill, request a feature</p>
+      </div>
+      <span class="material-symbols-outlined" style="font-size:18px; color:#34302A;">chevron_right</span>
+    </div>
+  </a>
+
+  <!-- Sign out -->
+  <div class="px-5 pt-8">
+    <button class="w-full py-3 border border-[#34302A] text-[10px] uppercase tracking-widest font-bold text-[#948D80] hover:border-[#D85C5C] hover:text-[#D85C5C] transition-colors">
+      Sign Out
+    </button>
+  </div>
+
+  <p class="text-center text-[10px] text-[#948D80] mt-8 pb-4">Chiaro v0.4 · Build 240501</p>
+
+</main>
+
+<!-- Bottom Nav -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end bg-[#1a1714] border-t border-[#34302A] px-4 pt-2 pb-4">
+  <a class="flex flex-col items-center gap-1 text-[#948D80] hover:text-[#f5f0e8] transition-colors" href="#">
+    <span class="material-symbols-outlined" style="font-size:22px">explore</span>
+    <span class="text-[9px] uppercase tracking-widest font-bold">Explore</span>
+  </a>
+  <a class="flex flex-col items-center gap-1 text-[#948D80] hover:text-[#f5f0e8] transition-colors" href="../Home_Screen/code.html">
+    <span class="material-symbols-outlined" style="font-size:22px">location_on</span>
+    <span class="text-[9px] uppercase tracking-widest font-bold">My Reps</span>
+  </a>
+  <a class="flex flex-col items-center gap-1 text-[#34302A] cursor-not-allowed" href="#">
+    <span class="material-symbols-outlined" style="font-size:22px">flag</span>
+    <span class="text-[9px] uppercase tracking-widest font-bold">Federal · Soon</span>
+  </a>
+  <a class="flex flex-col items-center gap-1 text-[#C8D6CD]" href="#">
+    <span class="material-symbols-outlined fill-icon" style="font-size:22px">person</span>
+    <span class="text-[9px] uppercase tracking-widest font-bold border-t border-[#C8D6CD] pt-1 -mt-1 px-1">Profile</span>
+  </a>
+</nav>
+
+</body>
+</html>

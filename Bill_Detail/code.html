@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>S.B. 117 — Educational Equity Funding Act · Chiaro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Manrope:wght@200..800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: { extend: { fontFamily: { headline: ["Newsreader","serif"], body: ["Manrope","sans-serif"] } } }
+  }
+</script>
+<style>
+  body {
+    font-family: 'Manrope', sans-serif;
+    background-color: #1a1714;
+    color: #f5f0e8;
+    min-height: max(884px, 100dvh);
+  }
+  .chiaro-logo { position: relative; display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; }
+  .chiaro-logo::before { content: ''; position: absolute; inset: -16px -32px; background: radial-gradient(ellipse at center, rgba(255,245,220,0.07), transparent 70%); pointer-events: none; z-index: 0; }
+  .chiaro-mark { font-family: 'DM Serif Display', serif; font-weight: 400; color: #f5f0e8; letter-spacing: 0.12em; line-height: 1; position: relative; z-index: 1; font-size: 28px; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+  .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400; }
+
+  .section-title {
+    font-family: 'Newsreader', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #E8E5DE;
+    border-bottom: 1px solid #2E2E2B;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+  }
+  .chip { display: inline-flex; background: #1A1A18; border: 1px solid #2E2E2B; padding: 4px 10px; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: #8A8880; margin: 3px 3px 3px 0; }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: 6px; width: 1px; background: #2E2E2B; }
+  .timeline-item { position: relative; padding-bottom: 24px; }
+  .timeline-item::before {
+    content: ''; position: absolute; top: 4px; left: -24px; width: 13px; height: 13px;
+    border-radius: 50%; background: #0F0F0E; border: 2px solid #3A3A36;
+  }
+  .timeline-item.complete::before { background: #C8D6CD; border-color: #C8D6CD; }
+  .timeline-item.current::before { background: #C9A84C; border-color: #C9A84C; box-shadow: 0 0 0 4px rgba(201, 168, 76, 0.2); }
+
+  /* Vote tally bar */
+  .tally-bar { display: flex; height: 36px; overflow: hidden; }
+  .tally-bar > div { display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; transition: opacity 0.2s; }
+
+  .yea-block { background: #0F2A14; color: #6BAF7A; }
+  .nay-block { background: #2A0F0F; color: #E05C5C; }
+  .abs-block { background: #2A2A0F; color: #C9A84C; }
+</style>
+</head>
+<body>
+
+<header class="fixed top-0 w-full z-50 flex items-center justify-between px-4 h-14 bg-[#0F0F0E] border-b border-[#2E2E2B]">
+  <div class="flex items-center gap-3">
+    <a href="../Senator_Screen/code.html" class="w-8 h-8 flex items-center justify-center hover:bg-[#1A1A18] rounded-full transition-colors">
+      <span class="material-symbols-outlined text-[#E8E5DE]" style="font-size:20px">arrow_back</span>
+    </a>
+    <div class="chiaro-logo"><span class="chiaro-mark">CHIARO</span></div>
+  </div>
+  <div class="flex items-center gap-1">
+    <button class="w-8 h-8 flex items-center justify-center hover:bg-[#1A1A18] rounded-full transition-colors">
+      <span class="material-symbols-outlined text-[#E8E5DE]" style="font-size:20px">bookmark_add</span>
+    </button>
+    <button class="w-8 h-8 flex items-center justify-center hover:bg-[#1A1A18] rounded-full transition-colors">
+      <span class="material-symbols-outlined text-[#E8E5DE]" style="font-size:20px">share</span>
+    </button>
+  </div>
+</header>
+
+<main class="pt-14 pb-24 max-w-2xl mx-auto px-5">
+
+  <!-- Bill Header -->
+  <section class="pt-8 pb-6 border-b border-[#2E2E2B]">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="text-[10px] uppercase tracking-widest font-bold text-[#C8D6CD]">S.B. 117</span>
+      <span class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880]">· Ohio Senate · 135th GA</span>
+    </div>
+    <h1 class="font-headline text-4xl font-bold text-[#E8E5DE] leading-tight tracking-tight mb-4">
+      Educational Equity Funding Act
+    </h1>
+    <div class="flex items-center gap-2 mb-5">
+      <span class="text-[9px] uppercase tracking-widest font-bold px-2.5 py-1" style="background:#0F1E2A; color:#6A9BB5;">Signed Into Law</span>
+      <span class="text-[10px] text-[#8A8880]">Effective Aug 1, 2024</span>
+    </div>
+    <div class="flex flex-wrap mb-2">
+      <span class="chip">Education</span>
+      <span class="chip">School Funding</span>
+      <span class="chip">Bipartisan</span>
+      <span class="chip">Tax Policy</span>
+    </div>
+  </section>
+
+  <!-- Quick Facts Strip -->
+  <section class="grid grid-cols-3 border-b border-[#2E2E2B]">
+    <div class="py-4 px-2 text-center border-r border-[#2E2E2B]">
+      <p class="text-[9px] uppercase tracking-widest text-[#8A8880] mb-1">Fiscal Impact</p>
+      <p class="font-headline text-xl font-bold text-[#E8E5DE]">$200M</p>
+      <p class="text-[9px] text-[#8A8880] mt-0.5">Annual</p>
+    </div>
+    <div class="py-4 px-2 text-center border-r border-[#2E2E2B]">
+      <p class="text-[9px] uppercase tracking-widest text-[#8A8880] mb-1">Districts Affected</p>
+      <p class="font-headline text-xl font-bold text-[#E8E5DE]">274</p>
+      <p class="text-[9px] text-[#8A8880] mt-0.5">of 609</p>
+    </div>
+    <div class="py-4 px-2 text-center">
+      <p class="text-[9px] uppercase tracking-widest text-[#8A8880] mb-1">Final Vote</p>
+      <p class="font-headline text-xl font-bold" style="color:#6BAF7A;">21–12</p>
+      <p class="text-[9px] text-[#8A8880] mt-0.5">Senate</p>
+    </div>
+  </section>
+
+  <!-- Plain-Language Summary -->
+  <section class="py-6">
+    <div class="section-title flex items-center justify-between">
+      <span>Plain-Language Summary</span>
+      <span class="text-[9px] font-body uppercase tracking-widest text-[#C8D6CD] cursor-pointer">Read Full Text</span>
+    </div>
+    <p class="text-[15px] text-[#E8E5DE] leading-relaxed mb-4">
+      This bill changes how Ohio funds K-12 public schools. It directs an additional <span class="text-[#C8D6CD] font-semibold">$200 million per year</span> to school districts where local property tax revenue falls below the state median.
+    </p>
+    <p class="text-sm text-[#8A8880] leading-relaxed">
+      Roughly 274 of Ohio's 609 districts will receive additional funding. The bill is funded by reallocating existing education appropriations and a new 0.5% surtax on commercial property over $5M valuation. A 5-year sunset clause requires legislative renewal in 2029.
+    </p>
+  </section>
+
+  <!-- Timeline -->
+  <section class="py-6 border-t border-[#2E2E2B]">
+    <div class="section-title">Legislative Timeline</div>
+    <div class="timeline">
+
+      <div class="timeline-item complete">
+        <p class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880] mb-1">Jan 18, 2024</p>
+        <p class="text-sm font-bold text-[#E8E5DE] mb-0.5">Introduced in Senate</p>
+        <p class="text-[11px] text-[#8A8880] leading-relaxed">Sponsored by Sen. Hearcel F. Craig (D-15) with 4 co-sponsors</p>
+      </div>
+
+      <div class="timeline-item complete">
+        <p class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880] mb-1">Feb 5, 2024</p>
+        <p class="text-sm font-bold text-[#E8E5DE] mb-0.5">Senate Education Committee Hearing</p>
+        <p class="text-[11px] text-[#8A8880] leading-relaxed">Reported favorably 7-3 with minor amendments</p>
+      </div>
+
+      <div class="timeline-item complete">
+        <p class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880] mb-1">Mar 12, 2024</p>
+        <p class="text-sm font-bold text-[#E8E5DE] mb-0.5">Senate Floor Vote</p>
+        <p class="text-[11px] text-[#8A8880] leading-relaxed">Passed 21–12. <span style="color:#C9A84C;">3 Republicans crossed aisle.</span></p>
+      </div>
+
+      <div class="timeline-item complete">
+        <p class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880] mb-1">Apr 2, 2024</p>
+        <p class="text-sm font-bold text-[#E8E5DE] mb-0.5">House Concurrence</p>
+        <p class="text-[11px] text-[#8A8880] leading-relaxed">House passed 56–43</p>
+      </div>
+
+      <div class="timeline-item current">
+        <p class="text-[10px] uppercase tracking-widest font-bold" style="color:#C9A84C;">Apr 18, 2024 · Latest</p>
+        <p class="text-sm font-bold text-[#E8E5DE] mb-0.5">Signed by Governor DeWine</p>
+        <p class="text-[11px] text-[#8A8880] leading-relaxed">Effective date: August 1, 2024</p>
+      </div>
+
+      <div class="timeline-item">
+        <p class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880] mb-1">Aug 1, 2024</p>
+        <p class="text-sm font-bold text-[#3A3A36] mb-0.5">Implementation Begins</p>
+        <p class="text-[11px] text-[#3A3A36] leading-relaxed">School year 2024-25 funding distributions</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Vote Breakdown -->
+  <section class="py-6 border-t border-[#2E2E2B]">
+    <div class="section-title">Final Vote Breakdown</div>
+    <p class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880] mb-3">Senate · Mar 12, 2024</p>
+
+    <!-- Tally bar -->
+    <div class="tally-bar mb-2">
+      <div class="yea-block" style="width:63.6%;">YEA · 21</div>
+      <div class="nay-block" style="width:36.4%;">NAY · 12</div>
+    </div>
+    <p class="text-[10px] text-[#8A8880] mb-6">All 33 senators voted · 0 absent</p>
+
+    <!-- By party -->
+    <p class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880] mb-3">By Party</p>
+
+    <div class="space-y-3 mb-6">
+      <div>
+        <div class="flex justify-between mb-1.5">
+          <span class="text-[11px] font-bold text-[#6A9BB5]">DEMOCRATS (10)</span>
+          <span class="text-[10px] text-[#8A8880]">10 yea / 0 nay</span>
+        </div>
+        <div class="h-2 bg-[#2E2E2B] flex">
+          <div style="width:100%; background:#6BAF7A;"></div>
+        </div>
+      </div>
+      <div>
+        <div class="flex justify-between mb-1.5">
+          <span class="text-[11px] font-bold text-[#E05C5C]">REPUBLICANS (23)</span>
+          <span class="text-[10px] text-[#8A8880]">11 yea / 12 nay</span>
+        </div>
+        <div class="h-2 bg-[#2E2E2B] flex">
+          <div style="width:47.8%; background:#6BAF7A;"></div>
+          <div style="width:52.2%; background:#E05C5C;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Your Rep's Vote highlight -->
+    <div class="bg-[#1A1A18] border border-[#2E2E2B] p-4 flex items-center gap-4 rounded">
+      <div class="w-10 h-10 bg-[#232320] flex-shrink-0 flex items-center justify-center">
+        <span class="material-symbols-outlined text-[#3A3A36]" style="font-size:20px">person</span>
+      </div>
+      <div class="flex-1">
+        <p class="text-[9px] uppercase tracking-widest text-[#8A8880] mb-0.5">Your Home Rep</p>
+        <p class="text-sm font-bold text-[#E8E5DE]">Sen. Hearcel F. Craig (D-15)</p>
+      </div>
+      <span class="text-[10px] uppercase tracking-widest font-bold px-3 py-1.5" style="background:#0F2A14; color:#6BAF7A;">Voted Yea</span>
+    </div>
+  </section>
+
+  <!-- Sponsors -->
+  <section class="py-6 border-t border-[#2E2E2B]">
+    <div class="section-title">Sponsors & Co-Sponsors</div>
+
+    <a href="../Senator_Screen/code.html" class="flex items-center gap-3 py-3 border-b border-[#2E2E2B] hover:bg-[#1A1A18] -mx-2 px-2 transition-colors">
+      <div class="w-10 h-10 bg-[#1A1A18] flex-shrink-0 flex items-center justify-center">
+        <span class="material-symbols-outlined text-[#3A3A36]" style="font-size:20px">person</span>
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-bold text-[#E8E5DE]">Sen. Hearcel F. Craig</p>
+        <p class="text-[10px] uppercase tracking-widest text-[#8A8880] mt-0.5">Primary Sponsor · D-15 · Columbus</p>
+      </div>
+      <span class="material-symbols-outlined text-[#3A3A36]" style="font-size:18px">chevron_right</span>
+    </a>
+
+    <a href="#" class="flex items-center gap-3 py-3 border-b border-[#2E2E2B] hover:bg-[#1A1A18] -mx-2 px-2 transition-colors">
+      <div class="w-10 h-10 bg-[#1A1A18] flex-shrink-0 flex items-center justify-center">
+        <span class="material-symbols-outlined text-[#3A3A36]" style="font-size:20px">person</span>
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-bold text-[#E8E5DE]">Sen. Paula Hicks-Hudson</p>
+        <p class="text-[10px] uppercase tracking-widest text-[#8A8880] mt-0.5">Co-Sponsor · D-11 · Toledo</p>
+      </div>
+      <span class="material-symbols-outlined text-[#3A3A36]" style="font-size:18px">chevron_right</span>
+    </a>
+
+    <a href="#" class="flex items-center gap-3 py-3 border-b border-[#2E2E2B] hover:bg-[#1A1A18] -mx-2 px-2 transition-colors">
+      <div class="w-10 h-10 bg-[#1A1A18] flex-shrink-0 flex items-center justify-center">
+        <span class="material-symbols-outlined text-[#3A3A36]" style="font-size:20px">person</span>
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-bold text-[#E8E5DE]">Sen. Stephen Huffman</p>
+        <p class="text-[10px] uppercase tracking-widest text-[#8A8880] mt-0.5">Co-Sponsor · R-5 · Tipp City</p>
+      </div>
+      <span class="material-symbols-outlined text-[#3A3A36]" style="font-size:18px">chevron_right</span>
+    </a>
+
+    <button class="w-full py-3 text-[10px] uppercase tracking-widest font-bold text-[#C8D6CD] hover:text-[#E8E5DE] transition-colors mt-2">
+      View All 5 Co-Sponsors
+    </button>
+  </section>
+
+  <!-- Sources / Docs -->
+  <section class="py-6 border-t border-[#2E2E2B]">
+    <div class="section-title">Source Documents</div>
+    <div class="space-y-0">
+      <a href="#" class="flex items-center gap-3 py-3 border-b border-[#2E2E2B] hover:bg-[#1A1A18] -mx-2 px-2 transition-colors">
+        <span class="material-symbols-outlined text-[#C8D6CD]" style="font-size:18px">description</span>
+        <div class="flex-1">
+          <p class="text-sm font-semibold text-[#E8E5DE]">Full Bill Text · Enacted Version</p>
+          <p class="text-[10px] uppercase tracking-widest text-[#8A8880]">PDF · 47 pages · ohiosenate.gov</p>
+        </div>
+        <span class="material-symbols-outlined text-[#3A3A36]" style="font-size:16px">open_in_new</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 py-3 border-b border-[#2E2E2B] hover:bg-[#1A1A18] -mx-2 px-2 transition-colors">
+        <span class="material-symbols-outlined text-[#C8D6CD]" style="font-size:18px">analytics</span>
+        <div class="flex-1">
+          <p class="text-sm font-semibold text-[#E8E5DE]">Fiscal Impact Analysis</p>
+          <p class="text-[10px] uppercase tracking-widest text-[#8A8880]">OH Legislative Service Commission</p>
+        </div>
+        <span class="material-symbols-outlined text-[#3A3A36]" style="font-size:16px">open_in_new</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 py-3 hover:bg-[#1A1A18] -mx-2 px-2 transition-colors">
+        <span class="material-symbols-outlined text-[#C8D6CD]" style="font-size:18px">how_to_vote</span>
+        <div class="flex-1">
+          <p class="text-sm font-semibold text-[#E8E5DE]">Roll-Call Vote Records</p>
+          <p class="text-[10px] uppercase tracking-widest text-[#8A8880]">Senate & House · Official record</p>
+        </div>
+        <span class="material-symbols-outlined text-[#3A3A36]" style="font-size:16px">open_in_new</span>
+      </a>
+    </div>
+    <p class="text-[10px] text-[#8A8880] mt-4 leading-relaxed">All data sourced from official Ohio General Assembly records. Chiaro does not editorialize bill content.</p>
+  </section>
+
+</main>
+
+<!-- Bottom Nav -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end bg-[#0F0F0E] border-t border-[#2E2E2B] px-4 pt-2 pb-4">
+  <a class="flex flex-col items-center gap-1 text-[#8A8880] hover:text-[#E8E5DE] transition-colors" href="#">
+    <span class="material-symbols-outlined" style="font-size:22px">explore</span>
+    <span class="text-[9px] uppercase tracking-widest font-bold">Explore</span>
+  </a>
+  <a class="flex flex-col items-center gap-1 text-[#C8D6CD]" href="../Home_Screen/code.html">
+    <span class="material-symbols-outlined fill-icon" style="font-size:22px">location_on</span>
+    <span class="text-[9px] uppercase tracking-widest font-bold border-t border-[#C8D6CD] pt-1 -mt-1 px-1">My Reps</span>
+  </a>
+  <a class="flex flex-col items-center gap-1 text-[#3A3A36] cursor-not-allowed" href="#">
+    <span class="material-symbols-outlined" style="font-size:22px">flag</span>
+    <span class="text-[9px] uppercase tracking-widest font-bold">Federal · Soon</span>
+  </a>
+  <a class="flex flex-col items-center gap-1 text-[#8A8880] hover:text-[#E8E5DE] transition-colors" href="#">
+    <span class="material-symbols-outlined" style="font-size:22px">person</span>
+    <span class="text-[9px] uppercase tracking-widest font-bold">Profile</span>
+  </a>
+</nav>
+
+</body>
+</html>

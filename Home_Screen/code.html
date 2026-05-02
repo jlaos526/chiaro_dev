@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chiaro — Your Representatives</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Manrope:wght@200..800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: { extend: { fontFamily: { headline: ["Newsreader","serif"], body: ["Manrope","sans-serif"], dmserif: ["DM Serif Display","serif"] } } }
+  }
+</script>
+<style>
+  body {
+    font-family: 'Manrope', sans-serif;
+    background-color: #1a1714;
+    color: #f5f0e8;
+    min-height: max(884px, 100dvh);
+  }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+  .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+  /* CHIARO LOGO ─ Brand spec */
+  .chiaro-logo {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+  }
+  .chiaro-logo::before {
+    content: '';
+    position: absolute;
+    inset: -16px -32px;
+    background: radial-gradient(ellipse at center, rgba(255, 245, 220, 0.07), transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .chiaro-mark {
+    font-family: 'DM Serif Display', serif;
+    font-weight: 400;
+    color: #f5f0e8;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+  }
+  .chiaro-mark.size-nav    { font-size: 28px; }
+  .chiaro-mark.size-splash { font-size: 70px; }
+
+  /* Party badges */
+  .party-d  { background-color: #1D3A5C; color: #6A9BB5; }
+  .party-r  { background-color: #4A1A1A; color: #E05C5C; }
+  .party-i  { background-color: #2A2A1A; color: #C9A84C; }
+  .party-n  { background-color: #2a251f; color: #948D80; }
+
+  .tab-active   { border-bottom: 2px solid #f5f0e8; color: #f5f0e8; }
+  .tab-inactive { border-bottom: 2px solid transparent; color: #948D80; }
+  .card-hover { transition: background 0.15s ease; }
+  .card-hover:hover { background-color: #232017; }
+
+  /* Term progress bar */
+  .term-track {
+    position: relative;
+    height: 6px;
+    background: #34302A;
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .term-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #C8D6CD, #7A9B8E);
+    border-radius: 1px;
+    position: relative;
+  }
+  .term-fill::after {
+    content: '';
+    position: absolute;
+    right: -1px; top: -3px;
+    width: 2px; height: 12px;
+    background: #f5f0e8;
+  }
+
+  /* Tenure urgency colors */
+  .tenure-ok    { color: #8FAA9A; }   /* within first term */
+  .tenure-warn  { color: #C9A84C; }   /* between 1st & 2nd term */
+  .tenure-alert { color: #D85C5C; }   /* exceeds two terms */
+  .tenure-bg-ok    { background: rgba(143,170,154,0.10); border-color: rgba(143,170,154,0.30); }
+  .tenure-bg-warn  { background: rgba(201,168,76,0.10);  border-color: rgba(201,168,76,0.30); }
+  .tenure-bg-alert { background: rgba(216,92,92,0.10);   border-color: rgba(216,92,92,0.35); }
+
+  .tenure-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px 4px 8px;
+    border: 1px solid;
+    border-radius: 2px;
+    cursor: help;
+    position: relative;
+  }
+  .tenure-pill .num {
+    font-family: 'Newsreader', serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  /* Tooltip on tenure pill hover */
+  .tenure-pill .scale-tooltip {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    width: 230px;
+    background: #232017;
+    border: 1px solid #34302A;
+    border-radius: 3px;
+    padding: 10px 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    pointer-events: none;
+    z-index: 100;
+    text-align: left;
+    cursor: default;
+  }
+  .tenure-pill:hover .scale-tooltip,
+  .tenure-pill:focus .scale-tooltip {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .scale-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-bottom-color: #34302A;
+  }
+  .scale-tooltip .scale-title {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em;
+    font-weight: 800; color: #948D80; margin-bottom: 8px;
+    border-bottom: 1px solid #34302A; padding-bottom: 6px;
+  }
+  .scale-tooltip .scale-row {
+    display: flex; align-items: flex-start; gap: 8px; padding: 4px 0;
+  }
+  .scale-tooltip .scale-row .scale-icon { flex-shrink: 0; margin-top: 1px; }
+  .scale-tooltip .scale-row .scale-text {
+    font-size: 11px; line-height: 1.35; font-weight: 600;
+  }
+  .scale-tooltip .scale-row .scale-sub {
+    display: block; font-size: 9px; font-weight: 500; color: #948D80;
+    text-transform: none; letter-spacing: 0; margin-top: 1px;
+  }
+
+  /* Career profile / unique trait tags */
+  .trait-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    color: #f5f0e8;
+    background: #232017;
+    border: 1px solid #34302A;
+    padding: 3px 8px;
+  }
+  .trait-tag.signature {
+    background: rgba(200, 214, 205, 0.08);
+    border-color: rgba(200, 214, 205, 0.4);
+    color: #C8D6CD;
+  }
+  .trait-tag .material-symbols-outlined { font-size: 11px; }
+
+  /* Fundraiser bars */
+  .funder-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; }
+  .funder-row .name { flex: 1; font-size: 11px; color: #f5f0e8; font-weight: 500; }
+  .funder-row .amt  { font-family: 'Newsreader', serif; font-size: 13px; font-weight: 700; color: #f5f0e8; min-width: 48px; text-align: right; }
+  .funder-row .pct  { font-size: 10px; font-weight: 700; color: #C9A84C; min-width: 32px; text-align: right; }
+  .funder-bar { height: 3px; background: #34302A; margin-top: 2px; }
+  .funder-bar > div { height: 100%; background: #C9A84C; }
+
+  /* Grassroots banner */
+  .grassroots-banner {
+    border-left: 2px solid #C8D6CD;
+    background: linear-gradient(90deg, rgba(200,214,205,0.05), transparent);
+    padding: 10px 14px;
+  }
+  .section-label {
+    display: flex; align-items: center; gap: 8px;
+    padding: 16px 20px 8px;
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.16em;
+    font-weight: 800; color: #C8D6CD;
+  }
+  .section-label::before {
+    content: ''; flex-shrink: 0; width: 14px; height: 1px; background: #C8D6CD;
+  }
+  .subsection-title {
+    font-family: 'Newsreader', serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #948D80;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-bottom: 8px;
+  }
+</style>
+</head>
+<body class="dark">
+
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 flex items-center justify-between px-5 h-16 bg-[#1a1714] border-b border-[#34302A]">
+  <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#232017] transition-colors">
+    <span class="material-symbols-outlined" style="font-size:22px; color:#f5f0e8;">menu</span>
+  </button>
+  <div class="chiaro-logo">
+    <span class="chiaro-mark size-nav">CHIARO</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#232017] transition-colors">
+      <span class="material-symbols-outlined" style="font-size:22px; color:#f5f0e8;">search</span>
+    </button>
+    <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#232017] transition-colors relative">
+      <span class="material-symbols-outlined" style="font-size:22px; color:#f5f0e8;">notifications</span>
+      <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#C8D6CD]"></span>
+    </button>
+  </div>
+</header>
+
+<main class="pt-16 pb-24 max-w-2xl mx-auto">
+
+  <!-- Location Banner -->
+  <div class="px-5 pt-6 pb-4 flex items-center justify-between">
+    <div>
+      <div class="flex items-center gap-1.5 mb-1">
+        <span class="material-symbols-outlined fill-icon text-[#C8D6CD]" style="font-size:15px">location_on</span>
+        <span class="text-[10px] uppercase tracking-widest font-bold text-[#948D80]">Home Location</span>
+        <span class="text-[10px] uppercase tracking-widest font-bold text-[#C8D6CD] ml-1">· Set</span>
+      </div>
+      <h2 class="font-headline text-3xl font-bold text-[#f5f0e8] tracking-tight">Columbus, OH</h2>
+      <p class="text-[11px] text-[#948D80] mt-0.5">43215 · Franklin County · Precinct 27-A</p>
+    </div>
+    <button class="flex items-center gap-1.5 bg-[#232017] border border-[#34302A] px-3 py-2 text-[10px] uppercase tracking-widest font-bold text-[#C8D6CD] hover:border-[#C8D6CD] transition-colors">
+      <span class="material-symbols-outlined" style="font-size:14px">edit_location</span>
+      Change
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex border-b border-[#34302A] px-5 mt-2">
+    <button class="tab-active py-3 pr-6 text-[11px] uppercase tracking-widest font-bold transition-colors" onclick="switchTab('state', this)">State</button>
+    <button class="tab-inactive py-3 px-6 text-[11px] uppercase tracking-widest font-bold transition-colors" onclick="switchTab('local', this)">Local</button>
+    <button class="tab-inactive py-3 px-6 text-[11px] uppercase tracking-widest font-bold transition-colors" onclick="switchTab('county', this)">County</button>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STATE PANEL                                  -->
+  <!-- ============================================ -->
+  <div id="tab-state" class="tab-panel">
+
+    <div class="px-5 pt-4 pb-3">
+      <p class="text-[10px] uppercase tracking-widest font-bold text-[#948D80]">3 Representatives Found</p>
+    </div>
+
+    <!-- ─── Governor: DeWine — 7.33yr / 4yr term → WARN ─── -->
+    <a href="../Official_Profile/code.html" class="block card-hover px-5 py-5 border-b border-[#232017]">
+      <div class="flex gap-4 items-start">
+        <div class="w-14 h-14 bg-[#232017] flex-shrink-0 flex items-center justify-center">
+          <span class="material-symbols-outlined" style="font-size:28px; color:#34302A;">person</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <p class="text-[10px] uppercase tracking-widest text-[#948D80] mb-0.5">Governor · Ohio</p>
+              <h3 class="font-headline text-xl font-bold text-[#f5f0e8] leading-tight">Mike DeWine</h3>
+            </div>
+            <span class="party-r text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 flex-shrink-0">Rep</span>
+          </div>
+
+          <!-- Years in Office with urgency -->
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Years in Office</span>
+            <span class="tenure-pill tenure-bg-warn">
+              <span class="material-symbols-outlined tenure-warn" style="font-size:14px">schedule</span>
+              <span class="num tenure-warn">7.33</span>
+            </span>
+            <span class="text-[9px] text-[#948D80]">· 4-yr term</span>
+          </div>
+
+          <div class="mb-3">
+            <div class="flex justify-between mb-1.5">
+              <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Term Progress · Yr 3.33 of 4</span>
+              <span class="text-[9px] font-bold text-[#f5f0e8]">83%</span>
+            </div>
+            <div class="term-track"><div class="term-fill" style="width:83%"></div></div>
+            <p class="text-[9px] text-[#948D80] mt-1">Next election: Nov 3, 2026</p>
+          </div>
+
+          <!-- Career Profile (replaces Voting Profile) -->
+          <div class="pt-2 border-t border-[#34302A] mb-3">
+            <p class="subsection-title">Career Profile</p>
+            <div class="flex flex-wrap gap-1">
+              <span class="trait-tag signature">
+                <span class="material-symbols-outlined fill-icon">bolt</span> 4× Vetoes Last Session
+              </span>
+              <span class="trait-tag">Former US Senator</span>
+              <span class="trait-tag">85% Bills Signed</span>
+              <span class="trait-tag">2nd Term · Final</span>
+            </div>
+          </div>
+
+          <!-- Top Fundraisers -->
+          <div class="pt-3 border-t border-[#34302A]">
+            <div class="flex items-center justify-between mb-1">
+              <p class="subsection-title mb-0">Top Fundraisers · 2022 Cycle</p>
+              <p class="text-[9px] text-[#948D80] font-bold">$12.4M raised</p>
+            </div>
+            <div class="funder-row">
+              <span class="name">Ohio Chamber of Commerce</span>
+              <span class="amt">$487K</span>
+              <span class="pct">3.9%</span>
+            </div>
+            <div class="funder-row">
+              <span class="name">Realtors PAC</span>
+              <span class="amt">$362K</span>
+              <span class="pct">2.9%</span>
+            </div>
+            <div class="funder-row">
+              <span class="name">Ohio Hospital Association</span>
+              <span class="amt">$248K</span>
+              <span class="pct">2.0%</span>
+            </div>
+          </div>
+        </div>
+        <span class="material-symbols-outlined self-center" style="font-size:18px; color:#34302A;">chevron_right</span>
+      </div>
+    </a>
+
+    <!-- ─── State Senator: Craig — 9.33yr / 4yr term → ALERT ─── -->
+    <a href="../Official_Profile/code.html" class="block card-hover px-5 py-5 border-b border-[#232017]">
+      <div class="flex gap-4 items-start">
+        <div class="w-14 h-14 bg-[#232017] flex-shrink-0 flex items-center justify-center">
+          <span class="material-symbols-outlined" style="font-size:28px; color:#34302A;">person</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <p class="text-[10px] uppercase tracking-widest text-[#948D80] mb-0.5">State Senator · District 15</p>
+              <h3 class="font-headline text-xl font-bold text-[#f5f0e8] leading-tight">Hearcel F. Craig</h3>
+            </div>
+            <span class="party-d text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 flex-shrink-0">Dem</span>
+          </div>
+
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Years in Office</span>
+            <span class="tenure-pill tenure-bg-alert">
+              <span class="material-symbols-outlined fill-icon tenure-alert" style="font-size:14px">priority_high</span>
+              <span class="num tenure-alert">9.33</span>
+            </span>
+            <span class="text-[9px] text-[#948D80]">· 4-yr term</span>
+          </div>
+
+          <div class="mb-3">
+            <div class="flex justify-between mb-1.5">
+              <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Term Progress · Yr 3.33 of 4</span>
+              <span class="text-[9px] font-bold text-[#f5f0e8]">83%</span>
+            </div>
+            <div class="term-track"><div class="term-fill" style="width:83%"></div></div>
+            <p class="text-[9px] text-[#948D80] mt-1">Next election: Nov 3, 2026</p>
+          </div>
+
+          <div class="pt-2 border-t border-[#34302A] mb-3">
+            <p class="subsection-title">Career Profile</p>
+            <div class="flex flex-wrap gap-1">
+              <span class="trait-tag signature">
+                <span class="material-symbols-outlined fill-icon">stars</span> Authored S.B. 117
+              </span>
+              <span class="trait-tag">Ranking Member · Education</span>
+              <span class="trait-tag">22% Cross-Party Votes</span>
+              <span class="trait-tag">Bipartisan Caucus Co-Chair</span>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-[#34302A]">
+            <div class="flex items-center justify-between mb-1">
+              <p class="subsection-title mb-0">Top Fundraisers · 2022 Cycle</p>
+              <p class="text-[9px] text-[#948D80] font-bold">$284K raised</p>
+            </div>
+            <div class="funder-row">
+              <span class="name">Ohio Education Association</span>
+              <span class="amt">$32K</span>
+              <span class="pct">11.3%</span>
+            </div>
+            <div class="funder-row">
+              <span class="name">AFSCME Council 8</span>
+              <span class="amt">$24K</span>
+              <span class="pct">8.5%</span>
+            </div>
+            <div class="funder-row">
+              <span class="name">Ohio Association for Justice</span>
+              <span class="amt">$18K</span>
+              <span class="pct">6.3%</span>
+            </div>
+          </div>
+        </div>
+        <span class="material-symbols-outlined self-center" style="font-size:18px; color:#34302A;">chevron_right</span>
+      </div>
+    </a>
+
+    <!-- ─── State House: Russo — 7.33yr / 2yr term → ALERT ─── -->
+    <a href="../Official_Profile/code.html" class="block card-hover px-5 py-5 border-b border-[#232017]">
+      <div class="flex gap-4 items-start">
+        <div class="w-14 h-14 bg-[#232017] flex-shrink-0 flex items-center justify-center">
+          <span class="material-symbols-outlined" style="font-size:28px; color:#34302A;">person</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <p class="text-[10px] uppercase tracking-widest text-[#948D80] mb-0.5">State House · District 7</p>
+              <h3 class="font-headline text-xl font-bold text-[#f5f0e8] leading-tight">Allison Russo</h3>
+            </div>
+            <span class="party-d text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 flex-shrink-0">Dem</span>
+          </div>
+
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Years in Office</span>
+            <span class="tenure-pill tenure-bg-alert">
+              <span class="material-symbols-outlined fill-icon tenure-alert" style="font-size:14px">priority_high</span>
+              <span class="num tenure-alert">7.33</span>
+            </span>
+            <span class="text-[9px] text-[#948D80]">· 2-yr term</span>
+          </div>
+
+          <div class="mb-3">
+            <div class="flex justify-between mb-1.5">
+              <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Term Progress · Yr 1.33 of 2</span>
+              <span class="text-[9px] font-bold text-[#f5f0e8]">67%</span>
+            </div>
+            <div class="term-track"><div class="term-fill" style="width:67%"></div></div>
+            <p class="text-[9px] text-[#948D80] mt-1">Next election: Nov 3, 2026</p>
+          </div>
+
+          <div class="pt-2 border-t border-[#34302A] mb-3">
+            <p class="subsection-title">Career Profile</p>
+            <div class="flex flex-wrap gap-1">
+              <span class="trait-tag signature">
+                <span class="material-symbols-outlined fill-icon">workspace_premium</span> House Minority Leader
+              </span>
+              <span class="trait-tag">PhD Healthcare Policy</span>
+              <span class="trait-tag">53 Bills Sponsored</span>
+              <span class="trait-tag">Air Force Veteran</span>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-[#34302A]">
+            <div class="flex items-center justify-between mb-1">
+              <p class="subsection-title mb-0">Top Fundraisers · 2024 Cycle</p>
+              <p class="text-[9px] text-[#948D80] font-bold">$198K raised</p>
+            </div>
+            <div class="funder-row">
+              <span class="name">Ohio Nurses Association</span>
+              <span class="amt">$28K</span>
+              <span class="pct">14.1%</span>
+            </div>
+            <div class="funder-row">
+              <span class="name">Planned Parenthood OH</span>
+              <span class="amt">$22K</span>
+              <span class="pct">11.1%</span>
+            </div>
+            <div class="funder-row">
+              <span class="name">League of Women Voters PAC</span>
+              <span class="amt">$12K</span>
+              <span class="pct">6.1%</span>
+            </div>
+          </div>
+        </div>
+        <span class="material-symbols-outlined self-center" style="font-size:18px; color:#34302A;">chevron_right</span>
+      </div>
+    </a>
+
+    <!-- Recent Activity Feed -->
+    <div class="px-5 pt-8 pb-3">
+      <div class="flex items-center justify-between border-b border-[#34302A] pb-3">
+        <h3 class="font-headline text-xl font-bold text-[#f5f0e8]">Recent Activity</h3>
+        <button class="text-[10px] uppercase tracking-widest font-bold text-[#C8D6CD]">View All</button>
+      </div>
+    </div>
+
+    <div class="px-5 py-4 border-b border-[#232017] card-hover">
+      <div class="flex gap-3">
+        <div class="w-1 flex-shrink-0 bg-[#C8D6CD] rounded-full self-stretch"></div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[9px] uppercase tracking-widest font-bold text-[#C8D6CD]">Bill Signed</span>
+            <span class="text-[9px] text-[#948D80]">· DeWine · 2 days ago</span>
+          </div>
+          <p class="text-sm text-[#f5f0e8] font-medium leading-snug">Signed S.B. 117 — Educational Equity Funding Act into law</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-5 py-4 border-b border-[#232017] card-hover">
+      <div class="flex gap-3">
+        <div class="w-1 flex-shrink-0 bg-[#6A9BB5] rounded-full self-stretch"></div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[9px] uppercase tracking-widest font-bold text-[#6A9BB5]">Bill Introduced</span>
+            <span class="text-[9px] text-[#948D80]">· Russo · 4 days ago</span>
+          </div>
+          <p class="text-sm text-[#f5f0e8] font-medium leading-snug">H.B. 412 — Affordable Housing Preservation Fund amendment</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-5 py-4 border-b border-[#232017] card-hover">
+      <div class="flex gap-3">
+        <div class="w-1 flex-shrink-0 bg-[#C9A84C] rounded-full self-stretch"></div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-[9px] uppercase tracking-widest font-bold text-[#C9A84C]">Committee</span>
+            <span class="text-[9px] text-[#948D80]">· Craig · 1 week ago</span>
+          </div>
+          <p class="text-sm text-[#f5f0e8] font-medium leading-snug">Appointed Ranking Member of Senate Education Committee</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-state -->
+
+  <!-- ============================================ -->
+  <!-- LOCAL PANEL — Grassroots-emphasized          -->
+  <!-- ============================================ -->
+  <div id="tab-local" class="tab-panel hidden">
+
+    <div class="px-5 pt-4 pb-3 flex items-center justify-between">
+      <p class="text-[10px] uppercase tracking-widest font-bold text-[#948D80]">5 Representatives Found</p>
+      <p class="text-[10px] uppercase tracking-widest font-bold text-[#C8D6CD]">Most Local First</p>
+    </div>
+
+    <div class="mx-5 mb-4 grassroots-banner">
+      <p class="text-[10px] uppercase tracking-widest font-bold text-[#C8D6CD] mb-1">Grassroots Matters</p>
+      <p class="text-[12px] text-[#f5f0e8] leading-relaxed">
+        Hyper-local officials are the most accessible — meetings are public, agendas are short, and your voice carries. <span class="text-[#948D80]">Showing reps closest to your block first.</span>
+      </p>
+    </div>
+
+    <!-- Block & Neighborhood -->
+    <div class="section-label">Block & Neighborhood</div>
+
+    <!-- Holloway: 3.33yr / 4yr → OK -->
+    <a href="../Official_Profile/code.html" class="block card-hover px-5 py-5 border-b border-[#232017]">
+      <div class="flex gap-4 items-start">
+        <div class="w-14 h-14 bg-[#232017] flex-shrink-0 flex items-center justify-center relative">
+          <span class="material-symbols-outlined" style="font-size:28px; color:#34302A;">person</span>
+          <span class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#C8D6CD] border-2 border-[#1a1714]"></span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <p class="text-[10px] uppercase tracking-widest text-[#948D80] mb-0.5">Precinct Committee · 27-A</p>
+              <h3 class="font-headline text-xl font-bold text-[#f5f0e8] leading-tight">Marcus Holloway</h3>
+              <p class="text-[10px] text-[#C8D6CD] mt-0.5">~520 voters · Your block</p>
+            </div>
+            <span class="party-d text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 flex-shrink-0">Dem</span>
+          </div>
+
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Years in Office</span>
+            <span class="tenure-pill tenure-bg-ok">
+              <span class="material-symbols-outlined fill-icon tenure-ok" style="font-size:14px">check_circle</span>
+              <span class="num tenure-ok">3.33</span>
+            </span>
+            <span class="text-[9px] text-[#948D80]">· 4-yr term</span>
+          </div>
+
+          <div class="mb-3">
+            <div class="flex justify-between mb-1.5">
+              <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Term Progress · Yr 1.33 of 4</span>
+              <span class="text-[9px] font-bold text-[#f5f0e8]">33%</span>
+            </div>
+            <div class="term-track"><div class="term-fill" style="width:33%"></div></div>
+            <p class="text-[9px] text-[#948D80] mt-1">Next election: May 7, 2028</p>
+          </div>
+
+          <div class="pt-2 border-t border-[#34302A] mb-3">
+            <p class="subsection-title">Career Profile</p>
+            <div class="flex flex-wrap gap-1">
+              <span class="trait-tag signature">
+                <span class="material-symbols-outlined fill-icon">volunteer_activism</span> 100% Meeting Attendance
+              </span>
+              <span class="trait-tag">Former Educator</span>
+              <span class="trait-tag">First-Term Grassroots</span>
+              <span class="trait-tag">Block Captain Network</span>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-[#34302A]">
+            <div class="flex items-center justify-between mb-1">
+              <p class="subsection-title mb-0">Top Fundraisers · 2024 Cycle</p>
+              <p class="text-[9px] text-[#948D80] font-bold">$3.2K raised</p>
+            </div>
+            <div class="funder-row">
+              <span class="name">Small-Donor Aggregate</span>
+              <span class="amt">$2.4K</span>
+              <span class="pct">75.0%</span>
+            </div>
+            <div class="funder-row">
+              <span class="name">Franklin County Dem Party</span>
+              <span class="amt">$500</span>
+              <span class="pct">15.6%</span>
+            </div>
+            <div class="funder-row">
+              <span class="name">Personal Funds</span>
+              <span class="amt">$300</span>
+              <span class="pct">9.4%</span>
+            </div>
+          </div>
+        </div>
+        <span class="material-symbols-outlined self-center" style="font-size:18px; color:#34302A;">chevron_right</span>
+      </div>
+    </a>
+
+    <!-- Wallace: 4.33yr / 2yr → ALERT -->
+    <a href="../Official_Profile/code.html" class="block card-hover px-5 py-5 border-b border-[#232017]">
+      <div class="flex gap-4 items-start">
+        <div class="w-14 h-14 bg-[#232017] flex-shrink-0 flex items-center justify-center relative">
+          <span class="material-symbols-outlined" style="font-size:28px; color:#34302A;">person</span>
+          <span class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#C8D6CD] border-2 border-[#1a1714]"></span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <p class="text-[10px] uppercase tracking-widest text-[#948D80] mb-0.5">Area Commission Chair · Downtown</p>
+              <h3 class="font-headline text-xl font-bold text-[#f5f0e8] leading-tight">Sue Wallace</h3>
+              <p class="text-[10px] text-[#C8D6CD] mt-0.5">~12,000 residents · 2nd Tues / mo</p>
+            </div>
+            <span class="party-n text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 flex-shrink-0">N/P</span>
+          </div>
+
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Years in Office</span>
+            <span class="tenure-pill tenure-bg-alert">
+              <span class="material-symbols-outlined fill-icon tenure-alert" style="font-size:14px">priority_high</span>
+              <span class="num tenure-alert">4.33</span>
+            </span>
+            <span class="text-[9px] text-[#948D80]">· 2-yr term</span>
+          </div>
+
+          <div class="mb-3">
+            <div class="flex justify-between mb-1.5">
+              <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Term Progress · Yr 1.33 of 2</span>
+              <span class="text-[9px] font-bold text-[#f5f0e8]">67%</span>
+            </div>
+            <div class="term-track"><div class="term-fill" style="width:67%"></div></div>
+            <p class="text-[9px] text-[#948D80] mt-1">Next election: Mar 14, 2027</p>
+          </div>
+
+          <div class="pt-2 border-t border-[#34302A] mb-3">
+            <p class="subsection-title">Career Profile</p>
+            <div class="flex flex-wrap gap-1">
+              <span class="trait-tag signature">
+                <span class="material-symbols-outlined fill-icon">block</span> Refuses Developer $
+              </span>
+              <span class="trait-tag">Zoning Specialist · 14yr</span>
+              <span class="trait-tag">Architect (Retired)</span>
+              <span class="trait-tag">Founded Civic Cleanup Coalition</span>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-[#34302A]">
+            <div class="flex items-center justify-between mb-1">
+              <p class="subsection-title mb-0">Top Fundraisers · 2024 Cycle</p>
+              <p class="text-[9px] text-[#948D80] font-bold">$0 raised</p>
+            </div>
+            <p class="text-[11px] text-[#948D80] italic mt-2">Volunteer position · No campaign funds reported</p>
+          </div>
+        </div>
+        <span class="material-symbols-outlined self-center" style="font-size:18px; color:#34302A;">chevron_right</span>
+      </div>
+    </a>
+
+    <!-- School District -->
+    <div class="section-label">School District</div>
+
+    <!-- Vera: 5.33yr / 4yr → WARN -->
+    <a href="../Official_Profile/code.html" class="block card-hover px-5 py-5 border-b border-[#232017]">
+      <div class="flex gap-4 items-start">
+        <div class="w-14 h-14 bg-[#232017] flex-shrink-0 flex items-center justify-center">
+          <span class="material-symbols-outlined" style="font-size:28px; color:#34302A;">person</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <p class="text-[10px] uppercase tracking-widest text-[#948D80] mb-0.5">School Board · Columbus City Schools</p>
+              <h3 class="font-headline text-xl font-bold text-[#f5f0e8] leading-tight">Christina Vera</h3>
+              <p class="text-[10px] text-[#948D80] mt-0.5">~46,000 students · 2nd & 4th Tues</p>
+            </div>
+            <span class="party-n text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 flex-shrink-0">N/P</span>
+          </div>
+
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Years in Office</span>
+            <span class="tenure-pill tenure-bg-warn">
+              <span class="material-symbols-outlined tenure-warn" style="font-size:14px">schedule</span>
+              <span class="num tenure-warn">5.33</span>
+            </span>
+            <span class="text-[9px] text-[#948D80]">· 4-yr term</span>
+          </div>
+
+          <div class="mb-3">
+            <div class="flex justify-between mb-1.5">
+              <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Term Progress · Yr 1.33 of 4</span>
+              <span class="text-[9px] font-bold text-[#f5f0e8]">33%</span>
+            </div>
+            <div class="term-track"><div class="term-fill" style="width:33%"></div></div>
+            <p class="text-[9px] text-[#948D80] mt-1">Next election: Nov 7, 2029</p>
+          </div>
+
+          <div class="pt-2 border-t border-[#34302A] mb-3">
+            <p class="subsection-title">Career Profile</p>
+            <div class="flex flex-wrap gap-1">
+              <span class="trait-tag signature">
+                <span class="material-symbols-outlined fill-icon">school</span> First Latina Board Chair
+              </span>
+              <span class="trait-tag">Former CCS Teacher · 8yr</span>
+              <span class="trait-tag">Bilingual Ed Advocate</span>
+              <span class="trait-tag">73% Unanimous Votes</span>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-[#34302A]">
+            <div class="flex items-center justify-between mb-1">
+              <p class="subsection-title mb-0">Top Fundraisers · 2021 Cycle</p>
+              <p class="text-[9px] text-[#948D80] font-bold">$48K raised</p>
+            </div>
+            <div class="funder-row">
+              <span class="name">Columbus Education Association</span>
+              <span class="amt">$8.5K</span>
+              <span class="pct">17.7%</span>
+            </div>
+            <div class="funder-row">
+              <span class="name">OAPSE Local 215</span>
+              <span class="amt">$4.2K</span>
+              <span class="pct">8.8%</span>
+            </div>
+            <div class="funder-row">
+              <span class="name">Latino Empowerment PAC</span>
+              <span class="amt">$3.0K</span>
+              <span class="pct">6.3%</span>
+            </div>
+          </div>
+        </div>
+        <span class="material-symbols-outlined self-center" style="font-size:18px; color:#34302A;">chevron_right</span>
+      </div>
+    </a>
+
+    <!-- City Government -->
+    <div class="section-label">City Government</div>
+
+    <!-- Favor: 8.33yr / 4yr → ALERT -->
+    <a href="../Official_Profile/code.html" class="block card-hover px-5 py-5 border-b border-[#232017]">
+      <div class="flex gap-4 items-start">
+        <div class="w-14 h-14 bg-[#232017] flex-shrink-0 flex items-center justify-center">
+          <span class="material-symbols-outlined" style="font-size:28px; color:#34302A;">person</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <p class="text-[10px] uppercase tracking-widest text-[#948D80] mb-0.5">City Council · At-Large</p>
+              <h3 class="font-headline text-xl font-bold text-[#f5f0e8] leading-tight">Shayla Favor</h3>
+            </div>
+            <span class="party-d text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 flex-shrink-0">Dem</span>
+          </div>
+
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Years in Office</span>
+            <span class="tenure-pill tenure-bg-alert">
+              <span class="material-symbols-outlined fill-icon tenure-alert" style="font-size:14px">priority_high</span>
+              <span class="num tenure-alert">8.33</span>
+            </span>
+            <span class="text-[9px] text-[#948D80]">· 4-yr term</span>
+          </div>
+
+          <div class="mb-3">
+            <div class="flex justify-between mb-1.5">
+              <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Term Progress · Yr 2.33 of 4</span>
+              <span class="text-[9px] font-bold text-[#f5f0e8]">58%</span>
+            </div>
+            <div class="term-track"><div class="term-fill" style="width:58%"></div></div>
+            <p class="text-[9px] text-[#948D80] mt-1">Next election: Nov 4, 2027</p>
+          </div>
+
+          <div class="pt-2 border-t border-[#34302A] mb-3">
+            <p class="subsection-title">Career Profile</p>
+            <div class="flex flex-wrap gap-1">
+              <span class="trait-tag signature">
+                <span class="material-symbols-outlined fill-icon">gavel</span> Council President Pro Tem
+              </span>
+              <span class="trait-tag">Civil Rights Attorney</span>
+              <span class="trait-tag">Top Transparency Score</span>
+              <span class="trait-tag">Police Reform Lead</span>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-[#34302A]">
+            <div class="flex items-center justify-between mb-1">
+              <p class="subsection-title mb-0">Top Fundraisers · 2023 Cycle</p>
+              <p class="text-[9px] text-[#948D80] font-bold">$167K raised</p>
+            </div>
+            <div class="funder-row">
+              <span class="name">Plumbers & Pipefitters Local 189</span>
+              <span class="amt">$14K</span>
+              <span class="pct">8.4%</span>
+            </div>
+            <div class="funder-row">
+              <span class="name">Ohio Civil Rights PAC</span>
+              <span class="amt">$11K</span>
+              <span class="pct">6.6%</span>
+            </div>
+            <div class="funder-row">
+              <span class="name">Real Estate Builders Assn</span>
+              <span class="amt">$9K</span>
+              <span class="pct">5.4%</span>
+            </div>
+          </div>
+        </div>
+        <span class="material-symbols-outlined self-center" style="font-size:18px; color:#34302A;">chevron_right</span>
+      </div>
+    </a>
+
+    <!-- Ginther: 10.33yr / 4yr → ALERT -->
+    <a href="../Official_Profile/code.html" class="block card-hover px-5 py-5 border-b border-[#232017]">
+      <div class="flex gap-4 items-start">
+        <div class="w-14 h-14 bg-[#232017] flex-shrink-0 flex items-center justify-center">
+          <span class="material-symbols-outlined" style="font-size:28px; color:#34302A;">person</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <p class="text-[10px] uppercase tracking-widest text-[#948D80] mb-0.5">Mayor · City of Columbus</p>
+              <h3 class="font-headline text-xl font-bold text-[#f5f0e8] leading-tight">Andrew Ginther</h3>
+            </div>
+            <span class="party-d text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 flex-shrink-0">Dem</span>
+          </div>
+
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Years in Office</span>
+            <span class="tenure-pill tenure-bg-alert">
+              <span class="material-symbols-outlined fill-icon tenure-alert" style="font-size:14px">priority_high</span>
+              <span class="num tenure-alert">10.33</span>
+            </span>
+            <span class="text-[9px] text-[#948D80]">· 4-yr term</span>
+          </div>
+
+          <div class="mb-3">
+            <div class="flex justify-between mb-1.5">
+              <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Term Progress · Yr 2.33 of 4</span>
+              <span class="text-[9px] font-bold text-[#f5f0e8]">58%</span>
+            </div>
+            <div class="term-track"><div class="term-fill" style="width:58%"></div></div>
+            <p class="text-[9px] text-[#948D80] mt-1">Next election: Nov 7, 2027</p>
+          </div>
+
+          <div class="pt-2 border-t border-[#34302A] mb-3">
+            <p class="subsection-title">Career Profile</p>
+            <div class="flex flex-wrap gap-1">
+              <span class="trait-tag signature">
+                <span class="material-symbols-outlined fill-icon">apartment</span> 3-Term Mayor
+              </span>
+              <span class="trait-tag">Former Council President</span>
+              <span class="trait-tag">15+ Yrs in Office</span>
+              <span class="trait-tag">Police Reform 2020</span>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-[#34302A]">
+            <div class="flex items-center justify-between mb-1">
+              <p class="subsection-title mb-0">Top Fundraisers · 2023 Cycle</p>
+              <p class="text-[9px] text-[#948D80] font-bold">$1.84M raised</p>
+            </div>
+            <div class="funder-row">
+              <span class="name">Realtors PAC</span>
+              <span class="amt">$112K</span>
+              <span class="pct">6.1%</span>
+            </div>
+            <div class="funder-row">
+              <span class="name">Crawford Hoying Devs</span>
+              <span class="amt">$84K</span>
+              <span class="pct">4.6%</span>
+            </div>
+            <div class="funder-row">
+              <span class="name">Nationwide Insurance PAC</span>
+              <span class="amt">$72K</span>
+              <span class="pct">3.9%</span>
+            </div>
+          </div>
+        </div>
+        <span class="material-symbols-outlined self-center" style="font-size:18px; color:#34302A;">chevron_right</span>
+      </div>
+    </a>
+
+  </div><!-- /tab-local -->
+
+  <!-- ============================================ -->
+  <!-- COUNTY PANEL                                 -->
+  <!-- ============================================ -->
+  <div id="tab-county" class="tab-panel hidden">
+    <div class="px-5 pt-4 pb-3">
+      <p class="text-[10px] uppercase tracking-widest font-bold text-[#948D80]">1 Representative Found</p>
+    </div>
+    <a href="../Official_Profile/code.html" class="block card-hover px-5 py-5 border-b border-[#232017]">
+      <div class="flex gap-4 items-start">
+        <div class="w-14 h-14 bg-[#232017] flex-shrink-0 flex items-center justify-center">
+          <span class="material-symbols-outlined" style="font-size:28px; color:#34302A;">person</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <div>
+              <p class="text-[10px] uppercase tracking-widest text-[#948D80] mb-0.5">County Commissioner · Franklin County</p>
+              <h3 class="font-headline text-xl font-bold text-[#f5f0e8] leading-tight">Erica Crawley</h3>
+            </div>
+            <span class="party-d text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 flex-shrink-0">Dem</span>
+          </div>
+
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Years in Office</span>
+            <span class="tenure-pill tenure-bg-warn">
+              <span class="material-symbols-outlined tenure-warn" style="font-size:14px">schedule</span>
+              <span class="num tenure-warn">6.33</span>
+            </span>
+            <span class="text-[9px] text-[#948D80]">· 4-yr term</span>
+          </div>
+
+          <div class="mb-3">
+            <div class="flex justify-between mb-1.5">
+              <span class="text-[9px] uppercase tracking-widest text-[#948D80]">Term Progress · Yr 1.33 of 4</span>
+              <span class="text-[9px] font-bold text-[#f5f0e8]">33%</span>
+            </div>
+            <div class="term-track"><div class="term-fill" style="width:33%"></div></div>
+            <p class="text-[9px] text-[#948D80] mt-1">Next election: Nov 3, 2028</p>
+          </div>
+
+          <div class="pt-2 border-t border-[#34302A] mb-3">
+            <p class="subsection-title">Career Profile</p>
+            <div class="flex flex-wrap gap-1">
+              <span class="trait-tag signature">
+                <span class="material-symbols-outlined fill-icon">family_restroom</span> Mental Health Advocate
+              </span>
+              <span class="trait-tag">Former State Rep</span>
+              <span class="trait-tag">MSW Social Work</span>
+              <span class="trait-tag">Anti-Poverty Coalition Lead</span>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-[#34302A]">
+            <div class="flex items-center justify-between mb-1">
+              <p class="subsection-title mb-0">Top Fundraisers · 2024 Cycle</p>
+              <p class="text-[9px] text-[#948D80] font-bold">$312K raised</p>
+            </div>
+            <div class="funder-row">
+              <span class="name">SEIU District 1199</span>
+              <span class="amt">$32K</span>
+              <span class="pct">10.3%</span>
+            </div>
+            <div class="funder-row">
+              <span class="name">NAMI Ohio Action Fund</span>
+              <span class="amt">$18K</span>
+              <span class="pct">5.8%</span>
+            </div>
+            <div class="funder-row">
+              <span class="name">Franklin County Dem Party</span>
+              <span class="amt">$15K</span>
+              <span class="pct">4.8%</span>
+            </div>
+          </div>
+        </div>
+        <span class="material-symbols-outlined self-center" style="font-size:18px; color:#34302A;">chevron_right</span>
+      </div>
+    </a>
+  </div>
+
+</main>
+
+<!-- Bottom Nav -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end bg-[#1a1714] border-t border-[#34302A] px-4 pt-2 pb-4">
+  <a class="flex flex-col items-center gap-1 text-[#948D80] hover:text-[#f5f0e8] transition-colors" href="#">
+    <span class="material-symbols-outlined" style="font-size:22px">explore</span>
+    <span class="text-[9px] uppercase tracking-widest font-bold">Explore</span>
+  </a>
+  <a class="flex flex-col items-center gap-1 text-[#C8D6CD]" href="#">
+    <span class="material-symbols-outlined fill-icon" style="font-size:22px">location_on</span>
+    <span class="text-[9px] uppercase tracking-widest font-bold border-t border-[#C8D6CD] pt-1 -mt-1 px-1">My Reps</span>
+  </a>
+  <a class="flex flex-col items-center gap-1 text-[#34302A] cursor-not-allowed" href="#" title="Coming soon">
+    <span class="material-symbols-outlined" style="font-size:22px">flag</span>
+    <span class="text-[9px] uppercase tracking-widest font-bold">Federal · Soon</span>
+  </a>
+  <a class="flex flex-col items-center gap-1 text-[#948D80] hover:text-[#f5f0e8] transition-colors" href="../Settings/code.html">
+    <span class="material-symbols-outlined" style="font-size:22px">person</span>
+    <span class="text-[9px] uppercase tracking-widest font-bold">Profile</span>
+  </a>
+</nav>
+
+<script>
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+    document.getElementById('tab-' + tab).classList.remove('hidden');
+    document.querySelectorAll('[onclick]').forEach(b => {
+      b.className = b.className.replace('tab-active','tab-inactive');
+    });
+    btn.className = btn.className.replace('tab-inactive','tab-active');
+  }
+
+  // Inject the Tenure Scale tooltip into every .tenure-pill
+  (function injectTenureTooltips() {
+    const tooltipHTML = `
+      <div class="scale-tooltip">
+        <p class="scale-title">Tenure Scale</p>
+        <div class="scale-row">
+          <span class="material-symbols-outlined fill-icon scale-icon tenure-ok" style="font-size:14px">check_circle</span>
+          <div class="scale-text tenure-ok">Within 1st Term
+            <span class="scale-sub">Years &lt; one term length</span>
+          </div>
+        </div>
+        <div class="scale-row">
+          <span class="material-symbols-outlined scale-icon tenure-warn" style="font-size:14px">schedule</span>
+          <div class="scale-text tenure-warn">Between 1–2 Terms
+            <span class="scale-sub">1× to 2× term length</span>
+          </div>
+        </div>
+        <div class="scale-row">
+          <span class="material-symbols-outlined fill-icon scale-icon tenure-alert" style="font-size:14px">priority_high</span>
+          <div class="scale-text tenure-alert">Exceeds 2 Terms
+            <span class="scale-sub">More than 2× term length</span>
+          </div>
+        </div>
+      </div>`;
+    document.querySelectorAll('.tenure-pill').forEach(pill => {
+      pill.setAttribute('tabindex', '0');
+      pill.insertAdjacentHTML('beforeend', tooltipHTML);
+    });
+  })();
+</script>
+</body>
+</html>

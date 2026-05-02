@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Alignment Calibration · Chiaro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Manrope:wght@200..800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = { darkMode:"class", theme:{extend:{fontFamily:{headline:["Newsreader","serif"], body:["Manrope","sans-serif"]}}}}
+</script>
+<style>
+  body { font-family:'Manrope',sans-serif; background-color:#1a1714; color:#f5f0e8; min-height:max(884px,100dvh); }
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 300; }
+  .fill-icon { font-variation-settings:'FILL' 1,'wght' 400; }
+  .chiaro-logo { position:relative; display:inline-flex; align-items:center; justify-content:center; padding:0 12px; }
+  .chiaro-logo::before { content:''; position:absolute; inset:-16px -32px; background:radial-gradient(ellipse at center,rgba(255,245,220,0.07),transparent 70%); pointer-events:none; z-index:0; }
+  .chiaro-mark { font-family:'DM Serif Display',serif; font-weight:400; color:#f5f0e8; letter-spacing:0.12em; line-height:1; position:relative; z-index:1; font-size:24px; }
+
+  /* Methodology badge */
+  .methodology-card {
+    background: linear-gradient(135deg, rgba(200,214,205,0.06), rgba(200,214,205,0.02));
+    border: 1px solid rgba(200,214,205,0.25);
+    padding: 14px 16px;
+    border-radius: 3px;
+  }
+
+  /* Category card */
+  .category-card {
+    border-bottom: 1px solid #34302A;
+    padding: 18px 20px 22px;
+  }
+  .category-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+  }
+  .category-icon {
+    width: 36px; height: 36px; flex-shrink: 0;
+    background: #232017; border: 1px solid #34302A;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .category-icon .material-symbols-outlined { font-size: 18px; color: #C8D6CD; }
+  .category-title {
+    flex: 1;
+    font-family: 'Newsreader', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #f5f0e8;
+    line-height: 1.2;
+  }
+  .category-subtitle {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+    color: #948D80;
+    margin-top: 2px;
+  }
+
+  /* Importance dots selector */
+  .importance-row {
+    display: flex; align-items: center; gap: 10px;
+    background: #232017; border: 1px solid #34302A;
+    padding: 8px 12px; margin-bottom: 14px;
+  }
+  .importance-row .imp-label {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em;
+    font-weight: 700; color: #948D80;
+  }
+  .importance-row .imp-dots { display: flex; gap: 5px; flex: 1; justify-content: flex-end; }
+  .imp-dot {
+    width: 18px; height: 18px;
+    border: 1px solid #34302A;
+    background: transparent;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .imp-dot.filled { background: #C9A84C; border-color: #C9A84C; }
+  .imp-dot:hover { border-color: #C9A84C; }
+  .importance-row .imp-current {
+    font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
+    color: #C9A84C; min-width: 64px; text-align: right;
+  }
+
+  /* Position statement */
+  .statement {
+    padding: 12px 0;
+    border-top: 1px dashed #2E2A24;
+  }
+  .statement:first-of-type { border-top: none; padding-top: 4px; }
+  .statement-text {
+    font-size: 13px;
+    color: #f5f0e8;
+    line-height: 1.45;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  .likert-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .likert-btn {
+    padding: 8px 4px;
+    background: #232017;
+    border: 1px solid #34302A;
+    color: #948D80;
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .likert-btn:hover { border-color: #C8D6CD; color: #f5f0e8; }
+  .likert-btn.selected {
+    background: rgba(200,214,205,0.15);
+    border-color: #C8D6CD;
+    color: #C8D6CD;
+  }
+  .likert-btn[data-value="-2"].selected { background: rgba(216,92,92,0.12); border-color: #D85C5C; color: #D85C5C; }
+  .likert-btn[data-value="-1"].selected { background: rgba(216,152,106,0.12); border-color: #E0986A; color: #E0986A; }
+  .likert-btn[data-value="0"].selected  { background: rgba(148,141,128,0.15); border-color: #948D80; color: #f5f0e8; }
+  .likert-btn[data-value="1"].selected  { background: rgba(143,170,154,0.15); border-color: #8FAA9A; color: #8FAA9A; }
+  .likert-btn[data-value="2"].selected  { background: rgba(200,214,205,0.20); border-color: #C8D6CD; color: #C8D6CD; }
+
+  /* Progress bar at top */
+  .progress-track {
+    height: 4px; background: #34302A; border-radius: 2px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, #C8D6CD, #7A9B8E);
+    transition: width 0.3s ease;
+  }
+
+  /* Sticky save bar */
+  .save-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+    background: rgba(26,23,20,0.96);
+    backdrop-filter: blur(6px);
+    border-top: 1px solid #34302A;
+    padding: 12px 20px calc(12px + env(safe-area-inset-bottom)) 20px;
+    display: flex; gap: 10px; align-items: center;
+  }
+
+  /* Live preview alignment bars */
+  .preview-alignment-row {
+    display: flex; align-items: center; gap: 10px; padding: 5px 0;
+  }
+  .preview-alignment-row .lab {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em;
+    color: #948D80; font-weight: 600; flex-shrink: 0; width: 110px;
+  }
+  .preview-alignment-row .track {
+    flex: 1; height: 5px; background: #34302A; position: relative;
+  }
+  .preview-alignment-row .track-mid {
+    position: absolute; left: 50%; top: -2px; width: 1px; height: 9px;
+    background: #948D80; opacity: 0.4;
+  }
+  .preview-alignment-row .fill {
+    position: absolute; top: 0; height: 100%; transition: all 0.3s;
+  }
+  .preview-alignment-row .pct {
+    font-family: 'Newsreader', serif;
+    font-size: 13px; font-weight: 700; min-width: 42px; text-align: right;
+  }
+  .pct-high { color: #8FAA9A; }
+  .pct-mid  { color: #C9A84C; }
+  .pct-low  { color: #D85C5C; }
+  .pct-uncal { color: #34302A; }
+</style>
+</head>
+<body>
+
+<!-- Sticky Header -->
+<header class="fixed top-0 w-full z-40 bg-[#1a1714] border-b border-[#34302A]">
+  <div class="flex items-center justify-between px-4 h-14">
+    <div class="flex items-center gap-3">
+      <a href="../Settings/code.html" class="w-8 h-8 flex items-center justify-center hover:bg-[#232017] rounded-full">
+        <span class="material-symbols-outlined" style="font-size:20px; color:#f5f0e8;">arrow_back</span>
+      </a>
+      <div class="chiaro-logo"><span class="chiaro-mark">CHIARO</span></div>
+    </div>
+    <button class="text-[10px] uppercase tracking-widest font-bold text-[#D85C5C] hover:text-[#f5f0e8]" onclick="resetAll()">Reset</button>
+  </div>
+  <!-- Live progress bar -->
+  <div class="px-4 pb-3">
+    <div class="flex justify-between items-center mb-1.5">
+      <span class="text-[9px] uppercase tracking-widest font-bold text-[#948D80]">Calibration Progress</span>
+      <span class="text-[10px] font-bold text-[#f5f0e8]"><span id="cal-count">0</span> / 12 calibrated</span>
+    </div>
+    <div class="progress-track"><div id="cal-progress" class="progress-fill" style="width:0%"></div></div>
+  </div>
+</header>
+
+<main class="pt-[calc(3.5rem+44px)] pb-32 max-w-2xl mx-auto">
+
+  <!-- Hero / Intro -->
+  <section class="px-5 pt-6 pb-4">
+    <p class="text-[10px] uppercase tracking-[0.2em] font-bold text-[#C8D6CD] mb-2">Personalize Chiaro</p>
+    <h1 class="font-headline text-3xl font-bold text-[#f5f0e8] tracking-tight leading-tight mb-3">
+      Set your alignment.
+    </h1>
+    <p class="text-sm text-[#948D80] leading-relaxed">
+      Your positions stay <span class="text-[#f5f0e8]">on this device</span> — Chiaro never sees them. Voting Snapshots on rep profiles will recalculate to show how each official aligns with <em>you</em>, not their party.
+    </p>
+  </section>
+
+  <!-- Methodology card -->
+  <section class="px-5 mb-6">
+    <div class="methodology-card">
+      <div class="flex items-start gap-3">
+        <span class="material-symbols-outlined fill-icon mt-0.5" style="font-size:18px; color:#C8D6CD;">verified</span>
+        <div>
+          <p class="text-[11px] uppercase tracking-widest font-bold text-[#C8D6CD] mb-1">Methodology · Crowdsourced + Verified</p>
+          <p class="text-[12px] text-[#f5f0e8] leading-relaxed">
+            Each bill in our database is tagged by direction on each issue (e.g. <span class="text-[#C8D6CD]">+2 toward expanded healthcare access</span>). Tags are proposed by the community and verified by Chiaro moderators. <a class="underline text-[#C8D6CD]">See methodology →</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Likert Legend -->
+  <section class="px-5 mb-2">
+    <p class="text-[9px] uppercase tracking-widest font-bold text-[#948D80] mb-2">Position Scale</p>
+    <div class="grid grid-cols-5 gap-1.5 mb-1">
+      <div class="text-center text-[8px] uppercase tracking-wider font-bold text-[#D85C5C]">Strongly<br/>Disagree</div>
+      <div class="text-center text-[8px] uppercase tracking-wider font-bold text-[#E0986A]">Disagree</div>
+      <div class="text-center text-[8px] uppercase tracking-wider font-bold text-[#948D80]">Neutral</div>
+      <div class="text-center text-[8px] uppercase tracking-wider font-bold text-[#8FAA9A]">Agree</div>
+      <div class="text-center text-[8px] uppercase tracking-wider font-bold text-[#C8D6CD]">Strongly<br/>Agree</div>
+    </div>
+  </section>
+
+  <!-- Categories rendered here -->
+  <section id="categories"></section>
+
+  <!-- Live Alignment Preview -->
+  <section class="mt-8 mx-5 p-5 bg-[#232017] border border-[#34302A] rounded">
+    <div class="flex items-center justify-between mb-4 pb-3 border-b border-[#34302A]">
+      <div>
+        <p class="text-[9px] uppercase tracking-widest font-bold text-[#C8D6CD] mb-0.5">Live Preview</p>
+        <h3 class="font-headline text-lg font-bold text-[#f5f0e8] leading-tight">Your Alignment with Sen. Craig</h3>
+      </div>
+      <div class="text-right">
+        <p class="text-[9px] uppercase tracking-widest text-[#948D80] mb-0.5">Overall Match</p>
+        <p class="font-headline text-3xl font-bold leading-none" id="overall-match-pct" style="color:#34302A">—</p>
+      </div>
+    </div>
+    <div id="alignment-preview"></div>
+    <p class="text-[10px] text-[#948D80] mt-3 leading-relaxed">
+      Bars update as you calibrate. Greyed-out categories haven't been calibrated yet — those use the rep's objective voting data.
+    </p>
+  </section>
+
+</main>
+
+<!-- Sticky save bar -->
+<div class="save-bar">
+  <button class="flex-1 py-3 border border-[#34302A] text-[10px] uppercase tracking-[0.18em] font-bold text-[#948D80] hover:border-[#f5f0e8] hover:text-[#f5f0e8]" onclick="window.location='../Settings/code.html'">Cancel</button>
+  <a href="../Home_Screen/code.html" class="flex-[2] text-center py-3 bg-[#C8D6CD] text-[#1a1714] text-[10px] uppercase tracking-[0.18em] font-bold hover:bg-[#f5f0e8] transition-colors">Save & Apply</a>
+</div>
+
+<script>
+  // ─── Data ────────────────────────────────────────────
+  const CATEGORIES = [
+    { id:'economy', name:'Economy & Taxation', icon:'payments',
+      stmts:[
+        "Government should reduce taxes even if it means cutting some public services",
+        "Higher earners should pay a larger share of taxes"
+      ],
+      // Sample alignment vs. Hearcel Craig once calibrated (mock data)
+      craigAlign:{ supportLeft:35, supportRight:88 } // % match if user agrees with stmt 1 / stmt 2
+    },
+    { id:'healthcare', name:'Healthcare Access', icon:'health_and_safety',
+      stmts:[
+        "Government should expand Medicaid to cover more low-income residents",
+        "Prescription drug prices should be regulated by government"
+      ],
+      craigAlign:{ supportLeft:94, supportRight:91 }
+    },
+    { id:'education', name:'Education Funding', icon:'school',
+      stmts:[
+        "Public schools should receive more state funding overall",
+        "Government should fund vouchers for charter or private school choice"
+      ],
+      craigAlign:{ supportLeft:96, supportRight:24 }
+    },
+    { id:'housing', name:'Housing & Zoning', icon:'home',
+      stmts:[
+        "Cities should allow denser housing in single-family neighborhoods",
+        "Government should fund affordable housing programs"
+      ],
+      craigAlign:{ supportLeft:82, supportRight:89 }
+    },
+    { id:'criminal', name:'Criminal Justice', icon:'gavel',
+      stmts:[
+        "Mandatory minimum sentences for nonviolent offenses should be reduced",
+        "Police departments should face stronger oversight and accountability"
+      ],
+      craigAlign:{ supportLeft:78, supportRight:84 }
+    },
+    { id:'reproductive', name:'Reproductive Rights', icon:'pregnant_woman',
+      stmts:[
+        "Abortion access should be legally protected",
+        "Government should fund reproductive healthcare including contraception"
+      ],
+      craigAlign:{ supportLeft:92, supportRight:88 }
+    },
+    { id:'gun', name:'Gun Policy', icon:'shield',
+      stmts:[
+        "Universal background checks should be required for all gun purchases",
+        "Permit-less concealed carry should be legal"
+      ],
+      craigAlign:{ supportLeft:91, supportRight:18 }
+    },
+    { id:'environment', name:'Environment & Climate', icon:'eco',
+      stmts:[
+        "Government should set strict emissions reduction targets",
+        "Renewable energy should be subsidized over fossil fuels"
+      ],
+      craigAlign:{ supportLeft:79, supportRight:81 }
+    },
+    { id:'civil', name:'Civil Rights & Equity', icon:'diversity_3',
+      stmts:[
+        "Voting access should be expanded (mail-in, same-day registration)",
+        "Government should pursue policies to address racial inequities"
+      ],
+      craigAlign:{ supportLeft:96, supportRight:91 }
+    },
+    { id:'labor', name:'Labor & Workers', icon:'engineering',
+      stmts:[
+        "Minimum wage should be raised significantly above current levels",
+        "Workers should have stronger protected rights to unionize"
+      ],
+      craigAlign:{ supportLeft:90, supportRight:94 }
+    },
+    { id:'immigration', name:'Immigration', icon:'public',
+      stmts:[
+        "A path to citizenship should be created for long-term undocumented residents",
+        "Local police should NOT enforce federal immigration law"
+      ],
+      craigAlign:{ supportLeft:84, supportRight:86 }
+    },
+    { id:'transparency', name:'Government Transparency', icon:'policy',
+      stmts:[
+        "Independent commissions should draw legislative districts (not political parties)",
+        "Lobbyists should face stricter disclosure and gift restrictions"
+      ],
+      craigAlign:{ supportLeft:87, supportRight:82 }
+    }
+  ];
+
+  const IMPORTANCE_LABELS = ['Low','Medium','High','Critical'];
+  const LIKERT_LABELS = ['Strongly Disagree','Disagree','Neutral','Agree','Strongly Agree'];
+
+  // ─── State ────────────────────────────────────────────
+  // userPositions[catId] = { importance: 0-4, stmts: [-2..2 or null] }
+  const state = {};
+  CATEGORIES.forEach(c => {
+    state[c.id] = { importance: 0, stmts: c.stmts.map(() => null) };
+  });
+
+  // ─── Render category cards ──────────────────────────
+  const container = document.getElementById('categories');
+  CATEGORIES.forEach((cat, idx) => {
+    const card = document.createElement('div');
+    card.className = 'category-card';
+    card.innerHTML = `
+      <div class="category-header">
+        <div class="category-icon"><span class="material-symbols-outlined">${cat.icon}</span></div>
+        <div>
+          <p class="category-subtitle">Category ${String(idx+1).padStart(2,'0')} of 12</p>
+          <h3 class="category-title">${cat.name}</h3>
+        </div>
+      </div>
+      <div class="importance-row">
+        <span class="imp-label">Importance</span>
+        <div class="imp-dots" data-cat="${cat.id}">
+          ${[1,2,3,4].map(n => `<button class="imp-dot" data-level="${n}" aria-label="Importance ${n}"></button>`).join('')}
+        </div>
+        <span class="imp-current" id="imp-current-${cat.id}">Not Set</span>
+      </div>
+      ${cat.stmts.map((s, i) => `
+        <div class="statement">
+          <p class="statement-text">${s}</p>
+          <div class="likert-row" data-cat="${cat.id}" data-stmt="${i}">
+            ${[-2,-1,0,1,2].map(v => `
+              <button class="likert-btn" data-value="${v}" aria-label="${LIKERT_LABELS[v+2]}">
+                ${LIKERT_LABELS[v+2].replace(' ','<br/>')}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `).join('')}
+    `;
+    container.appendChild(card);
+  });
+
+  // ─── Wire up importance dots ────────────────────────
+  document.querySelectorAll('.imp-dots').forEach(group => {
+    const catId = group.dataset.cat;
+    group.querySelectorAll('.imp-dot').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const level = +btn.dataset.level;
+        // toggle off if clicking the same level
+        const newLevel = state[catId].importance === level ? 0 : level;
+        state[catId].importance = newLevel;
+        group.querySelectorAll('.imp-dot').forEach((d,i) => {
+          d.classList.toggle('filled', i < newLevel);
+        });
+        document.getElementById('imp-current-' + catId).textContent =
+          newLevel === 0 ? 'Not Set' : IMPORTANCE_LABELS[newLevel-1];
+        update();
+      });
+    });
+  });
+
+  // ─── Wire up likert buttons ─────────────────────────
+  document.querySelectorAll('.likert-row').forEach(row => {
+    const catId = row.dataset.cat;
+    const stmtIdx = +row.dataset.stmt;
+    row.querySelectorAll('.likert-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const v = +btn.dataset.value;
+        const cur = state[catId].stmts[stmtIdx];
+        state[catId].stmts[stmtIdx] = (cur === v) ? null : v;
+        row.querySelectorAll('.likert-btn').forEach(b => {
+          b.classList.toggle('selected', +b.dataset.value === state[catId].stmts[stmtIdx]);
+        });
+        update();
+      });
+    });
+  });
+
+  // ─── Live alignment preview rendering ────────────────
+  const previewEl = document.getElementById('alignment-preview');
+  function categoryAlignmentWithCraig(cat) {
+    const s = state[cat.id];
+    // need at least one statement answered
+    const answered = s.stmts.filter(v => v !== null);
+    if (answered.length === 0) return null;
+    // Each statement: rep aligns with you if your direction matches their support
+    // Simplified scoring: if user agreed (positive value), rep alignment = supportLeft for stmt0, supportRight for stmt1
+    // if user disagreed (negative), rep alignment = 100 - support
+    let total = 0, count = 0;
+    s.stmts.forEach((v, i) => {
+      if (v === null) return;
+      if (v === 0) return; // neutral doesn't count
+      const support = i === 0 ? cat.craigAlign.supportLeft : cat.craigAlign.supportRight;
+      const userDirection = v > 0 ? 1 : -1;
+      // If user agrees AND rep supports, alignment = support
+      // If user disagrees AND rep supports, alignment = 100 - support
+      const alignmentScore = userDirection > 0 ? support : 100 - support;
+      // Weight by intensity (|v|/2 → 0.5 to 1.0)
+      const weight = Math.abs(v) / 2;
+      total += alignmentScore * weight;
+      count += weight;
+    });
+    return count > 0 ? Math.round(total / count) : null;
+  }
+  function pctClass(p) { return p >= 70 ? 'pct-high' : p >= 40 ? 'pct-mid' : 'pct-low'; }
+  function fillColor(p) { return p >= 70 ? '#8FAA9A' : p >= 40 ? '#C9A84C' : '#D85C5C'; }
+
+  function update() {
+    // Render alignment preview
+    let calibrated = 0;
+    let weightedTotal = 0, weightedSum = 0;
+    previewEl.innerHTML = CATEGORIES.map(cat => {
+      const align = categoryAlignmentWithCraig(cat);
+      const imp = state[cat.id].importance;
+      const isCalibrated = align !== null && imp > 0;
+      if (isCalibrated) {
+        calibrated++;
+        weightedTotal += align * imp;
+        weightedSum += imp;
+      }
+      const pctText = align === null ? '—' : align + '%';
+      const cls = align === null ? 'pct-uncal' : pctClass(align);
+      const fillW = align === null ? 0 : align;
+      const fc = align === null ? '#34302A' : fillColor(align);
+      const dim = !isCalibrated ? 'opacity:0.5;' : '';
+      return `
+        <div class="preview-alignment-row" style="${dim}">
+          <span class="lab">${cat.name.split(' & ')[0].split(' ')[0]}</span>
+          <span class="track">
+            <span class="track-mid"></span>
+            <span class="fill" style="width:${fillW}%; background:${fc};"></span>
+          </span>
+          <span class="pct ${cls}">${pctText}</span>
+        </div>`;
+    }).join('');
+
+    // Update top progress
+    document.getElementById('cal-count').textContent = calibrated;
+    document.getElementById('cal-progress').style.width = (calibrated/12*100) + '%';
+
+    // Update overall match
+    const overall = document.getElementById('overall-match-pct');
+    if (weightedSum === 0) {
+      overall.textContent = '—';
+      overall.style.color = '#34302A';
+    } else {
+      const pct = Math.round(weightedTotal / weightedSum);
+      overall.textContent = pct + '%';
+      overall.style.color = fillColor(pct);
+    }
+  }
+
+  function resetAll() {
+    if (!confirm('Reset all calibration values?')) return;
+    CATEGORIES.forEach(c => {
+      state[c.id] = { importance: 0, stmts: c.stmts.map(() => null) };
+    });
+    document.querySelectorAll('.imp-dot').forEach(d => d.classList.remove('filled'));
+    document.querySelectorAll('.likert-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('[id^="imp-current-"]').forEach(e => e.textContent = 'Not Set');
+    update();
+  }
+
+  update();
+</script>
+</body>
+</html>

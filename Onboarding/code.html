@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Welcome to Chiaro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Manrope:wght@200..800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: { extend: { fontFamily: { headline: ["Newsreader","serif"], body: ["Manrope","sans-serif"] } } }
+  }
+</script>
+<style>
+  body {
+    font-family: 'Manrope', sans-serif;
+    background-color: #1a1714;
+    color: #f5f0e8;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+  /* CHIARO LOGO ─ Brand spec */
+  .chiaro-logo { position: relative; display: inline-flex; align-items: center; justify-content: center; padding: 0 16px; }
+  .chiaro-logo::before { content: ''; position: absolute; inset: -24px -48px; background: radial-gradient(ellipse at center, rgba(255,245,220,0.07), transparent 70%); pointer-events: none; z-index: 0; }
+  .chiaro-mark { font-family: 'DM Serif Display', serif; font-weight: 400; color: #f5f0e8; letter-spacing: 0.12em; line-height: 1; position: relative; z-index: 1; }
+  .chiaro-mark.size-splash { font-size: 70px; }
+  .chiaro-mark.size-nav { font-size: 28px; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+  .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 400; }
+
+  .step { display: none; opacity: 0; transition: opacity 0.3s; }
+  .step.active { display: flex; opacity: 1; }
+
+  /* Progress dots */
+  .progress-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #2E2E2B; transition: background 0.2s, width 0.3s;
+  }
+  .progress-dot.active { background: #C8D6CD; width: 24px; border-radius: 3px; }
+  .progress-dot.complete { background: #C8D6CD; }
+
+  /* Subtle radial gradient accent */
+  .glow {
+    position: absolute;
+    pointer-events: none;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+  }
+
+  .field { border-bottom: 1px solid #2E2E2B; padding-bottom: 6px; transition: border-color 0.2s; }
+  .field:focus-within { border-bottom-color: #C8D6CD; }
+  .field input, .field select {
+    width: 100%; background: transparent; border: none; padding: 0;
+    color: #E8E5DE; font-size: 17px; outline: none;
+  }
+  .field select { appearance: none; }
+  .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 700; color: #8A8880; margin-bottom: 4px; display: block; }
+
+  .toggle { position: relative; width: 44px; height: 24px; background: #3A3A36; border-radius: 12px; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+  .toggle.active { background: #C8D6CD; }
+  .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #0F0F0E; border-radius: 50%; transition: transform 0.2s; }
+  .toggle.active::after { transform: translateX(20px); }
+</style>
+</head>
+<body>
+
+<!-- Glow accents -->
+<div class="glow" style="width:400px; height:400px; background:#C8D6CD; top:-100px; right:-100px;"></div>
+<div class="glow" style="width:500px; height:500px; background:#6A9BB5; bottom:-150px; left:-150px;"></div>
+
+<!-- Top bar -->
+<header class="relative z-10 flex items-center justify-between px-5 h-14">
+  <div class="flex gap-1.5">
+    <div class="progress-dot active" id="dot-1"></div>
+    <div class="progress-dot" id="dot-2"></div>
+    <div class="progress-dot" id="dot-3"></div>
+    <div class="progress-dot" id="dot-4"></div>
+  </div>
+  <a href="../Home_Screen/code.html" class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880] hover:text-[#C8D6CD] transition-colors">Skip</a>
+</header>
+
+<main class="relative z-10 max-w-md mx-auto px-6 min-h-[calc(100dvh-3.5rem)]">
+
+  <!-- ===== STEP 1: WELCOME ===== -->
+  <section class="step active flex-col justify-between min-h-[calc(100dvh-3.5rem)] py-10" id="step-1">
+    <div>
+      <div class="mb-12">
+        <div class="chiaro-logo mb-3 -ml-4">
+          <span class="chiaro-mark size-splash">CHIARO</span>
+        </div>
+        <p class="text-[10px] uppercase tracking-[0.25em] font-bold text-[#C8D6CD]">Clarity in Politics</p>
+      </div>
+
+      <div class="mb-10">
+        <h2 class="font-headline text-3xl font-bold text-[#E8E5DE] leading-tight tracking-tight mb-4">
+          Know your reps.<br/>Without the noise.
+        </h2>
+        <p class="text-[#8A8880] leading-relaxed">
+          Objective data on every official representing you. No opinions. No ads. Just votes, bills, and verifiable records.
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 bg-[#1A1A18] border border-[#2E2E2B] flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[#C8D6CD]" style="font-size:18px">how_to_vote</span>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-[#E8E5DE]">Voting Records</p>
+            <p class="text-[12px] text-[#8A8880] leading-relaxed">Every vote, every bill, sourced from official records.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 bg-[#1A1A18] border border-[#2E2E2B] flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[#C8D6CD]" style="font-size:18px">my_location</span>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-[#E8E5DE]">Location-Aware</p>
+            <p class="text-[12px] text-[#8A8880] leading-relaxed">See exactly who represents you — state, county, city.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 bg-[#1A1A18] border border-[#2E2E2B] flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[#C8D6CD]" style="font-size:18px">balance</span>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-[#E8E5DE]">No Spin</p>
+            <p class="text-[12px] text-[#8A8880] leading-relaxed">We show data — you draw the conclusions.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="goToStep(2)" class="w-full bg-[#C8D6CD] text-[#0F0F0E] py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#E8E5DE] transition-colors mt-10">
+      Get Started
+    </button>
+  </section>
+
+  <!-- ===== STEP 2: LOCATION ===== -->
+  <section class="step flex-col justify-between min-h-[calc(100dvh-3.5rem)] py-10" id="step-2">
+    <div>
+      <div class="mb-10">
+        <p class="text-[10px] uppercase tracking-[0.25em] font-bold text-[#C8D6CD] mb-3">Step 1 of 2</p>
+        <h2 class="font-headline text-4xl font-bold text-[#E8E5DE] leading-tight tracking-tight mb-3">
+          Set your<br/>Home Location
+        </h2>
+        <p class="text-[#8A8880] leading-relaxed">
+          We'll show the elected officials representing this address. <span class="text-[#E8E5DE]">Stays on your device.</span>
+        </p>
+      </div>
+
+      <!-- Use Device Location -->
+      <button class="w-full mb-8 bg-[#1A1A18] border border-[#2E2E2B] hover:border-[#C8D6CD] p-4 flex items-center gap-4 transition-colors group">
+        <div class="bg-[#232320] p-2.5 rounded-full group-hover:bg-[#C8D6CD] transition-colors">
+          <span class="material-symbols-outlined fill-icon text-[#C8D6CD] group-hover:text-[#0F0F0E]" style="font-size:18px">my_location</span>
+        </div>
+        <div class="flex-1 text-left">
+          <p class="text-sm font-bold text-[#E8E5DE]">Use my current location</p>
+          <p class="text-[11px] text-[#8A8880]">Quickest setup · Browser permission</p>
+        </div>
+        <span class="material-symbols-outlined text-[#3A3A36]" style="font-size:18px">chevron_right</span>
+      </button>
+
+      <div class="flex items-center gap-3 mb-6">
+        <div class="flex-1 h-px bg-[#2E2E2B]"></div>
+        <span class="text-[10px] uppercase tracking-widest font-bold text-[#8A8880]">Or enter manually</span>
+        <div class="flex-1 h-px bg-[#2E2E2B]"></div>
+      </div>
+
+      <div class="space-y-6">
+        <div class="field">
+          <span class="label">City</span>
+          <input type="text" placeholder="Columbus" value="Columbus"/>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="field">
+            <span class="label">State</span>
+            <select>
+              <option value="OH" selected>Ohio</option>
+              <option value="">Select...</option>
+              <option>California</option>
+              <option>New York</option>
+              <option>Texas</option>
+              <option>Florida</option>
+              <option>South Carolina</option>
+            </select>
+          </div>
+          <div class="field">
+            <span class="label">Zipcode</span>
+            <input type="text" placeholder="43215" value="43215"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detected reps preview -->
+      <div class="mt-8 p-4 bg-[#1A1A18] border border-[#2E2E2B] rounded">
+        <p class="text-[9px] uppercase tracking-widest font-bold text-[#C8D6CD] mb-3 flex items-center gap-1.5">
+          <span class="material-symbols-outlined fill-icon" style="font-size:13px">check_circle</span>
+          We found 6 officials representing you
+        </p>
+        <div class="flex flex-wrap gap-1.5">
+          <span class="text-[10px] text-[#E8E5DE] bg-[#232320] border border-[#2E2E2B] px-2 py-1">Gov. DeWine</span>
+          <span class="text-[10px] text-[#E8E5DE] bg-[#232320] border border-[#2E2E2B] px-2 py-1">Sen. Craig</span>
+          <span class="text-[10px] text-[#E8E5DE] bg-[#232320] border border-[#2E2E2B] px-2 py-1">Rep. Russo</span>
+          <span class="text-[10px] text-[#E8E5DE] bg-[#232320] border border-[#2E2E2B] px-2 py-1">Mayor Ginther</span>
+          <span class="text-[10px] text-[#8A8880]">+2 more</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-3 mt-10">
+      <button onclick="goToStep(1)" class="flex-shrink-0 px-5 border border-[#2E2E2B] py-4 text-[11px] uppercase tracking-[0.2em] font-bold text-[#8A8880] hover:border-[#C8D6CD] hover:text-[#C8D6CD] transition-colors">
+        Back
+      </button>
+      <button onclick="goToStep(3)" class="flex-1 bg-[#C8D6CD] text-[#0F0F0E] py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#E8E5DE] transition-colors">
+        Continue
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== STEP 3: NOTIFICATIONS ===== -->
+  <section class="step flex-col justify-between min-h-[calc(100dvh-3.5rem)] py-10" id="step-3">
+    <div>
+      <div class="mb-10">
+        <p class="text-[10px] uppercase tracking-[0.25em] font-bold text-[#C8D6CD] mb-3">Step 2 of 2</p>
+        <h2 class="font-headline text-4xl font-bold text-[#E8E5DE] leading-tight tracking-tight mb-3">
+          Stay informed
+        </h2>
+        <p class="text-[#8A8880] leading-relaxed">
+          Choose what you want to hear about. <span class="text-[#E8E5DE]">All optional</span> — turn any off later.
+        </p>
+      </div>
+
+      <div class="space-y-3">
+
+        <div class="p-4 bg-[#1A1A18] border border-[#2E2E2B] flex items-center justify-between rounded">
+          <div class="flex items-start gap-3 flex-1">
+            <div class="bg-[#232320] p-2 rounded-full mt-0.5">
+              <span class="material-symbols-outlined text-[#C8D6CD]" style="font-size:16px">how_to_vote</span>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-[#E8E5DE]">Major Vote Alerts</p>
+              <p class="text-[11px] text-[#8A8880] leading-relaxed">When your reps vote on major bills</p>
+            </div>
+          </div>
+          <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+        </div>
+
+        <div class="p-4 bg-[#1A1A18] border border-[#2E2E2B] flex items-center justify-between rounded">
+          <div class="flex items-start gap-3 flex-1">
+            <div class="bg-[#232320] p-2 rounded-full mt-0.5">
+              <span class="material-symbols-outlined text-[#C8D6CD]" style="font-size:16px">draw</span>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-[#E8E5DE]">New Bills Sponsored</p>
+              <p class="text-[11px] text-[#8A8880] leading-relaxed">When your reps introduce new legislation</p>
+            </div>
+          </div>
+          <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+        </div>
+
+        <div class="p-4 bg-[#1A1A18] border border-[#2E2E2B] flex items-center justify-between rounded">
+          <div class="flex items-start gap-3 flex-1">
+            <div class="bg-[#232320] p-2 rounded-full mt-0.5">
+              <span class="material-symbols-outlined text-[#C8D6CD]" style="font-size:16px">campaign</span>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-[#E8E5DE]">Town Halls & Events</p>
+              <p class="text-[11px] text-[#8A8880] leading-relaxed">Public events scheduled in your district</p>
+            </div>
+          </div>
+          <div class="toggle" onclick="this.classList.toggle('active')"></div>
+        </div>
+
+        <div class="p-4 bg-[#1A1A18] border border-[#2E2E2B] flex items-center justify-between rounded">
+          <div class="flex items-start gap-3 flex-1">
+            <div class="bg-[#232320] p-2 rounded-full mt-0.5">
+              <span class="material-symbols-outlined text-[#C8D6CD]" style="font-size:16px">how_to_reg</span>
+            </div>
+            <div>
+              <p class="text-sm font-bold text-[#E8E5DE]">Election Reminders</p>
+              <p class="text-[11px] text-[#8A8880] leading-relaxed">Local & state primary, general, and special elections</p>
+            </div>
+          </div>
+          <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+        </div>
+
+      </div>
+
+      <p class="text-[10px] text-[#8A8880] mt-6 leading-relaxed text-center">
+        Notifications work without an account on this device.<br/>
+        Create a profile later to sync across devices.
+      </p>
+    </div>
+
+    <div class="flex gap-3 mt-10">
+      <button onclick="goToStep(2)" class="flex-shrink-0 px-5 border border-[#2E2E2B] py-4 text-[11px] uppercase tracking-[0.2em] font-bold text-[#8A8880] hover:border-[#C8D6CD] hover:text-[#C8D6CD] transition-colors">
+        Back
+      </button>
+      <button onclick="goToStep(4)" class="flex-1 bg-[#C8D6CD] text-[#0F0F0E] py-4 text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#E8E5DE] transition-colors">
+        Finish Setup
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== STEP 4: DONE ===== -->
+  <section class="step flex-col justify-between min-h-[calc(100dvh-3.5rem)] py-10" id="step-4">
+    <div class="flex flex-col items-start justify-center flex-1 pt-12">
+      <div class="w-16 h-16 bg-[#1A1A18] border border-[#C8D6CD] flex items-center justify-center mb-8">
+        <span class="material-symbols-outlined fill-icon text-[#C8D6CD]" style="font-size:28px">check</span>
+      </div>
+
+      <p class="text-[10px] uppercase tracking-[0.25em] font-bold text-[#C8D6CD] mb-3">All Set</p>
+      <h2 class="font-headline text-5xl font-bold text-[#E8E5DE] leading-[1] tracking-tight mb-5">
+        You're<br/>ready, Jordan.
+      </h2>
+      <p class="text-[#8A8880] leading-relaxed mb-8">
+        Your Home location is <span class="text-[#E8E5DE] font-bold">Columbus, OH 43215</span>. We've identified <span class="text-[#E8E5DE] font-bold">6 officials</span> who represent you across state, county, and city government.
+      </p>
+
+      <div class="w-full p-4 bg-[#1A1A18] border border-[#2E2E2B] mb-6 rounded">
+        <p class="text-[9px] uppercase tracking-widest font-bold text-[#8A8880] mb-3">What's next</p>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#C8D6CD]" style="font-size:14px">arrow_right_alt</span>
+            <p class="text-[12px] text-[#E8E5DE]">Browse your representatives by level of government</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#C8D6CD]" style="font-size:14px">arrow_right_alt</span>
+            <p class="text-[12px] text-[#E8E5DE]">Tap any rep to see their full voting record</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[#C8D6CD]" style="font-size:14px">arrow_right_alt</span>
+            <p class="text-[12px] text-[#E8E5DE]">Drill into any bill for source documents & timeline</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-3">
+      <a href="../Home_Screen/code.html" class="block w-full bg-[#C8D6CD] text-[#0F0F0E] py-4 text-center text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#E8E5DE] transition-colors">
+        Enter Chiaro
+      </a>
+      <a href="../Login_Screen/code.html" class="block w-full border border-[#2E2E2B] text-[#8A8880] py-4 text-center text-[11px] uppercase tracking-[0.2em] font-bold hover:border-[#C8D6CD] hover:text-[#C8D6CD] transition-colors">
+        Create Profile · Optional
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  function goToStep(n) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-' + n).classList.add('active');
+    for (let i = 1; i <= 4; i++) {
+      const dot = document.getElementById('dot-' + i);
+      dot.classList.remove('active', 'complete');
+      if (i < n) dot.classList.add('complete');
+      if (i === n) dot.classList.add('active');
+    }
+    window.scrollTo(0, 0);
+  }
+</script>
+
+</body>
+</html>
