@@ -214,6 +214,39 @@
     letter-spacing: 0.14em;
     margin-bottom: 8px;
   }
+
+  /* Personal alignment match line on rep cards */
+  .match-line {
+    display: inline-flex; align-items: center; gap: 5px;
+    margin-top: 4px;
+    font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    font-weight: 700; color: #948D80;
+  }
+  .match-line .pct {
+    font-family: 'Newsreader', serif;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .match-line .pct.high { color: #8FAA9A; }
+  .match-line .pct.mid  { color: #C9A84C; }
+  .match-line .pct.low  { color: #D85C5C; }
+  .match-line .ico { font-size: 11px; }
+
+  /* Calibration status pill */
+  .cal-status-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(200,214,205,0.08);
+    border: 1px solid rgba(200,214,205,0.30);
+    padding: 3px 8px;
+    margin-left: 6px;
+  }
+  .cal-status-pill .material-symbols-outlined { font-size: 11px; color: #C8D6CD; }
+  .cal-status-pill span:last-child {
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em;
+    font-weight: 700; color: #C8D6CD;
+  }
 </style>
 </head>
 <body class="dark">
@@ -242,10 +275,14 @@
   <!-- Location Banner -->
   <div class="px-5 pt-6 pb-4 flex items-center justify-between">
     <div>
-      <div class="flex items-center gap-1.5 mb-1">
+      <div class="flex items-center gap-1.5 mb-1 flex-wrap">
         <span class="material-symbols-outlined fill-icon text-[#C8D6CD]" style="font-size:15px">location_on</span>
         <span class="text-[10px] uppercase tracking-widest font-bold text-[#948D80]">Home Location</span>
         <span class="text-[10px] uppercase tracking-widest font-bold text-[#C8D6CD] ml-1">· Set</span>
+        <a href="../Calibration/code.html" class="cal-status-pill hover:border-[#C8D6CD] transition-colors">
+          <span class="material-symbols-outlined fill-icon">tune</span>
+          <span>Calibrated · 12/12</span>
+        </a>
       </div>
       <h2 class="font-headline text-3xl font-bold text-[#f5f0e8] tracking-tight">Columbus, OH</h2>
       <p class="text-[11px] text-[#948D80] mt-0.5">43215 · Franklin County · Precinct 27-A</p>
@@ -1020,6 +1057,37 @@
     });
     btn.className = btn.className.replace('tab-inactive','tab-active');
   }
+
+  // Inject personal alignment match lines on each rep card
+  // (Demo state: user is fully calibrated; each rep has a precomputed match %)
+  (function injectMatchLines() {
+    const matches = {
+      'Mike DeWine':       38,
+      'Hearcel F. Craig':  86,
+      'Allison Russo':     82,
+      'Marcus Holloway':   78,
+      'Sue Wallace':       71,
+      'Christina Vera':    84,
+      'Shayla Favor':      88,
+      'Andrew Ginther':    64,
+      'Erica Crawley':     81
+    };
+    document.querySelectorAll('h3.font-headline').forEach(h3 => {
+      const name = h3.textContent.trim();
+      const m = matches[name];
+      if (m === undefined) return;
+      const cls = m >= 70 ? 'high' : m >= 40 ? 'mid' : 'low';
+      const ico = m >= 70 ? 'check_circle' : m >= 40 ? 'help' : 'cancel';
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `
+        <p class="match-line">
+          <span class="material-symbols-outlined fill-icon ico pct ${cls}">${ico}</span>
+          <span class="pct ${cls}">${m}%</span>
+          <span>match · your alignment</span>
+        </p>`;
+      h3.insertAdjacentElement('afterend', wrap.firstElementChild);
+    });
+  })();
 
   // Inject the Tenure Scale tooltip into every .tenure-pill
   (function injectTenureTooltips() {

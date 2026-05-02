@@ -95,6 +95,44 @@
   .section-title span.see-all { font-family: 'Manrope', sans-serif; font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); cursor: pointer; }
 
   .hidden { display: none; }
+
+  /* ─── Personal Alignment section ─── */
+  .viz-toggle { display: inline-flex; background: #1a1714; border: 1px solid #34302A; padding: 2px; }
+  .viz-toggle button { padding: 5px 12px; font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; font-weight: 700; color: #948D80; background: transparent; border: none; cursor: pointer; transition: all 0.15s; }
+  .viz-toggle button.active { background: #C8D6CD; color: #1a1714; }
+  .viz-toggle button:hover:not(.active) { color: #f5f0e8; }
+
+  .radar-container { display: flex; justify-content: center; padding: 8px 0; }
+  .radar-svg { max-width: 100%; height: auto; }
+  .radar-grid-circle { stroke: #2E2A24; stroke-width: 1; fill: none; }
+  .radar-axis { stroke: #34302A; stroke-width: 0.5; }
+  .radar-polygon { fill: rgba(200,214,205,0.18); stroke: #C8D6CD; stroke-width: 1.5; }
+  .radar-vertex { stroke: #1a1714; stroke-width: 1.5; }
+  .radar-label { fill: #948D80; font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; font-family: 'Manrope', sans-serif; }
+  .radar-label.high { fill: #8FAA9A; }
+  .radar-label.mid  { fill: #C9A84C; }
+  .radar-label.low  { fill: #D85C5C; }
+  .radar-scale-label { fill: #34302A; font-size: 7px; font-weight: 600; font-family: 'Manrope', sans-serif; }
+
+  .heatmap-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 8px 0; }
+  .heatmap-cell { aspect-ratio: 1; padding: 8px 6px; display: flex; flex-direction: column; justify-content: space-between; border: 1.5px solid #34302A; background: #1a1714; position: relative; overflow: hidden; }
+  .heatmap-cell .heat-cat { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; color: #f5f0e8; line-height: 1.15; position: relative; z-index: 1; }
+  .heatmap-cell .heat-pct { font-family: 'Newsreader', serif; font-size: 18px; font-weight: 700; line-height: 1; position: relative; z-index: 1; color: #f5f0e8; }
+  .heatmap-cell .heat-fill { position: absolute; left: 0; bottom: 0; right: 0; background: linear-gradient(0deg, currentColor, transparent); opacity: 0.18; z-index: 0; }
+
+  .calibrated-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(200,214,205,0.08); border: 1px solid rgba(200,214,205,0.30);
+    padding: 3px 8px;
+  }
+  .calibrated-pill .material-symbols-outlined { font-size: 11px; color: #C8D6CD; }
+  .calibrated-pill span:last-child { font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; color: #C8D6CD; }
+
+  .alignment-bar-row { display: flex; align-items: center; gap: 10px; padding: 4px 0; }
+  .alignment-bar-row .lab { font-size: 10px; color: #948D80; font-weight: 600; flex-shrink: 0; width: 100px; }
+  .alignment-bar-row .track { flex: 1; height: 5px; background: #34302A; position: relative; }
+  .alignment-bar-row .fill { position: absolute; top: 0; height: 100%; }
+  .alignment-bar-row .pct { font-family: 'Newsreader', serif; font-size: 12px; font-weight: 700; min-width: 38px; text-align: right; }
 </style>
 </head>
 <body class="dark">
@@ -260,49 +298,129 @@
       </div>
     </div>
 
-    <!-- Voting Snapshot -->
+    <!-- Your Alignment with Sen. Craig -->
     <div>
-      <div class="section-title">Voting Snapshot <span class="see-all" onclick="showTab('votes', document.querySelectorAll('.profile-tab')[1])">See Full Record</span></div>
-      <div class="grid grid-cols-3 gap-3 mb-5">
+      <div class="section-title flex items-center justify-between flex-wrap">
+        <span>Your Alignment with Sen. Craig</span>
+        <a href="../Calibration/code.html" class="calibrated-pill">
+          <span class="material-symbols-outlined fill-icon">tune</span>
+          <span>Calibrated · 12/12</span>
+        </a>
+      </div>
+
+      <!-- Top stats -->
+      <div class="grid grid-cols-3 gap-3 mb-4">
         <div class="stat-tile">
-          <div class="label">Total Votes</div>
-          <div class="value">312</div>
-          <div class="sub">2023–2024 session</div>
+          <div class="label">Overall Match</div>
+          <div class="value" style="color:#8FAA9A;">86%</div>
+          <div class="sub">Weighted by importance</div>
         </div>
         <div class="stat-tile">
-          <div class="label">With Party</div>
-          <div class="value" style="color:var(--accent)">78%</div>
-          <div class="sub">244 votes</div>
+          <div class="label">Strongest</div>
+          <div class="value" style="color:#8FAA9A;font-size:18px;">Education</div>
+          <div class="sub">96% match</div>
         </div>
         <div class="stat-tile">
-          <div class="label">Bipartisan</div>
-          <div class="value" style="color:var(--blue)">14%</div>
-          <div class="sub">44 votes</div>
+          <div class="label">Weakest</div>
+          <div class="value" style="color:#C9A84C;font-size:18px;">Economy</div>
+          <div class="sub">56% match</div>
         </div>
       </div>
-      <!-- Category breakdown bars -->
-      <div class="bar-chart-row">
-        <span class="bar-label" style="font-size:10px; color:var(--secondary);">Economy</span>
-        <div class="bar-track"><div class="bar-fill" style="width:88%; background:#C8D6CD;"></div></div>
-        <span class="bar-val">88%</span>
+
+      <!-- Toggle -->
+      <div class="flex items-center justify-between mb-2">
+        <p style="font-size:9px;text-transform:uppercase;letter-spacing:0.14em;font-weight:700;color:#948D80;">Alignment Map</p>
+        <div class="viz-toggle" id="oa-toggle">
+          <button class="active" data-view="radar">Radar</button>
+          <button data-view="heatmap">Heatmap</button>
+        </div>
       </div>
-      <div class="bar-chart-row">
-        <span class="bar-label" style="font-size:10px; color:var(--secondary);">Education</span>
-        <div class="bar-track"><div class="bar-fill" style="width:72%; background:#C8D6CD;"></div></div>
-        <span class="bar-val">72%</span>
+
+      <div id="oa-radar" class="radar-container">
+        <svg class="radar-svg" id="oa-radar-svg" viewBox="0 0 340 320" width="100%"></svg>
       </div>
-      <div class="bar-chart-row">
-        <span class="bar-label" style="font-size:10px; color:var(--secondary);">Criminal Justice</span>
-        <div class="bar-track"><div class="bar-fill" style="width:55%; background:#C9A84C;"></div></div>
-        <span class="bar-val">55%</span>
+      <div id="oa-heatmap" class="hidden">
+        <div class="heatmap-grid" id="oa-heatmap-grid"></div>
       </div>
-      <div class="bar-chart-row">
-        <span class="bar-label" style="font-size:10px; color:var(--secondary);">Healthcare</span>
-        <div class="bar-track"><div class="bar-fill" style="width:81%; background:#C8D6CD;"></div></div>
-        <span class="bar-val">81%</span>
+
+      <!-- Per-category bars -->
+      <div class="border-t border-[#34302A] mt-4 pt-3">
+        <p style="font-size:9px;text-transform:uppercase;letter-spacing:0.14em;font-weight:700;color:#948D80;margin-bottom:6px;">Per-Category Detail</p>
+        <div id="oa-bars"></div>
       </div>
-      <p class="text-[9px] text-[#8A8880] mt-2">% = votes aligned with party position</p>
+
+      <p class="text-[10px] mt-3 leading-relaxed" style="color:#948D80;">
+        Personal alignment computed from your calibrated positions × Sen. Craig's votes on tagged bills.
+        <a href="../Calibration/code.html" style="color:#C8D6CD;">Recalibrate →</a>
+      </p>
     </div>
+
+    <script>
+      (function() {
+        const ALIGN = [
+          ['Economy', 56], ['Healthcare', 94], ['Education', 96], ['Housing', 89],
+          ['Criminal', 84], ['Reproductive', 92], ['Gun', 91], ['Environment', 81],
+          ['Civil', 96], ['Labor', 94], ['Immigration', 86], ['Transparency', 87]
+        ];
+        const colorFor = p => p >= 70 ? '#8FAA9A' : p >= 40 ? '#C9A84C' : '#D85C5C';
+        const clsFor   = p => p >= 70 ? 'high'    : p >= 40 ? 'mid'     : 'low';
+
+        // Radar
+        const cx=170, cy=160, maxR=100, N=ALIGN.length;
+        const parts = [];
+        [25,50,75,100].forEach(p => parts.push(`<circle class="radar-grid-circle" cx="${cx}" cy="${cy}" r="${(p/100)*maxR}"/>`));
+        [25,50,75,100].forEach(p => { const r = (p/100)*maxR; parts.push(`<text class="radar-scale-label" x="${cx+2}" y="${cy-r-1}">${p}%</text>`); });
+        for (let i=0;i<N;i++) {
+          const a = (i/N)*2*Math.PI - Math.PI/2;
+          parts.push(`<line class="radar-axis" x1="${cx}" y1="${cy}" x2="${cx+maxR*Math.cos(a)}" y2="${cy+maxR*Math.sin(a)}"/>`);
+        }
+        const points = [], dots = [], labels = [];
+        ALIGN.forEach((row, i) => {
+          const [name, pct] = row;
+          const a = (i/N)*2*Math.PI - Math.PI/2;
+          const r = (pct/100)*maxR;
+          const px = cx+r*Math.cos(a), py = cy+r*Math.sin(a);
+          points.push(`${px.toFixed(1)},${py.toFixed(1)}`);
+          dots.push(`<circle class="radar-vertex" cx="${px}" cy="${py}" r="3.5" style="fill:${colorFor(pct)}"/>`);
+          const lr = maxR + 16;
+          const lx = cx + lr*Math.cos(a), ly = cy + lr*Math.sin(a) + 3;
+          const anc = Math.abs(Math.cos(a))<0.3 ? 'middle' : (Math.cos(a)>0 ? 'start' : 'end');
+          labels.push(`<text class="radar-label ${clsFor(pct)}" x="${lx}" y="${ly}" text-anchor="${anc}">${name.toUpperCase()}</text>`);
+        });
+        parts.push(`<polygon class="radar-polygon" points="${points.join(' ')}"/>`);
+        parts.push(...dots, ...labels);
+        document.getElementById('oa-radar-svg').innerHTML = parts.join('');
+
+        // Heatmap
+        document.getElementById('oa-heatmap-grid').innerHTML = ALIGN.map(([name, pct]) => {
+          const c = colorFor(pct);
+          return `<div class="heatmap-cell" style="color:${c};">
+            <div class="heat-fill"></div>
+            <div class="heat-cat">${name}</div>
+            <div class="heat-pct" style="color:${c};">${pct}%</div>
+          </div>`;
+        }).join('');
+
+        // Per-category bars
+        document.getElementById('oa-bars').innerHTML = ALIGN.map(([name, pct]) => `
+          <div class="alignment-bar-row">
+            <span class="lab">${name}</span>
+            <span class="track"><span class="fill" style="width:${pct}%; background:${colorFor(pct)};"></span></span>
+            <span class="pct" style="color:${colorFor(pct)};">${pct}%</span>
+          </div>
+        `).join('');
+
+        // Toggle
+        document.querySelectorAll('#oa-toggle button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('#oa-toggle button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('oa-radar').classList.toggle('hidden', btn.dataset.view !== 'radar');
+            document.getElementById('oa-heatmap').classList.toggle('hidden', btn.dataset.view !== 'heatmap');
+          });
+        });
+      })();
+    </script>
 
     <!-- Bills Snapshot -->
     <div class="pb-4">

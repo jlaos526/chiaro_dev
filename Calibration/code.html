@@ -142,6 +142,112 @@
     display: flex; gap: 10px; align-items: center;
   }
 
+  /* Visualization toggle */
+  .viz-toggle {
+    display: inline-flex;
+    background: #1a1714;
+    border: 1px solid #34302A;
+    padding: 2px;
+    border-radius: 2px;
+  }
+  .viz-toggle button {
+    padding: 6px 14px;
+    font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em;
+    font-weight: 700; color: #948D80;
+    background: transparent;
+    border: none; cursor: pointer;
+    transition: all 0.15s;
+  }
+  .viz-toggle button.active {
+    background: #C8D6CD;
+    color: #1a1714;
+  }
+  .viz-toggle button:hover:not(.active) { color: #f5f0e8; }
+
+  /* Radar chart */
+  .radar-container { display: flex; justify-content: center; padding: 12px 0 8px; }
+  .radar-svg { max-width: 100%; height: auto; }
+  .radar-grid-line { stroke: #34302A; stroke-width: 1; fill: none; }
+  .radar-grid-circle { stroke: #2E2A24; stroke-width: 1; fill: none; }
+  .radar-axis { stroke: #34302A; stroke-width: 0.5; }
+  .radar-polygon {
+    fill: rgba(200,214,205,0.18);
+    stroke: #C8D6CD;
+    stroke-width: 1.5;
+    transition: all 0.3s ease;
+  }
+  .radar-vertex { fill: #C8D6CD; stroke: #1a1714; stroke-width: 1.5; }
+  .radar-label {
+    fill: #948D80;
+    font-size: 8.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: 'Manrope', sans-serif;
+  }
+  .radar-label.high { fill: #8FAA9A; }
+  .radar-label.mid  { fill: #C9A84C; }
+  .radar-label.low  { fill: #D85C5C; }
+  .radar-scale-label {
+    fill: #34302A; font-size: 7px; font-weight: 600;
+    font-family: 'Manrope', sans-serif;
+  }
+
+  /* Heatmap grid */
+  .heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    padding: 8px 0;
+  }
+  .heatmap-cell {
+    aspect-ratio: 1;
+    padding: 8px 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid #34302A;
+    background: #1a1714;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .heatmap-cell.imp-1 { border-width: 1px; }
+  .heatmap-cell.imp-2 { border-width: 1.5px; }
+  .heatmap-cell.imp-3 { border-width: 2px; }
+  .heatmap-cell.imp-4 { border-width: 2.5px; box-shadow: 0 0 0 1px rgba(201,168,76,0.25); }
+  .heatmap-cell .heat-cat {
+    font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.06em;
+    font-weight: 700; color: #f5f0e8; line-height: 1.15;
+    position: relative; z-index: 1;
+  }
+  .heatmap-cell .heat-pct {
+    font-family: 'Newsreader', serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    position: relative; z-index: 1;
+    color: #f5f0e8;
+  }
+  .heatmap-cell .heat-imp {
+    position: absolute;
+    top: 4px; right: 4px;
+    display: flex; gap: 1.5px;
+  }
+  .heatmap-cell .heat-imp-dot {
+    width: 4px; height: 4px;
+    background: #C9A84C;
+    border-radius: 50%;
+  }
+  .heatmap-cell .heat-fill {
+    position: absolute; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(0deg, currentColor, transparent);
+    opacity: 0.18;
+    z-index: 0;
+  }
+  .heatmap-cell.uncal { color: #34302A; opacity: 0.55; }
+  .heatmap-cell.uncal .heat-pct { color: #34302A; }
+
   /* Live preview alignment bars */
   .preview-alignment-row {
     display: flex; align-items: center; gap: 10px; padding: 5px 0;
@@ -248,9 +354,29 @@
         <p class="font-headline text-3xl font-bold leading-none" id="overall-match-pct" style="color:#34302A">—</p>
       </div>
     </div>
-    <div id="alignment-preview"></div>
+    <!-- Alignment Map (toggleable) -->
+    <div class="flex items-center justify-between mb-2">
+      <p class="text-[9px] uppercase tracking-widest font-bold text-[#948D80]">Alignment Map</p>
+      <div class="viz-toggle" id="viz-toggle">
+        <button class="active" data-view="radar">Radar</button>
+        <button data-view="heatmap">Heatmap</button>
+      </div>
+    </div>
+
+    <div id="viz-radar" class="radar-container">
+      <svg class="radar-svg" viewBox="0 0 340 320" id="radar-svg" width="100%"></svg>
+    </div>
+
+    <div id="viz-heatmap" class="hidden">
+      <div class="heatmap-grid" id="heatmap-grid"></div>
+    </div>
+
+    <div class="border-t border-[#34302A] mt-3 pt-3">
+      <p class="text-[9px] uppercase tracking-widest font-bold text-[#948D80] mb-2">Per-Category Detail</p>
+      <div id="alignment-preview"></div>
+    </div>
     <p class="text-[10px] text-[#948D80] mt-3 leading-relaxed">
-      Bars update as you calibrate. Greyed-out categories haven't been calibrated yet — those use the rep's objective voting data.
+      Greyed-out categories haven't been calibrated yet. Heatmap cell border thickness reflects importance weight.
     </p>
   </section>
 
@@ -463,14 +589,91 @@
   function pctClass(p) { return p >= 70 ? 'pct-high' : p >= 40 ? 'pct-mid' : 'pct-low'; }
   function fillColor(p) { return p >= 70 ? '#8FAA9A' : p >= 40 ? '#C9A84C' : '#D85C5C'; }
 
+  // ─── Radar render ────────────────────────────────────
+  function renderRadar(alignments) {
+    const cx = 170, cy = 160, maxR = 100;
+    const N = CATEGORIES.length;
+    let parts = [];
+    // Concentric grid circles (4 rings: 25/50/75/100)
+    [25, 50, 75, 100].forEach(pct => {
+      const r = (pct/100) * maxR;
+      parts.push(`<circle class="radar-grid-circle" cx="${cx}" cy="${cy}" r="${r}"/>`);
+    });
+    // Scale labels (vertical, on right)
+    [25, 50, 75, 100].forEach(pct => {
+      const r = (pct/100) * maxR;
+      parts.push(`<text class="radar-scale-label" x="${cx + 2}" y="${cy - r - 1}">${pct}%</text>`);
+    });
+    // 12 axes
+    for (let i = 0; i < N; i++) {
+      const angle = (i / N) * 2 * Math.PI - Math.PI/2;
+      const x2 = cx + maxR * Math.cos(angle);
+      const y2 = cy + maxR * Math.sin(angle);
+      parts.push(`<line class="radar-axis" x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}"/>`);
+    }
+    // Polygon points
+    const points = [];
+    const vertexEls = [];
+    const labelEls = [];
+    for (let i = 0; i < N; i++) {
+      const angle = (i / N) * 2 * Math.PI - Math.PI/2;
+      const cat = CATEGORIES[i];
+      const align = alignments[i];
+      const r = align === null ? 0 : (align/100) * maxR;
+      const px = cx + r * Math.cos(angle);
+      const py = cy + r * Math.sin(angle);
+      points.push(`${px.toFixed(1)},${py.toFixed(1)}`);
+      // vertex dot
+      if (align !== null) {
+        const c = align >= 70 ? '#8FAA9A' : align >= 40 ? '#C9A84C' : '#D85C5C';
+        vertexEls.push(`<circle class="radar-vertex" cx="${px}" cy="${py}" r="3.5" style="fill:${c}"/>`);
+      }
+      // labels around perimeter (15px outside)
+      const labelR = maxR + 16;
+      const lx = cx + labelR * Math.cos(angle);
+      const ly = cy + labelR * Math.sin(angle) + 3;
+      const labelTxt = cat.name.replace(' & ',' ').split(' ')[0].toUpperCase();
+      const cls = align === null ? '' : (align >= 70 ? 'high' : align >= 40 ? 'mid' : 'low');
+      const anchor = Math.abs(Math.cos(angle)) < 0.3 ? 'middle' : (Math.cos(angle) > 0 ? 'start' : 'end');
+      labelEls.push(`<text class="radar-label ${cls}" x="${lx}" y="${ly}" text-anchor="${anchor}">${labelTxt}</text>`);
+    }
+    parts.push(`<polygon class="radar-polygon" points="${points.join(' ')}"/>`);
+    parts.push(...vertexEls);
+    parts.push(...labelEls);
+    document.getElementById('radar-svg').innerHTML = parts.join('');
+  }
+
+  // ─── Heatmap render ──────────────────────────────────
+  function renderHeatmap(alignments) {
+    const grid = document.getElementById('heatmap-grid');
+    grid.innerHTML = CATEGORIES.map((cat, i) => {
+      const align = alignments[i];
+      const imp = state[cat.id].importance;
+      const isCal = align !== null && imp > 0;
+      const c = align === null ? '#34302A' : (align >= 70 ? '#8FAA9A' : align >= 40 ? '#C9A84C' : '#D85C5C');
+      const pctTxt = align === null ? '—' : align + '%';
+      const impDots = imp > 0 ? Array(imp).fill('<span class="heat-imp-dot"></span>').join('') : '';
+      const shortName = cat.name.replace(' & ', ' &<br/>');
+      return `
+        <div class="heatmap-cell ${isCal ? 'imp-' + imp : 'uncal'}" style="color:${c};">
+          <div class="heat-fill"></div>
+          <div class="heat-imp">${impDots}</div>
+          <div class="heat-cat">${shortName}</div>
+          <div class="heat-pct">${pctTxt}</div>
+        </div>`;
+    }).join('');
+  }
+
   function update() {
     // Render alignment preview
     let calibrated = 0;
     let weightedTotal = 0, weightedSum = 0;
+    const alignmentsArr = [];
     previewEl.innerHTML = CATEGORIES.map(cat => {
       const align = categoryAlignmentWithCraig(cat);
       const imp = state[cat.id].importance;
       const isCalibrated = align !== null && imp > 0;
+      alignmentsArr.push(isCalibrated ? align : null);
       if (isCalibrated) {
         calibrated++;
         weightedTotal += align * imp;
@@ -492,6 +695,10 @@
         </div>`;
     }).join('');
 
+    // Render visualizations
+    renderRadar(alignmentsArr);
+    renderHeatmap(alignmentsArr);
+
     // Update top progress
     document.getElementById('cal-count').textContent = calibrated;
     document.getElementById('cal-progress').style.width = (calibrated/12*100) + '%';
@@ -507,6 +714,17 @@
       overall.style.color = fillColor(pct);
     }
   }
+
+  // ─── Viz toggle ──────────────────────────────────────
+  document.querySelectorAll('#viz-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#viz-toggle button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const view = btn.dataset.view;
+      document.getElementById('viz-radar').classList.toggle('hidden', view !== 'radar');
+      document.getElementById('viz-heatmap').classList.toggle('hidden', view !== 'heatmap');
+    });
+  });
 
   function resetAll() {
     if (!confirm('Reset all calibration values?')) return;
