@@ -13,7 +13,7 @@ export interface CreateChiaroClientOptions {
 export function createChiaroClient(opts: CreateChiaroClientOptions): ChiaroClient {
   return createClient<Database>(opts.url, opts.anonKey, {
     auth: {
-      storage: opts.storage,
+      ...(opts.storage && { storage: opts.storage }),
       persistSession: true,
       autoRefreshToken: true,
       detectSessionInUrl: opts.detectSessionInUrl ?? false,
