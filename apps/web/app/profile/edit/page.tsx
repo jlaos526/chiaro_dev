@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { profileFormSchema, updateMyProfile, ProfileError } from '@chiaro/profile'
 
-export default function ProfileEditPage() {
+export default function ProfileEditPage(): React.JSX.Element {
   const router = useRouter()
   const [displayName, setDisplayName] = useState('')
   const [username, setUsername] = useState('')

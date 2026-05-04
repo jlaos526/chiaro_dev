@@ -2,7 +2,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getMyProfile } from '@chiaro/profile'
 import { redirect } from 'next/navigation'
 
-export default async function Home() {
+export default async function Home(): Promise<React.JSX.Element> {
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/sign-in')

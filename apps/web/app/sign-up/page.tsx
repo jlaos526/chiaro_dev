@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
-export default function SignUpPage() {
+export default function SignUpPage(): React.JSX.Element {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
