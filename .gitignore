@@ -27,6 +27,9 @@ dist/
 .vscode/
 .idea/
 
+# Claude Code worktrees (per-machine, not shared)
+.claude/worktrees/
+
 # system
 .DS_Store
 Thumbs.db
