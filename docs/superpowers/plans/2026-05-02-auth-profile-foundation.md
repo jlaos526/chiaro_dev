@@ -580,20 +580,20 @@ select results_eq(
 reset role;
 reset "request.jwt.claims";
 
+-- Test 9: username uniqueness is case-insensitive (run while both A and B exist)
+select throws_ok(
+  $$ update public.profiles set username='ALICE' where id='00000000-0000-0000-0000-00000000000b' $$,
+  '23505',
+  null,
+  'Case-insensitive username uniqueness enforced'
+);
+
 -- Test 8: cascade delete from auth.users → profile gone
 delete from auth.users where id='00000000-0000-0000-0000-00000000000a';
 select results_eq(
   $$ select count(*)::int from public.profiles where id='00000000-0000-0000-0000-00000000000a' $$,
   $$ values (0) $$,
   'Deleting auth.users row cascades to profiles'
-);
-
--- Test 9: username uniqueness is case-insensitive
-select throws_ok(
-  $$ update public.profiles set username='ALICE' where id='00000000-0000-0000-0000-00000000000b' $$,
-  '23505',
-  null,
-  'Case-insensitive username uniqueness enforced'
 );
 
 select * from finish();
