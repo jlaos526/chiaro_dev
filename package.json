@@ -15,7 +15,8 @@
     "db:stop": "pnpm --filter @chiaro/db supabase:stop",
     "db:reset": "pnpm --filter @chiaro/db supabase:reset",
     "db:test": "pnpm --filter @chiaro/db supabase:test",
-    "db:gen-types": "pnpm --filter @chiaro/db supabase:gen-types"
+    "db:gen-types": "pnpm --filter @chiaro/db supabase:gen-types",
+    "db:check-types-drift": "pnpm db:gen-types && git diff --exit-code packages/db/src/types.ts"
   },
   "devDependencies": {
     "turbo": "^2.0.0",
