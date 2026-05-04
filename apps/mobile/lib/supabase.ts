@@ -2,10 +2,11 @@ import 'react-native-url-polyfill/auto'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { AppState } from 'react-native'
 import { createChiaroClient } from '@chiaro/supabase-client'
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from './env'
 
 export const supabase = createChiaroClient({
-  url: process.env.EXPO_PUBLIC_SUPABASE_URL!,
-  anonKey: process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!,
+  url: SUPABASE_URL,
+  anonKey: SUPABASE_ANON_KEY,
   storage: AsyncStorage,
 })
 

@@ -1723,7 +1723,6 @@ git commit -m "feat(web): add sign-in, sign-up, home, and profile edit pages"
 - Create: `apps/mobile/app/_layout.tsx`
 - Create: `apps/mobile/app/index.tsx` (placeholder)
 - Create: `apps/mobile/.env.example`
-- Create: `apps/mobile/assets/` (with placeholder icon and splash images)
 
 **Reading required:** spec's "Client Wiring → Mobile (Expo)" + Expo docs `https://docs.expo.dev/router/installation/`.
 
