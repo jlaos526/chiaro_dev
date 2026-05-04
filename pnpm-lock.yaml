@@ -21,6 +21,28 @@ importers:
         specifier: ^5.4.0
         version: 5.9.3
 
+  packages/profile:
+    dependencies:
+      '@chiaro/db':
+        specifier: workspace:*
+        version: link:../db
+      '@chiaro/supabase-client':
+        specifier: workspace:*
+        version: link:../supabase-client
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+    devDependencies:
+      '@supabase/supabase-js':
+        specifier: ^2.45.0
+        version: 2.105.3
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.0.0
+        version: 2.1.9(@types/node@25.6.0)
+
   packages/supabase-client:
     dependencies:
       '@chiaro/db':
@@ -610,6 +632,9 @@ packages:
       utf-8-validate:
         optional: true
 
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+
 snapshots:
 
   '@esbuild/aix-ppc64@0.21.5':
@@ -1079,3 +1104,5 @@ snapshots:
       stackback: 0.0.2
 
   ws@8.20.0: {}
+
+  zod@3.25.76: {}
