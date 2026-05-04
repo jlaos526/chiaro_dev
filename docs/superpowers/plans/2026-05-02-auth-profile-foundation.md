@@ -1029,7 +1029,7 @@ export type ProfileFormInput = z.infer<typeof profileFormSchema>
 import type { PostgrestError } from '@supabase/supabase-js'
 
 export class ProfileError extends Error {
-  constructor(message: string, public readonly cause?: unknown) {
+  constructor(message: string, public override readonly cause?: unknown) {
     super(message)
     this.name = 'ProfileError'
   }
