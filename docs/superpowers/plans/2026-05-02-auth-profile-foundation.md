@@ -91,6 +91,7 @@ chiaro/
 ├── docs/superpowers/{specs,plans}/...       # Existing
 ├── .gitignore                                # Created in Task 1
 ├── .env.example                              # Top-level shape
+├── .npmrc                                    # node-linker=hoisted for Expo + Metro
 ├── package.json                              # Root
 ├── pnpm-workspace.yaml
 ├── turbo.json
@@ -246,15 +247,29 @@ SUPABASE_URL=http://127.0.0.1:54321
 SUPABASE_ANON_KEY=replace-with-output-of-supabase-status
 ```
 
-- [ ] **Step 7: Verify pnpm install runs cleanly**
+- [ ] **Step 7: Create root `.npmrc`**
+
+```
+# Expo + Metro need a flat node_modules layout to resolve deep transitive
+# requires (e.g. react-native -> invariant, expo-router -> @babel/runtime,
+# expo-router -> @expo/metro-runtime, expo -> whatwg-fetch). pnpm's default
+# isolated linker hides these from Metro's resolver. `hoisted` matches
+# npm/yarn-classic layout — the documented Expo pnpm-monorepo pattern.
+# https://docs.expo.dev/guides/monorepos/
+node-linker=hoisted
+```
+
+(Without this, Tasks 11–12 will hit a sequence of "Unable to resolve `<package>`" Metro errors. Adding it upfront avoids the debugging spiral.)
+
+- [ ] **Step 8: Verify pnpm install runs cleanly**
 
 Run: `pnpm install`
 Expected: lockfile created, no errors.
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
-git add pnpm-workspace.yaml package.json turbo.json tsconfig.base.json .gitignore .env.example pnpm-lock.yaml
+git add pnpm-workspace.yaml package.json turbo.json tsconfig.base.json .gitignore .env.example .npmrc pnpm-lock.yaml
 git commit -m "chore: monorepo skeleton with pnpm + turbo"
 ```
 
