@@ -1758,6 +1758,7 @@ git commit -m "feat(web): add sign-in, sign-up, home, and profile edit pages"
     "react-native-safe-area-context": "5.6.2",
     "react-native-screens": "~4.16.0",
     "react-native-url-polyfill": "^2.0.0",
+    "whatwg-fetch": "^3.6.20",
     "zod": "^3.23.0"
   },
   "devDependencies": {
