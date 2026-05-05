@@ -1743,30 +1743,30 @@ git commit -m "feat(web): add sign-in, sign-up, home, and profile edit pages"
     "@chiaro/db": "workspace:*",
     "@chiaro/profile": "workspace:*",
     "@chiaro/supabase-client": "workspace:*",
-    "@react-native-async-storage/async-storage": "1.23.1",
+    "@react-native-async-storage/async-storage": "2.2.0",
     "@supabase/supabase-js": "^2.45.0",
-    "expo": "~52.0.0",
-    "expo-constants": "~17.0.0",
-    "expo-linking": "~7.0.0",
-    "expo-router": "~4.0.0",
-    "expo-status-bar": "~2.0.0",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "react-native": "0.76.0",
-    "react-native-safe-area-context": "4.12.0",
-    "react-native-screens": "~4.1.0",
+    "expo": "~54.0.0",
+    "expo-constants": "~18.0.13",
+    "expo-linking": "~8.0.12",
+    "expo-router": "~6.0.23",
+    "expo-status-bar": "~3.0.9",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-safe-area-context": "5.6.2",
+    "react-native-screens": "~4.16.0",
     "react-native-url-polyfill": "^2.0.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.0",
-    "@types/react": "~19.0.0",
+    "@types/react": "~19.1.17",
     "typescript": "^5.4.0"
   }
 }
 ```
 
-(Versions reflect Expo SDK 52, the current SDK as of the plan date. If Expo 53+ is current when executing this plan, run `npx expo install --check` after `pnpm install` and update versions to the SDK-aligned set.)
+(Versions reflect Expo SDK 54, the canonical SDK pin for this plan. If a newer Expo SDK is current when executing this plan, run `npx expo install --check` after `pnpm install` and follow the same `npx expo install --fix` flow to update to the SDK-aligned set.)
 
 - [ ] **Step 2: Create `apps/mobile/tsconfig.json`**
 
