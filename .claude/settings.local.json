@@ -26,7 +26,16 @@
       "PowerShell(npm view *)",
       "PowerShell(git commit *)",
       "PowerShell(git *)",
-      "PowerShell(Test-Path *)"
+      "PowerShell(Test-Path *)",
+      "Bash(pnpm --version)",
+      "Bash(pnpm test *)",
+      "Bash(pnpm --filter @chiaro/db exec supabase status)",
+      "Bash(pnpm db:test)",
+      "Bash(pnpm build *)",
+      "Bash(gh repo *)",
+      "PowerShell(gh *)",
+      "Bash(where gh *)",
+      "Bash(where.exe gh *)"
     ]
   }
 }
