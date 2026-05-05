@@ -1740,6 +1740,7 @@ git commit -m "feat(web): add sign-in, sign-up, home, and profile edit pages"
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@babel/runtime": "^7.29.2",
     "@chiaro/db": "workspace:*",
     "@chiaro/profile": "workspace:*",
     "@chiaro/supabase-client": "workspace:*",
