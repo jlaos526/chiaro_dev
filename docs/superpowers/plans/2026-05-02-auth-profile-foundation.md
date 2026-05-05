@@ -1743,6 +1743,7 @@ git commit -m "feat(web): add sign-in, sign-up, home, and profile edit pages"
     "@chiaro/db": "workspace:*",
     "@chiaro/profile": "workspace:*",
     "@chiaro/supabase-client": "workspace:*",
+    "@expo/metro-runtime": "~6.1.2",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@supabase/supabase-js": "^2.45.0",
     "expo": "~54.0.0",
