@@ -1,0 +1,106 @@
+import type { GeocodioResponse, CalibrateInput, ResolvedDistrict, GeocodioCandidate } from './types.ts'
+
+export interface GeocodioClient {
+  lookup(input: CalibrateInput): Promise<GeocodioResponse>
+}
+
+export class GeocodioHttpClient implements GeocodioClient {
+  constructor(private readonly apiKey: string) {}
+
+  async lookup(input: CalibrateInput): Promise<GeocodioResponse> {
+    const params = new URLSearchParams({
+      api_key: this.apiKey,
+      fields: 'cd,stateleg,census2020',     // pinned field flags
+    })
+    if ('address' in input) {
+      params.set('q', input.address)
+    } else {
+      params.set('q', `${input.lat},${input.lng}`)
+    }
+
+    const url = `https://api.geocod.io/v1.7/geocode?${params.toString()}`
+    const ctrl = new AbortController()
+    const t = setTimeout(() => ctrl.abort(), 10_000)
+    try {
+      const res = await fetch(url, { signal: ctrl.signal })
+      if (!res.ok) {
+        throw new GeocodioError(res.status, await res.text())
+      }
+      return await res.json() as GeocodioResponse
+    } finally {
+      clearTimeout(t)
+    }
+  }
+}
+
+export class GeocodioError extends Error {
+  constructor(public readonly status: number, public readonly body: string) {
+    super(`GeocodIO ${status}: ${body.slice(0, 200)}`)
+  }
+}
+
+// Map a GeocodIO candidate → array of resolved districts. Missing fields
+// produce no row for that tier (logged as warning at the call site).
+export function extractDistricts(c: GeocodioCandidate): ResolvedDistrict[] {
+  const out: ResolvedDistrict[] = []
+  const state = c.address_components.state
+
+  // federal_house
+  for (const cd of c.fields?.congressional_districts ?? []) {
+    const num = cd.district_number === 0 ? 'AL' : String(cd.district_number)
+    out.push({
+      tier: 'federal_house',
+      code: `${state}-${num}`,
+      state,
+      name: cd.name,
+    })
+  }
+
+  // federal_senate — both seats
+  out.push(
+    { tier: 'federal_senate', state, code: `${state}-S1`, name: `${state} U.S. Senate (Class 1)` },
+    { tier: 'federal_senate', state, code: `${state}-S2`, name: `${state} U.S. Senate (Class 2)` },
+  )
+
+  // state_senate
+  for (const ss of c.fields?.state_legislative_districts?.senate ?? []) {
+    out.push({
+      tier: 'state_senate',
+      state,
+      code: `${state}-SS-${ss.district_number}`,
+      name: ss.name,
+    })
+  }
+
+  // state_house
+  for (const sh of c.fields?.state_legislative_districts?.house ?? []) {
+    out.push({
+      tier: 'state_house',
+      state,
+      code: `${state}-SH-${sh.district_number}`,
+      name: sh.name,
+    })
+  }
+
+  // county + place from census2020
+  for (const census of c.fields?.census?.['2020'] ?? c.fields?.census?.['Census 2020'] ?? []) {
+    if (census.full_fips) {
+      out.push({
+        tier: 'county',
+        state,
+        code: census.full_fips,
+        name: `County ${census.full_fips}`,        // refined from districts table on lookup
+      })
+    }
+    if (census.place_fips) {
+      out.push({
+        tier: 'place',
+        state,
+        code: census.place_fips,
+        name: census.place_name ?? `Place ${census.place_fips}`,
+      })
+    }
+  }
+
+  return out
+}
