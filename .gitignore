@@ -30,6 +30,9 @@ dist/
 # Claude Code worktrees (per-machine, not shared)
 .claude/worktrees/
 
+# Superpowers brainstorm artifacts (per-machine, not shared)
+.superpowers/
+
 # system
 .DS_Store
 Thumbs.db
