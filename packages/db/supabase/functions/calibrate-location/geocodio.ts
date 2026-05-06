@@ -45,9 +45,10 @@ export function extractDistricts(c: GeocodioCandidate): ResolvedDistrict[] {
   const out: ResolvedDistrict[] = []
   const state = c.address_components.state
 
-  // federal_house
+  // federal_house — TIGER stores zero-padded ("01"); GeocodIO returns numeric.
+  // Pad to match TIGER's (tier, code) unique-key form. At-large is "AL".
   for (const cd of c.fields?.congressional_districts ?? []) {
-    const num = cd.district_number === 0 ? 'AL' : String(cd.district_number)
+    const num = cd.district_number === 0 ? 'AL' : String(cd.district_number).padStart(2, '0')
     out.push({
       tier: 'federal_house',
       code: `${state}-${num}`,
@@ -62,22 +63,25 @@ export function extractDistricts(c: GeocodioCandidate): ResolvedDistrict[] {
     { tier: 'federal_senate', state, code: `${state}-S2`, name: `${state} U.S. Senate (Class 2)` },
   )
 
-  // state_senate
+  // state_senate — TIGER strips leading zeros from SLDUST. Match here so the
+  // (tier, code) lookup against canonical rows succeeds.
   for (const ss of c.fields?.state_legislative_districts?.senate ?? []) {
+    const num = String(ss.district_number).replace(/^0+/, '') || '0'
     out.push({
       tier: 'state_senate',
       state,
-      code: `${state}-SS-${ss.district_number}`,
+      code: `${state}-SS-${num}`,
       name: ss.name,
     })
   }
 
-  // state_house
+  // state_house — same leading-zero strip as state_senate.
   for (const sh of c.fields?.state_legislative_districts?.house ?? []) {
+    const num = String(sh.district_number).replace(/^0+/, '') || '0'
     out.push({
       tier: 'state_house',
       state,
-      code: `${state}-SH-${sh.district_number}`,
+      code: `${state}-SH-${num}`,
       name: sh.name,
     })
   }
