@@ -117,6 +117,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.45.0
         version: 2.105.3
+      leaflet:
+        specifier: ^1.9.4
+        version: 1.9.4
       next:
         specifier: ^15.0.0
         version: 15.5.15(babel-plugin-react-compiler@1.0.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -126,10 +129,16 @@ importers:
       react-dom:
         specifier: 19.1.0
         version: 19.1.0(react@19.1.0)
+      react-leaflet:
+        specifier: ^4.2.1
+        version: 4.2.1(leaflet@1.9.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       zod:
         specifier: ^3.23.0
         version: 3.25.76
     devDependencies:
+      '@types/leaflet':
+        specifier: ^1.9.12
+        version: 1.9.21
       '@types/node':
         specifier: ^20.10.0
         version: 20.19.39
@@ -1634,6 +1643,13 @@ packages:
       '@types/react':
         optional: true
 
+  '@react-leaflet/core@2.1.0':
+    resolution: {integrity: sha512-Qk7Pfu8BSarKGqILj4x7bCSZ1pjuAPZ+qmRwH5S7mDS91VSbVVsJSrW4qA+GPrro8t69gFYVMWb1Zc4yFmPiVg==}
+    peerDependencies:
+      leaflet: ^1.9.0
+      react: 19.1.0
+      react-dom: 19.1.0
+
   '@react-native-async-storage/async-storage@2.2.0':
     resolution: {integrity: sha512-gvRvjR5JAaUZF8tv2Kcq/Gbt3JHwbKFYfmb445rhOj6NUMx3qPLixmDx5pZAyb9at1bYvJ4/eTUipU5aki45xw==}
     peerDependencies:
@@ -1962,6 +1978,9 @@ packages:
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
+  '@types/geojson@7946.0.16':
+    resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==}
+
   '@types/graceful-fs@4.1.9':
     resolution: {integrity: sha512-olP3sd1qOEe5dXTSaFvQG+02VdRXcdytWLAZsAq1PecU8uqQAhkrnbli7DagjtXKW/Bl7YJbUsa8MPcuc8LHEQ==}
 
@@ -1973,6 +1992,9 @@ packages:
 
   '@types/istanbul-reports@3.0.4':
     resolution: {integrity: sha512-pk2B1NWalF9toCRu6gjBzR69syFjP4Od8WRAX+0mmf9lAjCRicLOWc+ZrxZHx/0XRjotgkF9t6iaMJ+aXcOdZQ==}
+
+  '@types/leaflet@1.9.21':
+    resolution: {integrity: sha512-TbAd9DaPGSnzp6QvtYngntMZgcRk+igFELwR2N99XZn7RXUdKgsXMR+28bUO0rPsWp8MIu/f47luLIQuSLYv/w==}
 
   '@types/node@20.19.39':
     resolution: {integrity: sha512-orrrD74MBUyK8jOAD/r0+lfa1I2MO6I+vAkmAWzMYbCcgrN4lCrmK52gRFQq/JRxfYPfonkr4b0jcY7Olqdqbw==}
@@ -2954,6 +2976,9 @@ packages:
     resolution: {integrity: sha512-ONPnazC96VKDntab9j9JKwIWhZ4ZUceB4A9Epu4Ssg0hYFmtHZSeQ+n15nIwTFmcBUKtExOer8WTJ4GF9MO64A==}
     hasBin: true
 
+  leaflet@1.9.4:
+    resolution: {integrity: sha512-nxS1ynzJOmOlHp+iL3FyWqK89GtNL8U8rvlMOsQdTTssxZwCXh8N2NB3GDQOL+YR3XnWyZAxwQixURb+FA74PA==}
+
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
     engines: {node: '>=6'}
@@ -3509,6 +3534,13 @@ packages:
 
   react-is@19.2.5:
     resolution: {integrity: sha512-Dn0t8IQhCmeIT3wu+Apm1/YVsJXsGWi6k4sPdnBIdqMVtHtv0IGi6dcpNpNkNac0zB2uUAqNX3MHzN8c+z2rwQ==}
+
+  react-leaflet@4.2.1:
+    resolution: {integrity: sha512-p9chkvhcKrWn/H/1FFeVSqLdReGwn2qmiobOQGO3BifX+/vV/39qhY8dGqbdcPh1e6jxh/QHriLXr7a4eLFK4Q==}
+    peerDependencies:
+      leaflet: ^1.9.0
+      react: 19.1.0
+      react-dom: 19.1.0
 
   react-native-is-edge-to-edge@1.3.1:
     resolution: {integrity: sha512-NIXU/iT5+ORyCc7p0z2nnlkouYKX425vuU1OEm6bMMtWWR9yvb+Xg5AZmImTKoF9abxCPqrKC3rOZsKzUYgYZA==}
@@ -5751,6 +5783,12 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.17
 
+  '@react-leaflet/core@2.1.0(leaflet@1.9.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      leaflet: 1.9.4
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+
   '@react-native-async-storage/async-storage@2.2.0(react-native@0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))':
     dependencies:
       merge-options: 3.0.4
@@ -6116,6 +6154,8 @@ snapshots:
 
   '@types/estree@1.0.8': {}
 
+  '@types/geojson@7946.0.16': {}
+
   '@types/graceful-fs@4.1.9':
     dependencies:
       '@types/node': 20.19.39
@@ -6129,6 +6169,10 @@ snapshots:
   '@types/istanbul-reports@3.0.4':
     dependencies:
       '@types/istanbul-lib-report': 3.0.3
+
+  '@types/leaflet@1.9.21':
+    dependencies:
+      '@types/geojson': 7946.0.16
 
   '@types/node@20.19.39':
     dependencies:
@@ -7204,6 +7248,8 @@ snapshots:
 
   lan-network@0.2.1: {}
 
+  leaflet@1.9.4: {}
+
   leven@3.1.0: {}
 
   lighthouse-logger@1.4.2:
@@ -7815,6 +7861,13 @@ snapshots:
   react-is@18.3.1: {}
 
   react-is@19.2.5: {}
+
+  react-leaflet@4.2.1(leaflet@1.9.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+    dependencies:
+      '@react-leaflet/core': 2.1.0(leaflet@1.9.4)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      leaflet: 1.9.4
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   react-native-is-edge-to-edge@1.3.1(react-native@0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0):
     dependencies:
