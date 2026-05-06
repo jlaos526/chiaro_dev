@@ -21,10 +21,12 @@ select col_type_is('public', 'districts', 'geometry', 'geography(MultiPolygon,43
 -- (RLS — added in Task 2) ----------------------------------------------------
 
 -- seed one row as superuser for read tests
+-- ON CONFLICT handles the case where the TIGER ingest has already populated this row.
 insert into public.districts (tier, state, code, name, geometry, source_version)
 values ('federal_house', 'NY', 'NY-01', 'NY-01',
         ST_GeomFromText('MULTIPOLYGON(((-73 40, -72 40, -72 41, -73 41, -73 40)))', 4326)::geography,
-        'TIGER 2024');
+        'TIGER 2024')
+on conflict (tier, code) do nothing;
 
 -- 9. RLS enabled
 select results_eq(

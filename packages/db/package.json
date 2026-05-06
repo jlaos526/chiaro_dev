@@ -14,9 +14,19 @@
     "supabase:stop": "supabase stop",
     "supabase:reset": "supabase db reset",
     "supabase:test": "supabase test db",
-    "supabase:gen-types": "supabase gen types typescript --local > src/types.ts"
+    "supabase:gen-types": "supabase gen types typescript --local > src/types.ts",
+    "db:seed-tiger": "tsx supabase/seed/tiger-ingest.ts"
+  },
+  "dependencies": {
+    "shapefile": "^0.6.6",
+    "undici": "^6.19.0",
+    "unzipper": "^0.12.3",
+    "pg": "^8.13.0"
   },
   "devDependencies": {
+    "@types/pg": "^8.11.0",
+    "@types/unzipper": "^0.10.10",
+    "tsx": "^4.16.0",
     "typescript": "^5.4.0"
   }
 }
