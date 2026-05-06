@@ -168,6 +168,28 @@ importers:
         specifier: ^5.4.0
         version: 5.9.3
 
+  packages/location:
+    dependencies:
+      '@chiaro/db':
+        specifier: workspace:*
+        version: link:../db
+      '@chiaro/supabase-client':
+        specifier: workspace:*
+        version: link:../supabase-client
+      '@supabase/supabase-js':
+        specifier: ^2.105.0
+        version: 2.105.3
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+    devDependencies:
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.0.0
+        version: 2.1.9(@types/node@25.6.0)(lightningcss@1.32.0)(terser@5.46.2)
+
   packages/profile:
     dependencies:
       '@chiaro/db':

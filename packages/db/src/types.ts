@@ -142,6 +142,13 @@ export type Database = {
             referencedRelation: "districts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_districts_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts_geojson"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_locations: {
@@ -170,6 +177,36 @@ export type Database = {
       }
     }
     Views: {
+      districts_geojson: {
+        Row: {
+          code: string | null
+          geometry: Json | null
+          id: string | null
+          name: string | null
+          source_version: string | null
+          state: string | null
+          tier: Database["public"]["Enums"]["district_tier"] | null
+        }
+        Insert: {
+          code?: string | null
+          geometry?: never
+          id?: string | null
+          name?: string | null
+          source_version?: string | null
+          state?: string | null
+          tier?: Database["public"]["Enums"]["district_tier"] | null
+        }
+        Update: {
+          code?: string | null
+          geometry?: never
+          id?: string | null
+          name?: string | null
+          source_version?: string | null
+          state?: string | null
+          tier?: Database["public"]["Enums"]["district_tier"] | null
+        }
+        Relationships: []
+      }
       geography_columns: {
         Row: {
           coord_dimension: number | null
