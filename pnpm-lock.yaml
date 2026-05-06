@@ -102,6 +102,9 @@ importers:
       '@chiaro/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@chiaro/location':
+        specifier: workspace:*
+        version: link:../../packages/location
       '@chiaro/profile':
         specifier: workspace:*
         version: link:../../packages/profile
