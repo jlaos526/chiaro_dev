@@ -20,11 +20,11 @@ Slice 2 lands the location pillar end-to-end on web and mobile:
 
 The slice ships behind the same RLS rigor as slice 1 (pgTAP at the policy layer + Vitest at the integration layer), plus a new live-GeocodIO Layer-2 suite that exercises the full client → Edge Function → DB path.
 
-## Commits (30 since plan landed; 28 implementation + 2 docs)
+## Commits (33 since plan landed)
 
 | Phase | Commits |
 |---|---|
-| Spec + plan | `1c10326` spec, `03847a2` plan |
+| Spec + plan + PR draft | `1c10326` spec, `03847a2` plan, `7ddacf9` PR draft |
 | Schema + RLS | `d331ed9` `362df0d` `b2619e9` `508e3bc` `292a854` `e443196` `ab6f502` |
 | TIGER ingest | `5d77154` `2beda33` `9ebb2bd` |
 | Location package + view | `13ed0aa` `b095618` |
@@ -32,8 +32,9 @@ The slice ships behind the same RLS rigor as slice 1 (pgTAP at the policy layer 
 | Web | `66e269a` `6b9322c` `5088c1e` `797a68e` |
 | Mobile | `9f3afd7` `ab34627` `0256132` `7410496` `1a4bc27` |
 | CI | `775180f` |
+| Smoke-test polish (react-leaflet 5 bump + UX) | `088343c` `9b0c78c` `86a75fc` |
 
-Full diff stats: 56 files changed, +7987 / -14 (most of the line count is the regenerated `Database` type and `pnpm-lock.yaml`; hand-authored code is ~3,500 lines split roughly evenly between schema/SQL, Edge Function, web, and mobile).
+Full diff stats (vs `master`): ~58 files changed, +8,200 / -40 (most of the line count is the regenerated `Database` type and `pnpm-lock.yaml`; hand-authored code is ~3,700 lines split roughly evenly between schema/SQL, Edge Function, web, and mobile).
 
 ## What's new (technical surface)
 
@@ -100,6 +101,8 @@ These all surfaced during implementation. Each is a pragmatic improvement, not s
 8. **DELETE-denial assertions added to RLS tests** for `user_locations` and `user_districts`. Spec said "INSERT/UPDATE/DELETE denied"; the original test files only covered INSERT and UPDATE.
 9. **`@chiaro/location` workspace dep wired into `apps/web/package.json`** during Task 14 (plan added it to mobile but missed web).
 10. **Slice 1 home Sign-Out button removed in favor of a Settings link** on mobile — keeps the skip-flag clear logic in one place (Settings/index).
+11. **`react-leaflet` bumped 4.2.1 → 5.0.0.** v4 + React 19 strict-mode triggers `Map container is already initialized` because `L.map()` is called twice on the same div during the dev double-mount and v4 doesn't clear `_leaflet_id` on cleanup. v5 is the React 19-targeted release. Discovered during the manual web smoke (commit `088343c`).
+12. **Smoke-test UX polish on the home district panel + map** (commits `9b0c78c` web, `86a75fc` mobile parity): home pin (CircleMarker on web / Marker on mobile, coords pulled from `geocodio_response.location` since PostgREST returns the geography column as WKB hex); Federal/State/Local groupings in both the panel list and the toggle row; Senate-before-House within Federal; sort-by-code within tier; U.S. Senate toggles default off; initial map view zoomed to the county boundary instead of the multi-state union; friendly tier labels in toggles ("U.S. House" not "federal_house") and "City / Place" → "City" in the list. None of these are spec deviations — they're refinements that emerged from actually using the feature.
 
 ## Test plan / verification
 
@@ -111,19 +114,12 @@ These all surfaced during implementation. Each is a pragmatic improvement, not s
   - [ ] `test` job: 19/19 vitest (slice 1's 11 + slice 2's 8 location integration) — needs `GEOCODIO_KEY` repo secret to be set first
   - [ ] `build` job: typecheck + builds across all packages
 - [ ] **GitHub Actions secret added:** `GEOCODIO_KEY` set in repo Settings → Secrets and variables → Actions. Same key from local `.env.local` works.
-- [ ] **Manual web smoke test** (live local stack):
+- [x] **Manual web smoke test passed 2026-05-06** (live local stack). Full flow verified: signup → profile fill → calibrate redirect → submit `350 5th Ave, New York, NY 10118` → home renders district list (Federal/State/Local groups, Senate-before-House) + Leaflet map zoomed to county with home pin → toggle polygons (Senate toggles default off, on adds state outline) → Settings → Home address (pre-filled with "Last updated …") → change to `1600 Pennsylvania Ave NW, Washington, DC 20500` → save → home reflects DC districts (state legislature + state house gracefully absent — DC has neither) → Sign out (cookie cleared) → second-user skip flow → banner CTA → click banner → back to `/calibrate`. To re-run:
   ```
   cd packages/db && supabase start
   pnpm db:seed-tiger          # if data not already loaded
   pnpm --filter @chiaro/web dev   # in another terminal — Edge Function hot-reloads via supabase_edge_runtime_db
   ```
-  Then in a browser:
-  1. Sign up new user → fill profile → redirected to `/calibrate`.
-  2. Submit `350 5th Ave, New York, NY 10118` → land on `/` → district list (6 tiers) + Leaflet map render.
-  3. Click checkboxes → polygons hide/show.
-  4. Settings → Home address → change to DC address → save. Home reflects DC districts (no state legislature, no state house — graceful absence).
-  5. Sign up second user → "Skip for now" on `/calibrate` → home shows calibrate-CTA banner.
-  6. Sign out → returns to `/sign-in`.
 - [ ] **Manual mobile smoke test** (Task 24 — out-of-scope automation):
   ```
   cd apps/mobile && eas build --profile development --platform ios   # or android
