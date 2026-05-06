@@ -1,7 +1,6 @@
 #!/usr/bin/env tsx
 import { fetch } from 'undici'
 import { Open } from 'unzipper'
-import { Readable } from 'node:stream'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'

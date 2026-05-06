@@ -1,4 +1,4 @@
-import { STATE_FIPS } from './tiger-state-fips.ts'
+import { STATE_FIPS, NO_STATE_HOUSE, NO_STATE_LEGISLATURE } from './tiger-state-fips.ts'
 
 export const TIGER_VERSION = 'TIGER 2024'
 
@@ -40,7 +40,7 @@ export const TIGER_SOURCES: TigerSource[] = [
   {
     tier: 'state_senate',
     urls: () => STATE_FIPS
-      .filter(s => !['DC'].includes(s.state))
+      .filter(s => !NO_STATE_LEGISLATURE.has(s.state))
       .map(s => ({
         url: `https://www2.census.gov/geo/tiger/TIGER2024/SLDU/tl_2024_${s.fips}_sldu.zip`,
         stateFips: s.fips,
@@ -58,7 +58,7 @@ export const TIGER_SOURCES: TigerSource[] = [
   {
     tier: 'state_house',
     urls: () => STATE_FIPS
-      .filter(s => !['DC', 'NE'].includes(s.state))
+      .filter(s => !NO_STATE_LEGISLATURE.has(s.state) && !NO_STATE_HOUSE.has(s.state))
       .map(s => ({
         url: `https://www2.census.gov/geo/tiger/TIGER2024/SLDL/tl_2024_${s.fips}_sldl.zip`,
         stateFips: s.fips,
