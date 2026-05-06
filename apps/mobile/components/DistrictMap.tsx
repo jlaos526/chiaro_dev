@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
-import MapView, { Polygon, PROVIDER_DEFAULT } from 'react-native-maps'
+import MapView, { Polygon, Marker, PROVIDER_DEFAULT } from 'react-native-maps'
 import type { DistrictTier } from '@chiaro/location'
 
 export type DistrictMapDistrict = {
@@ -20,28 +20,70 @@ const TIER_COLOR: Record<DistrictTier, string> = {
   place: '#c9a84c',
 }
 
-export function DistrictMap({ districts }: { districts: DistrictMapDistrict[] }) {
+const TIER_SHORT_LABEL: Record<DistrictTier, string> = {
+  federal_house: 'U.S. House',
+  federal_senate: 'U.S. Senate',
+  state_senate: 'State Senate',
+  state_house: 'State House',
+  county: 'County',
+  place: 'City',
+}
+
+type DistrictGroup = { heading: string; tiers: DistrictTier[] }
+const DISTRICT_GROUPS: DistrictGroup[] = [
+  { heading: 'Federal', tiers: ['federal_senate', 'federal_house'] },
+  { heading: 'State',   tiers: ['state_senate', 'state_house'] },
+  { heading: 'Local',   tiers: ['county', 'place'] },
+]
+
+export function DistrictMap({
+  districts,
+  homePoint,
+}: {
+  districts: DistrictMapDistrict[]
+  homePoint?: { lat: number; lng: number } | null
+}) {
+  // U.S. Senate tiers default to off — both seats represent the entire state,
+  // so their boundaries dominate the view and obscure local context.
   const [enabled, setEnabled] = useState<Record<string, boolean>>(
-    Object.fromEntries(districts.map(d => [d.id, true]))
+    Object.fromEntries(districts.map(d => [d.id, d.tier !== 'federal_senate']))
   )
   if (districts.length === 0) return null
 
-  const initialRegion = computeInitialRegion(districts)
+  // Initial view: zoom to the county boundary (most useful local context).
+  // Falls back to the union of everything if no county was resolved.
+  const countyDistricts = districts.filter(d => d.tier === 'county')
+  const initialRegion = countyDistricts.length > 0
+    ? computeInitialRegion(countyDistricts)
+    : computeInitialRegion(districts)
 
   return (
     <View>
-      <View style={styles.toggleRow}>
-        {districts.map(d => (
-          <Pressable
-            key={d.id}
-            style={[styles.toggle, enabled[d.id] && { backgroundColor: TIER_COLOR[d.tier] }]}
-            onPress={() => setEnabled(prev => ({ ...prev, [d.id]: !prev[d.id] }))}
-          >
-            <Text style={[styles.toggleText, enabled[d.id] && { color: 'white' }]}>
-              {d.tier} {d.code}
-            </Text>
-          </Pressable>
-        ))}
+      <View style={styles.toggleGroups}>
+        {DISTRICT_GROUPS.map(group => {
+          const inGroup = group.tiers.flatMap(tier =>
+            districts.filter(d => d.tier === tier).sort((a, b) => a.code.localeCompare(b.code))
+          )
+          if (inGroup.length === 0) return null
+          return (
+            <View key={group.heading} style={styles.groupRow}>
+              <Text style={styles.groupHeading}>{group.heading}</Text>
+              <View style={styles.toggleRow}>
+                {inGroup.map(d => (
+                  <Pressable
+                    key={d.id}
+                    style={[styles.toggle, enabled[d.id] && { backgroundColor: TIER_COLOR[d.tier] }]}
+                    onPress={() => setEnabled(prev => ({ ...prev, [d.id]: !prev[d.id] }))}
+                  >
+                    <Text style={[styles.toggleText, enabled[d.id] && { color: 'white' }]}>
+                      {TIER_SHORT_LABEL[d.tier]} {d.code}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          )
+        })}
       </View>
       <MapView style={styles.map} initialRegion={initialRegion} provider={PROVIDER_DEFAULT}>
         {districts.filter(d => enabled[d.id]).flatMap(d => polygonsFromGeometry(d).map((coords, i) => (
@@ -53,6 +95,13 @@ export function DistrictMap({ districts }: { districts: DistrictMapDistrict[] })
             fillColor={TIER_COLOR[d.tier] + '26'}              // ~15% alpha
           />
         )))}
+        {homePoint && (
+          <Marker
+            coordinate={{ latitude: homePoint.lat, longitude: homePoint.lng }}
+            title="Home"
+            pinColor="#1a1714"
+          />
+        )}
       </MapView>
     </View>
   )
@@ -87,7 +136,17 @@ function computeInitialRegion(districts: DistrictMapDistrict[]) {
 
 const styles = StyleSheet.create({
   map: { width: '100%', height: 320, marginTop: 8 },
-  toggleRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  toggleGroups: { gap: 8 },
+  groupRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  groupHeading: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#666',
+    letterSpacing: 1,
+    minWidth: 56,
+    paddingTop: 6,
+  },
+  toggleRow: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   toggle: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, borderWidth: 1, borderColor: '#888' },
   toggleText: { fontSize: 11, fontWeight: '700' },
 })
