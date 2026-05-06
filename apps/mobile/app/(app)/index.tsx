@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Button, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 import { Link } from 'expo-router'
 import { supabase } from '@/lib/supabase'
 import { getMyProfile } from '@chiaro/profile'
+import { DistrictPanel } from '@/components/DistrictPanel'
 
 type Profile = Awaited<ReturnType<typeof getMyProfile>>
 
@@ -31,7 +32,8 @@ export default function Home() {
       ) : (
         <Link href="/(app)/profile/edit">Complete your profile</Link>
       )}
-      <Button title="Sign out" onPress={() => supabase.auth.signOut()} />
+      <DistrictPanel />
+      <Link href="/settings">Settings</Link>
     </View>
   )
 }
