@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getMyProfile } from '@chiaro/profile'
 import { redirect } from 'next/navigation'
+import { DistrictPanel } from '@/components/DistrictPanel'
 
 export default async function Home(): Promise<React.JSX.Element> {
   const supabase = await createSupabaseServerClient()
@@ -20,6 +21,7 @@ export default async function Home(): Promise<React.JSX.Element> {
       <form action="/sign-out" method="post">
         <button type="submit">Sign out</button>
       </form>
+      <DistrictPanel />
     </main>
   )
 }
