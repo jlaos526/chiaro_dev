@@ -25,7 +25,11 @@ export type GeocodioCandidate = {
       house?: Array<{ name: string; district_number: string }>
       senate?: Array<{ name: string; district_number: string }>
     }
-    census?: Record<string, Array<{ full_fips: string; place_fips?: string; place_name?: string }>>
+    census?: Record<string, {
+      county_fips?: string
+      full_fips?: string
+      place?: { name?: string; fips?: string }
+    }>
   }
   address_components: { state: string }
 }

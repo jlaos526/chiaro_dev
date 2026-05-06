@@ -86,22 +86,27 @@ export function extractDistricts(c: GeocodioCandidate): ResolvedDistrict[] {
     })
   }
 
-  // county + place from census2020
-  for (const census of c.fields?.census?.['2020'] ?? c.fields?.census?.['Census 2020'] ?? []) {
-    if (census.full_fips) {
+  // county + place from census2020. GeocodIO returns `census` as an object
+  // keyed by year ("2020"), where each value is a *single* census record
+  // (not an array). The county code in TIGER is the 5-char state+county FIPS
+  // (e.g. "36061"), which GeocodIO exposes as `county_fips`. Place data is
+  // nested under `place.fips` / `place.name`.
+  const census = c.fields?.census?.['2020'] ?? c.fields?.census?.['Census 2020']
+  if (census) {
+    if (census.county_fips) {
       out.push({
         tier: 'county',
         state,
-        code: census.full_fips,
-        name: `County ${census.full_fips}`,        // refined from districts table on lookup
+        code: census.county_fips,
+        name: `County ${census.county_fips}`,        // refined from districts table on lookup
       })
     }
-    if (census.place_fips) {
+    if (census.place?.fips) {
       out.push({
         tier: 'place',
         state,
-        code: census.place_fips,
-        name: census.place_name ?? `Place ${census.place_fips}`,
+        code: census.place.fips,
+        name: census.place.name ?? `Place ${census.place.fips}`,
       })
     }
   }
