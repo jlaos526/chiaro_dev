@@ -1,6 +1,6 @@
 begin;
 
-select plan(10);
+select plan(11);
 
 -- 1. table exists with expected columns
 select has_table('public', 'user_locations', 'user_locations table exists');
@@ -55,7 +55,7 @@ select is_empty(
   'user A cannot SELECT user B''s user_locations row'
 );
 
--- 6. user A cannot INSERT
+-- 8. user A cannot INSERT
 select throws_ok(
   $$ insert into public.user_locations (id, home_address_text, home_location, geocodio_response)
      values ('00000000-0000-0000-0000-000000000aa1',
@@ -64,7 +64,7 @@ select throws_ok(
   'authenticated cannot INSERT into user_locations'
 );
 
--- 7. user A cannot UPDATE
+-- 9. user A cannot UPDATE
 select throws_ok(
   $$ update public.user_locations set home_address_text = 'hacked'
        where id = '00000000-0000-0000-0000-000000000aa1' $$,
@@ -72,7 +72,15 @@ select throws_ok(
   'authenticated cannot UPDATE user_locations'
 );
 
--- 8. cascade delete — superuser deletes auth.users → user_locations row gone
+-- 10. user A cannot DELETE
+select throws_ok(
+  $$ delete from public.user_locations
+       where id = '00000000-0000-0000-0000-000000000aa1' $$,
+  '42501', 'permission denied for table user_locations',
+  'authenticated cannot DELETE user_locations'
+);
+
+-- 11. cascade delete — superuser deletes auth.users → user_locations row gone
 reset role;
 delete from auth.users where id = '00000000-0000-0000-0000-000000000aa1';
 select is_empty(
