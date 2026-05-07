@@ -117,7 +117,10 @@ jobs:
       - name: Serve Edge Function
         working-directory: packages/db
         run: |
-          supabase functions serve calibrate-location &
+          # supabase functions serve only forwards env to the Deno worker via
+          # --env-file, NOT the parent process env. Materialize a one-line file.
+          printf 'GEOCODIO_KEY=%s\n' "$GEOCODIO_KEY" > /tmp/edge-env.env
+          supabase functions serve calibrate-location --env-file /tmp/edge-env.env &
           sleep 5
         env:
           GEOCODIO_KEY: ${{ secrets.GEOCODIO_KEY }}
