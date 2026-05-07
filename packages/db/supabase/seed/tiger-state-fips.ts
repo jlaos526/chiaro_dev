@@ -1,0 +1,62 @@
+// 50 states + DC. Territories (PR, GU, etc.) are intentionally excluded —
+// they do not have GeocodIO district resolution and are out of scope for
+// slice 2. Add them when an explicit feature requires them.
+export const STATE_FIPS: Array<{ fips: string; state: string; name: string }> = [
+  { fips: '01', state: 'AL', name: 'Alabama' },
+  { fips: '02', state: 'AK', name: 'Alaska' },
+  { fips: '04', state: 'AZ', name: 'Arizona' },
+  { fips: '05', state: 'AR', name: 'Arkansas' },
+  { fips: '06', state: 'CA', name: 'California' },
+  { fips: '08', state: 'CO', name: 'Colorado' },
+  { fips: '09', state: 'CT', name: 'Connecticut' },
+  { fips: '10', state: 'DE', name: 'Delaware' },
+  { fips: '11', state: 'DC', name: 'District of Columbia' },
+  { fips: '12', state: 'FL', name: 'Florida' },
+  { fips: '13', state: 'GA', name: 'Georgia' },
+  { fips: '15', state: 'HI', name: 'Hawaii' },
+  { fips: '16', state: 'ID', name: 'Idaho' },
+  { fips: '17', state: 'IL', name: 'Illinois' },
+  { fips: '18', state: 'IN', name: 'Indiana' },
+  { fips: '19', state: 'IA', name: 'Iowa' },
+  { fips: '20', state: 'KS', name: 'Kansas' },
+  { fips: '21', state: 'KY', name: 'Kentucky' },
+  { fips: '22', state: 'LA', name: 'Louisiana' },
+  { fips: '23', state: 'ME', name: 'Maine' },
+  { fips: '24', state: 'MD', name: 'Maryland' },
+  { fips: '25', state: 'MA', name: 'Massachusetts' },
+  { fips: '26', state: 'MI', name: 'Michigan' },
+  { fips: '27', state: 'MN', name: 'Minnesota' },
+  { fips: '28', state: 'MS', name: 'Mississippi' },
+  { fips: '29', state: 'MO', name: 'Missouri' },
+  { fips: '30', state: 'MT', name: 'Montana' },
+  { fips: '31', state: 'NE', name: 'Nebraska' },
+  { fips: '32', state: 'NV', name: 'Nevada' },
+  { fips: '33', state: 'NH', name: 'New Hampshire' },
+  { fips: '34', state: 'NJ', name: 'New Jersey' },
+  { fips: '35', state: 'NM', name: 'New Mexico' },
+  { fips: '36', state: 'NY', name: 'New York' },
+  { fips: '37', state: 'NC', name: 'North Carolina' },
+  { fips: '38', state: 'ND', name: 'North Dakota' },
+  { fips: '39', state: 'OH', name: 'Ohio' },
+  { fips: '40', state: 'OK', name: 'Oklahoma' },
+  { fips: '41', state: 'OR', name: 'Oregon' },
+  { fips: '42', state: 'PA', name: 'Pennsylvania' },
+  { fips: '44', state: 'RI', name: 'Rhode Island' },
+  { fips: '45', state: 'SC', name: 'South Carolina' },
+  { fips: '46', state: 'SD', name: 'South Dakota' },
+  { fips: '47', state: 'TN', name: 'Tennessee' },
+  { fips: '48', state: 'TX', name: 'Texas' },
+  { fips: '49', state: 'UT', name: 'Utah' },
+  { fips: '50', state: 'VT', name: 'Vermont' },
+  { fips: '51', state: 'VA', name: 'Virginia' },
+  { fips: '53', state: 'WA', name: 'Washington' },
+  { fips: '54', state: 'WV', name: 'West Virginia' },
+  { fips: '55', state: 'WI', name: 'Wisconsin' },
+  { fips: '56', state: 'WY', name: 'Wyoming' },
+];
+
+// States without a state house (unicameral). Nebraska as of 2026.
+export const NO_STATE_HOUSE = new Set(['NE']);
+
+// DC has no state legislature at all.
+export const NO_STATE_LEGISLATURE = new Set(['DC']);

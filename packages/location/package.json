@@ -1,0 +1,22 @@
+{
+  "name": "@chiaro/location",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "test:geocodio:live": "vitest run test/integration.test.ts -t 'calibrate-location Edge Function'",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@chiaro/db": "workspace:*",
+    "@chiaro/supabase-client": "workspace:*",
+    "@supabase/supabase-js": "^2.105.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
+  }
+}

@@ -28,7 +28,29 @@ export async function middleware(request: NextRequest) {
   )
 
   // Refresh session — must be called for cookie rotation to happen
-  await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (user) {
+    const path = request.nextUrl.pathname
+    const allowList = ['/calibrate', '/sign-out', '/profile/edit', '/settings', '/settings/address']
+
+    if (!allowList.some(p => path === p || path.startsWith(p + '/'))) {
+      const skip = request.cookies.get('chiaro_skip_calibrate')?.value === '1'
+      if (!skip) {
+        // Cheapest possible existence probe — head select with exact count
+        const { count } = await supabase
+          .from('user_locations')
+          .select('id', { head: true, count: 'exact' })
+          .eq('id', user.id)
+        if ((count ?? 0) === 0) {
+          const url = request.nextUrl.clone()
+          url.pathname = '/calibrate'
+          return NextResponse.redirect(url)
+        }
+      }
+    }
+  }
+
   return response
 }
 
