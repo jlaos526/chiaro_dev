@@ -43,6 +43,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: db
+    # next build collects page data for routes that import the Supabase client
+    # wrapper, which throws on missing env. The values don't need to point at a
+    # real instance — build never connects. Placeholder is fine.
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: sb_publishable_ci_placeholder
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
