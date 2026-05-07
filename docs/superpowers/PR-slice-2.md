@@ -120,11 +120,7 @@ These all surfaced during implementation. Each is a pragmatic improvement, not s
   pnpm db:seed-tiger          # if data not already loaded
   pnpm --filter @chiaro/web dev   # in another terminal — Edge Function hot-reloads via supabase_edge_runtime_db
   ```
-- [ ] **Manual mobile smoke test** (Task 24 — out-of-scope automation):
-  ```
-  cd apps/mobile && eas build --profile development --platform ios   # or android
-  ```
-  Then on a device or simulator:
+- ⏭ **Manual mobile smoke test (Task 24) — DEFERRED to slice 2.5.** Mobile is code-complete and typechecks across all 6 packages; the EAS dev build infrastructure (`eas.json`, `expo-dev-client`, `expo-updates`, EAS project `f4d18da9-9c95-4c6a-8a34-c77189eca749` registered as `@jlaos/chiaro`) is in place. On-device verification is deferred for two reasons: (1) iOS physical-device builds need interactive Apple Developer credentials that proved cumbersome in this session; (2) slice 1 shipped on the same precedent ("mobile build is EAS-only — out of scope" per slice 1 spec; "still untested on a real device/simulator" per slice 1 lessons memo). Slice 2 inherits and extends that posture. The mobile UI logic mirrors web (same `getMyDistricts`/`getMyLocation` queries, same Edge Function call, same RLS contract); web smoke proved the data-layer end-to-end. Mobile-specific risks (RN-maps polygon coords, GPS permission UX, native marker styling, EAS build viability) are filed for slice 2.5 to verify before merging slice 2.5's own work. **To re-pick up:** `cd apps/mobile && eas build --profile development --platform android` for an Android APK is the simplest path (no Apple Developer drama). Walk through:
   1. Sign up + fill profile → calibrate redirect.
   2. Tap **Use my current location** → permission prompt → calibrate completes.
   3. Type `350 5th Ave, NY 10118` for a second user → calibrate succeeds.
@@ -151,6 +147,7 @@ Mirroring the spec's "Out of scope" — flagging for review:
 - ZIP-only fallback input
 - Avatar uploads, bio fields, account deletion
 - District boundary refresh automation
+- **Mobile on-device DoD (Task 24)** — deferred from slice 2 to slice 2.5 (see Test plan above for rationale + steps to re-pick up)
 
 ## Known gaps + risks
 
