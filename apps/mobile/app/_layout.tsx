@@ -2,6 +2,7 @@ import { Slot, useRouter, useSegments } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, View } from 'react-native'
 import { supabase } from '@/lib/supabase'
+import { QueryProvider } from '@/lib/query-client'
 import type { Session } from '@supabase/supabase-js'
 
 export default function RootLayout() {
@@ -27,7 +28,15 @@ export default function RootLayout() {
   }, [session, loaded, segments])
 
   if (!loaded) {
-    return <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator /></View>
+    return (
+      <QueryProvider>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator /></View>
+      </QueryProvider>
+    )
   }
-  return <Slot />
+  return (
+    <QueryProvider>
+      <Slot />
+    </QueryProvider>
+  )
 }
