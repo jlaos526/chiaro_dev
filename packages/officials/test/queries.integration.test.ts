@@ -22,8 +22,17 @@ let districtSenateCA: string
 let districtHouseCA12: string
 
 beforeAll(async () => {
-  svc  = createClient<Database>(URL, SVC)
-  anon = createClient<Database>(URL, ANON)
+  // IMPORTANT: each Supabase client must use a distinct auth storage key.
+  // Without this, both clients share the same default key — when `anon` signs
+  // in as integration@test, it overwrites the session `svc` would use, so
+  // `svc.from(...).delete()` ends up using the user's JWT and hits RLS+grant
+  // denial (403). Manifests as a silent test cleanup leak.
+  svc  = createClient<Database>(URL, SVC, {
+    auth: { persistSession: false, storageKey: 'svc-integration-test' },
+  })
+  anon = createClient<Database>(URL, ANON, {
+    auth: { persistSession: false, storageKey: 'anon-integration-test' },
+  })
 
   const { data: dCA1, error: e1 } = await svc.from('districts').insert({
     tier: 'federal_senate',
@@ -78,12 +87,15 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  if (svc) {
-    await svc.from('officials').delete().in('bioguide_id', ['P000197','F000062','P000145'])
+  if (!svc) return
+  // Idempotent cleanup — deletes by content filter, not by stored UUIDs, so a
+  // crashed beforeAll or a stale prior run doesn't leave orphans behind.
+  await svc.from('officials').delete().in('bioguide_id', ['P000197', 'F000062', 'P000145'])
+  if (testUserId) {
     await svc.from('user_districts').delete().eq('user_id', testUserId)
-    await svc.from('districts').delete().in('id', [districtSenateCA, districtHouseCA12])
     await svc.auth.admin.deleteUser(testUserId)
   }
+  await svc.from('districts').delete().eq('source_version', 'FX')
 })
 
 describe('fetchMyOfficials', () => {
