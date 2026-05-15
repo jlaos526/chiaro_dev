@@ -1,4 +1,4 @@
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { Client } from 'pg'
 import { mkdir, writeFile, readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
@@ -216,6 +216,19 @@ afterEach(async () => {
   // Drop any leftover audit rows so each describe block sees a clean ledger.
   await client.query(`delete from public.officials_ingest_runs`)
   await client.end()
+})
+
+afterAll(async () => {
+  // Hygiene cleanup so subsequent suites (e.g. @chiaro/officials integration
+  // tests, when run sequentially under turbo) see a clean officials table.
+  // Does NOT protect against parallel execution against a shared DB —
+  // turbo.json's `^test` dependency serializes turbo-managed runs.
+  const cleanup = new Client({ connectionString: DB_URL })
+  await cleanup.connect()
+  await cleanup.query(`delete from public.officials`)
+  await cleanup.query(`delete from public.officials_ingest_runs`)
+  await cleanup.query(`delete from public.districts where source_version='FIX'`)
+  await cleanup.end()
 })
 
 // ---- scenarios -------------------------------------------------------------

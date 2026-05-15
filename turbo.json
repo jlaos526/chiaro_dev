@@ -13,8 +13,8 @@
       "dependsOn": ["^typecheck"]
     },
     "test": {
-      "dependsOn": ["^typecheck"],
-      "env": ["SUPABASE_ANON_KEY", "SUPABASE_URL"]
+      "dependsOn": ["^typecheck", "^test"],
+      "env": ["SUPABASE_ANON_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]
     }
   }
 }
