@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { getMyLocation, getMyDistricts } from '../src/queries.ts'
-import { makeAuthedUser, makeAnonClient } from './fixtures.ts'
+import { makeAuthedUser, makeAnonClient, makeAdminClient } from './fixtures.ts'
 
 const URBAN_ADDRESS = '350 5th Ave, New York, NY 10118'
 const RURAL_ADDRESS = '1 Old Faithful Geyser Loop, Yellowstone, WY 82190'
@@ -38,10 +38,20 @@ describe('calibrate-location Edge Function (live GeocodIO)', () => {
   })
 
   it('re-calibration replaces stale user_districts rows', async () => {
-    const { client } = await makeAuthedUser('cal-recal')
+    const { client, userId } = await makeAuthedUser('cal-recal')
     await client.functions.invoke('calibrate-location', { body: { address: URBAN_ADDRESS } })
     const before = await getMyDistricts(client as never)
     const beforeFedHouseCode = before.find(d => d.tier === 'federal_house')?.code
+
+    // Back-date calibrated_at past the 60s throttle so the next call isn't
+    // rate-limited. apply_calibration's rate limit is enforced server-side;
+    // simulating elapsed time is the realistic way to exercise replacement.
+    const admin = makeAdminClient()
+    const { error: bdErr } = await admin
+      .from('user_locations')
+      .update({ calibrated_at: new Date(Date.now() - 5 * 60_000).toISOString() })
+      .eq('id', userId)
+    expect(bdErr).toBeNull()
 
     await client.functions.invoke('calibrate-location', { body: { address: RURAL_ADDRESS } })
     const after = await getMyDistricts(client as never)
@@ -49,6 +59,16 @@ describe('calibrate-location Edge Function (live GeocodIO)', () => {
 
     expect(afterFedHouseCode).not.toBe(beforeFedHouseCode)
     expect(after.find(d => d.code === beforeFedHouseCode)).toBeUndefined()
+  })
+
+  it('second calibrate-location call within 60s returns 429', async () => {
+    const { client } = await makeAuthedUser('cal-throttle')
+    const first = await client.functions.invoke('calibrate-location', { body: { address: URBAN_ADDRESS } })
+    expect(first.error).toBeNull()
+
+    const second = await client.functions.invoke('calibrate-location', { body: { address: URBAN_ADDRESS } })
+    expect(second.error).not.toBeNull()
+    expect((second.error as { context?: { status?: number } }).context?.status).toBe(429)
   })
 
   it('user A cannot SELECT user B user_locations row (RLS)', async () => {

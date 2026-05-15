@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from '@supabase/supabase-js'
 import { GeocodioHttpClient, GeocodioError, extractDistricts, type GeocodioClient } from './geocodio.ts'
-import type { CalibrateInput, ResolvedDistrict } from './types.ts'
+import type { CalibrateInput } from './types.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -23,14 +23,15 @@ export async function handle(req: Request, deps?: { geocodio?: GeocodioClient })
   }
   const jwt = auth.slice(7)
 
-  // Resolve user from JWT.
-  const userClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+  // Service-role key + user JWT as Authorization → PostgREST runs requests
+  // as the authenticated user; auth.uid() inside SECURITY DEFINER resolves
+  // to the JWT's subject. Used for both auth verification and the RPC call.
+  const client = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     global: { headers: { Authorization: auth } },
     auth: { persistSession: false, autoRefreshToken: false },
   })
-  const { data: userResp, error: userErr } = await userClient.auth.getUser(jwt)
+  const { data: userResp, error: userErr } = await client.auth.getUser(jwt)
   if (userErr || !userResp?.user) return jsonResponse(401, { error: 'unauthenticated' })
-  const userId = userResp.user.id
 
   // Parse + validate input.
   let input: CalibrateInput
@@ -70,68 +71,30 @@ export async function handle(req: Request, deps?: { geocodio?: GeocodioClient })
   const resolved = extractDistricts(candidate)
   if (resolved.length === 0) return jsonResponse(422, { error: 'no_districts_resolved' })
 
-  // Service-role client for DB writes.
-  const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
-    auth: { persistSession: false, autoRefreshToken: false },
+  // Atomic write via SECURITY DEFINER RPC. The function owns the rate limit
+  // and runs the delete/upsert/insert as a single PostgreSQL transaction —
+  // any failure rolls back the whole calibration attempt.
+  const rpcResult = await (client as any).rpc('apply_calibration', {
+    p_address_text: 'address' in input ? input.address : `${lat},${lng}`,
+    p_lat: lat,
+    p_lng: lng,
+    p_geocodio_response: candidate,
+    p_resolved: resolved,
   })
 
-  // Begin "transaction" via a single RPC. Edge Functions can't open SQL TXNs
-  // directly; instead, push the work into a security-definer function. To
-  // avoid creating yet another DB object, we sequence the calls and accept
-  // partial-failure recovery via the application-level dedupe in step 3.
-  //
-  // 1. Delete prior user_districts.
-  const delResult = await admin.from('user_districts').delete().eq('user_id', userId)
-  if (delResult.error) {
-    console.error('db_delete_error', delResult.error)
+  if (rpcResult.error) {
+    const msg = rpcResult.error.message ?? ''
+    if (msg.includes('calibrating_too_frequently')) {
+      return jsonResponse(429, { error: 'calibrating_too_frequently' })
+    }
+    if (msg.includes('unauthenticated')) {
+      return jsonResponse(401, { error: 'unauthenticated' })
+    }
+    console.error('rpc_error', rpcResult.error)
     return jsonResponse(500, { error: 'db_error' })
   }
 
-  // 2. Upsert user_locations.
-  const wktPoint = `POINT(${lng} ${lat})`
-  const upRes = await admin.from('user_locations').upsert({
-    id: userId,
-    home_address_text: 'address' in input ? input.address : `${lat},${lng}`,
-    home_location: `SRID=4326;${wktPoint}`,
-    geocodio_response: candidate,
-    calibrated_at: new Date().toISOString(),
-  })
-  if (upRes.error) {
-    console.error('db_upsert_error', upRes.error)
-    return jsonResponse(500, { error: 'db_error' })
-  }
-
-  // 3. Look up canonical districts and write user_districts.
-  const inserted: ResolvedDistrict[] = []
-  for (const r of resolved) {
-    const { data: row, error: lookupErr } = await admin
-      .from('districts')
-      .select('id, tier, state, code, name')
-      .eq('tier', r.tier)
-      .eq('code', r.code)
-      .maybeSingle()
-    if (lookupErr) {
-      console.error('district_lookup_error', { tier: r.tier, code: r.code, err: lookupErr })
-      continue
-    }
-    if (!row) {
-      console.warn('district_missing', { tier: r.tier, code: r.code, user: userId })
-      continue
-    }
-    const { error: insErr } = await admin
-      .from('user_districts')
-      .insert({ user_id: userId, district_id: row.id, tier: row.tier })
-    if (insErr) {
-      console.error('user_districts_insert_error', { tier: r.tier, err: insErr })
-      continue
-    }
-    inserted.push({ tier: row.tier as any, code: row.code, state: row.state, name: row.name })
-  }
-
-  return jsonResponse(200, {
-    home_location: { lat, lng },
-    districts: inserted,
-  })
+  return jsonResponse(200, rpcResult.data)
 }
 
 // Deno entry point.

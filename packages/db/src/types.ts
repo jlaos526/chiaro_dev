@@ -378,6 +378,16 @@ export type Database = {
             }
             Returns: string
           }
+      apply_calibration: {
+        Args: {
+          p_address_text: string
+          p_geocodio_response: Json
+          p_lat: number
+          p_lng: number
+          p_resolved: Json
+        }
+        Returns: Json
+      }
       disablelongtransactions: { Args: never; Returns: string }
       dropgeometrycolumn:
         | {

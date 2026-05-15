@@ -108,12 +108,15 @@ jobs:
         run: pnpm --filter @chiaro/db db:seed-tiger
         env:
           SUPABASE_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
-      - name: Capture anon key for integration tests
+      - name: Capture anon key + service role key for integration tests
         id: supabase-status
         working-directory: packages/db
         run: |
           ANON_KEY=$(supabase status --output env | grep '^ANON_KEY' | cut -d'=' -f2- | tr -d '"')
+          SERVICE_ROLE_KEY=$(supabase status --output env | grep '^SERVICE_ROLE_KEY' | cut -d'=' -f2- | tr -d '"')
           echo "anon_key=$ANON_KEY" >> "$GITHUB_OUTPUT"
+          echo "::add-mask::$SERVICE_ROLE_KEY"
+          echo "service_role_key=$SERVICE_ROLE_KEY" >> "$GITHUB_OUTPUT"
       - name: Serve Edge Function
         working-directory: packages/db
         run: |
@@ -127,6 +130,7 @@ jobs:
       - name: Run package tests
         env:
           SUPABASE_ANON_KEY: ${{ steps.supabase-status.outputs.anon_key }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ steps.supabase-status.outputs.service_role_key }}
           SUPABASE_URL: http://127.0.0.1:54321
           GEOCODIO_KEY: ${{ secrets.GEOCODIO_KEY }}
         run: pnpm test
