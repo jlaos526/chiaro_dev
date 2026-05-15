@@ -1,0 +1,2207 @@
+{
+  "members": [
+    {
+      "bioguideId": "SCA001",
+      "firstName": "FSCA001",
+      "lastName": "LSCA001",
+      "directOrderName": "FSCA001 LSCA001",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 1,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SCA002",
+      "firstName": "FSCA002",
+      "lastName": "LSCA002",
+      "directOrderName": "FSCA002 LSCA002",
+      "partyName": "Republican",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 2,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "STX001",
+      "firstName": "FSTX001",
+      "lastName": "LSTX001",
+      "directOrderName": "FSTX001 LSTX001",
+      "partyName": "Democratic",
+      "state": "TX",
+      "stateCode": "TX",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 1,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "STX002",
+      "firstName": "FSTX002",
+      "lastName": "LSTX002",
+      "directOrderName": "FSTX002 LSTX002",
+      "partyName": "Republican",
+      "state": "TX",
+      "stateCode": "TX",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 2,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SNY001",
+      "firstName": "FSNY001",
+      "lastName": "LSNY001",
+      "directOrderName": "FSNY001 LSNY001",
+      "partyName": "Democratic",
+      "state": "NY",
+      "stateCode": "NY",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 1,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SNY002",
+      "firstName": "FSNY002",
+      "lastName": "LSNY002",
+      "directOrderName": "FSNY002 LSNY002",
+      "partyName": "Republican",
+      "state": "NY",
+      "stateCode": "NY",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 2,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SFL001",
+      "firstName": "FSFL001",
+      "lastName": "LSFL001",
+      "directOrderName": "FSFL001 LSFL001",
+      "partyName": "Democratic",
+      "state": "FL",
+      "stateCode": "FL",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 1,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SFL002",
+      "firstName": "FSFL002",
+      "lastName": "LSFL002",
+      "directOrderName": "FSFL002 LSFL002",
+      "partyName": "Republican",
+      "state": "FL",
+      "stateCode": "FL",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 2,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SWY001",
+      "firstName": "FSWY001",
+      "lastName": "LSWY001",
+      "directOrderName": "FSWY001 LSWY001",
+      "partyName": "Democratic",
+      "state": "WY",
+      "stateCode": "WY",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 1,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SWY002",
+      "firstName": "FSWY002",
+      "lastName": "LSWY002",
+      "directOrderName": "FSWY002 LSWY002",
+      "partyName": "Republican",
+      "state": "WY",
+      "stateCode": "WY",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 2,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD000",
+      "firstName": "FSPAD000",
+      "lastName": "LSPAD000",
+      "directOrderName": "FSPAD000 LSPAD000",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD001",
+      "firstName": "FSPAD001",
+      "lastName": "LSPAD001",
+      "directOrderName": "FSPAD001 LSPAD001",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD002",
+      "firstName": "FSPAD002",
+      "lastName": "LSPAD002",
+      "directOrderName": "FSPAD002 LSPAD002",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD003",
+      "firstName": "FSPAD003",
+      "lastName": "LSPAD003",
+      "directOrderName": "FSPAD003 LSPAD003",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD004",
+      "firstName": "FSPAD004",
+      "lastName": "LSPAD004",
+      "directOrderName": "FSPAD004 LSPAD004",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD005",
+      "firstName": "FSPAD005",
+      "lastName": "LSPAD005",
+      "directOrderName": "FSPAD005 LSPAD005",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD006",
+      "firstName": "FSPAD006",
+      "lastName": "LSPAD006",
+      "directOrderName": "FSPAD006 LSPAD006",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD007",
+      "firstName": "FSPAD007",
+      "lastName": "LSPAD007",
+      "directOrderName": "FSPAD007 LSPAD007",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD008",
+      "firstName": "FSPAD008",
+      "lastName": "LSPAD008",
+      "directOrderName": "FSPAD008 LSPAD008",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD009",
+      "firstName": "FSPAD009",
+      "lastName": "LSPAD009",
+      "directOrderName": "FSPAD009 LSPAD009",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD010",
+      "firstName": "FSPAD010",
+      "lastName": "LSPAD010",
+      "directOrderName": "FSPAD010 LSPAD010",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD011",
+      "firstName": "FSPAD011",
+      "lastName": "LSPAD011",
+      "directOrderName": "FSPAD011 LSPAD011",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD012",
+      "firstName": "FSPAD012",
+      "lastName": "LSPAD012",
+      "directOrderName": "FSPAD012 LSPAD012",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD013",
+      "firstName": "FSPAD013",
+      "lastName": "LSPAD013",
+      "directOrderName": "FSPAD013 LSPAD013",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD014",
+      "firstName": "FSPAD014",
+      "lastName": "LSPAD014",
+      "directOrderName": "FSPAD014 LSPAD014",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD015",
+      "firstName": "FSPAD015",
+      "lastName": "LSPAD015",
+      "directOrderName": "FSPAD015 LSPAD015",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD016",
+      "firstName": "FSPAD016",
+      "lastName": "LSPAD016",
+      "directOrderName": "FSPAD016 LSPAD016",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD017",
+      "firstName": "FSPAD017",
+      "lastName": "LSPAD017",
+      "directOrderName": "FSPAD017 LSPAD017",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD018",
+      "firstName": "FSPAD018",
+      "lastName": "LSPAD018",
+      "directOrderName": "FSPAD018 LSPAD018",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD019",
+      "firstName": "FSPAD019",
+      "lastName": "LSPAD019",
+      "directOrderName": "FSPAD019 LSPAD019",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD020",
+      "firstName": "FSPAD020",
+      "lastName": "LSPAD020",
+      "directOrderName": "FSPAD020 LSPAD020",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD021",
+      "firstName": "FSPAD021",
+      "lastName": "LSPAD021",
+      "directOrderName": "FSPAD021 LSPAD021",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD022",
+      "firstName": "FSPAD022",
+      "lastName": "LSPAD022",
+      "directOrderName": "FSPAD022 LSPAD022",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD023",
+      "firstName": "FSPAD023",
+      "lastName": "LSPAD023",
+      "directOrderName": "FSPAD023 LSPAD023",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD024",
+      "firstName": "FSPAD024",
+      "lastName": "LSPAD024",
+      "directOrderName": "FSPAD024 LSPAD024",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD025",
+      "firstName": "FSPAD025",
+      "lastName": "LSPAD025",
+      "directOrderName": "FSPAD025 LSPAD025",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD026",
+      "firstName": "FSPAD026",
+      "lastName": "LSPAD026",
+      "directOrderName": "FSPAD026 LSPAD026",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD027",
+      "firstName": "FSPAD027",
+      "lastName": "LSPAD027",
+      "directOrderName": "FSPAD027 LSPAD027",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD028",
+      "firstName": "FSPAD028",
+      "lastName": "LSPAD028",
+      "directOrderName": "FSPAD028 LSPAD028",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD029",
+      "firstName": "FSPAD029",
+      "lastName": "LSPAD029",
+      "directOrderName": "FSPAD029 LSPAD029",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD030",
+      "firstName": "FSPAD030",
+      "lastName": "LSPAD030",
+      "directOrderName": "FSPAD030 LSPAD030",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD031",
+      "firstName": "FSPAD031",
+      "lastName": "LSPAD031",
+      "directOrderName": "FSPAD031 LSPAD031",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD032",
+      "firstName": "FSPAD032",
+      "lastName": "LSPAD032",
+      "directOrderName": "FSPAD032 LSPAD032",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD033",
+      "firstName": "FSPAD033",
+      "lastName": "LSPAD033",
+      "directOrderName": "FSPAD033 LSPAD033",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD034",
+      "firstName": "FSPAD034",
+      "lastName": "LSPAD034",
+      "directOrderName": "FSPAD034 LSPAD034",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD035",
+      "firstName": "FSPAD035",
+      "lastName": "LSPAD035",
+      "directOrderName": "FSPAD035 LSPAD035",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD036",
+      "firstName": "FSPAD036",
+      "lastName": "LSPAD036",
+      "directOrderName": "FSPAD036 LSPAD036",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD037",
+      "firstName": "FSPAD037",
+      "lastName": "LSPAD037",
+      "directOrderName": "FSPAD037 LSPAD037",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD038",
+      "firstName": "FSPAD038",
+      "lastName": "LSPAD038",
+      "directOrderName": "FSPAD038 LSPAD038",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD039",
+      "firstName": "FSPAD039",
+      "lastName": "LSPAD039",
+      "directOrderName": "FSPAD039 LSPAD039",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD040",
+      "firstName": "FSPAD040",
+      "lastName": "LSPAD040",
+      "directOrderName": "FSPAD040 LSPAD040",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD041",
+      "firstName": "FSPAD041",
+      "lastName": "LSPAD041",
+      "directOrderName": "FSPAD041 LSPAD041",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD042",
+      "firstName": "FSPAD042",
+      "lastName": "LSPAD042",
+      "directOrderName": "FSPAD042 LSPAD042",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD043",
+      "firstName": "FSPAD043",
+      "lastName": "LSPAD043",
+      "directOrderName": "FSPAD043 LSPAD043",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD044",
+      "firstName": "FSPAD044",
+      "lastName": "LSPAD044",
+      "directOrderName": "FSPAD044 LSPAD044",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD045",
+      "firstName": "FSPAD045",
+      "lastName": "LSPAD045",
+      "directOrderName": "FSPAD045 LSPAD045",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD046",
+      "firstName": "FSPAD046",
+      "lastName": "LSPAD046",
+      "directOrderName": "FSPAD046 LSPAD046",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD047",
+      "firstName": "FSPAD047",
+      "lastName": "LSPAD047",
+      "directOrderName": "FSPAD047 LSPAD047",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD048",
+      "firstName": "FSPAD048",
+      "lastName": "LSPAD048",
+      "directOrderName": "FSPAD048 LSPAD048",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD049",
+      "firstName": "FSPAD049",
+      "lastName": "LSPAD049",
+      "directOrderName": "FSPAD049 LSPAD049",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD050",
+      "firstName": "FSPAD050",
+      "lastName": "LSPAD050",
+      "directOrderName": "FSPAD050 LSPAD050",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD051",
+      "firstName": "FSPAD051",
+      "lastName": "LSPAD051",
+      "directOrderName": "FSPAD051 LSPAD051",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD052",
+      "firstName": "FSPAD052",
+      "lastName": "LSPAD052",
+      "directOrderName": "FSPAD052 LSPAD052",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD053",
+      "firstName": "FSPAD053",
+      "lastName": "LSPAD053",
+      "directOrderName": "FSPAD053 LSPAD053",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD054",
+      "firstName": "FSPAD054",
+      "lastName": "LSPAD054",
+      "directOrderName": "FSPAD054 LSPAD054",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD055",
+      "firstName": "FSPAD055",
+      "lastName": "LSPAD055",
+      "directOrderName": "FSPAD055 LSPAD055",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD056",
+      "firstName": "FSPAD056",
+      "lastName": "LSPAD056",
+      "directOrderName": "FSPAD056 LSPAD056",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD057",
+      "firstName": "FSPAD057",
+      "lastName": "LSPAD057",
+      "directOrderName": "FSPAD057 LSPAD057",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD058",
+      "firstName": "FSPAD058",
+      "lastName": "LSPAD058",
+      "directOrderName": "FSPAD058 LSPAD058",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD059",
+      "firstName": "FSPAD059",
+      "lastName": "LSPAD059",
+      "directOrderName": "FSPAD059 LSPAD059",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD060",
+      "firstName": "FSPAD060",
+      "lastName": "LSPAD060",
+      "directOrderName": "FSPAD060 LSPAD060",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD061",
+      "firstName": "FSPAD061",
+      "lastName": "LSPAD061",
+      "directOrderName": "FSPAD061 LSPAD061",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD062",
+      "firstName": "FSPAD062",
+      "lastName": "LSPAD062",
+      "directOrderName": "FSPAD062 LSPAD062",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD063",
+      "firstName": "FSPAD063",
+      "lastName": "LSPAD063",
+      "directOrderName": "FSPAD063 LSPAD063",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD064",
+      "firstName": "FSPAD064",
+      "lastName": "LSPAD064",
+      "directOrderName": "FSPAD064 LSPAD064",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD065",
+      "firstName": "FSPAD065",
+      "lastName": "LSPAD065",
+      "directOrderName": "FSPAD065 LSPAD065",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD066",
+      "firstName": "FSPAD066",
+      "lastName": "LSPAD066",
+      "directOrderName": "FSPAD066 LSPAD066",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD067",
+      "firstName": "FSPAD067",
+      "lastName": "LSPAD067",
+      "directOrderName": "FSPAD067 LSPAD067",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD068",
+      "firstName": "FSPAD068",
+      "lastName": "LSPAD068",
+      "directOrderName": "FSPAD068 LSPAD068",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD069",
+      "firstName": "FSPAD069",
+      "lastName": "LSPAD069",
+      "directOrderName": "FSPAD069 LSPAD069",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD070",
+      "firstName": "FSPAD070",
+      "lastName": "LSPAD070",
+      "directOrderName": "FSPAD070 LSPAD070",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD071",
+      "firstName": "FSPAD071",
+      "lastName": "LSPAD071",
+      "directOrderName": "FSPAD071 LSPAD071",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD072",
+      "firstName": "FSPAD072",
+      "lastName": "LSPAD072",
+      "directOrderName": "FSPAD072 LSPAD072",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD073",
+      "firstName": "FSPAD073",
+      "lastName": "LSPAD073",
+      "directOrderName": "FSPAD073 LSPAD073",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD074",
+      "firstName": "FSPAD074",
+      "lastName": "LSPAD074",
+      "directOrderName": "FSPAD074 LSPAD074",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD075",
+      "firstName": "FSPAD075",
+      "lastName": "LSPAD075",
+      "directOrderName": "FSPAD075 LSPAD075",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD076",
+      "firstName": "FSPAD076",
+      "lastName": "LSPAD076",
+      "directOrderName": "FSPAD076 LSPAD076",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD077",
+      "firstName": "FSPAD077",
+      "lastName": "LSPAD077",
+      "directOrderName": "FSPAD077 LSPAD077",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD078",
+      "firstName": "FSPAD078",
+      "lastName": "LSPAD078",
+      "directOrderName": "FSPAD078 LSPAD078",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD079",
+      "firstName": "FSPAD079",
+      "lastName": "LSPAD079",
+      "directOrderName": "FSPAD079 LSPAD079",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD080",
+      "firstName": "FSPAD080",
+      "lastName": "LSPAD080",
+      "directOrderName": "FSPAD080 LSPAD080",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD081",
+      "firstName": "FSPAD081",
+      "lastName": "LSPAD081",
+      "directOrderName": "FSPAD081 LSPAD081",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD082",
+      "firstName": "FSPAD082",
+      "lastName": "LSPAD082",
+      "directOrderName": "FSPAD082 LSPAD082",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD083",
+      "firstName": "FSPAD083",
+      "lastName": "LSPAD083",
+      "directOrderName": "FSPAD083 LSPAD083",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD084",
+      "firstName": "FSPAD084",
+      "lastName": "LSPAD084",
+      "directOrderName": "FSPAD084 LSPAD084",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD085",
+      "firstName": "FSPAD085",
+      "lastName": "LSPAD085",
+      "directOrderName": "FSPAD085 LSPAD085",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD086",
+      "firstName": "FSPAD086",
+      "lastName": "LSPAD086",
+      "directOrderName": "FSPAD086 LSPAD086",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD087",
+      "firstName": "FSPAD087",
+      "lastName": "LSPAD087",
+      "directOrderName": "FSPAD087 LSPAD087",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD088",
+      "firstName": "FSPAD088",
+      "lastName": "LSPAD088",
+      "directOrderName": "FSPAD088 LSPAD088",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    },
+    {
+      "bioguideId": "SPAD089",
+      "firstName": "FSPAD089",
+      "lastName": "LSPAD089",
+      "directOrderName": "FSPAD089 LSPAD089",
+      "partyName": "Democratic",
+      "state": "CA",
+      "stateCode": "CA",
+      "chamber": "Senate",
+      "district": null,
+      "senateClass": 3,
+      "terms": {
+        "item": [
+          {
+            "chamber": "Senate",
+            "startYear": 2023
+          }
+        ]
+      },
+      "officialWebsiteUrl": "https://example.gov",
+      "nextElection": "2026-11-03"
+    }
+  ],
+  "pagination": {
+    "next": null
+  }
+}
