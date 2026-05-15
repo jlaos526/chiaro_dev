@@ -1,43 +1,24 @@
-import { useEffect, useState } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import { Link } from 'expo-router'
 import { supabase } from '@/lib/supabase'
-import { getMyDistricts, TIER_LABEL, DISTRICT_GROUPS } from '@chiaro/location'
+import {
+  TIER_LABEL,
+  DISTRICT_GROUPS,
+  useMyDistricts,
+  useMyHomePoint,
+} from '@chiaro/location'
 import { COLORS } from '@chiaro/ui-tokens'
 import { DistrictMap, type DistrictMapDistrict } from './DistrictMap'
 
 export function DistrictPanel() {
-  const [districts, setDistricts] = useState<DistrictMapDistrict[] | null>(null)
-  const [homePoint, setHomePoint] = useState<{ lat: number; lng: number } | null>(null)
+  const districtsQ = useMyDistricts(supabase)
+  const homePointQ = useMyHomePoint(supabase)
 
-  useEffect(() => {
-    getMyDistricts(supabase as never).then(rows => {
-      setDistricts(rows.map(r => ({
-        id: r.id, tier: r.tier, code: r.code, name: r.name,
-        geometry: r.geometry as DistrictMapDistrict['geometry'],
-      })))
-    }).catch(() => setDistricts([]))
+  if (districtsQ.isLoading) return <Text>Loading districts…</Text>
+  if (districtsQ.error)     return <Text>Couldn't load districts.</Text>
 
-    // Pull home lat/lng out of the GeocodIO audit blob — PostgREST returns
-    // the geography column as WKB hex, so the structured response is easier.
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) return
-      supabase
-        .from('user_locations')
-        .select('geocodio_response')
-        .eq('id', data.user.id)
-        .maybeSingle()
-        .then(({ data: row }) => {
-          const loc = (row?.geocodio_response as { location?: { lat?: number; lng?: number } } | null | undefined)?.location
-          if (loc && typeof loc.lat === 'number' && typeof loc.lng === 'number') {
-            setHomePoint({ lat: loc.lat, lng: loc.lng })
-          }
-        })
-    })
-  }, [])
-
-  if (districts === null) return <Text>Loading districts…</Text>
-  if (districts.length === 0) {
+  const rows = districtsQ.data ?? []
+  if (rows.length === 0) {
     return (
       <View style={styles.banner}>
         <Text>You haven't calibrated yet.</Text>
@@ -45,6 +26,12 @@ export function DistrictPanel() {
       </View>
     )
   }
+
+  const districts: DistrictMapDistrict[] = rows.map(r => ({
+    id: r.id, tier: r.tier, code: r.code, name: r.name,
+    geometry: r.geometry as DistrictMapDistrict['geometry'],
+  }))
+
   return (
     <View>
       <Text style={styles.title}>Your districts</Text>
@@ -64,7 +51,7 @@ export function DistrictPanel() {
           </View>
         )
       })}
-      <DistrictMap districts={districts} homePoint={homePoint} />
+      <DistrictMap districts={districts} homePoint={homePointQ.data ?? null} />
       <Link href="/settings/address"><Text style={styles.link}>Edit address</Text></Link>
     </View>
   )

@@ -15,7 +15,14 @@
     "@supabase/supabase-js": "^2.105.0",
     "zod": "^3.23.0"
   },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.0.0",
+    "react": "^19.0.0"
+  },
   "devDependencies": {
+    "@tanstack/react-query": "^5.59.0",
+    "@types/react": "^19.0.0",
+    "react": "^19.0.0",
     "typescript": "^5.4.0",
     "vitest": "^2.0.0"
   }

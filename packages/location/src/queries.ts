@@ -19,6 +19,31 @@ export async function getMyLocation(client: ChiaroClient): Promise<UserLocationR
   return data as unknown as UserLocationRow
 }
 
+export async function getMyHomePoint(
+  client: ChiaroClient,
+): Promise<{ lat: number; lng: number } | null> {
+  const { data: { user } } = await client.auth.getUser()
+  if (!user) return null
+
+  // Uses the user_locations_geojson view (migration 0011) which exposes
+  // home_location as a proper Point GeoJSON. Avoids parsing the geocodio
+  // audit blob the way slice-2 DistrictPanel used to.
+  const { data, error } = await client
+    .from('user_locations_geojson')
+    .select('home_location_geojson')
+    .eq('id', user.id)
+    .maybeSingle()
+  if (error) throw error
+  const geo = data?.home_location_geojson as
+    | { type?: string; coordinates?: [number, number] }
+    | null
+    | undefined
+  if (!geo || geo.type !== 'Point' || !Array.isArray(geo.coordinates)) return null
+  const [lng, lat] = geo.coordinates
+  if (typeof lat !== 'number' || typeof lng !== 'number') return null
+  return { lat, lng }
+}
+
 export async function getMyDistricts(client: ChiaroClient): Promise<DistrictRow[]> {
   const { data: { user } } = await client.auth.getUser()
   if (!user) return []
