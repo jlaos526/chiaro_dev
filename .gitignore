@@ -19,6 +19,13 @@ dist/
 **/supabase/.temp/
 **/supabase/seed.sql.bak
 
+# stray root supabase/ dir created if `supabase start` is run from repo root
+# (the real config lives in packages/db/supabase/ — always run from there)
+/supabase/
+
+# tooling temp files
+/_tmp_*
+
 # expo
 .expo/
 .expo-shared/
