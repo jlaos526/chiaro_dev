@@ -4,3 +4,5 @@ export type {
   Chamber,
   Party,
 } from './types.ts'
+
+export { officialsKeys } from './keys.ts'
