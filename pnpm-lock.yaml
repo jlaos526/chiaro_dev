@@ -255,6 +255,12 @@ importers:
         specifier: ^2.0.0
         version: 2.1.9(@types/node@25.6.0)(lightningcss@1.32.0)(terser@5.46.2)
 
+  packages/ui-tokens:
+    devDependencies:
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+
 packages:
 
   '@0no-co/graphql.web@1.2.0':
