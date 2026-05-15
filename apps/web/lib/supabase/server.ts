@@ -8,10 +8,6 @@ type CookieToSet = { name: string; value: string; options: CookieOptions }
 
 export async function createSupabaseServerClient(): Promise<ChiaroClient> {
   const cookieStore = await cookies()
-  // @supabase/ssr@0.5.2's createServerClient was compiled against an older
-  // @supabase/supabase-js whose SupabaseClient took 3 generics; our resolved
-  // supabase-js@2.105.3 takes 5. The runtime shape is identical — this cast
-  // bridges the .d.ts mismatch. Remove when ssr is recompiled against >=2.105.
   return createServerClient<Database>(
     SUPABASE_URL,
     SUPABASE_ANON_KEY,
@@ -29,5 +25,5 @@ export async function createSupabaseServerClient(): Promise<ChiaroClient> {
         },
       },
     },
-  ) as unknown as ChiaroClient
+  )
 }
