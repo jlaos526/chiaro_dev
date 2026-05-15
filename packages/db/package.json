@@ -16,6 +16,7 @@
     "supabase:reset": "supabase db reset",
     "supabase:test": "supabase test db",
     "supabase:gen-types": "supabase gen types typescript --local > src/types.ts",
+    "db:seed-officials": "tsx supabase/seed/officials-ingest.ts",
     "db:seed-tiger": "tsx supabase/seed/tiger-ingest.ts",
     "functions:serve": "supabase functions serve --env-file ../../.env.local"
   },
