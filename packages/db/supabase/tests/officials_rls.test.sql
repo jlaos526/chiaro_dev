@@ -1,6 +1,6 @@
 begin;
 
-select plan(18);
+select plan(25);
 
 -- 1. official_chamber enum exists
 select has_enum('public', 'official_chamber', 'official_chamber enum exists');
@@ -75,6 +75,84 @@ select ok(
   ),
   'senate_class_matches_chamber named constraint present'
 );
+
+-- RLS assertions
+select ok(
+  (select relrowsecurity from pg_class
+    where oid = 'public.officials'::regclass),
+  'officials has RLS enabled'
+);
+
+select policies_are(
+  'public', 'officials',
+  array['officials_select_all'],
+  'officials has only select_all policy'
+);
+
+-- 7. Seed a district + an official to exercise RLS
+insert into public.districts (id, tier, state, code, name, geometry, source_version)
+  values ('11111111-1111-1111-1111-111111111111', 'federal_senate', 'CA',
+          'federal_senate:CA', 'California (Senate)',
+          st_geogfromtext('MULTIPOLYGON(((-120 35, -119 35, -119 36, -120 36, -120 35)))'),
+          'TIGER-FIXTURE');
+
+insert into public.officials (bioguide_id, first_name, last_name, full_name,
+  chamber, party, state, district_id, senate_class, source_version)
+  values ('X000001','Test','Senator','Test Senator','senate','D','CA',
+          '11111111-1111-1111-1111-111111111111', 1, '119');
+
+-- 8. anon SELECT permitted (public-read)
+set local role anon;
+select is(
+  (select count(*) from public.officials),
+  1::bigint,
+  'anon can SELECT officials'
+);
+
+-- 9. anon INSERT blocked
+select throws_ok(
+  $$ insert into public.officials (bioguide_id, first_name, last_name, full_name,
+       chamber, party, state, district_id, senate_class, source_version)
+     values ('X000002','Y','Y','Y','senate','R','TX',
+       '11111111-1111-1111-1111-111111111111', 2, '119') $$,
+  '42501',
+  null,
+  'anon cannot INSERT'
+);
+
+-- 10. anon UPDATE blocked (RLS filters → 0 rows affected, no policy for update)
+select results_eq(
+  $$ with upd as (
+       update public.officials set party = 'R'
+        where bioguide_id = 'X000001'
+       returning 1
+     ) select count(*)::int from upd $$,
+  $$ values (0) $$,
+  'anon UPDATE returns 0 rows (RLS filter, no update policy)'
+);
+
+-- 11. anon DELETE blocked (RLS filters → 0 rows affected, no policy for delete)
+select results_eq(
+  $$ with del as (
+       delete from public.officials where bioguide_id = 'X000001'
+       returning 1
+     ) select count(*)::int from del $$,
+  $$ values (0) $$,
+  'anon DELETE returns 0 rows (RLS filter, no delete policy)'
+);
+
+reset role;
+
+-- 12. service_role can INSERT (admin context)
+set local role service_role;
+select lives_ok(
+  $$ insert into public.officials (bioguide_id, first_name, last_name, full_name,
+       chamber, party, state, district_id, senate_class, source_version)
+     values ('X000003','Z','Z','Z','senate','I','VT',
+       '11111111-1111-1111-1111-111111111111', 1, '119') $$,
+  'service_role can INSERT'
+);
+reset role;
 
 select * from finish();
 rollback;
