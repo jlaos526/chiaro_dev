@@ -16,8 +16,8 @@ import {
   // AT_LARGE_DISTRICT_NUMBER is intentionally NOT used for district key
   // construction — TIGER encodes at-large as the string 'AL', not 0.
   // See districtKey() below.
-  // DEACTIVATE_THRESHOLD_ABS / DEACTIVATE_THRESHOLD_PCT are imported by
-  // Task 16 when the set-diff / threshold guard logic lands.
+  DEACTIVATE_THRESHOLD_ABS,
+  DEACTIVATE_THRESHOLD_PCT,
 } from './officials-config.ts'
 
 export interface IngestArgs {
@@ -191,23 +191,56 @@ export async function ingestOfficials(args: IngestArgs): Promise<IngestStats> {
       stats.ingested++
     }
 
-    // (Steps 7-11 in Task 16: deactivation set-diff + threshold guard.)
-    // Task 16 will use `ingestedBioguideIds` to identify previously-active
-    // officials that did not appear in this ingest and either:
-    //   • flip `in_office=false` (deactivate) if under threshold, or
-    //   • abort the transaction if over threshold and --allow-deactivations
-    //     was not supplied / does not match.
-    // Until then, the transaction commits with deactivated=0.
-    void ingestedBioguideIds
+    // Step 7: compute deactivation set (Improvement 1 — explicit set, not source_version)
+    const toDeactRes = await client.query<{ count: string }>(`
+      select count(*)::text as count from public.officials
+        where in_office = true and bioguide_id != all($1::text[])
+    `, [ingestedBioguideIds])
+    const toDeactivate = Number(toDeactRes.rows[0].count)
+
+    // Step 8: threshold guard (Improvement 3)
+    const activeRes = await client.query<{ count: string }>(`
+      select count(*)::text as count from public.officials where in_office = true
+    `)
+    const active = Number(activeRes.rows[0].count)
+    const threshold = Math.max(
+      DEACTIVATE_THRESHOLD_ABS,
+      Math.ceil(active * DEACTIVATE_THRESHOLD_PCT),
+    )
+
+    if (toDeactivate > threshold &&
+        args.allowDeactivations !== toDeactivate) {
+      throw new Error(
+        `Refusing to deactivate ${toDeactivate} officials (threshold=${threshold}). ` +
+        `If this is expected (e.g., congressional turnover), re-run with ` +
+        `--allow-deactivations=${toDeactivate}`,
+      )
+    }
+
+    // Step 9: set-based deactivation
+    const deactRes = await client.query<{ id: string }>(`
+      update public.officials
+        set in_office = false
+        where in_office = true
+          and bioguide_id != all($1::text[])
+        returning id
+    `, [ingestedBioguideIds])
+    stats.deactivated = deactRes.rowCount ?? 0
 
     await closeRun(client, runId, stats, 'completed')
     await client.query('COMMIT')
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {})
-    stats.status = 'failed'
-    stats.error = err instanceof Error ? err.message : String(err)
+    const msg = err instanceof Error ? err.message : String(err)
+    const isAbort = /Pre-flight failed|Refusing to deactivate/.test(msg)
+    stats.status = isAbort ? 'aborted' : 'failed'
+    stats.error = msg
     if (runId) {
-      await failRun(client, runId, stats.error).catch(() => {})
+      if (isAbort) {
+        await abortRun(client, runId, msg).catch(() => {})
+      } else {
+        await failRun(client, runId, msg).catch(() => {})
+      }
     }
     throw err
   } finally {
@@ -238,6 +271,16 @@ async function failRun(
   await client.query(`
     update public.officials_ingest_runs
       set status = 'failed', completed_at = now(), error = $1
+      where id = $2
+  `, [error.slice(0, 4000), runId])
+}
+
+async function abortRun(
+  client: Client, runId: string, error: string,
+): Promise<void> {
+  await client.query(`
+    update public.officials_ingest_runs
+      set status = 'aborted', completed_at = now(), error = $1
       where id = $2
   `, [error.slice(0, 4000), runId])
 }
