@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import MapView, { Polygon, Marker, PROVIDER_DEFAULT } from 'react-native-maps'
 import { TIER_COLOR, TIER_LABEL, DISTRICT_GROUPS, type DistrictTier } from '@chiaro/location'
+import { COLORS, MAP_COLORS } from '@chiaro/ui-tokens'
 
 export type DistrictMapDistrict = {
   id: string
@@ -74,7 +75,7 @@ export function DistrictMap({
           <Marker
             coordinate={{ latitude: homePoint.lat, longitude: homePoint.lng }}
             title="Home"
-            pinColor="#1a1714"
+            pinColor={MAP_COLORS.districtStroke}
           />
         )}
       </MapView>
@@ -116,12 +117,12 @@ const styles = StyleSheet.create({
   groupHeading: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#666',
+    color: COLORS.neutral.textMuted,
     letterSpacing: 1,
     minWidth: 56,
     paddingTop: 6,
   },
   toggleRow: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  toggle: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, borderWidth: 1, borderColor: '#888' },
+  toggle: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, borderWidth: 1, borderColor: COLORS.neutral.outline },
   toggleText: { fontSize: 11, fontWeight: '700' },
 })

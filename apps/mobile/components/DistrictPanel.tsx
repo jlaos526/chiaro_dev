@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native'
 import { Link } from 'expo-router'
 import { supabase } from '@/lib/supabase'
 import { getMyDistricts, TIER_LABEL, DISTRICT_GROUPS } from '@chiaro/location'
+import { COLORS } from '@chiaro/ui-tokens'
 import { DistrictMap, type DistrictMapDistrict } from './DistrictMap'
 
 export function DistrictPanel() {
@@ -75,11 +76,11 @@ const styles = StyleSheet.create({
   groupHeading: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#666',
+    color: COLORS.neutral.textMuted,
     letterSpacing: 1,
     marginBottom: 4,
   },
   row: { marginVertical: 1 },
-  link: { color: '#5b6cff' },
-  banner: { padding: 16, backgroundColor: '#f3f4f6', borderRadius: 8, gap: 8 },
+  link: { color: COLORS.brand.primary },
+  banner: { padding: 16, backgroundColor: COLORS.neutral.surfaceAlt, borderRadius: 8, gap: 8 },
 })

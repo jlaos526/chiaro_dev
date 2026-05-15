@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { MapContainer, TileLayer, GeoJSON, CircleMarker, Tooltip } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { TIER_COLOR, TIER_LABEL, DISTRICT_GROUPS, type DistrictTier } from '@chiaro/location'
+import { COLORS, MAP_COLORS } from '@chiaro/ui-tokens'
 
 export type DistrictMapDistrict = {
   id: string
@@ -50,7 +51,7 @@ export function DistrictMap({
                   fontSize: '0.75rem',
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
-                  color: '#666',
+                  color: COLORS.neutral.textMuted,
                   minWidth: 56,
                 }}
               >
@@ -93,7 +94,7 @@ export function DistrictMap({
           <CircleMarker
             center={[homePoint.lat, homePoint.lng]}
             radius={6}
-            pathOptions={{ color: '#1a1714', fillColor: '#f5f0e8', weight: 2, fillOpacity: 1 }}
+            pathOptions={{ color: MAP_COLORS.districtStroke, fillColor: MAP_COLORS.districtFill, weight: 2, fillOpacity: 1 }}
           >
             <Tooltip permanent={false} direction="top">Home</Tooltip>
           </CircleMarker>

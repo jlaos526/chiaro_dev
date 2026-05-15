@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { getMyDistricts, TIER_LABEL, DISTRICT_GROUPS } from '@chiaro/location'
+import { COLORS } from '@chiaro/ui-tokens'
 import type { DistrictMapDistrict } from './DistrictMap'
 
 // Defer Leaflet to client-only — react-leaflet 4 + React 19 strict-mode
@@ -67,7 +68,7 @@ export function DistrictPanel() {
         if (inGroup.length === 0) return null
         return (
           <section key={group.heading} style={{ marginTop: 12 }}>
-            <h3 style={{ fontSize: '0.95rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#666' }}>
+            <h3 style={{ fontSize: '0.95rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: COLORS.neutral.textMuted }}>
               {group.heading}
             </h3>
             <ul>
