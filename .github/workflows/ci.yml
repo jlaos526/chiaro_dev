@@ -132,23 +132,16 @@ jobs:
         env:
           GEOCODIO_KEY: ${{ secrets.GEOCODIO_KEY }}
       - name: Run package tests
+        # Runs all workspace tests through turbo, including @chiaro/officials
+        # integration tests which read SUPABASE_*_KEY for the ephemeral local
+        # Supabase started above. turbo.json's `^test` dependency serializes
+        # so officials runs after db (no shared-DB race).
         env:
           SUPABASE_ANON_KEY: ${{ steps.supabase-status.outputs.anon_key }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ steps.supabase-status.outputs.service_role_key }}
           SUPABASE_URL: http://127.0.0.1:54321
           GEOCODIO_KEY: ${{ secrets.GEOCODIO_KEY }}
         run: pnpm test
-      # TODO: SUPABASE_TEST_ANON_KEY and SUPABASE_TEST_SERVICE_KEY are not yet
-      # configured as repository secrets. Until they are, @chiaro/officials
-      # integration tests that read these env vars will fail; unit-only tests
-      # (keys, hooks via mocks) still run. Not using `if: secrets.X` because
-      # GitHub Actions does not allow checking secret existence in workflow
-      # `if:` expressions without an external workaround.
-      - name: Test @chiaro/officials
-        run: pnpm --filter @chiaro/officials test
-        env:
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_TEST_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_TEST_SERVICE_KEY }}
       - name: Stop Supabase
         if: always()
         run: pnpm db:stop
