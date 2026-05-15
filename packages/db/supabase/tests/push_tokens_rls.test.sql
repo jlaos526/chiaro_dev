@@ -1,6 +1,6 @@
 begin;
 
-select plan(10);
+select plan(11);
 
 -- 1. push_platform enum exists
 select has_enum('public', 'push_platform', 'push_platform enum exists');
@@ -57,6 +57,24 @@ select throws_ok(
   '42501',
   null,
   'user C cannot INSERT push_tokens row for user D (RLS WITH CHECK)'
+);
+
+-- 7b. user C cannot UPDATE — no UPDATE policy means RLS filters to zero rows.
+-- Differs from user_locations_rls.test.sql (42501) because push_tokens keeps
+-- default table grants (it has self-write policies; a blanket revoke would defeat them).
+select results_eq(
+  $$
+    with upd as (
+      update public.push_tokens
+        set platform = 'web'
+        where user_id = '00000000-0000-0000-0000-000000000cc3'
+          and token = 'token-c-ios'
+        returning 1
+    )
+    select count(*)::int from upd
+  $$,
+  $$ values (0) $$,
+  'user C cannot UPDATE own token (no UPDATE policy, RLS filters to zero rows)'
 );
 
 -- 8. user C sees only own row
