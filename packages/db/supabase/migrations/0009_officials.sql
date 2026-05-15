@@ -11,8 +11,8 @@ create table public.officials (
   last_name       text        not null,
   full_name       text        not null,
   chamber         public.official_chamber not null,
-  party           text        not null check (party in ('D','R','I','L','G','ID')),
-  state           text        not null check (length(state) = 2),
+  party           text        not null check (party in ('D','R','I','L','G','ID')),  -- 'I'=Independent (Sanders/King); 'ID'=Independent-Democrat caucus alias; 'L'=Libertarian; 'G'=Green
+  state           text        not null check (state ~ '^[A-Z]{2}$'),
   district_id     uuid        not null references public.districts(id) on delete restrict,
   senate_class    smallint    check (senate_class is null or senate_class in (1,2,3)),
   portrait_url    text,

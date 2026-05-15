@@ -1,6 +1,6 @@
 begin;
 
-select plan(14);
+select plan(18);
 
 -- 1. official_chamber enum exists
 select has_enum('public', 'official_chamber', 'official_chamber enum exists');
@@ -38,6 +38,42 @@ select trigger_is(
   'public', 'officials', 'officials_touch_updated_at',
   'public', 'touch_updated_at',
   'officials_touch_updated_at trigger present'
+);
+
+-- 7. column inventory + types (locks the schema shape)
+select columns_are(
+  'public', 'officials',
+  array[
+    'id','bioguide_id','first_name','last_name','full_name','chamber','party',
+    'state','district_id','senate_class','portrait_url','official_url',
+    'twitter_handle','next_election','in_office','source_version',
+    'created_at','updated_at'
+  ]::name[],
+  'officials has the expected 18 columns'
+);
+select col_type_is(
+  'public', 'officials', 'chamber', 'official_chamber',
+  'chamber column is bound to the official_chamber enum'
+);
+
+-- 8. partial index officials_state_chamber_idx exists
+select has_index(
+  'public', 'officials', 'officials_state_chamber_idx',
+  'officials_state_chamber_idx exists'
+);
+
+-- 9. named cross-column constraint senate_class_matches_chamber exists
+select ok(
+  exists (
+    select 1 from pg_constraint c
+    join pg_class t on t.oid = c.conrelid
+    join pg_namespace n on n.oid = t.relnamespace
+    where n.nspname = 'public'
+      and t.relname = 'officials'
+      and c.conname = 'senate_class_matches_chamber'
+      and c.contype = 'c'
+  ),
+  'senate_class_matches_chamber named constraint present'
 );
 
 select * from finish();
