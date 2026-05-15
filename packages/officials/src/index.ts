@@ -8,3 +8,5 @@ export type {
 export { officialsKeys } from './keys.ts'
 
 export { fetchMyOfficials, fetchOfficial } from './queries.ts'
+
+export { useMyOfficials, useOfficial } from './hooks.ts'
