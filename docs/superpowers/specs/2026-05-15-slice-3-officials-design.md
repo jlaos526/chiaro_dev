@@ -26,6 +26,7 @@ No bills, no voting records, no alignment scoring, no state/local officials, no 
 | 10 | Ingest cadence | Manual `pnpm seed:officials` for now; matches TIGER seed pattern. Cron / CI scheduling deferred. |
 | 11 | Portrait strategy | Hot-link from `bioguide.congress.gov` (predictable URL by `bioguide_id`). Provision `officials-portraits` storage bucket but don't populate it until slice 4 admin UI. |
 | 12 | Shared design tokens | New `packages/ui-tokens` package holds brand colors + new party palette. Slice 3's `PartyBadge` imports from there; existing inline colors in `DistrictPanel` / `DistrictMap` migrate incrementally (slice-3.5 cleanup, not blocking). |
+| 13 | Ingest safety posture | Defensive: (a) deactivation pivots on explicit just-ingested bioguide_id set, not on `source_version`; (b) pre-flight sanity check refuses to proceed if fetched counts implausibly low; (c) deactivation threshold guard requires explicit `--allow-deactivations` flag for unusual mass-deactivation events; (d) entire upsert + deactivation wrapped in one transaction; (e) every run logged in new `officials_ingest_runs` audit table. |
 
 ## Architecture
 
@@ -40,6 +41,7 @@ packages/
         0010_officials_rls.sql                   # public-read; service-role-only write
         0011_user_locations_geojson_view.sql     # table-stakes (audit #5)
         0012_push_tokens.sql                     # table-stakes (audit #6)
+        0013_officials_ingest_runs.sql           # ingest audit table (Decisions #13)
       seed/
         officials-ingest.ts                      # main ingest script
         congress-gov.ts                          # source adapter (Congress.gov v3)
@@ -184,6 +186,30 @@ create policy push_tokens_upsert_self on public.push_tokens for insert with chec
 create policy push_tokens_delete_self on public.push_tokens for delete  using (auth.uid() = user_id);
 ```
 
+#### `0013_officials_ingest_runs.sql` (ingest audit table — Decisions #13)
+
+```sql
+create table public.officials_ingest_runs (
+  id                 uuid        primary key default gen_random_uuid(),
+  started_at         timestamptz not null default now(),
+  completed_at       timestamptz,
+  congress           text        not null,
+  source             text        not null,                          -- e.g. 'congress.gov.v3'
+  fetched_count      int,                                           -- total members returned by adapter
+  ingested_count     int,                                           -- rows upserted (insert + update)
+  deactivated_count  int,                                           -- rows flipped to in_office=false
+  status             text        not null check (status in ('in_progress','completed','failed','aborted')),
+  error              text,                                          -- truncated message if failed/aborted
+  flags              text[],                                        -- e.g. {'--allow-deactivations=99'}
+  notes              text
+);
+
+create index officials_ingest_runs_started_idx on public.officials_ingest_runs(started_at desc);
+
+alter table public.officials_ingest_runs enable row level security;
+-- no policies → only service_role can read or write the audit trail
+```
+
 ### Ingest pipeline
 
 **Location:** `packages/db/supabase/seed/officials-ingest.ts`, mirroring the TIGER ingest pattern (tsx shebang, direct `pg` client, retry + resume + structured stats).
@@ -211,16 +237,37 @@ export type NormalizedMember = {
 }
 ```
 
-**Ingest flow:**
+**Ingest flow (defensive — Decisions #13):**
 
-1. Fetch both chambers in parallel (paginate 250/page through `/v3/member`).
-2. Build a district lookup map once: `key = '{tier}:{state}[:{districtNumber}]' → district.id`. Avoids N+1.
-3. For each normalized member, resolve `district_id`:
+1. **Open audit run.** `insert into officials_ingest_runs (congress, source, status, flags) values ('119','congress.gov.v3','in_progress', ARRAY[…cli flags…]) returning id` — capture `runId` for later updates.
+2. **Fetch both chambers in parallel** (paginate 250/page through `/v3/member`). Capture `fetchedHouse[]` and `fetchedSenate[]` normalized arrays.
+3. **Pre-flight sanity check (Improvement 2).** Abort the run if `fetchedHouse.length < 400` or `fetchedSenate.length < 95`. On abort: `update officials_ingest_runs set status='aborted', error=$1, completed_at=now() where id=$runId`. No DB writes to `officials`. Process exits non-zero.
+4. **Build a district lookup map once:** `key = '{tier}:{state}[:{districtNumber}]' → district.id`. Avoids N+1.
+5. **Begin transaction (Improvement 4).** All remaining writes to `officials` happen inside one `BEGIN … COMMIT`.
+6. **Resolve district + upsert each member.**
    - House: `federal_house:{state}:{districtNumber}`
    - Senate: `federal_senate:{state}` (both senators FK to the same row)
-4. Upsert into `officials` with `on conflict (bioguide_id) do update set …`.
-5. Deactivate-missing pass: `update officials set in_office = false where source_version != $1 and in_office = true` — preserves former officials for historical lookups instead of deleting.
-6. Print structured stats: `{ ingested, unresolved, deactivated, errors }`.
+   - Members with no resolvable district go into `stats.unresolved` and are *not* upserted.
+   - `on conflict (bioguide_id) do update set …` writes/refreshes the row; `source_version` is set to current `CONGRESS` on every upsert (now meaning "last congress this member was observed serving in").
+7. **Compute deactivation set (Improvement 1).** Let `ingestedBioguideIds = fetchedHouse ∪ fetchedSenate` (the set we just successfully upserted, after filtering out unresolved). Issue:
+   ```sql
+   select count(*) from officials
+     where in_office = true and bioguide_id != all($1::text[])
+   ```
+   Call this count `toDeactivate`.
+8. **Threshold guard (Improvement 3).** Compute `currentActiveCount = (select count(*) from officials where in_office = true)`. If `toDeactivate > max(5, ceil(currentActiveCount * 0.01))` *and* no `--allow-deactivations=N` flag was passed *or* the flag's N doesn't match `toDeactivate`: **ROLLBACK** the transaction, record `status='aborted'`, log the count + the exact `--allow-deactivations` flag to add, exit non-zero. Operator must consciously re-run with the flag.
+9. **Deactivate-missing pass (Improvement 1).** Inside the same transaction:
+   ```sql
+   update officials
+     set in_office = false
+     where in_office = true
+       and bioguide_id != all($1::text[])  -- $1 = ingestedBioguideIds[]
+   returning id;
+   ```
+   This catches both cross-congress departures and within-congress departures (someone removed mid-term). Returning rows gives us the actual `deactivated_count`.
+10. **Close audit run on success.** Still inside the transaction: `update officials_ingest_runs set status='completed', completed_at=now(), fetched_count=$1, ingested_count=$2, deactivated_count=$3 where id=$runId`. Then `COMMIT`.
+11. **On any thrown error inside the transaction.** Catch → `ROLLBACK` → record `status='failed'` and truncated error message on the audit row (in a separate transaction; the audit row itself must persist). Exit non-zero.
+12. **Print structured stats** to stdout: `{ runId, ingested, unresolved, deactivated, errors }` — for human inspection and CI logs.
 
 **At-large house seats** (AK, DE, MT, ND, SD, VT, WY): confirm at implementation time whether Congress.gov returns `district: 0`, `district: 1`, or omits the field. Reconcile with TIGER's coding by inspecting existing `districts` rows for these states. Document the convention in `officials-config.ts`.
 
@@ -331,11 +378,12 @@ A user who has completed slice 2 (signup → profile → calibrate) sees, on bot
 2. **At-large house seats.** Reconcile Congress.gov's `district` value with how TIGER coded these for AK / DE / MT / ND / SD / VT / WY.
 3. **Mobile route grouping.** Confirm `officials/` lives inside `(app)/` route group (auth-gated, matches existing structure).
 4. **SSR prefetch on web home.** Optional polish — Server Component could `prefetchQuery` for `useMyOfficials` before hydration. Performance tweak, not blocking.
-5. **`source_version` semantics on deactivation.** Verify Congress.gov's congress filter behaves predictably across sessions (e.g., does `?currentMember=true` return outgoing members during transition periods?).
+5. **Threshold-guard floor calibration.** Decisions #13 sets the deactivation guard at `max(5, 1% of active)`. With ~541 active, that's ~5 — basically any unexpected mass deactivation requires the flag. May need recalibration once natural turnover patterns are observed (post-election ingests routinely deactivate ~50–100 — those will always need `--allow-deactivations=N`, which is the intent, but the operator UX may want streamlining).
+6. **`source_version` semantics post-Improvement 1.** With deactivation now driven by explicit set rather than `source_version`, the column means "last congress in which this member was observed actively serving." Confirm no downstream query relies on it for liveness checks (UI filters on `in_office=true`, not `source_version`).
 
 ## Cross-cutting concerns
 
-- **Observability:** ingest script prints structured stats to stdout; failures throw + exit non-zero. Production telemetry (Sentry / PostHog for the apps; pg log for ingest) deferred to slice 3.5 audit follow-up.
+- **Observability:** ingest script prints structured stats to stdout; failures throw + exit non-zero. Every run also writes a row to `officials_ingest_runs` (Decisions #13) — query `select * from officials_ingest_runs order by started_at desc limit 10` for recent history. Production telemetry (Sentry / PostHog for the apps; pg log for ingest) deferred to slice 3.5 audit follow-up.
 - **Feature flagging:** no kill switch needed for slice 3 — officials are public-read and the ingest is offline-controlled. If Congress.gov degrades, no user-facing impact (existing rows stay).
 - **Analytics events:** "officials_card_viewed", "official_detail_opened" — wire stubs only; full analytics infra deferred.
 - **Accessibility:** photos get `alt={full_name}`; party badge has accessible label; list page heading hierarchy validated. Standard SSR-friendly Next 15 + RN a11y patterns.
@@ -348,4 +396,9 @@ A user who has completed slice 2 (signup → profile → calibrate) sees, on bot
 - Web typecheck + mobile typecheck pass workspace-wide (`pnpm -r typecheck`).
 - Web build (`pnpm --filter @chiaro/web build`) passes Next 15.
 - Mobile typecheck passes; on-device validation defers to slice 2.5.
-- Integration test: `pnpm seed:officials` (against a recorded fixture of Congress.gov payloads, not the live API in CI — avoid rate-limit + key-exposure issues). Verifies the full pipeline: fetch adapter → normalize → upsert → deactivate-missing.
+- Integration test: `pnpm seed:officials` (against a recorded fixture of Congress.gov payloads, not the live API in CI — avoid rate-limit + key-exposure issues). Verifies the full pipeline: fetch adapter → normalize → upsert → deactivate-missing. Additional ingest-safety scenarios (each its own fixture):
+  - **Happy path:** clean 541-member fixture → `officials_ingest_runs` row has `status='completed'`, deactivated_count = 0.
+  - **Pre-flight abort (F2 / Improvement 2):** house fixture trimmed to 350 → script exits non-zero, `officials_ingest_runs.status='aborted'`, `officials` table untouched.
+  - **Threshold guard (F3 / Improvement 3):** fixture omits 50 active members without the `--allow-deactivations=50` flag → ROLLBACK, no rows flipped, audit row records `status='aborted'` and the recommended flag. Re-run with `--allow-deactivations=50` → succeeds, 50 rows now `in_office=false`.
+  - **Within-congress departure (F1 / Improvement 1):** seed an extra row with `bioguide_id='Z000999', in_office=true, source_version='119'`; fixture doesn't include them → that row flips to `in_office=false` in a single ingest pass (not deferred to next congress).
+  - **Transaction atomicity (F4 / Improvement 4):** inject a forced error inside the deactivation pass → both upsert *and* deactivation roll back; `officials_ingest_runs.status='failed'` recorded in a separate transaction.
