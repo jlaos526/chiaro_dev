@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { MapContainer, TileLayer, GeoJSON, CircleMarker, Tooltip } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
-import type { DistrictTier } from '@chiaro/location'
+import { TIER_COLOR, TIER_LABEL, DISTRICT_GROUPS, type DistrictTier } from '@chiaro/location'
 
 export type DistrictMapDistrict = {
   id: string
@@ -11,31 +11,6 @@ export type DistrictMapDistrict = {
   code: string
   geometry: GeoJSON.Polygon | GeoJSON.MultiPolygon
 }
-
-const TIER_COLOR: Record<DistrictTier, string> = {
-  federal_house: '#5b6cff',
-  federal_senate: '#1f9b88',
-  state_senate: '#9c64b9',
-  state_house: '#7e54a8',
-  county: '#7a8d4b',
-  place: '#c9a84c',
-}
-
-const TIER_SHORT_LABEL: Record<DistrictTier, string> = {
-  federal_house: 'U.S. House',
-  federal_senate: 'U.S. Senate',
-  state_senate: 'State Senate',
-  state_house: 'State House',
-  county: 'County',
-  place: 'City',
-}
-
-type DistrictGroup = { heading: string; tiers: DistrictTier[] }
-const DISTRICT_GROUPS: DistrictGroup[] = [
-  { heading: 'Federal', tiers: ['federal_senate', 'federal_house'] },
-  { heading: 'State',   tiers: ['state_senate', 'state_house'] },
-  { heading: 'Local',   tiers: ['county', 'place'] },
-]
 
 export function DistrictMap({
   districts,
@@ -89,7 +64,7 @@ export function DistrictMap({
                       checked={!!enabled[d.id]}
                       onChange={e => setEnabled(prev => ({ ...prev, [d.id]: e.target.checked }))}
                     />
-                    <span style={{ color: TIER_COLOR[d.tier] }}>{TIER_SHORT_LABEL[d.tier]}</span>
+                    <span style={{ color: TIER_COLOR[d.tier] }}>{TIER_LABEL[d.tier]}</span>
                     <span>{d.code}</span>
                   </label>
                 ))}

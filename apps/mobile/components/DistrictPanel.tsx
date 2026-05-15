@@ -2,24 +2,8 @@ import { useEffect, useState } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import { Link } from 'expo-router'
 import { supabase } from '@/lib/supabase'
-import { getMyDistricts, type DistrictTier } from '@chiaro/location'
+import { getMyDistricts, TIER_LABEL, DISTRICT_GROUPS } from '@chiaro/location'
 import { DistrictMap, type DistrictMapDistrict } from './DistrictMap'
-
-const TIER_LABEL: Record<DistrictTier, string> = {
-  federal_house: 'U.S. House',
-  federal_senate: 'U.S. Senate',
-  state_senate: 'State Senate',
-  state_house: 'State House',
-  county: 'County',
-  place: 'City',
-}
-
-type DistrictGroup = { heading: string; tiers: DistrictTier[] }
-const DISTRICT_GROUPS: DistrictGroup[] = [
-  { heading: 'Federal', tiers: ['federal_senate', 'federal_house'] },
-  { heading: 'State',   tiers: ['state_senate', 'state_house'] },
-  { heading: 'Local',   tiers: ['county', 'place'] },
-]
 
 export function DistrictPanel() {
   const [districts, setDistricts] = useState<DistrictMapDistrict[] | null>(null)

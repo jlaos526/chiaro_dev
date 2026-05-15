@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
-import { getMyDistricts, type DistrictTier } from '@chiaro/location'
+import { getMyDistricts, TIER_LABEL, DISTRICT_GROUPS } from '@chiaro/location'
 import type { DistrictMapDistrict } from './DistrictMap'
 
 // Defer Leaflet to client-only — react-leaflet 4 + React 19 strict-mode
@@ -12,22 +12,6 @@ const DistrictMap = dynamic(
   () => import('./DistrictMap').then(m => m.DistrictMap),
   { ssr: false, loading: () => <p>Loading map…</p> }
 )
-
-const TIER_LABEL: Record<DistrictTier, string> = {
-  federal_house: 'U.S. House',
-  federal_senate: 'U.S. Senate',
-  state_senate: 'State Senate',
-  state_house: 'State House',
-  county: 'County',
-  place: 'City',
-}
-
-type DistrictGroup = { heading: string; tiers: DistrictTier[] }
-const DISTRICT_GROUPS: DistrictGroup[] = [
-  { heading: 'Federal', tiers: ['federal_senate', 'federal_house'] },
-  { heading: 'State',   tiers: ['state_senate', 'state_house'] },
-  { heading: 'Local',   tiers: ['county', 'place'] },
-]
 
 export function DistrictPanel() {
   const [districts, setDistricts] = useState<DistrictMapDistrict[] | null>(null)

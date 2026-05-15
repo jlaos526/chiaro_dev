@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import MapView, { Polygon, Marker, PROVIDER_DEFAULT } from 'react-native-maps'
-import type { DistrictTier } from '@chiaro/location'
+import { TIER_COLOR, TIER_LABEL, DISTRICT_GROUPS, type DistrictTier } from '@chiaro/location'
 
 export type DistrictMapDistrict = {
   id: string
@@ -10,31 +10,6 @@ export type DistrictMapDistrict = {
   code: string
   geometry: { type: 'Polygon' | 'MultiPolygon'; coordinates: number[][][] | number[][][][] }
 }
-
-const TIER_COLOR: Record<DistrictTier, string> = {
-  federal_house: '#5b6cff',
-  federal_senate: '#1f9b88',
-  state_senate: '#9c64b9',
-  state_house: '#7e54a8',
-  county: '#7a8d4b',
-  place: '#c9a84c',
-}
-
-const TIER_SHORT_LABEL: Record<DistrictTier, string> = {
-  federal_house: 'U.S. House',
-  federal_senate: 'U.S. Senate',
-  state_senate: 'State Senate',
-  state_house: 'State House',
-  county: 'County',
-  place: 'City',
-}
-
-type DistrictGroup = { heading: string; tiers: DistrictTier[] }
-const DISTRICT_GROUPS: DistrictGroup[] = [
-  { heading: 'Federal', tiers: ['federal_senate', 'federal_house'] },
-  { heading: 'State',   tiers: ['state_senate', 'state_house'] },
-  { heading: 'Local',   tiers: ['county', 'place'] },
-]
 
 export function DistrictMap({
   districts,
@@ -76,7 +51,7 @@ export function DistrictMap({
                     onPress={() => setEnabled(prev => ({ ...prev, [d.id]: !prev[d.id] }))}
                   >
                     <Text style={[styles.toggleText, enabled[d.id] && { color: 'white' }]}>
-                      {TIER_SHORT_LABEL[d.tier]} {d.code}
+                      {TIER_LABEL[d.tier]} {d.code}
                     </Text>
                   </Pressable>
                 ))}
