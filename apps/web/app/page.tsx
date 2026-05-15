@@ -2,6 +2,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getMyProfile } from '@chiaro/profile'
 import { redirect } from 'next/navigation'
 import { DistrictPanel } from '@/components/DistrictPanel'
+import { OfficialsCard } from '@/components/OfficialsCard'
 
 export default async function Home(): Promise<React.JSX.Element> {
   const supabase = await createSupabaseServerClient()
@@ -22,6 +23,7 @@ export default async function Home(): Promise<React.JSX.Element> {
         <button type="submit">Sign out</button>
       </form>
       <DistrictPanel />
+      <OfficialsCard />
     </main>
   )
 }

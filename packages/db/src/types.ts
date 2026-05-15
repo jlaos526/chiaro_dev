@@ -64,6 +64,129 @@ export type Database = {
         }
         Relationships: []
       }
+      officials: {
+        Row: {
+          bioguide_id: string
+          chamber: Database["public"]["Enums"]["official_chamber"]
+          created_at: string
+          district_id: string
+          first_name: string
+          full_name: string
+          id: string
+          in_office: boolean
+          last_name: string
+          next_election: string | null
+          official_url: string | null
+          party: string
+          portrait_url: string | null
+          senate_class: number | null
+          source_version: string
+          state: string
+          twitter_handle: string | null
+          updated_at: string
+        }
+        Insert: {
+          bioguide_id: string
+          chamber: Database["public"]["Enums"]["official_chamber"]
+          created_at?: string
+          district_id: string
+          first_name: string
+          full_name: string
+          id?: string
+          in_office?: boolean
+          last_name: string
+          next_election?: string | null
+          official_url?: string | null
+          party: string
+          portrait_url?: string | null
+          senate_class?: number | null
+          source_version: string
+          state: string
+          twitter_handle?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bioguide_id?: string
+          chamber?: Database["public"]["Enums"]["official_chamber"]
+          created_at?: string
+          district_id?: string
+          first_name?: string
+          full_name?: string
+          id?: string
+          in_office?: boolean
+          last_name?: string
+          next_election?: string | null
+          official_url?: string | null
+          party?: string
+          portrait_url?: string | null
+          senate_class?: number | null
+          source_version?: string
+          state?: string
+          twitter_handle?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "officials_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "officials_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts_geojson"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      officials_ingest_runs: {
+        Row: {
+          completed_at: string | null
+          congress: string
+          deactivated_count: number | null
+          error: string | null
+          fetched_count: number | null
+          flags: string[] | null
+          id: string
+          ingested_count: number | null
+          notes: string | null
+          source: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          congress: string
+          deactivated_count?: number | null
+          error?: string | null
+          fetched_count?: number | null
+          flags?: string[] | null
+          id?: string
+          ingested_count?: number | null
+          notes?: string | null
+          source: string
+          started_at?: string
+          status: string
+        }
+        Update: {
+          completed_at?: string | null
+          congress?: string
+          deactivated_count?: number | null
+          error?: string | null
+          fetched_count?: number | null
+          flags?: string[] | null
+          id?: string
+          ingested_count?: number | null
+          notes?: string | null
+          source?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           completed: boolean
@@ -88,6 +211,27 @@ export type Database = {
           id?: string
           updated_at?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      push_tokens: {
+        Row: {
+          created_at: string
+          platform: Database["public"]["Enums"]["push_platform"]
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          platform: Database["public"]["Enums"]["push_platform"]
+          token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          platform?: Database["public"]["Enums"]["push_platform"]
+          token?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -246,6 +390,27 @@ export type Database = {
           f_table_schema?: unknown
           srid?: number | null
           type?: string | null
+        }
+        Relationships: []
+      }
+      user_locations_geojson: {
+        Row: {
+          calibrated_at: string | null
+          home_address_text: string | null
+          home_location_geojson: Json | null
+          id: string | null
+        }
+        Insert: {
+          calibrated_at?: string | null
+          home_address_text?: string | null
+          home_location_geojson?: never
+          id?: string | null
+        }
+        Update: {
+          calibrated_at?: string | null
+          home_address_text?: string | null
+          home_location_geojson?: never
+          id?: string | null
         }
         Relationships: []
       }
@@ -1162,6 +1327,8 @@ export type Database = {
         | "state_house"
         | "county"
         | "place"
+      official_chamber: "house" | "senate"
+      push_platform: "ios" | "android" | "web"
     }
     CompositeTypes: {
       geometry_dump: {
@@ -1308,6 +1475,8 @@ export const Constants = {
         "county",
         "place",
       ],
+      official_chamber: ["house", "senate"],
+      push_platform: ["ios", "android", "web"],
     },
   },
 } as const

@@ -34,6 +34,10 @@ jobs:
           SUPABASE_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
       - name: Run pgTAP suite
         run: pnpm db:test
+      - name: Smoke officials ingest (against fixtures)
+        run: pnpm --filter @chiaro/db test supabase/seed/officials-ingest.test.ts
+        env:
+          SUPABASE_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
       - name: Generate types and check drift
         run: pnpm db:check-types-drift
       - name: Stop Supabase
@@ -134,6 +138,17 @@ jobs:
           SUPABASE_URL: http://127.0.0.1:54321
           GEOCODIO_KEY: ${{ secrets.GEOCODIO_KEY }}
         run: pnpm test
+      # TODO: SUPABASE_TEST_ANON_KEY and SUPABASE_TEST_SERVICE_KEY are not yet
+      # configured as repository secrets. Until they are, @chiaro/officials
+      # integration tests that read these env vars will fail; unit-only tests
+      # (keys, hooks via mocks) still run. Not using `if: secrets.X` because
+      # GitHub Actions does not allow checking secret existence in workflow
+      # `if:` expressions without an external workaround.
+      - name: Test @chiaro/officials
+        run: pnpm --filter @chiaro/officials test
+        env:
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_TEST_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_TEST_SERVICE_KEY }}
       - name: Stop Supabase
         if: always()
         run: pnpm db:stop
