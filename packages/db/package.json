@@ -10,6 +10,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:reset": "supabase db reset",
@@ -22,12 +23,14 @@
     "shapefile": "^0.6.6",
     "undici": "^6.19.0",
     "unzipper": "^0.12.3",
-    "pg": "^8.13.0"
+    "pg": "^8.13.0",
+    "zod": "^3.23.0"
   },
   "devDependencies": {
     "@types/pg": "^8.11.0",
     "@types/unzipper": "^0.10.10",
     "tsx": "^4.16.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
   }
 }
