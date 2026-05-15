@@ -6,3 +6,5 @@ export type {
 } from './types.ts'
 
 export { officialsKeys } from './keys.ts'
+
+export { fetchMyOfficials, fetchOfficial } from './queries.ts'
