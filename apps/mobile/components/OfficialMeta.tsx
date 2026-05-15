@@ -1,0 +1,13 @@
+import { Text } from 'react-native'
+import type { OfficialWithDistrict } from '@chiaro/officials'
+
+export function OfficialMeta({ official }: { official: OfficialWithDistrict }) {
+  const chamberLabel = official.chamber === 'house' ? 'House' : 'Senate'
+  const districtSuffix = official.chamber === 'house'
+    ? ` · ${official.district.code}`
+    : ` · ${official.state}`
+  const term = official.next_election
+    ? ` · Next election ${new Date(official.next_election).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}`
+    : ''
+  return <Text>{chamberLabel}{districtSuffix}{term}</Text>
+}

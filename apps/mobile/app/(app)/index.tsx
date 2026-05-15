@@ -4,6 +4,7 @@ import { Link } from 'expo-router'
 import { supabase } from '@/lib/supabase'
 import { getMyProfile } from '@chiaro/profile'
 import { DistrictPanel } from '@/components/DistrictPanel'
+import { OfficialsCard } from '@/components/OfficialsCard'
 
 type Profile = Awaited<ReturnType<typeof getMyProfile>>
 
@@ -33,6 +34,7 @@ export default function Home() {
         <Link href="/(app)/profile/edit">Complete your profile</Link>
       )}
       <DistrictPanel />
+      <OfficialsCard />
       <Link href="/settings">Settings</Link>
     </View>
   )
