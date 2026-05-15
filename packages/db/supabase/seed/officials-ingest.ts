@@ -2,6 +2,7 @@
 // Slice 3 officials ingest — defensive Congress.gov v3 pipeline.
 // See spec § Ingest pipeline. Run via `pnpm seed:officials`.
 
+import { fileURLToPath } from 'node:url'
 import { Client } from 'pg'
 import type { NormalizedMember } from './normalize.ts'
 import { fetchMembers } from './congress-gov.ts'
@@ -130,24 +131,28 @@ export async function ingestOfficials(args: IngestArgs): Promise<IngestStats> {
   const fetcher  = args.fetcher  ?? fetchMembers
 
   const client = new Client({ connectionString: OFFICIALS_DB_URL })
-  await client.connect()
-
-  // Step 1: open audit run (outside transaction so it persists on failure)
-  const flags = args.allowDeactivations !== undefined
-    ? [`--allow-deactivations=${args.allowDeactivations}`]
-    : []
-  const openRes = await client.query<{ id: string }>(`
-    insert into public.officials_ingest_runs (congress, source, status, flags)
-    values ($1,$2,'in_progress',$3) returning id
-  `, [congress, OFFICIALS_SOURCE, flags])
-  const runId = openRes.rows[0].id
+  let runId: string | null = null
 
   const stats: IngestStats = {
-    runId, fetched: 0, ingested: 0, unresolved: [], deactivated: 0,
+    runId: '', fetched: 0, ingested: 0, unresolved: [], deactivated: 0,
     status: 'completed',
   }
 
   try {
+    await client.connect()
+
+    // Step 1: open audit run (outside transaction so it persists on failure).
+    // Inside try/finally so a failure here still hits client.end().
+    const flags = args.allowDeactivations !== undefined
+      ? [`--allow-deactivations=${args.allowDeactivations}`]
+      : []
+    const openRes = await client.query<{ id: string }>(`
+      insert into public.officials_ingest_runs (congress, source, status, flags)
+      values ($1,$2,'in_progress',$3) returning id
+    `, [congress, OFFICIALS_SOURCE, flags])
+    runId = openRes.rows[0].id
+    stats.runId = runId
+
     // Step 2: fetch both chambers in parallel
     const [house, senate] = await Promise.all([
       fetcher('house',  congress, args.apiKey),
@@ -201,10 +206,12 @@ export async function ingestOfficials(args: IngestArgs): Promise<IngestStats> {
     await client.query('ROLLBACK').catch(() => {})
     stats.status = 'failed'
     stats.error = err instanceof Error ? err.message : String(err)
-    await failRun(client, runId, stats.error).catch(() => {})
+    if (runId) {
+      await failRun(client, runId, stats.error).catch(() => {})
+    }
     throw err
   } finally {
-    await client.end()
+    await client.end().catch(() => {})
   }
 
   return stats
@@ -237,7 +244,7 @@ async function failRun(
 
 // ---- CLI entry ----
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const apiKey = process.env.CONGRESS_GOV_API_KEY
   if (!apiKey) {
     console.error('CONGRESS_GOV_API_KEY env var is required')
