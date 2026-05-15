@@ -217,6 +217,37 @@ importers:
         specifier: ^2.0.0
         version: 2.1.9(@types/node@25.6.0)(lightningcss@1.32.0)(terser@5.46.2)
 
+  packages/officials:
+    dependencies:
+      '@chiaro/db':
+        specifier: workspace:*
+        version: link:../db
+      '@chiaro/supabase-client':
+        specifier: workspace:*
+        version: link:../supabase-client
+      '@supabase/supabase-js':
+        specifier: ^2.105.0
+        version: 2.105.3
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+    devDependencies:
+      '@tanstack/react-query':
+        specifier: ^5.59.0
+        version: 5.100.10(react@19.1.0)
+      '@types/react':
+        specifier: ~19.1.17
+        version: 19.1.17
+      react:
+        specifier: 19.1.0
+        version: 19.1.0
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.0.0
+        version: 2.1.9(@types/node@25.6.0)(lightningcss@1.32.0)(terser@5.46.2)
+
   packages/profile:
     dependencies:
       '@chiaro/db':
@@ -1950,6 +1981,14 @@ packages:
 
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
+
+  '@tanstack/query-core@5.100.10':
+    resolution: {integrity: sha512-8UR0yJR+GiQ40m3lPhUr0xbfAupe6GSQiksSBSa9SM2NjezFyxXCIA69/lz8cSoNKZLrw1/PktIyQBJcVeMi3w==}
+
+  '@tanstack/react-query@5.100.10':
+    resolution: {integrity: sha512-FLaZf2RCrA/Zgp4aiu5tG3TyasTRO7aZ99skxQpr3Hg/zXOhu6yq5FZCYQ/tRaJtM9ylnoK8tFK7PolXQadv6Q==}
+    peerDependencies:
+      react: 19.1.0
 
   '@turbo/darwin-64@2.9.7':
     resolution: {integrity: sha512-wnvOWuVWJ5EUHNKxExEWiGlTeVpLG1L0PCu5MUozyC1P2SHGiWsmpW6/yAuShH91Fa2TAHOvdCRBzriZh4j4Eg==}
@@ -6202,6 +6241,13 @@ snapshots:
   '@swc/helpers@0.5.15':
     dependencies:
       tslib: 2.8.1
+
+  '@tanstack/query-core@5.100.10': {}
+
+  '@tanstack/react-query@5.100.10(react@19.1.0)':
+    dependencies:
+      '@tanstack/query-core': 5.100.10
+      react: 19.1.0
 
   '@turbo/darwin-64@2.9.7':
     optional: true
