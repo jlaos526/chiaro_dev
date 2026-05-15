@@ -32,7 +32,7 @@ function Section({ title, items }: { title: string; items: OfficialWithDistrict[
     <View style={{ marginBottom: 24 }}>
       <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8 }}>{title}</Text>
       {items.map((o) => (
-        <Link key={o.id} href={`/officials/${o.id}` as any} asChild>
+        <Link key={o.id} href={`/officials/${o.id}`} asChild>
           <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8 }}>
             <OfficialAvatar fullName={o.full_name} portraitUrl={o.portrait_url} size={48} />
             <View style={{ flex: 1 }}>

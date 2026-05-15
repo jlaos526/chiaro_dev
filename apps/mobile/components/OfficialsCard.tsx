@@ -24,7 +24,7 @@ export function OfficialsCard() {
     <View>
       <Text style={{ fontWeight: '600', marginBottom: 8 }}>Your officials</Text>
       {data.map((o) => (
-        <Link key={o.id} href={`/officials/${o.id}` as any} asChild>
+        <Link key={o.id} href={`/officials/${o.id}`} asChild>
           <Pressable
             style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8 }}
             accessibilityLabel={`${o.full_name}, ${o.party}`}
