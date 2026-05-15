@@ -1,6 +1,6 @@
 begin;
 
-select plan(25);
+select plan(26);
 
 -- 1. official_chamber enum exists
 select has_enum('public', 'official_chamber', 'official_chamber enum exists');
@@ -120,25 +120,18 @@ select throws_ok(
   'anon cannot INSERT'
 );
 
--- 10. anon UPDATE blocked (RLS filters → 0 rows affected, no policy for update)
-select results_eq(
-  $$ with upd as (
-       update public.officials set party = 'R'
-        where bioguide_id = 'X000001'
-       returning 1
-     ) select count(*)::int from upd $$,
-  $$ values (0) $$,
-  'anon UPDATE returns 0 rows (RLS filter, no update policy)'
+-- 10. anon UPDATE blocked (table grant revoked → throws 42501)
+select throws_ok(
+  $$ update public.officials set party = 'R' where bioguide_id = 'X000001' $$,
+  '42501', null,
+  'anon cannot UPDATE (permission denied at table grant level)'
 );
 
--- 11. anon DELETE blocked (RLS filters → 0 rows affected, no policy for delete)
-select results_eq(
-  $$ with del as (
-       delete from public.officials where bioguide_id = 'X000001'
-       returning 1
-     ) select count(*)::int from del $$,
-  $$ values (0) $$,
-  'anon DELETE returns 0 rows (RLS filter, no delete policy)'
+-- 11. anon DELETE blocked (table grant revoked → throws 42501)
+select throws_ok(
+  $$ delete from public.officials where bioguide_id = 'X000001' $$,
+  '42501', null,
+  'anon cannot DELETE (permission denied at table grant level)'
 );
 
 reset role;
@@ -151,6 +144,12 @@ select lives_ok(
      values ('X000003','Z','Z','Z','senate','I','VT',
        '11111111-1111-1111-1111-111111111111', 1, '119') $$,
   'service_role can INSERT'
+);
+-- 13. service_role INSERT actually wrote the row
+select is(
+  (select count(*) from public.officials where bioguide_id = 'X000003'),
+  1::bigint,
+  'service_role INSERT actually wrote X000003'
 );
 reset role;
 

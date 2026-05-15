@@ -8,3 +8,7 @@ create policy officials_select_all
   for select
   using (true);
 -- No insert/update/delete policies → only service_role bypasses RLS to write.
+
+-- Defense in depth: revoke table-level write grants from public roles.
+-- Matches the convention from 0002/0004/0006_*_rls.sql.
+revoke insert, update, delete on public.officials from anon, authenticated;
