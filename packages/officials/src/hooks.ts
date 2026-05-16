@@ -1,7 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 import type { ChiaroClient } from '@chiaro/supabase-client'
 import { officialsKeys } from './keys.ts'
-import { fetchMyOfficials, fetchOfficial } from './queries.ts'
+import {
+  fetchMyOfficials, fetchOfficial,
+  fetchOfficialMetrics, fetchOfficialScorecardRatings,
+  fetchOfficialFinance, fetchOfficialDistrictOffices,
+  fetchOfficialTownHalls, fetchOfficialStockTransactions,
+  fetchOfficialLeadershipHistory,
+} from './queries.ts'
 
 const FIVE_MIN = 5 * 60 * 1000
 const THIRTY_MIN = 30 * 60 * 1000
@@ -22,5 +28,76 @@ export function useOfficial(client: ChiaroClient, id: string) {
     staleTime: FIVE_MIN,
     gcTime: THIRTY_MIN,
     enabled: !!id,
+  })
+}
+
+export function useOfficialMetrics(client: ChiaroClient, officialId: string) {
+  return useQuery({
+    queryKey: officialsKeys.metrics(officialId),
+    queryFn: () => fetchOfficialMetrics(client, officialId),
+    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    enabled: !!officialId,
+  })
+}
+
+export function useOfficialScorecardRatings(client: ChiaroClient, officialId: string) {
+  return useQuery({
+    queryKey: officialsKeys.scorecards(officialId),
+    queryFn: () => fetchOfficialScorecardRatings(client, officialId),
+    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    enabled: !!officialId,
+  })
+}
+
+export function useOfficialFinance(client: ChiaroClient, officialId: string, cycle: string) {
+  return useQuery({
+    queryKey: officialsKeys.finance(officialId, cycle),
+    queryFn: () => fetchOfficialFinance(client, officialId, cycle),
+    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    enabled: !!officialId && !!cycle,
+  })
+}
+
+export function useOfficialDistrictOffices(
+  client: ChiaroClient, officialId: string, opts?: { enabled?: boolean },
+) {
+  return useQuery({
+    queryKey: officialsKeys.districtOffices(officialId),
+    queryFn: () => fetchOfficialDistrictOffices(client, officialId),
+    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    enabled: opts?.enabled !== false && !!officialId,
+  })
+}
+
+export function useOfficialTownHalls(
+  client: ChiaroClient, officialId: string, congress: string, opts?: { enabled?: boolean },
+) {
+  return useQuery({
+    queryKey: officialsKeys.townHalls(officialId, congress),
+    queryFn: () => fetchOfficialTownHalls(client, officialId, congress),
+    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    enabled: opts?.enabled !== false && !!officialId,
+  })
+}
+
+export function useOfficialStockTransactions(
+  client: ChiaroClient, officialId: string, opts?: { enabled?: boolean },
+) {
+  return useQuery({
+    queryKey: officialsKeys.stockTransactions(officialId),
+    queryFn: () => fetchOfficialStockTransactions(client, officialId),
+    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    enabled: opts?.enabled !== false && !!officialId,
+  })
+}
+
+export function useOfficialLeadershipHistory(
+  client: ChiaroClient, officialId: string, opts?: { enabled?: boolean },
+) {
+  return useQuery({
+    queryKey: officialsKeys.leadershipHistory(officialId),
+    queryFn: () => fetchOfficialLeadershipHistory(client, officialId),
+    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    enabled: opts?.enabled !== false && !!officialId,
   })
 }
