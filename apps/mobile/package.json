@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.29.2",
+    "@chiaro/bills": "workspace:*",
     "@chiaro/db": "workspace:*",
     "@chiaro/location": "workspace:*",
     "@chiaro/officials": "workspace:*",
