@@ -12,3 +12,8 @@ export {
   fetchOfficialMissedVotes, fetchOfficialVotesOnSubject,
   type BillsFilter,
 } from './queries.ts'
+export {
+  useBills, useBill, useBillVotes,
+  useOfficialSponsoredBills, useOfficialCosponsoredBills,
+  useOfficialMissedVotes, useOfficialVotesOnSubject,
+} from './hooks.ts'
