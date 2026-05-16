@@ -18,6 +18,14 @@
     "supabase:gen-types": "supabase gen types typescript --local > src/types.ts",
     "db:seed-officials": "tsx supabase/seed/officials-ingest.ts",
     "db:seed-tiger": "tsx supabase/seed/tiger-ingest.ts",
+    "db:seed-unitedstates": "tsx supabase/seed/unitedstates-legislators-ingest.ts",
+    "db:seed-bills-votes": "tsx supabase/seed/bills-votes-ingest.ts",
+    "db:seed-scorecards": "tsx supabase/seed/scorecards/index.ts",
+    "db:seed-finance": "tsx supabase/seed/finance-ingest.ts",
+    "db:seed-salary-residency": "tsx supabase/seed/salary-residency-ingest.ts",
+    "db:seed-town-halls": "tsx supabase/seed/town-halls-ingest.ts",
+    "db:seed-stock-watcher": "tsx supabase/seed/stock-watcher-ingest.ts",
+    "db:recompute-metrics": "tsx supabase/seed/recompute-metrics.ts",
     "functions:serve": "supabase functions serve --env-file ../../.env.local"
   },
   "dependencies": {
