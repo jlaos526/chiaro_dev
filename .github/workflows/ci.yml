@@ -38,6 +38,18 @@ jobs:
         run: pnpm --filter @chiaro/db test supabase/seed/officials-ingest.test.ts
         env:
           SUPABASE_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+      - name: Smoke slice-4 ingest pipelines (against fixtures)
+        run: |
+          pnpm --filter @chiaro/db test supabase/seed/unitedstates-legislators-ingest.test.ts
+          pnpm --filter @chiaro/db test supabase/seed/bills-votes-ingest.test.ts
+          pnpm --filter @chiaro/db test supabase/seed/scorecards/index.test.ts
+          pnpm --filter @chiaro/db test supabase/seed/finance-ingest.test.ts
+          pnpm --filter @chiaro/db test supabase/seed/salary-residency-ingest.test.ts
+          pnpm --filter @chiaro/db test supabase/seed/town-halls-ingest.test.ts
+          pnpm --filter @chiaro/db test supabase/seed/stock-watcher-ingest.test.ts
+          pnpm --filter @chiaro/db test supabase/seed/recompute-metrics.test.ts
+        env:
+          SUPABASE_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
       - name: Generate types and check drift
         run: pnpm db:check-types-drift
       - name: Stop Supabase
@@ -141,6 +153,8 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ steps.supabase-status.outputs.service_role_key }}
           SUPABASE_URL: http://127.0.0.1:54321
           GEOCODIO_KEY: ${{ secrets.GEOCODIO_KEY }}
+          OPENSECRETS_API_KEY: ${{ secrets.OPENSECRETS_API_KEY }}
+          OPENFEC_API_KEY:     ${{ secrets.OPENFEC_API_KEY }}
         run: pnpm test
       - name: Stop Supabase
         if: always()
