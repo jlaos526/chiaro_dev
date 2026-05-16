@@ -36,7 +36,7 @@ afterEach(async () => {
 })
 
 describe('ingestScorecards', () => {
-  it('upserts 5 scorecard_orgs and rates known officials from fixture CSVs', async () => {
+  it('upserts 10 scorecard_orgs and rates known officials from fixture CSVs', async () => {
     const stats = await ingestScorecards({ fixturesDir: FIXTURES })
 
     expect(Object.keys(stats)).toHaveLength(ADAPTERS.length)
@@ -48,7 +48,7 @@ describe('ingestScorecards', () => {
 
     const orgs = await client.query("select slug from public.scorecard_orgs order by slug")
     expect(orgs.rows.map((r: any) => r.slug).sort()).toEqual(
-      ['aclu', 'lcv', 'naacp', 'planned-parenthood', 'sierra-club']
+      ['aclu', 'ada', 'afl-cio', 'heritage-action', 'lcv', 'naacp', 'nra', 'planned-parenthood', 'sierra-club', 'us-chamber']
     )
 
     const ratings = await client.query(`
@@ -60,7 +60,7 @@ describe('ingestScorecards', () => {
       order by sc.slug
     `)
     expect(ratings.rows.map((r: any) => r.slug)).toEqual(
-      ['aclu', 'lcv', 'naacp', 'planned-parenthood', 'sierra-club']
+      ['aclu', 'ada', 'afl-cio', 'heritage-action', 'lcv', 'naacp', 'nra', 'planned-parenthood', 'sierra-club', 'us-chamber']
     )
   })
 

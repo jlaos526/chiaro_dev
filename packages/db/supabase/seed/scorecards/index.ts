@@ -9,6 +9,11 @@ import { sierraClub } from './sierra-club.ts'
 import { aclu } from './aclu.ts'
 import { naacp } from './naacp.ts'
 import { plannedParenthood } from './planned-parenthood.ts'
+import { ada } from './ada.ts'
+import { heritageAction } from './heritage-action.ts'
+import { usChamber } from './us-chamber.ts'
+import { nra } from './nra.ts'
+import { aflCio } from './afl-cio.ts'
 import type { ScorecardAdapter } from './shared.ts'
 
 const DB_URL = process.env.SUPABASE_DB_URL
@@ -16,6 +21,7 @@ const DB_URL = process.env.SUPABASE_DB_URL
 
 export const ADAPTERS: ScorecardAdapter[] = [
   lcv, sierraClub, aclu, naacp, plannedParenthood,
+  ada, heritageAction, usChamber, nra, aflCio,
 ]
 
 export async function ingestScorecards(opts?: { congress?: string; fixturesDir?: string }): Promise<Record<string, { ratings: number; error?: string }>> {
