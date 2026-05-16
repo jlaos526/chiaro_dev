@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { OfficialDetail } from '@/components/OfficialDetail'
+import { OfficialPerformance } from '@/components/OfficialPerformance'
 
 interface Params { id: string }
 
@@ -14,6 +15,7 @@ export default async function OfficialPage(
   return (
     <main>
       <OfficialDetail id={id} />
+      <OfficialPerformance officialId={id} />
     </main>
   )
 }
