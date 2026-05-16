@@ -33,6 +33,8 @@ beforeEach(async () => {
 afterEach(async () => {
   await client.query("delete from public.officials_leadership_history where official_id in (select id from public.officials where bioguide_id in ('P000197','F000062'))")
   await client.query("delete from public.district_offices where official_id in (select id from public.officials where bioguide_id in ('P000197','F000062'))")
+  await client.query("delete from public.officials where bioguide_id in ('P000197','F000062')")
+  await client.query("delete from public.districts where code = 'CA-S1-fixture'")
   await client.end()
 })
 
