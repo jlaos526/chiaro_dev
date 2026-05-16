@@ -62,6 +62,8 @@ export async function ingestLegislators(args: IngestArgs = {}): Promise<{
       const bioguide = leg.id.bioguide
       const opensecrets = leg.id.opensecrets ?? null
       const fec         = (leg.id.fec && leg.id.fec[0]) ?? null
+      // coalesce preserves any existing ID when the YAML drops the field;
+      // re-runs cannot null out an ID upstream removed (intentional).
       const res = await client.query(
         `update public.officials
          set opensecrets_id = coalesce($2, opensecrets_id),
@@ -77,6 +79,10 @@ export async function ingestLegislators(args: IngestArgs = {}): Promise<{
         [bioguide],
       )
       for (const role of leg.leadership_roles ?? []) {
+        if (role.chamber !== 'house' && role.chamber !== 'senate') {
+          console.warn(`Skipping leadership role with unsupported chamber=${role.chamber} for ${bioguide} (${role.title})`)
+          continue
+        }
         const r = await client.query(
           `insert into public.officials_leadership_history
              (official_id, role, chamber, party, start_date, end_date, source_url)
@@ -84,7 +90,7 @@ export async function ingestLegislators(args: IngestArgs = {}): Promise<{
              'https://github.com/unitedstates/congress-legislators/blob/main/legislators-current.yaml'
            from public.officials where bioguide_id = $1
            returning id`,
-          [bioguide, role.title, role.chamber === 'house' ? 'house' : 'senate', role.start, role.end ?? null],
+          [bioguide, role.title, role.chamber, role.start, role.end ?? null],
         )
         leadershipRows += r.rowCount ?? 0
       }
