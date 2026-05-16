@@ -1,0 +1,20 @@
+- id:
+    bioguide: P000197
+  offices:
+    - address: 90 7th Street, Suite 2-800
+      city: San Francisco
+      state: CA
+      zip: '94103'
+      phone: 415-556-4862
+    - address: 1233 Post Street
+      city: Oakland
+      state: CA
+      zip: '94612'
+      phone: 510-555-1212
+- id:
+    bioguide: F000062
+  offices:
+    - address: 333 Bush Street, Suite 3225
+      city: San Francisco
+      state: CA
+      zip: '94104'
