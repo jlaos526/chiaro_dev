@@ -123,6 +123,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@chiaro/bills':
+        specifier: workspace:*
+        version: link:../../packages/bills
       '@chiaro/db':
         specifier: workspace:*
         version: link:../../packages/db
