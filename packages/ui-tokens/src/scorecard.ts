@@ -1,0 +1,18 @@
+// Color per scorecard lean (set during Task 20 when scorecard_orgs is seeded).
+export type ScorecardLean = 'progressive' | 'conservative' | 'libertarian' | 'single-issue' | 'centrist'
+
+export const SCORECARD_LEAN_COLOR: Record<ScorecardLean, string> = {
+  progressive:    '#3b6ed1',
+  conservative:   '#d13b3b',
+  libertarian:    '#f7c63d',
+  'single-issue': '#7d57c1',
+  centrist:       '#807a72',
+}
+
+export const SCORECARD_LEAN_LABEL: Record<ScorecardLean, string> = {
+  progressive:    'Progressive',
+  conservative:   'Conservative',
+  libertarian:    'Libertarian',
+  'single-issue': 'Single-issue',
+  centrist:       'Centrist',
+}
