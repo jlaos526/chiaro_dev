@@ -6,3 +6,9 @@ export type {
   VoteWithBillAndPositions,
 } from './types.ts'
 export { billsKeys, votesKeys } from './keys.ts'
+export {
+  fetchBills, fetchBill, fetchBillVotes,
+  fetchOfficialSponsoredBills, fetchOfficialCosponsoredBills,
+  fetchOfficialMissedVotes, fetchOfficialVotesOnSubject,
+  type BillsFilter,
+} from './queries.ts'
