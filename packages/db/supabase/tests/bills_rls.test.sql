@@ -1,6 +1,6 @@
 begin;
 
-select plan(16);
+select plan(22);
 
 -- 1. enums
 select has_enum('public', 'bill_type', 'bill_type enum exists');
@@ -36,6 +36,41 @@ select has_index('public', 'bill_subjects', 'bill_subjects_subject_idx',
                   'bill_subjects_subject_idx exists');
 select has_index('public', 'bill_sponsors', 'bill_sponsors_official_idx',
                   'bill_sponsors_official_idx exists');
+
+-- RLS posture
+select ok(
+  (select relrowsecurity from pg_class where oid = 'public.bills'::regclass),
+  'bills has RLS enabled'
+);
+select ok(
+  (select relrowsecurity from pg_class where oid = 'public.bill_subjects'::regclass),
+  'bill_subjects has RLS enabled'
+);
+select ok(
+  (select relrowsecurity from pg_class where oid = 'public.bill_sponsors'::regclass),
+  'bill_sponsors has RLS enabled'
+);
+select policies_are('public', 'bills', array['bills_select_all'],
+                     'bills has only select_all policy');
+
+-- anon writes blocked by grant revoke
+set local role anon;
+select throws_ok(
+  $$ insert into public.bills (congress, bill_type, number, title, status, introduced_date, source_url)
+     values ('119','hr',9999,'X','introduced','2026-01-01','https://example.gov/x') $$,
+  '42501', null,
+  'anon cannot INSERT into bills'
+);
+reset role;
+
+-- service_role can insert
+set local role service_role;
+select lives_ok(
+  $$ insert into public.bills (congress, bill_type, number, title, status, introduced_date, source_url)
+     values ('119','hr',9999,'X','introduced','2026-01-01','https://example.gov/x') $$,
+  'service_role can INSERT into bills'
+);
+reset role;
 
 select * from finish();
 rollback;
