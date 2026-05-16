@@ -34,6 +34,154 @@ export type Database = {
   }
   public: {
     Tables: {
+      bill_sponsors: {
+        Row: {
+          added_date: string | null
+          bill_id: string
+          official_id: string
+          role: string
+        }
+        Insert: {
+          added_date?: string | null
+          bill_id: string
+          official_id: string
+          role: string
+        }
+        Update: {
+          added_date?: string | null
+          bill_id?: string
+          official_id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_sponsors_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bill_sponsors_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bill_subjects: {
+        Row: {
+          bill_id: string
+          subject: string
+        }
+        Insert: {
+          bill_id: string
+          subject: string
+        }
+        Update: {
+          bill_id?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_subjects_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bills: {
+        Row: {
+          bill_type: Database["public"]["Enums"]["bill_type"]
+          congress: string
+          congress_gov_url: string | null
+          id: string
+          ingested_at: string
+          introduced_date: string
+          latest_action: string | null
+          number: number
+          policy_area: string | null
+          short_title: string | null
+          source_url: string
+          status: Database["public"]["Enums"]["bill_status"]
+          title: string
+        }
+        Insert: {
+          bill_type: Database["public"]["Enums"]["bill_type"]
+          congress: string
+          congress_gov_url?: string | null
+          id?: string
+          ingested_at?: string
+          introduced_date: string
+          latest_action?: string | null
+          number: number
+          policy_area?: string | null
+          short_title?: string | null
+          source_url: string
+          status: Database["public"]["Enums"]["bill_status"]
+          title: string
+        }
+        Update: {
+          bill_type?: Database["public"]["Enums"]["bill_type"]
+          congress?: string
+          congress_gov_url?: string | null
+          id?: string
+          ingested_at?: string
+          introduced_date?: string
+          latest_action?: string | null
+          number?: number
+          policy_area?: string | null
+          short_title?: string | null
+          source_url?: string
+          status?: Database["public"]["Enums"]["bill_status"]
+          title?: string
+        }
+        Relationships: []
+      }
+      district_offices: {
+        Row: {
+          address: string
+          city: string
+          id: string
+          official_id: string
+          phone: string | null
+          source_url: string
+          state: string
+          zip: string | null
+        }
+        Insert: {
+          address: string
+          city: string
+          id?: string
+          official_id: string
+          phone?: string | null
+          source_url: string
+          state: string
+          zip?: string | null
+        }
+        Update: {
+          address?: string
+          city?: string
+          id?: string
+          official_id?: string
+          phone?: string | null
+          source_url?: string
+          state?: string
+          zip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "district_offices_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       districts: {
         Row: {
           code: string
@@ -64,12 +212,230 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_industry_top: {
+        Row: {
+          amount: number
+          finance_summary_id: string
+          industry: string
+          rank: number
+        }
+        Insert: {
+          amount: number
+          finance_summary_id: string
+          industry: string
+          rank: number
+        }
+        Update: {
+          amount?: number
+          finance_summary_id?: string
+          industry?: string
+          rank?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_industry_top_finance_summary_id_fkey"
+            columns: ["finance_summary_id"]
+            isOneToOne: false
+            referencedRelation: "finance_summaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_pac_contributions: {
+        Row: {
+          amount: number
+          finance_summary_id: string
+          pac_fec_id: string | null
+          pac_name: string
+        }
+        Insert: {
+          amount: number
+          finance_summary_id: string
+          pac_fec_id?: string | null
+          pac_name: string
+        }
+        Update: {
+          amount?: number
+          finance_summary_id?: string
+          pac_fec_id?: string | null
+          pac_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_pac_contributions_finance_summary_id_fkey"
+            columns: ["finance_summary_id"]
+            isOneToOne: false
+            referencedRelation: "finance_summaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_summaries: {
+        Row: {
+          cycle: string
+          id: string
+          in_state_pct: number | null
+          ingested_at: string
+          official_id: string
+          opensecrets_id: string
+          out_of_state_pct: number | null
+          small_donor_pct: number | null
+          source_url: string
+          total_disbursed: number | null
+          total_raised: number | null
+        }
+        Insert: {
+          cycle: string
+          id?: string
+          in_state_pct?: number | null
+          ingested_at?: string
+          official_id: string
+          opensecrets_id: string
+          out_of_state_pct?: number | null
+          small_donor_pct?: number | null
+          source_url: string
+          total_disbursed?: number | null
+          total_raised?: number | null
+        }
+        Update: {
+          cycle?: string
+          id?: string
+          in_state_pct?: number | null
+          ingested_at?: string
+          official_id?: string
+          opensecrets_id?: string
+          out_of_state_pct?: number | null
+          small_donor_pct?: number | null
+          source_url?: string
+          total_disbursed?: number | null
+          total_raised?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_summaries_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      official_metrics: {
+        Row: {
+          attendance_pct: number | null
+          bills_cosponsored_count: number | null
+          bills_sponsored_count: number | null
+          bipartisan_vote_pct: number | null
+          career_bills_sponsored_count: number | null
+          committee_assignment_count: number | null
+          committee_leadership_count: number | null
+          computed_at: string
+          congress: string
+          district_offices_count: number | null
+          home_district_id: string | null
+          in_state_donations_pct: number | null
+          lives_in_district: boolean | null
+          official_id: string
+          out_of_state_donations_pct: number | null
+          party_unity_pct: number | null
+          salary_role: string | null
+          salary_usd: number | null
+          stock_act_compliance_pct: number | null
+          stock_act_disclosures_late: number | null
+          stock_act_disclosures_total: number | null
+          tenure_years: number | null
+          total_roll_calls: number | null
+          town_halls_count: number | null
+          votes_missed_count: number | null
+          votes_voted_count: number | null
+        }
+        Insert: {
+          attendance_pct?: number | null
+          bills_cosponsored_count?: number | null
+          bills_sponsored_count?: number | null
+          bipartisan_vote_pct?: number | null
+          career_bills_sponsored_count?: number | null
+          committee_assignment_count?: number | null
+          committee_leadership_count?: number | null
+          computed_at?: string
+          congress: string
+          district_offices_count?: number | null
+          home_district_id?: string | null
+          in_state_donations_pct?: number | null
+          lives_in_district?: boolean | null
+          official_id: string
+          out_of_state_donations_pct?: number | null
+          party_unity_pct?: number | null
+          salary_role?: string | null
+          salary_usd?: number | null
+          stock_act_compliance_pct?: number | null
+          stock_act_disclosures_late?: number | null
+          stock_act_disclosures_total?: number | null
+          tenure_years?: number | null
+          total_roll_calls?: number | null
+          town_halls_count?: number | null
+          votes_missed_count?: number | null
+          votes_voted_count?: number | null
+        }
+        Update: {
+          attendance_pct?: number | null
+          bills_cosponsored_count?: number | null
+          bills_sponsored_count?: number | null
+          bipartisan_vote_pct?: number | null
+          career_bills_sponsored_count?: number | null
+          committee_assignment_count?: number | null
+          committee_leadership_count?: number | null
+          computed_at?: string
+          congress?: string
+          district_offices_count?: number | null
+          home_district_id?: string | null
+          in_state_donations_pct?: number | null
+          lives_in_district?: boolean | null
+          official_id?: string
+          out_of_state_donations_pct?: number | null
+          party_unity_pct?: number | null
+          salary_role?: string | null
+          salary_usd?: number | null
+          stock_act_compliance_pct?: number | null
+          stock_act_disclosures_late?: number | null
+          stock_act_disclosures_total?: number | null
+          tenure_years?: number | null
+          total_roll_calls?: number | null
+          town_halls_count?: number | null
+          votes_missed_count?: number | null
+          votes_voted_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "official_metrics_home_district_id_fkey"
+            columns: ["home_district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "official_metrics_home_district_id_fkey"
+            columns: ["home_district_id"]
+            isOneToOne: false
+            referencedRelation: "districts_geojson"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "official_metrics_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: true
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       officials: {
         Row: {
           bioguide_id: string
           chamber: Database["public"]["Enums"]["official_chamber"]
           created_at: string
           district_id: string
+          fec_candidate_id: string | null
           first_name: string
           full_name: string
           id: string
@@ -77,6 +443,7 @@ export type Database = {
           last_name: string
           next_election: string | null
           official_url: string | null
+          opensecrets_id: string | null
           party: string
           portrait_url: string | null
           senate_class: number | null
@@ -90,6 +457,7 @@ export type Database = {
           chamber: Database["public"]["Enums"]["official_chamber"]
           created_at?: string
           district_id: string
+          fec_candidate_id?: string | null
           first_name: string
           full_name: string
           id?: string
@@ -97,6 +465,7 @@ export type Database = {
           last_name: string
           next_election?: string | null
           official_url?: string | null
+          opensecrets_id?: string | null
           party: string
           portrait_url?: string | null
           senate_class?: number | null
@@ -110,6 +479,7 @@ export type Database = {
           chamber?: Database["public"]["Enums"]["official_chamber"]
           created_at?: string
           district_id?: string
+          fec_candidate_id?: string | null
           first_name?: string
           full_name?: string
           id?: string
@@ -117,6 +487,7 @@ export type Database = {
           last_name?: string
           next_election?: string | null
           official_url?: string | null
+          opensecrets_id?: string | null
           party?: string
           portrait_url?: string | null
           senate_class?: number | null
@@ -187,6 +558,47 @@ export type Database = {
         }
         Relationships: []
       }
+      officials_leadership_history: {
+        Row: {
+          chamber: Database["public"]["Enums"]["official_chamber"]
+          end_date: string | null
+          id: string
+          official_id: string
+          party: string | null
+          role: string
+          source_url: string
+          start_date: string
+        }
+        Insert: {
+          chamber: Database["public"]["Enums"]["official_chamber"]
+          end_date?: string | null
+          id?: string
+          official_id: string
+          party?: string | null
+          role: string
+          source_url: string
+          start_date: string
+        }
+        Update: {
+          chamber?: Database["public"]["Enums"]["official_chamber"]
+          end_date?: string | null
+          id?: string
+          official_id?: string
+          party?: string | null
+          role?: string
+          source_url?: string
+          start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "officials_leadership_history_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           completed: boolean
@@ -235,6 +647,87 @@ export type Database = {
         }
         Relationships: []
       }
+      scorecard_orgs: {
+        Row: {
+          id: string
+          issue_area: string
+          lean: string | null
+          methodology_url: string
+          name: string
+          notes: string | null
+          scoring_max: number
+          scoring_min: number
+          slug: string
+        }
+        Insert: {
+          id?: string
+          issue_area: string
+          lean?: string | null
+          methodology_url: string
+          name: string
+          notes?: string | null
+          scoring_max?: number
+          scoring_min?: number
+          slug: string
+        }
+        Update: {
+          id?: string
+          issue_area?: string
+          lean?: string | null
+          methodology_url?: string
+          name?: string
+          notes?: string | null
+          scoring_max?: number
+          scoring_min?: number
+          slug?: string
+        }
+        Relationships: []
+      }
+      scorecard_ratings: {
+        Row: {
+          congress: string
+          id: string
+          ingested_at: string
+          official_id: string
+          score: number
+          scorecard_id: string
+          source_url: string
+        }
+        Insert: {
+          congress: string
+          id?: string
+          ingested_at?: string
+          official_id: string
+          score: number
+          scorecard_id: string
+          source_url: string
+        }
+        Update: {
+          congress?: string
+          id?: string
+          ingested_at?: string
+          official_id?: string
+          score?: number
+          scorecard_id?: string
+          source_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scorecard_ratings_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scorecard_ratings_scorecard_id_fkey"
+            columns: ["scorecard_id"]
+            isOneToOne: false
+            referencedRelation: "scorecard_orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       spatial_ref_sys: {
         Row: {
           auth_name: string | null
@@ -258,6 +751,103 @@ export type Database = {
           srtext?: string | null
         }
         Relationships: []
+      }
+      stock_transactions: {
+        Row: {
+          amount_range_high: number | null
+          amount_range_low: number | null
+          asset_name: string | null
+          asset_ticker: string | null
+          days_late: number | null
+          filing_date: string
+          id: string
+          ingested_at: string
+          official_id: string
+          source_url: string
+          transaction_date: string
+          transaction_type: string | null
+        }
+        Insert: {
+          amount_range_high?: number | null
+          amount_range_low?: number | null
+          asset_name?: string | null
+          asset_ticker?: string | null
+          days_late?: number | null
+          filing_date: string
+          id?: string
+          ingested_at?: string
+          official_id: string
+          source_url: string
+          transaction_date: string
+          transaction_type?: string | null
+        }
+        Update: {
+          amount_range_high?: number | null
+          amount_range_low?: number | null
+          asset_name?: string | null
+          asset_ticker?: string | null
+          days_late?: number | null
+          filing_date?: string
+          id?: string
+          ingested_at?: string
+          official_id?: string
+          source_url?: string
+          transaction_date?: string
+          transaction_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_transactions_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      town_halls: {
+        Row: {
+          attendance_estimate: number | null
+          city: string | null
+          event_date: string
+          format: string | null
+          id: string
+          ingested_at: string
+          official_id: string
+          source_url: string
+          state: string | null
+        }
+        Insert: {
+          attendance_estimate?: number | null
+          city?: string | null
+          event_date: string
+          format?: string | null
+          id?: string
+          ingested_at?: string
+          official_id: string
+          source_url: string
+          state?: string | null
+        }
+        Update: {
+          attendance_estimate?: number | null
+          city?: string | null
+          event_date?: string
+          format?: string | null
+          id?: string
+          ingested_at?: string
+          official_id?: string
+          source_url?: string
+          state?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "town_halls_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_districts: {
         Row: {
@@ -318,6 +908,89 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      vote_positions: {
+        Row: {
+          official_id: string
+          position: Database["public"]["Enums"]["vote_position"]
+          vote_id: string
+        }
+        Insert: {
+          official_id: string
+          position: Database["public"]["Enums"]["vote_position"]
+          vote_id: string
+        }
+        Update: {
+          official_id?: string
+          position?: Database["public"]["Enums"]["vote_position"]
+          vote_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vote_positions_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vote_positions_vote_id_fkey"
+            columns: ["vote_id"]
+            isOneToOne: false
+            referencedRelation: "votes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      votes: {
+        Row: {
+          bill_id: string | null
+          chamber: Database["public"]["Enums"]["official_chamber"]
+          congress: string
+          id: string
+          ingested_at: string
+          question: string
+          result: string
+          roll_call: number
+          session: number
+          source_url: string
+          vote_date: string
+        }
+        Insert: {
+          bill_id?: string | null
+          chamber: Database["public"]["Enums"]["official_chamber"]
+          congress: string
+          id?: string
+          ingested_at?: string
+          question: string
+          result: string
+          roll_call: number
+          session: number
+          source_url: string
+          vote_date: string
+        }
+        Update: {
+          bill_id?: string | null
+          chamber?: Database["public"]["Enums"]["official_chamber"]
+          congress?: string
+          id?: string
+          ingested_at?: string
+          question?: string
+          result?: string
+          roll_call?: number
+          session?: number
+          source_url?: string
+          vote_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "votes_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -1320,6 +1993,26 @@ export type Database = {
       }
     }
     Enums: {
+      bill_status:
+        | "introduced"
+        | "in_committee"
+        | "reported"
+        | "passed_chamber"
+        | "passed_both"
+        | "enrolled"
+        | "signed"
+        | "vetoed"
+        | "became_law"
+        | "died"
+      bill_type:
+        | "hr"
+        | "s"
+        | "hjres"
+        | "sjres"
+        | "hconres"
+        | "sconres"
+        | "hres"
+        | "sres"
       district_tier:
         | "federal_house"
         | "federal_senate"
@@ -1329,6 +2022,7 @@ export type Database = {
         | "place"
       official_chamber: "house" | "senate"
       push_platform: "ios" | "android" | "web"
+      vote_position: "yes" | "no" | "present" | "not_voting"
     }
     CompositeTypes: {
       geometry_dump: {
@@ -1467,6 +2161,28 @@ export const Constants = {
   },
   public: {
     Enums: {
+      bill_status: [
+        "introduced",
+        "in_committee",
+        "reported",
+        "passed_chamber",
+        "passed_both",
+        "enrolled",
+        "signed",
+        "vetoed",
+        "became_law",
+        "died",
+      ],
+      bill_type: [
+        "hr",
+        "s",
+        "hjres",
+        "sjres",
+        "hconres",
+        "sconres",
+        "hres",
+        "sres",
+      ],
       district_tier: [
         "federal_house",
         "federal_senate",
@@ -1477,6 +2193,7 @@ export const Constants = {
       ],
       official_chamber: ["house", "senate"],
       push_platform: ["ios", "android", "web"],
+      vote_position: ["yes", "no", "present", "not_voting"],
     },
   },
 } as const
