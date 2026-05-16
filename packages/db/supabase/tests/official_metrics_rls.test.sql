@@ -1,6 +1,6 @@
 begin;
 
-select plan(22);
+select plan(32);
 
 -- officials extensions
 select has_column('public', 'officials', 'opensecrets_id',
@@ -55,6 +55,62 @@ select has_index('public', 'stock_transactions', 'stock_transactions_official_id
 select has_index('public', 'officials_leadership_history',
                   'officials_leadership_history_official_idx',
                   'leadership_history official_idx exists');
+
+-- RLS-enabled flags (5)
+select ok(
+  (select relrowsecurity from pg_class where oid = 'public.official_metrics'::regclass),
+  'official_metrics has RLS enabled'
+);
+select ok(
+  (select relrowsecurity from pg_class where oid = 'public.district_offices'::regclass),
+  'district_offices has RLS enabled'
+);
+select ok(
+  (select relrowsecurity from pg_class where oid = 'public.town_halls'::regclass),
+  'town_halls has RLS enabled'
+);
+select ok(
+  (select relrowsecurity from pg_class where oid = 'public.stock_transactions'::regclass),
+  'stock_transactions has RLS enabled'
+);
+select ok(
+  (select relrowsecurity from pg_class where oid = 'public.officials_leadership_history'::regclass),
+  'officials_leadership_history has RLS enabled'
+);
+
+-- anon write blocked (5) — permission check fires before FK check, so dummy uuids are fine
+set local role anon;
+select throws_ok(
+  $$ insert into public.official_metrics (official_id, congress)
+       values ('00000000-0000-0000-0000-000000000001', '119') $$,
+  '42501', null,
+  'anon cannot INSERT into official_metrics'
+);
+select throws_ok(
+  $$ insert into public.district_offices (official_id, address, city, state, source_url)
+       values ('00000000-0000-0000-0000-000000000001','a','c','CA','https://x') $$,
+  '42501', null,
+  'anon cannot INSERT into district_offices'
+);
+select throws_ok(
+  $$ insert into public.town_halls (official_id, event_date, source_url)
+       values ('00000000-0000-0000-0000-000000000001','2024-01-01','https://x') $$,
+  '42501', null,
+  'anon cannot INSERT into town_halls'
+);
+select throws_ok(
+  $$ insert into public.stock_transactions (official_id, transaction_date, filing_date, source_url)
+       values ('00000000-0000-0000-0000-000000000001','2024-01-01','2024-02-01','https://x') $$,
+  '42501', null,
+  'anon cannot INSERT into stock_transactions'
+);
+select throws_ok(
+  $$ insert into public.officials_leadership_history (official_id, role, chamber, start_date, source_url)
+       values ('00000000-0000-0000-0000-000000000001','Whip','senate','2023-01-01','https://x') $$,
+  '42501', null,
+  'anon cannot INSERT into officials_leadership_history'
+);
+reset role;
 
 select * from finish();
 rollback;
