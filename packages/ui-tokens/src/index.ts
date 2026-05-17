@@ -21,3 +21,4 @@ export {
   ALIGNMENT_CHIP_COLORS,
   scoreToTier,
 } from './alignment.ts'
+export { titleCaseIssueArea } from './issue-area.ts'
