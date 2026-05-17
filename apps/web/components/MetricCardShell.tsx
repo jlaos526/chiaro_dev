@@ -1,51 +1,30 @@
-import { COLORS } from '@chiaro/ui-tokens'
+// DEPRECATED: legacy slice-4 API back-compat shim. Removed in Task 36 when
+// the consuming slice-4 components (ScorecardCard / FinanceCard / etc.) are
+// deleted in favor of the new category-driven components.
 import type { ReactNode } from 'react'
+import { MetricCardShell as NewShell } from '@/components/cards/MetricCardShell'
 
-interface BaseProps {
-  title:   string
-  value:   ReactNode
+interface LegacyBase {
+  title: string
+  value: ReactNode
   caption?: ReactNode
 }
 
-// Drill-down contract: caller MUST provide either onExpand (internal drawer)
-// OR externalSourceUrl (link out). TypeScript enforces it via discriminated union.
-type DrillDown =
+type LegacyDrillDown =
   | { onExpand: () => void; externalSourceUrl?: never }
   | { externalSourceUrl: string; onExpand?: never }
 
-export type MetricCardShellProps = BaseProps & DrillDown
+export type MetricCardShellProps = LegacyBase & LegacyDrillDown
 
-export function MetricCardShell(props: MetricCardShellProps) {
-  const { title, value, caption } = props
-  const cta = 'onExpand' in props
-    ? <button onClick={props.onExpand} style={ctaStyle} aria-label={`Expand evidence for ${title}`}>view evidence →</button>
-    : <a href={props.externalSourceUrl} target="_blank" rel="noreferrer" style={ctaStyle}>view source →</a>
+/** @deprecated Use `@/components/cards/MetricCardShell` instead. */
+export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element {
+  const labelStr = typeof props.title === 'string' ? props.title : ''
+  // Default to 'service-record' for legacy callers (the slice-4 components don't
+  // know about categoryId yet). All consumers are deleted in Task 36, so this is
+  // a transitional default — never lands in production.
+  if ('onExpand' in props && typeof props.onExpand === 'function') {
+    return <NewShell value={props.value} label={labelStr} caption={props.caption} categoryId="service-record" onExpand={props.onExpand} />
+  }
+  return <NewShell value={props.value} label={labelStr} caption={props.caption} categoryId="service-record" externalSourceUrl={props.externalSourceUrl} />
 
-  return (
-    <article style={cardStyle} aria-label={`${title}: ${typeof value === 'string' ? value : ''}`}>
-      <header style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: COLORS.neutral.textMuted, marginBottom: 6 }}>
-        {title}
-      </header>
-      <div style={{ fontSize: '1.5rem', fontWeight: 700, color: COLORS.brand.text }}>{value}</div>
-      {caption && <div style={{ fontSize: '0.85rem', color: COLORS.neutral.mute, marginTop: 4 }}>{caption}</div>}
-      <footer style={{ marginTop: 8 }}>{cta}</footer>
-    </article>
-  )
 }
-
-const cardStyle = {
-  border: `1px solid ${COLORS.neutral.border}`,
-  borderRadius: 8,
-  padding: 12,
-  background: COLORS.neutral.background,
-} as const
-
-const ctaStyle = {
-  background: 'none',
-  border: 'none',
-  padding: 0,
-  fontSize: '0.85rem',
-  color: COLORS.brand.primary,
-  cursor: 'pointer',
-  textDecoration: 'underline',
-} as const
