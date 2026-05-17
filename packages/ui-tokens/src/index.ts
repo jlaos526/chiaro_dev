@@ -14,3 +14,4 @@ export {
   SUB_CASCADE_ACCENT,
   CATEGORY_CARD_GRADIENT,
 } from './category.ts'
+export { FINANCE_SUB_SECTION_SHADES, type FinanceSubSectionShade } from './finance-shades.ts'
