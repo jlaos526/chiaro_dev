@@ -48,6 +48,8 @@ type ScorecardRatingRow              = Database['public']['Tables']['scorecard_r
 type FinanceSummaryRow               = Database['public']['Tables']['finance_summaries']['Row']
 type FinanceIndustryRow              = Database['public']['Tables']['finance_industry_top']['Row']
 type FinancePACRow                   = Database['public']['Tables']['finance_pac_contributions']['Row']
+type FinanceIndividualDonorRow      = Database['public']['Tables']['finance_individual_donors']['Row']
+type FinanceTopOrganizationRow      = Database['public']['Tables']['finance_top_organizations']['Row']
 type DistrictOfficeRow               = Database['public']['Tables']['district_offices']['Row']
 type TownHallRow                     = Database['public']['Tables']['town_halls']['Row']
 type StockTransactionRow             = Database['public']['Tables']['stock_transactions']['Row']
@@ -78,9 +80,11 @@ export async function fetchOfficialScorecardRatings(
 }
 
 export interface OfficialFinance {
-  summary:    FinanceSummaryRow
-  industries: FinanceIndustryRow[]
-  pacs:       FinancePACRow[]
+  summary:           FinanceSummaryRow
+  industries:        FinanceIndustryRow[]
+  pacs:              FinancePACRow[]
+  individualDonors:  FinanceIndividualDonorRow[]
+  topOrgs:           FinanceTopOrganizationRow[]
 }
 
 export async function fetchOfficialFinance(
@@ -90,14 +94,25 @@ export async function fetchOfficialFinance(
     .select('*').eq('official_id', officialId).eq('cycle', cycle).maybeSingle()
   if (error) throw error
   if (!summary) return null
-  const { data: industries } = await client.from('finance_industry_top')
-    .select('*').eq('finance_summary_id', summary.id).order('rank', { ascending: true })
-  const { data: pacs } = await client.from('finance_pac_contributions')
-    .select('*').eq('finance_summary_id', summary.id).order('amount', { ascending: false })
+  const summaryRow = summary as FinanceSummaryRow
+
+  const [industriesRes, pacsRes, donorsRes, orgsRes] = await Promise.all([
+    client.from('finance_industry_top')
+      .select('*').eq('finance_summary_id', summaryRow.id).order('rank', { ascending: true }),
+    client.from('finance_pac_contributions')
+      .select('*').eq('finance_summary_id', summaryRow.id).order('amount', { ascending: false }),
+    client.from('finance_individual_donors')
+      .select('*').eq('finance_summary_id', summaryRow.id).order('rank', { ascending: true }),
+    client.from('finance_top_organizations')
+      .select('*').eq('finance_summary_id', summaryRow.id).order('rank', { ascending: true }),
+  ])
+
   return {
-    summary: summary as FinanceSummaryRow,
-    industries: (industries ?? []) as FinanceIndustryRow[],
-    pacs: (pacs ?? []) as FinancePACRow[],
+    summary: summaryRow,
+    industries: (industriesRes.data ?? []) as FinanceIndustryRow[],
+    pacs: (pacsRes.data ?? []) as FinancePACRow[],
+    individualDonors: (donorsRes.data ?? []) as FinanceIndividualDonorRow[],
+    topOrgs: (orgsRes.data ?? []) as FinanceTopOrganizationRow[],
   }
 }
 
