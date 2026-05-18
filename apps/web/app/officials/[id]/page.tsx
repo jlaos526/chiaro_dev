@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { BioHeader } from '@/components/bio/BioHeader'
 import { PerformanceSection } from '@/components/performance/PerformanceSection'
 import { firstElectedYear as deriveFirstElectedYear } from '@/lib/derivations/service-record'
+import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
 import type { Database } from '@chiaro/db'
 
 interface Params { id: string }
@@ -79,19 +80,28 @@ export default async function OfficialPage(
     .single<OfficialRow>()
   if (!official) redirect('/')
 
-  const { data: district } = await supabase
-    .from('districts')
-    .select('code')
-    .eq('id', official.district_id)
-    .single<Pick<DistrictRow, 'code'>>()
+  // Parallel fetch: district code + leadership history + scorecard ratings.
+  const [districtRes, leadershipRes, scorecardsRes] = await Promise.all([
+    supabase
+      .from('districts')
+      .select('code')
+      .eq('id', official.district_id)
+      .single<Pick<DistrictRow, 'code'>>(),
+    supabase
+      .from('officials_leadership_history')
+      .select('*')
+      .eq('official_id', id)
+      .order('start_date', { ascending: false }),
+    supabase
+      .from('scorecard_ratings')
+      .select('*, org:scorecard_orgs(issue_area, scoring_max)')
+      .eq('official_id', id),
+  ])
 
-  const { data: leadership } = await supabase
-    .from('officials_leadership_history')
-    .select('*')
-    .eq('official_id', id)
-    .order('start_date', { ascending: false })
-
-  const leadershipRows: LeadershipRow[] = leadership ?? []
+  const district = districtRes.data
+  const leadershipRows: LeadershipRow[] = (leadershipRes.data ?? []) as LeadershipRow[]
+  const scorecards = scorecardsRes.data ?? []
+  const chips = selectTopAlignmentChips(scorecards as Parameters<typeof selectTopAlignmentChips>[0])
   const currentRole = leadershipRows.find((r) => r.end_date == null)?.role
     ?? (official.chamber === 'house' ? 'Representative' : 'Senator')
   const firstElectedYearValue = deriveFirstElectedYear(leadershipRows)
@@ -105,8 +115,8 @@ export default async function OfficialPage(
 
   return (
     <main>
-      <BioHeader {...bioProps} />
-      <PerformanceSection officialId={id} />
+      <BioHeader officialId={official.id} {...bioProps} chips={chips} />
+      <PerformanceSection officialId={id} chamber={official.chamber as 'house' | 'senate'} />
     </main>
   )
 }

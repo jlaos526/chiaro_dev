@@ -25,7 +25,7 @@ function isRecent(eventDate: string, days = 90): boolean {
   return event >= now - days * 24 * 60 * 60 * 1000 && event <= now
 }
 
-export function CommunityPresenceCategory({ officialId }: { officialId: string }): React.JSX.Element {
+export function CommunityPresenceCategory({ officialId, chamber }: { officialId: string; chamber: 'house' | 'senate' }): React.JSX.Element {
   const metrics = useOfficialMetrics(client, officialId)
   const [officesOpen, setOfficesOpen] = useState(false)
   const [hallsOpen, setHallsOpen] = useState(false)
@@ -34,14 +34,28 @@ export function CommunityPresenceCategory({ officialId }: { officialId: string }
 
   if (metrics.isLoading) return <p style={{ padding: 12, color: '#807a72' }}>Loading…</p>
   const m = metrics.data
+  const livesInDistrictUnavailable = chamber === 'senate' || m?.lives_in_district == null
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, padding: 12 }}>
       <MetricCardShell
         categoryId={CATEGORY}
-        value={m?.lives_in_district == null ? 'N/A (Senate)' : m.lives_in_district ? '✓ Yes' : '✗ No'}
+        unavailable={livesInDistrictUnavailable}
+        value={
+          livesInDistrictUnavailable
+            ? 'No Data'
+            : m?.lives_in_district
+              ? '✓ Yes'
+              : '✗ No'
+        }
         label="Lives in District"
-        caption={m?.home_district_id ? 'home maps to a district' : 'address outside represented district'}
+        caption={
+          livesInDistrictUnavailable
+            ? 'no data available for this seat'
+            : m?.home_district_id
+              ? 'home maps to a district'
+              : 'address outside represented district'
+        }
         externalSourceUrl="https://www.fec.gov/data/"
       />
 

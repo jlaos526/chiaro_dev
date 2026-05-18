@@ -1,9 +1,12 @@
 import { PARTY_COLOR, PARTY_SHORT } from '@chiaro/ui-tokens'
+import { DistrictBadge } from '@/components/cards/DistrictBadge'
 
 export interface BioIdentityRowProps {
   party: string
   chamber: 'house' | 'senate'
-  districtChipLabel: string
+  stateName: string
+  districtNumber: number | null
+  atLarge: boolean
 }
 
 const chipBase: React.CSSProperties = {
@@ -15,14 +18,16 @@ const chipBase: React.CSSProperties = {
   lineHeight: 1.4,
 }
 
-export function BioIdentityRow({ party, chamber, districtChipLabel }: BioIdentityRowProps): React.JSX.Element {
+export function BioIdentityRow({ party, chamber, stateName, districtNumber, atLarge }: BioIdentityRowProps): React.JSX.Element {
   const partyColor = PARTY_COLOR[party as keyof typeof PARTY_COLOR] ?? '#807a72'
   const partyLabel = PARTY_SHORT[party as keyof typeof PARTY_SHORT] ?? party
   return (
-    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
+    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
       <span style={{ ...chipBase, background: partyColor, color: '#fff', fontWeight: 600 }}>{partyLabel}</span>
       <span style={{ ...chipBase, background: '#f0eee5', color: '#3a352b' }}>{chamber === 'house' ? 'House' : 'Senate'}</span>
-      <span style={{ ...chipBase, background: '#f0eee5', color: '#3a352b' }}>{districtChipLabel}</span>
+      <span style={{ ...chipBase, background: '#f0eee5' }}>
+        <DistrictBadge chamber={chamber} stateName={stateName} districtNumber={districtNumber} atLarge={atLarge} />
+      </span>
     </div>
   )
 }

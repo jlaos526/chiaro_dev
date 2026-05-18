@@ -57,4 +57,25 @@ describe('useUrlHashSync', () => {
     renderHook(() => useUrlHashSync(api, ''))
     expect(openCategory).not.toHaveBeenCalled()
   })
+  it('re-fires parse + open on hashchange events', () => {
+    const openCategory = vi.fn()
+    const openSubCascade = vi.fn()
+    const api = {
+      isCategoryOpen: vi.fn(() => false),
+      toggleCategory: vi.fn(),
+      openCategory,
+      isSubCascadeOpen: vi.fn(() => false),
+      toggleSubCascade: vi.fn(),
+      openSubCascade,
+    }
+    window.location.hash = ''
+    renderHook(() => useUrlHashSync(api))
+    expect(openCategory).not.toHaveBeenCalled()
+
+    window.location.hash = '#finance:top-industries'
+    window.dispatchEvent(new HashChangeEvent('hashchange'))
+
+    expect(openCategory).toHaveBeenCalledWith('finance')
+    expect(openSubCascade).toHaveBeenCalledWith('finance', 'top-industries')
+  })
 })
