@@ -48,6 +48,8 @@ Nine sub-cascades, one per issue area. Each card displays **Issue (Org)** with a
 
 Sub-section layout: **Summary strip** (Total Raised / Small-donor % / PAC %) → **Contributors** sub-section (PACs sub-cascade, Individual Donors placeholder) → **Top Donor** sub-section (Top Industries sub-cascade with row-1 emphasis + 5/10 toggle, Top Organizations placeholder).
 
+> ✅ RESOLVED 2026-05-18 (PR pending — slice 5A finance placeholders) — Individual Donors and Top Organizations sub-cascades now ship as real UI + DB + OpenSecrets ingest backed by a generalized `TopAmountBreakdown` component. The placeholder rows below are retained for historical context.
+
 | Metric | Card / row | Drill-down type | Expected target | Status | Notes |
 |---|---|---|---|---|---|
 | Total raised | Summary strip | external | OpenSecrets per-member summary URL | MANUAL | |
@@ -55,8 +57,8 @@ Sub-section layout: **Summary strip** (Total Raised / Small-donor % / PAC %) →
 | PAC % | Summary strip | external | OpenSecrets per-member summary URL | MANUAL | |
 | Top donor industries (bar chart) | `FinanceIndustryBreakdown` sub-cascade | inline evidence + external | Row-1 emphasized; 5/10 toggle expands list; external link to OpenSecrets full breakdown | MANUAL | |
 | Notable PACs | PACs sub-cascade | per-row external | FEC committee detail page | MANUAL | |
-| Top Organizations | placeholder | n/a | "data coming slice 5" | MANUAL | placeholder card; confirm copy |
-| Individual Donors | placeholder | n/a | "data coming slice 5" | MANUAL | placeholder card; confirm copy |
+| Top Organizations | ✅ RESOLVED 2026-05-18 (PR pending — slice 5A finance placeholders) — `TopAmountBreakdown` sub-cascade | inline evidence + external | Row-1 emphasized; 5/10 toggle expands list; external link to OpenSecrets top-orgs page | MANUAL | replaces soft-beige placeholder card |
+| Individual Donors | ✅ RESOLVED 2026-05-18 (PR pending — slice 5A finance placeholders) — `TopAmountBreakdown` sub-cascade | inline evidence + external | Row-1 emphasized; 5/10 toggle expands list; external link to OpenSecrets top-contributors page | MANUAL | replaces soft-beige placeholder card |
 
 ## Category 5 — Ethics & Accountability
 
