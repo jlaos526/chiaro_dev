@@ -70,4 +70,91 @@ describe('MetricCardShell', () => {
     const dot = container.querySelector('[data-testid="category-dot"]') as HTMLElement
     expect(dot.style.background).toContain('rgb(61, 167, 91)')
   })
+
+  describe('unavailable variant', () => {
+    it('renders muted bg + italic grey value when unavailable', () => {
+      const { container } = render(
+        <MetricCardShell
+          value="No Data"
+          label="Lives in District"
+          caption="no data available for this seat"
+          categoryId="community-presence"
+          unavailable={true}
+        />
+      )
+      const article = container.querySelector('article') as HTMLElement
+      expect(article.style.background).toContain('rgb(250, 250, 246)')
+      const value = screen.getByText('No Data') as HTMLElement
+      expect(value.style.fontStyle).toBe('italic')
+      expect(value.style.color).toContain('rgb(128, 122, 114)')
+    })
+
+    it('forces label to "Unavailable" overriding consumer label', () => {
+      render(
+        <MetricCardShell
+          value="No Data"
+          label="Lives in District"
+          categoryId="community-presence"
+          unavailable={true}
+        />
+      )
+      expect(screen.getByText('Unavailable')).toBeTruthy()
+      expect(screen.queryByText('Lives in District')).toBeNull()
+    })
+
+    it('renders grey dot regardless of categoryId when unavailable', () => {
+      const { container } = render(
+        <MetricCardShell
+          value="No Data"
+          label="Lives in District"
+          categoryId="finance"
+          unavailable={true}
+        />
+      )
+      const dot = container.querySelector('[data-testid="category-dot"]') as HTMLElement
+      expect(dot.style.background).toContain('rgb(128, 122, 114)')
+    })
+
+    it('suppresses CTA even when onExpand provided', () => {
+      const onExpand = vi.fn()
+      render(
+        <MetricCardShell
+          value="No Data"
+          label="Lives in District"
+          categoryId="community-presence"
+          unavailable={true}
+          onExpand={onExpand}
+        />
+      )
+      expect(screen.queryByText('view evidence →')).toBeNull()
+    })
+
+    it('suppresses CTA even when externalSourceUrl provided', () => {
+      render(
+        <MetricCardShell
+          value="No Data"
+          label="Lives in District"
+          categoryId="community-presence"
+          unavailable={true}
+          externalSourceUrl="https://example.org/source"
+        />
+      )
+      expect(screen.queryByText('view source →')).toBeNull()
+    })
+
+    it('renders italic grey caption when unavailable and caption provided', () => {
+      render(
+        <MetricCardShell
+          value="No Data"
+          label="Lives in District"
+          caption="no data available for this seat"
+          categoryId="community-presence"
+          unavailable={true}
+        />
+      )
+      const caption = screen.getByText('no data available for this seat') as HTMLElement
+      expect(caption.style.fontStyle).toBe('italic')
+      expect(caption.style.color).toContain('rgb(128, 122, 114)')
+    })
+  })
 })

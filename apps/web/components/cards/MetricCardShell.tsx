@@ -7,6 +7,7 @@ interface BaseProps {
   caption?: ReactNode
   categoryId: CategoryId
   placeholder?: boolean
+  unavailable?: boolean
 }
 
 type DrillDown =
@@ -16,18 +17,28 @@ type DrillDown =
 
 export type MetricCardShellProps = BaseProps & DrillDown
 
-export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element {
-  const { value, label, caption, categoryId, placeholder = false } = props
-  const dotColor = CATEGORY_ACCENT[categoryId]
-  const bg = placeholder ? '#f6f4ed' : CATEGORY_CARD_GRADIENT[categoryId]
+const UNAVAILABLE_GREY = '#807a72'
+const UNAVAILABLE_BG = '#fafaf6'
 
-  const valueStyle: React.CSSProperties = placeholder
-    ? { fontSize: '1.4rem', fontWeight: 700, color: '#807a72', fontStyle: 'italic', lineHeight: 1.1 }
-    : { fontSize: '1.4rem', fontWeight: 700, color: '#1a1714', lineHeight: 1.1 }
+export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element {
+  const { value, label, caption, categoryId, placeholder = false, unavailable = false } = props
+
+  const dotColor = unavailable ? UNAVAILABLE_GREY : CATEGORY_ACCENT[categoryId]
+  const bg = unavailable
+    ? UNAVAILABLE_BG
+    : placeholder
+      ? '#f6f4ed'
+      : CATEGORY_CARD_GRADIENT[categoryId]
+
+  const valueStyle: React.CSSProperties = unavailable
+    ? { fontSize: '1.4rem', fontWeight: 700, color: UNAVAILABLE_GREY, fontStyle: 'italic', lineHeight: 1.1 }
+    : placeholder
+      ? { fontSize: '1.4rem', fontWeight: 700, color: '#807a72', fontStyle: 'italic', lineHeight: 1.1 }
+      : { fontSize: '1.4rem', fontWeight: 700, color: '#1a1714', lineHeight: 1.1 }
 
   const labelStyle: React.CSSProperties = {
     fontSize: '0.82rem',
-    color: placeholder ? '#5a5751' : '#1a1714',
+    color: unavailable ? '#5a5751' : placeholder ? '#5a5751' : '#1a1714',
     marginTop: 8,
     display: 'flex',
     alignItems: 'center',
@@ -35,14 +46,16 @@ export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element 
 
   const captionStyle: React.CSSProperties = {
     fontSize: '0.7rem',
-    color: '#807a72',
+    color: unavailable ? UNAVAILABLE_GREY : '#807a72',
     marginTop: 2,
     lineHeight: 1.4,
-    fontStyle: placeholder ? 'italic' : 'normal',
+    fontStyle: unavailable ? 'italic' : placeholder ? 'italic' : 'normal',
   }
 
+  const renderedLabel = unavailable ? 'Unavailable' : label
+
   let cta: ReactNode = null
-  if (!placeholder) {
+  if (!placeholder && !unavailable) {
     if ('onExpand' in props && typeof props.onExpand === 'function') {
       const onExpand = props.onExpand
       cta = (
@@ -70,7 +83,7 @@ export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element 
 
   return (
     <article
-      aria-label={`${label}: ${typeof value === 'string' ? value : ''}`}
+      aria-label={`${renderedLabel}: ${typeof value === 'string' ? value : ''}`}
       style={{
         border: '1px solid #d8d4c9',
         borderRadius: 6,
@@ -84,7 +97,7 @@ export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element 
           data-testid="category-dot"
           style={{ width: 6, height: 6, borderRadius: '50%', background: dotColor, display: 'inline-block', marginRight: 6 }}
         />
-        {label}
+        {renderedLabel}
       </div>
       {caption && <div style={captionStyle}>{caption}</div>}
       {cta}
