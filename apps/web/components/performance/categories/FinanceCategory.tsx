@@ -6,7 +6,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { pacPercent } from '@/lib/derivations/finance'
 import { FinanceSummaryStrip } from '@/components/finance/FinanceSummaryStrip'
 import { FinanceSubSectionHeading } from '@/components/finance/FinanceSubSectionHeading'
-import { IndustryBreakdown } from '@/components/finance/IndustryBreakdown'
+import { TopAmountBreakdown } from '@/components/finance/TopAmountBreakdown'
 import { SubCascadeBar } from '@/components/performance/SubCascadeBar'
 
 const CATEGORY: CategoryId = 'finance'
@@ -106,7 +106,11 @@ export function FinanceCategory({ officialId, subCascade }: { officialId: string
       />
       {indOpen && (
         <div style={{ padding: '0 12px 12px' }}>
-          <IndustryBreakdown rows={industries} sourceUrl={summary.source_url} />
+          <TopAmountBreakdown
+            rows={industries.map(i => ({ label: i.industry, amount: i.amount }))}
+            noun={{ singular: 'industry', plural: 'industries' }}
+            sourceUrl={summary.source_url}
+          />
         </div>
       )}
       <SubCascadeBar
