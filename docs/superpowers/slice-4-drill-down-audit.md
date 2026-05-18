@@ -34,7 +34,7 @@ Nine sub-cascades, one per issue area. Each card displays **Issue (Org)** with a
 | Metric | Card | Drill-down type | Expected target | Status | Notes |
 |---|---|---|---|---|---|
 | Per-scorecard score (all 10 orgs grouped by issue) | `ScorecardCard` inside per-issue sub-cascade | inline evidence | `EvidenceExpand` listing votes on bills tagged with the org's issue area | MANUAL | replaced `ScorecardEvidenceDrawer` modal |
-| Issue-area alignment chip (home mini-strip) | `IssueAlignmentStrip` (home page) | deep-link | `/officials/[id]?cascade=issue:<area>` opens the relevant sub-cascade | MANUAL | confirm deep-link scroll + expand |
+| Issue-area alignment chip (home mini-strip) | `OfficialsCard` (home page) | deep-link | `/officials/[id]#issue-positions:<sub-cascade-slug>` — `useUrlHashSync` parses on mount, auto-opens category + sub-cascade, scrolls into view | MANUAL | confirm hash-fragment deep-link scroll + expand |
 
 ## Category 3 — Community Presence
 
@@ -90,7 +90,7 @@ The deterministic workspace checks ran in Task 37; the live click-through is the
    - Confirm inline `EvidenceExpand` opens (pill-chevron rotates, label flips to "Hide evidence") OR new tab opens for external links
    - For evidence rows: confirm each links to an authoritative source URL
    - Mark the row `OK` or `BROKEN` with notes in this doc
-6. From the home page mini-strip, tap an alignment chip and confirm it deep-links to `/officials/[id]?cascade=issue:<area>` with the correct sub-cascade auto-expanded.
+6. From the home page mini-strip, tap an alignment chip and confirm it deep-links to `/officials/[id]#issue-positions:<sub-cascade-slug>` with the correct sub-cascade auto-expanded (hash format, parsed by `useUrlHashSync`).
 7. Repeat for a senator (e.g., Feinstein) to confirm the "Lives in district = N/A (Senate)" path.
 8. Confirm alignment-chip color contrast is acceptable across the 5 tiers without the old `✓✓`/`✗✗` glyph affordance.
 
