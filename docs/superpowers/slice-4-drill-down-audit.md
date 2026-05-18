@@ -96,7 +96,13 @@ The deterministic workspace checks ran in Task 37; the live click-through is the
 
 ## Findings
 
-(Fill in after manual run.)
+Smoke walked 2026-05-18 across three variants on the redesigned `/officials/[id]`:
+
+- **Mike Carey (OH-15, House, full audit fixture attached)** — all 6 categories render with palette-A accents and teasers; sub-cascade expansion works; inline `EvidenceExpand` (no modal); finance summary strip + sage Contributors / mint Top Donor sub-sections; placeholder sub-cascades render soft beige italic; STOCK Act late trade displays the U+2716 (✖) compliance icon.
+- **Bernie Moreno + Jon Husted (Ohio Senate, no fixture attached)** — bio renders correctly with district chip "Ohio" (full state name) and chamber chip "Senate"; fixture-free categories show empty-state copy cleanly without crashes.
+- **Harriet M. Hageman (WY-AL, House at-large, no fixture attached)** — bio district chip correctly reads `WY-AL`; at-large path is wired end-to-end (no `-01` / `-undefined` leak).
+
+Two N/A-state bugs surfaced and were captured as next-slice follow-ups (see below). No crashes, no SSR errors, no hydration warnings observed during the walkthrough. Workspace prereqs (auth signup/signin, calibrate-location Edge Function with GeocodIO key, hash-fragment deep-link parsing via `useUrlHashSync`) all verified along the way.
 
 ## Follow-ups for next slice
 
@@ -108,4 +114,4 @@ The deterministic workspace checks ran in Task 37; the live click-through is the
 
 ## Sign-off
 
-Audit complete: <date> by <name>
+Audit complete: 2026-05-18 by Jon Laos
