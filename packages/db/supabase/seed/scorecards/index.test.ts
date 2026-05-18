@@ -13,7 +13,11 @@ let client: Client
 beforeEach(async () => {
   client = new Client({ connectionString: DB_URL })
   await client.connect()
-  // Ensure 1 known official exists so we know at least one rating row sticks.
+  // Test asserts "exactly 1 rating per adapter" because only P000197 is a known
+  // official. If the local DB is populated (e.g. after `pnpm seed:officials`)
+  // the other two fixture bioguide_ids match real officials and the assertion
+  // fails. TRUNCATE CASCADE guarantees a clean slate.
+  await client.query(`truncate table public.officials restart identity cascade`)
   await client.query(`
     insert into public.districts (tier,state,code,name,geometry,source_version)
     values ('federal_senate','CA','CA-S1-scrcrd','CA Senate scrcrd',

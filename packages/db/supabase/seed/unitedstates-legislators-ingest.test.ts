@@ -31,8 +31,18 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  await client.query("delete from public.officials_leadership_history where official_id in (select id from public.officials where bioguide_id in ('P000197','F000062'))")
-  await client.query("delete from public.district_offices where official_id in (select id from public.officials where bioguide_id in ('P000197','F000062'))")
+  // Clean every FK-child of `officials` for the two test bioguide_ids before
+  // deleting the officials rows themselves. Migrations 0014/0016/0018/0020
+  // use `on delete restrict` so these explicit deletes are required; otherwise
+  // a populated local DB (e.g. after `pnpm seed:officials`) makes the final
+  // `delete from public.officials` choke on FK violations.
+  const ids = `(select id from public.officials where bioguide_id in ('P000197','F000062'))`
+  await client.query(`delete from public.officials_leadership_history where official_id in ${ids}`)
+  await client.query(`delete from public.district_offices where official_id in ${ids}`)
+  await client.query(`delete from public.bill_sponsors where official_id in ${ids}`)
+  await client.query(`delete from public.vote_positions where official_id in ${ids}`)
+  await client.query(`delete from public.scorecard_ratings where official_id in ${ids}`)
+  await client.query(`delete from public.finance_summaries where official_id in ${ids}`)
   await client.query("delete from public.officials where bioguide_id in ('P000197','F000062')")
   await client.query("delete from public.districts where code = 'CA-S1-fixture'")
   await client.end()

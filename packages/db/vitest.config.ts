@@ -8,5 +8,10 @@ export default defineConfig({
     // after TIGER seed). Each ~540-member upsert exercises FK + check
     // constraints; sequential round-trips stretch the wallclock.
     testTimeout: 60_000,
+    // All seed tests write to the same local Postgres (port 54322). Running
+    // files in parallel produces deadlocks on shared rows in `officials` /
+    // `official_metrics`. Serialize file execution — the only safe option
+    // for tests that share a single mutable database.
+    fileParallelism: false,
   },
 })
