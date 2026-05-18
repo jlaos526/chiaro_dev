@@ -98,6 +98,10 @@ The deterministic workspace checks ran in Task 37; the live click-through is the
 
 (Fill in after manual run.)
 
+## Follow-ups for next slice
+
+- **Alignment-chip row in BioHeader (Row 0).** Today alignment chips only appear on the home `OfficialsCard` mini-strip. The detail page shows scorecard alignment as text inside each card (`AlignmentLabel` per tier). Future slice should render the same top-3 `AlignmentChip` strip — color-only, deep-linking into `#issue-positions:<sub-cascade-slug>` — immediately under the name/identity row in `BioHeader`, giving the detail page a single-glance summary that mirrors the mini-strip. Reuse `selectTopAlignmentChips(scorecards.data ?? [])` from `apps/web/lib/derivations/alignment.ts`; thread `useOfficialScorecardRatings` into `BioHeader` (or lift to the page and pass the chip list as a prop). Observed during 2026-05-18 smoke test of the officials-detail redesign.
+
 ## Sign-off
 
 Audit complete: <date> by <name>
