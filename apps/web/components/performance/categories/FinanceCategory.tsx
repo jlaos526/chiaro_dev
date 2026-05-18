@@ -32,13 +32,17 @@ export function FinanceCategory({ officialId, subCascade }: { officialId: string
       </p>
     )
   }
-  const { summary, industries, pacs } = q.data
+  const { summary, industries, pacs, individualDonors, topOrgs } = q.data
   const pacSum = pacs.reduce((s, p) => s + p.amount, 0)
   const pct = pacPercent(summary.total_raised, pacSum)
   const topIndustry = industries[0]?.industry ?? null
+  const donorSum = individualDonors.reduce((s, d) => s + Number(d.amount), 0)
+  const topOrg = topOrgs[0]?.org_name ?? null
 
   const pacsOpen = subCascade.isOpen(CATEGORY, 'pacs')
   const indOpen = subCascade.isOpen(CATEGORY, 'top-industries')
+  const donorsOpen = subCascade.isOpen(CATEGORY, 'individual-donors')
+  const orgsOpen = subCascade.isOpen(CATEGORY, 'top-organizations')
 
   return (
     <div style={{ padding: 12 }}>
@@ -83,12 +87,24 @@ export function FinanceCategory({ officialId, subCascade }: { officialId: string
         categoryId={CATEGORY}
         subId="individual-donors"
         name="Individual Donors"
-        teaser="data coming slice 5+"
-        open={false}
-        onToggle={() => { /* placeholder */ }}
+        teaser={
+          individualDonors.length > 0
+            ? `$${donorSum.toLocaleString()} · ${individualDonors.length} donors`
+            : 'no individual donor data ingested'
+        }
+        open={donorsOpen}
+        onToggle={() => subCascade.onToggle(CATEGORY, 'individual-donors')}
         accentOverride={FINANCE_SUB_SECTION_SHADES.contributors.accent}
-        placeholder={true}
       />
+      {donorsOpen && (
+        <div style={{ padding: '0 12px 12px' }}>
+          <TopAmountBreakdown
+            rows={individualDonors.map(d => ({ label: d.donor_name, amount: Number(d.amount) }))}
+            noun={{ singular: 'donor', plural: 'donors' }}
+            sourceUrl={summary.source_url}
+          />
+        </div>
+      )}
 
       <FinanceSubSectionHeading
         label="Top Donor Industries & Organizations"
@@ -107,7 +123,7 @@ export function FinanceCategory({ officialId, subCascade }: { officialId: string
       {indOpen && (
         <div style={{ padding: '0 12px 12px' }}>
           <TopAmountBreakdown
-            rows={industries.map(i => ({ label: i.industry, amount: i.amount }))}
+            rows={industries.map(i => ({ label: i.industry, amount: Number(i.amount) }))}
             noun={{ singular: 'industry', plural: 'industries' }}
             sourceUrl={summary.source_url}
           />
@@ -117,12 +133,20 @@ export function FinanceCategory({ officialId, subCascade }: { officialId: string
         categoryId={CATEGORY}
         subId="top-organizations"
         name="Top Organizations"
-        teaser="data coming slice 5+"
-        open={false}
-        onToggle={() => { /* placeholder */ }}
+        teaser={topOrg ? `${topOrg} leads` : 'no organization data ingested'}
+        open={orgsOpen}
+        onToggle={() => subCascade.onToggle(CATEGORY, 'top-organizations')}
         accentOverride={FINANCE_SUB_SECTION_SHADES.topDonor.accent}
-        placeholder={true}
       />
+      {orgsOpen && (
+        <div style={{ padding: '0 12px 12px' }}>
+          <TopAmountBreakdown
+            rows={topOrgs.map(o => ({ label: o.org_name, amount: Number(o.amount) }))}
+            noun={{ singular: 'organization', plural: 'organizations' }}
+            sourceUrl={summary.source_url}
+          />
+        </div>
+      )}
     </div>
   )
 }
