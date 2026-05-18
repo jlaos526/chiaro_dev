@@ -1,20 +1,24 @@
-// Three endpoints per official per cycle:
+// Six endpoints per official per cycle:
 //   candSummary?cid={cid}&cycle={cycle}            → total raised, small donor %, etc.
 //   candIndustry?cid={cid}&cycle={cycle}            → top industries
 //   candPacs?cid={cid}&cycle={cycle}                → named PAC contributions
 //   candIndByState?cid={cid}&cycle={cycle}          → in-state vs out-of-state %
-// Free tier: 200 calls/day. Ingest spread over multiple days for full sweep.
+//   candContrib?cid={cid}&cycle={cycle}             → top individual donors (NEW slice 5)
+//   candOrgs?cid={cid}&cycle={cycle}                → top organizations (NEW slice 5)
+// Free tier: 200 calls/day. Full Congress backfill at 6 calls/official → ~17 days.
 
 export interface FinanceSnapshot {
-  cycle:           string
-  total_raised:    number | null
-  total_disbursed: number | null
-  small_donor_pct: number | null
-  in_state_pct:    number | null
-  out_of_state_pct: number | null
-  source_url:      string
-  industries: Array<{ rank: number; industry: string; amount: number }>
-  pacs:       Array<{ pac_name: string; pac_fec_id: string | null; amount: number }>
+  cycle:             string
+  total_raised:      number | null
+  total_disbursed:   number | null
+  small_donor_pct:   number | null
+  in_state_pct:      number | null
+  out_of_state_pct:  number | null
+  source_url:        string
+  industries:        Array<{ rank: number; industry: string; amount: number }>
+  pacs:              Array<{ pac_name: string; pac_fec_id: string | null; amount: number }>
+  individual_donors: Array<{ rank: number; donor_name: string; amount: number; employer: string | null; occupation: string | null }>
+  top_organizations: Array<{ rank: number; org_name: string; amount: number }>
 }
 
 const API_BASE = 'https://www.opensecrets.org/api/'
@@ -35,15 +39,47 @@ export async function fetchFinanceSnapshot(
   const industryUrl  = `${API_BASE}?method=candIndustry&cid=${opensecretsCID}&cycle=${cycle}&apikey=${apiKey}&output=json`
   const pacsUrl      = `${API_BASE}?method=candPacs&cid=${opensecretsCID}&cycle=${cycle}&apikey=${apiKey}&output=json`
   const stateUrl     = `${API_BASE}?method=candIndByState&cid=${opensecretsCID}&cycle=${cycle}&apikey=${apiKey}&output=json`
+  const contribUrl   = `${API_BASE}?method=candContrib&cid=${opensecretsCID}&cycle=${cycle}&apikey=${apiKey}&output=json`
+  const orgsUrl      = `${API_BASE}?method=candOrgs&cid=${opensecretsCID}&cycle=${cycle}&apikey=${apiKey}&output=json`
 
-  const [summary, industry, pacs, state] = await Promise.all([
+  const [summary, industry, pacs, state, contrib, orgs] = await Promise.all([
     fetch(summaryUrl).then(r => r.json()),
     fetch(industryUrl).then(r => r.json()),
     fetch(pacsUrl).then(r => r.json()),
     fetch(stateUrl).then(r => r.json()),
+    fetch(contribUrl).then(r => r.json()).catch(() => null),
+    fetch(orgsUrl).then(r => r.json()).catch(() => null),
   ])
 
   const s = (summary as any).response.summary['@attributes']
+
+  // Each new endpoint wrapped in try/catch so a malformed shape can't kill the whole snapshot.
+  let individual_donors: FinanceSnapshot['individual_donors'] = []
+  try {
+    const contribRows = (contrib as any)?.response?.contributors?.contributor ?? []
+    individual_donors = contribRows.slice(0, 10).map((row: any, idx: number) => ({
+      rank: idx + 1,
+      donor_name: row['@attributes'].contrib,
+      amount: Number(row['@attributes'].total) || 0,
+      employer: row['@attributes'].employer ?? null,
+      occupation: row['@attributes'].occupation ?? null,
+    }))
+  } catch {
+    individual_donors = []
+  }
+
+  let top_organizations: FinanceSnapshot['top_organizations'] = []
+  try {
+    const orgRows = (orgs as any)?.response?.organizations?.organization ?? []
+    top_organizations = orgRows.slice(0, 10).map((row: any, idx: number) => ({
+      rank: idx + 1,
+      org_name: row['@attributes'].org_name,
+      amount: Number(row['@attributes'].total) || 0,
+    }))
+  } catch {
+    top_organizations = []
+  }
+
   return {
     cycle,
     total_raised:    Number(s.total)  || null,
@@ -62,5 +98,7 @@ export async function fetchFinanceSnapshot(
       pac_fec_id: row['@attributes'].fec_pac_id ?? null,
       amount: Number(row['@attributes'].total) || 0,
     })),
+    individual_donors,
+    top_organizations,
   }
 }
