@@ -37,7 +37,7 @@ afterEach(async () => {
 })
 
 describe('ingestFinance', () => {
-  it('upserts finance_summaries + industries + pacs from fixture file', async () => {
+  it('upserts finance_summaries + industries + pacs + individual donors + top organizations from fixture', async () => {
     const stats = await ingestFinance({
       apiKey: 'unused',
       cycle: '2024',
@@ -48,6 +48,8 @@ describe('ingestFinance', () => {
     expect(stats.summariesUpserted).toBe(1)
     expect(stats.industriesUpserted).toBe(3)
     expect(stats.pacsUpserted).toBe(2)
+    expect(stats.individualDonorsUpserted).toBe(3)
+    expect(stats.topOrganizationsUpserted).toBe(2)
     expect(stats.errors).toEqual([])
 
     const summary = await client.query(`
@@ -67,14 +69,42 @@ describe('ingestFinance', () => {
     expect(ind.rows.length).toBe(3)
     expect(ind.rows[0].industry).toBe('Securities & Investment')
 
-    // Idempotent re-run
+    const donors = await client.query(`
+      select rank, donor_name, amount, employer, occupation from public.finance_individual_donors
+      where finance_summary_id = (select id from public.finance_summaries where official_id = (select id from public.officials where bioguide_id = 'FINTEST1'))
+      order by rank
+    `)
+    expect(donors.rows.length).toBe(3)
+    expect(donors.rows[0].donor_name).toBe('Alice Donor')
+    expect(Number(donors.rows[0].amount)).toBe(25000)
+    expect(donors.rows[0].employer).toBe('Acme Inc')
+    expect(donors.rows[2].employer).toBeNull()
+
+    const orgs = await client.query(`
+      select rank, org_name, amount from public.finance_top_organizations
+      where finance_summary_id = (select id from public.finance_summaries where official_id = (select id from public.officials where bioguide_id = 'FINTEST1'))
+      order by rank
+    `)
+    expect(orgs.rows.length).toBe(2)
+    expect(orgs.rows[0].org_name).toBe('Acme Industries')
+    expect(Number(orgs.rows[0].amount)).toBe(50000)
+
+    // Idempotent re-run — counts stay stable (delete-then-insert).
     const stats2 = await ingestFinance({ apiKey: 'unused', cycle: '2024', fixturesDir: FIXTURES })
     expect(stats2.summariesUpserted).toBe(1)
-    expect(stats2.industriesUpserted).toBe(3)
-    const ind2 = await client.query(`
-      select count(*)::int as c from public.finance_industry_top
+    expect(stats2.individualDonorsUpserted).toBe(3)
+    expect(stats2.topOrganizationsUpserted).toBe(2)
+    const donorsAgain = await client.query(`
+      select count(*)::int as c from public.finance_individual_donors
       where finance_summary_id = (select id from public.finance_summaries where official_id = (select id from public.officials where bioguide_id = 'FINTEST1'))
     `)
-    expect(ind2.rows[0].c).toBe(3)  // not 6 — delete-then-insert is idempotent
+    expect(donorsAgain.rows[0].c).toBe(3)
+
+    // Cascade-delete: removing the summary clears both new child tables.
+    await client.query(`delete from public.finance_summaries where official_id in (select id from public.officials where bioguide_id = 'FINTEST1')`)
+    const donorsAfter = await client.query(`select count(*)::int as c from public.finance_individual_donors`)
+    const orgsAfter = await client.query(`select count(*)::int as c from public.finance_top_organizations`)
+    expect(donorsAfter.rows[0].c).toBe(0)
+    expect(orgsAfter.rows[0].c).toBe(0)
   })
 })
