@@ -9,23 +9,29 @@ let client: Client
 beforeEach(async () => {
   client = new Client({ connectionString: DB_URL })
   await client.connect()
-  // Seed a CA-11 (Pelosi-like) house district with geometry covering San Francisco
+  // Use a fictional state code ('ZZ') so the fixture polygon doesn't overlap
+  // any real TIGER district. The state CHECK is `^[A-Z]{2}$`, no FIPS lookup.
+  // Without this isolation the ingest's `select ... limit 1` is non-
+  // deterministic when real TIGER CA-11 and a fixture CA-11 both contain
+  // the test lat/lng — CI happens to favor the fixture, local runs against
+  // a TIGER-seeded DB return the real district instead and the test fails.
   await client.query(`
     insert into public.districts (tier,state,code,name,geometry,source_version)
-    values ('federal_house','CA','CA-11-srfix','CA-11 sr fixture',
+    values ('federal_house','ZZ','ZZ-AL-srfix','ZZ at-large sr fixture',
       st_geogfromtext('MULTIPOLYGON(((-122.51 37.70,-122.36 37.70,-122.36 37.81,-122.51 37.81,-122.51 37.70)))'),
       'FX-sr')
     on conflict (tier,code) do nothing
   `)
-  const d = await client.query("select id from public.districts where code='CA-11-srfix'")
-  // Pelosi-shaped house official with FEC id
+  const d = await client.query("select id from public.districts where code='ZZ-AL-srfix'")
+  // Speaker-shaped fixture official with FEC id (drives the Speaker-salary path)
   await client.query(`
     insert into public.officials (bioguide_id, fec_candidate_id, first_name, last_name, full_name,
       chamber, party, state, district_id, senate_class, source_version, in_office)
-    values ('SRTEST1','H8CA05035','Nancy','Pelosi','Nancy Pelosi','house','D','CA',$1::uuid,null,'119', true)
+    values ('SRTEST1','H8CA05035','Test','Speaker','Test Speaker','house','D','ZZ',$1::uuid,null,'119', true)
     on conflict (bioguide_id) do update set
       fec_candidate_id = excluded.fec_candidate_id,
       district_id = excluded.district_id,
+      state = excluded.state,
       in_office = true
   `, [d.rows[0].id])
   // Seed leadership: current Speaker (no end_date)
@@ -45,20 +51,21 @@ afterEach(async () => {
   await client.query("delete from public.official_metrics where official_id in (select id from public.officials where bioguide_id = 'SRTEST1')")
   await client.query("delete from public.officials_leadership_history where official_id in (select id from public.officials where bioguide_id = 'SRTEST1')")
   await client.query("delete from public.officials where bioguide_id = 'SRTEST1'")
+  await client.query("delete from public.districts where code = 'ZZ-AL-srfix'")
   await client.end()
 })
 
 describe('ingestSalaryAndResidency', () => {
-  it('assigns Speaker salary and resolves lives_in_district = true for SF address inside CA-11', async () => {
+  it('assigns Speaker salary and resolves lives_in_district = true when address geocodes inside the home polygon', async () => {
     const stats = await ingestSalaryAndResidency({
       addressFetcher: async () => ({
-        address1: '90 7th Street, Suite 2-800',
-        city:     'San Francisco',
-        state:    'CA',
-        zip:      '94103',
+        address1: '90 7th Street',
+        city:     'Fixture City',
+        state:    'ZZ',
+        zip:      '00001',
         source_url: 'https://www.fec.gov/data/candidate/H8CA05035/',
       }),
-      geocoder: async () => ({ lat: 37.776, lng: -122.418 }),  // inside the seeded polygon
+      geocoder: async () => ({ lat: 37.776, lng: -122.418 }),  // inside the seeded ZZ polygon
     })
 
     expect(stats.officialsProcessed).toBeGreaterThanOrEqual(1)
@@ -80,18 +87,18 @@ describe('ingestSalaryAndResidency', () => {
   it('flips lives_in_district to false when address is outside the home district polygon', async () => {
     const stats = await ingestSalaryAndResidency({
       addressFetcher: async () => ({
-        address1: '1 Wall St',
-        city:     'New York',
-        state:    'NY',
-        zip:      '10005',
+        address1: '1 Far Away Ave',
+        city:     'Elsewhere',
+        state:    'ZZ',
+        zip:      '00002',
         source_url: 'https://www.fec.gov/data/candidate/H8CA05035/',
       }),
-      geocoder: async () => ({ lat: 40.706, lng: -74.011 }),  // NYC, far from CA-11
+      geocoder: async () => ({ lat: 40.706, lng: -74.011 }),  // far outside the ZZ polygon
     })
 
-    // The official's home_district lookup is filtered by `state = $1` from the address,
-    // so a NY address with no NY federal_house district seeded returns null homeDistrictId.
-    // lives_in_district should be false (not null) because we found NO district matching.
+    // Address state is ZZ but the geocoded point falls outside ZZ-AL-srfix's
+    // polygon. The lookup is `state = $1 AND st_contains(...)` so no rows
+    // match → homeDistrictId is null → lives_in_district = (null === uuid) = false.
     expect(stats.residencyResolved).toBeGreaterThanOrEqual(1)
     const m = await client.query(`
       select lives_in_district
