@@ -1,13 +1,19 @@
 import { useState } from 'react'
 import { PillChevron } from '@/components/cards/PillChevron'
 
-export interface IndustryRow {
-  industry: string
+export interface TopAmountRow {
+  label: string
   amount: number
 }
 
-export interface IndustryBreakdownProps {
-  rows: ReadonlyArray<IndustryRow>
+export interface TopAmountNoun {
+  singular: string
+  plural: string
+}
+
+export interface TopAmountBreakdownProps {
+  rows: ReadonlyArray<TopAmountRow>
+  noun: TopAmountNoun
   sourceUrl?: string
 }
 
@@ -17,7 +23,7 @@ function formatMoney(n: number): string {
   return `$${n}`
 }
 
-export function IndustryBreakdown({ rows, sourceUrl }: IndustryBreakdownProps): React.JSX.Element {
+export function TopAmountBreakdown({ rows, noun, sourceUrl }: TopAmountBreakdownProps): React.JSX.Element {
   const [expanded, setExpanded] = useState(false)
   const total = rows.reduce((s, r) => s + r.amount, 0)
   const max = Math.max(...rows.map(r => r.amount), 1)
@@ -31,10 +37,10 @@ export function IndustryBreakdown({ rows, sourceUrl }: IndustryBreakdownProps): 
           const pct = total > 0 ? Math.round((r.amount / total) * 100) : 0
           const isTop = idx === 0
           return (
-            <div key={r.industry}>
+            <div key={r.label}>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
                 <span style={{ fontWeight: isTop ? 700 : 600, fontSize: isTop ? '0.92rem' : '0.82rem', color: '#1a1714' }}>
-                  {r.industry}
+                  {r.label}
                 </span>
                 <span>
                   <span style={{ fontWeight: 700, color: '#1a1714' }}>{formatMoney(r.amount)}</span>{' '}
@@ -70,7 +76,7 @@ export function IndustryBreakdown({ rows, sourceUrl }: IndustryBreakdownProps): 
         >
           <PillChevron open={expanded} />
           <span style={{ flex: 1, textAlign: 'left', fontWeight: 600 }}>
-            {expanded ? 'Show less' : 'Show 5 more industries'}
+            {expanded ? 'Show less' : `Show 5 more ${noun.plural}`}
           </span>
           <span style={{ color: '#5a5751', fontSize: '0.72rem' }}>
             {expanded ? `${rows.length} of ${rows.length} shown` : `5 of ${rows.length} shown`}

@@ -1,7 +1,8 @@
 #!/usr/bin/env tsx
-// Slice 4: iterate officials with opensecrets_id set, fetch snapshot from OpenSecrets,
-// upsert finance_summaries + replace finance_industry_top + replace finance_pac_contributions.
-// Idempotent: re-running is safe (per-summary delete-then-insert for industries + PACs).
+// Slice 4+5: iterate officials with opensecrets_id set, fetch snapshot from OpenSecrets,
+// upsert finance_summaries + replace finance_industry_top + finance_pac_contributions +
+// finance_individual_donors + finance_top_organizations.
+// Idempotent: re-running is safe (per-summary delete-then-insert for all children).
 
 import { Client } from 'pg'
 import { fileURLToPath } from 'node:url'
@@ -14,15 +15,17 @@ export interface FinanceIngestArgs {
   apiKey:    string
   cycle?:    string
   snapshotFetcher?: typeof fetchFinanceSnapshot
-  fixturesDir?: string   // when set, the adapter loads from <dir>/opensecrets-summary-<cid>.json
+  fixturesDir?: string
 }
 
 export interface FinanceIngestStats {
-  officialsProcessed: number
-  summariesUpserted:  number
-  industriesUpserted: number
-  pacsUpserted:       number
-  errors:             Array<{ official_id: string; cid: string; message: string }>
+  officialsProcessed:        number
+  summariesUpserted:         number
+  industriesUpserted:        number
+  pacsUpserted:              number
+  individualDonorsUpserted:  number
+  topOrganizationsUpserted:  number
+  errors:                    Array<{ official_id: string; cid: string; message: string }>
 }
 
 export async function ingestFinance(args: FinanceIngestArgs): Promise<FinanceIngestStats> {
@@ -31,7 +34,13 @@ export async function ingestFinance(args: FinanceIngestArgs): Promise<FinanceIng
   const client = new Client({ connectionString: DB_URL })
   await client.connect()
   const stats: FinanceIngestStats = {
-    officialsProcessed: 0, summariesUpserted: 0, industriesUpserted: 0, pacsUpserted: 0, errors: [],
+    officialsProcessed: 0,
+    summariesUpserted: 0,
+    industriesUpserted: 0,
+    pacsUpserted: 0,
+    individualDonorsUpserted: 0,
+    topOrganizationsUpserted: 0,
+    errors: [],
   }
 
   try {
@@ -87,6 +96,26 @@ export async function ingestFinance(args: FinanceIngestArgs): Promise<FinanceIng
             values ($1,$2,$3,$4)
           `, [summaryId, pac.pac_name, pac.pac_fec_id, pac.amount])
           stats.pacsUpserted++
+        }
+
+        await client.query('delete from public.finance_individual_donors where finance_summary_id = $1', [summaryId])
+        for (const d of snap.individual_donors) {
+          await client.query(`
+            insert into public.finance_individual_donors
+              (finance_summary_id, rank, donor_name, amount, employer, occupation)
+            values ($1,$2,$3,$4,$5,$6)
+          `, [summaryId, d.rank, d.donor_name, d.amount, d.employer, d.occupation])
+          stats.individualDonorsUpserted++
+        }
+
+        await client.query('delete from public.finance_top_organizations where finance_summary_id = $1', [summaryId])
+        for (const org of snap.top_organizations) {
+          await client.query(`
+            insert into public.finance_top_organizations
+              (finance_summary_id, rank, org_name, amount)
+            values ($1,$2,$3,$4)
+          `, [summaryId, org.rank, org.org_name, org.amount])
+          stats.topOrganizationsUpserted++
         }
 
         await client.query('COMMIT')
