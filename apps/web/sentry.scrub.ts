@@ -1,11 +1,4 @@
-// Local stand-in until Task 3 installs @sentry/nextjs (and its transitive @sentry/types) — then this import swaps to:
-//   import type { Event } from '@sentry/types'
-type Event = {
-  request?: { data?: unknown }
-  contexts?: Record<string, unknown>
-  extra?: Record<string, unknown>
-  breadcrumbs?: Array<{ data?: unknown }>
-}
+import type { Event } from '@sentry/core'
 
 const ADDRESS_KEY = /^address/i
 

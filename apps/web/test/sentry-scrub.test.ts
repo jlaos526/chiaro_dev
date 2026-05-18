@@ -1,13 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import type { Event } from '@sentry/core'
 import { scrubAddressInPlace } from '@/sentry.scrub'
-
-// Local stand-in until Task 3 installs @sentry/nextjs (and its transitive @sentry/types).
-type Event = {
-  request?: { data?: unknown }
-  contexts?: Record<string, unknown>
-  extra?: Record<string, unknown>
-  breadcrumbs?: Array<{ data?: unknown }>
-}
 
 describe('scrubAddressInPlace', () => {
   it('scrubs event.request.data.address', () => {
