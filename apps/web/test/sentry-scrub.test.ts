@@ -61,4 +61,14 @@ describe('scrubAddressInPlace', () => {
     scrubAddressInPlace(e)
     expect(e.extra!.greeting).toBe('hello')
   })
+
+  it('handles cyclic references without infinite-looping', () => {
+    const cyclic: Record<string, unknown> = { address: '1 Main St' }
+    cyclic.self = cyclic
+    const e: Event = { extra: { nested: cyclic } }
+    // If the scrubber doesn't guard against cycles, this will hang the test.
+    scrubAddressInPlace(e)
+    expect(((e.extra!.nested as Record<string, unknown>).address)).toBe('[scrubbed]')
+    expect((e.extra!.nested as Record<string, unknown>).self).toBe(cyclic)
+  })
 })
