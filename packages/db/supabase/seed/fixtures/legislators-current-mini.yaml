@@ -1,0 +1,19 @@
+- id:
+    bioguide: P000197
+    opensecrets: N00007360
+    fec:
+      - H8CA05035
+  leadership_roles:
+    - title: Speaker
+      chamber: house
+      start: '2019-01-03'
+      end:   '2023-01-03'
+    - title: Minority Leader
+      chamber: house
+      start: '2011-01-03'
+      end:   '2019-01-03'
+- id:
+    bioguide: F000062
+    opensecrets: N00007364
+    fec:
+      - S2CA00136

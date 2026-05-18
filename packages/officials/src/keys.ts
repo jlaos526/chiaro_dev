@@ -7,4 +7,11 @@ export const officialsKeys = {
   lists: () => [...officialsKeys.all, 'list'] as const,
   myList: () => [...officialsKeys.lists(), 'mine'] as const,
   detail: (id: string) => [...officialsKeys.all, 'detail', id] as const,
+  metrics:           (id: string) => [...officialsKeys.all, 'metrics', id] as const,
+  scorecards:        (id: string) => [...officialsKeys.all, 'scorecards', id] as const,
+  finance:           (id: string, cycle: string) => [...officialsKeys.all, 'finance', id, cycle] as const,
+  districtOffices:   (id: string) => [...officialsKeys.all, 'district-offices', id] as const,
+  townHalls:         (id: string, congress: string) => [...officialsKeys.all, 'town-halls', id, congress] as const,
+  stockTransactions: (id: string) => [...officialsKeys.all, 'stock-transactions', id] as const,
+  leadershipHistory: (id: string) => [...officialsKeys.all, 'leadership-history', id] as const,
 } as const

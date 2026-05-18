@@ -47,9 +47,9 @@ select columns_are(
     'id','bioguide_id','first_name','last_name','full_name','chamber','party',
     'state','district_id','senate_class','portrait_url','official_url',
     'twitter_handle','next_election','in_office','source_version',
-    'created_at','updated_at'
+    'created_at','updated_at','opensecrets_id','fec_candidate_id'
   ]::name[],
-  'officials has the expected 18 columns'
+  'officials has the expected 20 columns'
 );
 select col_type_is(
   'public', 'officials', 'chamber', 'official_chamber',

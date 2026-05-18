@@ -1,0 +1,28 @@
+[
+  {
+    "bioguide_id": "THTEST1",
+    "event_date": "2026-02-15",
+    "city": "San Francisco",
+    "state": "CA",
+    "format": "in_person",
+    "attendance_estimate": 250,
+    "source_url": "https://townhallproject.com/event/1"
+  },
+  {
+    "bioguide_id": "THTEST1",
+    "event_date": "2026-03-20",
+    "city": "Oakland",
+    "state": "CA",
+    "format": "virtual",
+    "attendance_estimate": 180,
+    "source_url": "https://townhallproject.com/event/2"
+  },
+  {
+    "bioguide_id": "UNKNOWN1",
+    "event_date": "2026-02-10",
+    "city": "Anywhere",
+    "state": "ZZ",
+    "format": "in_person",
+    "source_url": "https://townhallproject.com/event/3"
+  }
+]

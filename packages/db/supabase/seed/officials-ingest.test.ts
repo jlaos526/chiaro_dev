@@ -157,7 +157,12 @@ function fetcherFor(houseFile: string, senateFile: string) {
 // `districts.geometry` is `geography(MultiPolygon, 4326)`, so every literal
 // must be a MULTIPOLYGON.
 async function seedDistricts(client: Client) {
-  await client.query(`delete from public.officials`)
+  // TRUNCATE ... CASCADE wipes every FK-restrict child (bill_sponsors,
+  // vote_positions, scorecard_ratings, finance_summaries, etc.) in one go.
+  // A plain `delete from public.officials` would choke on FK violations if
+  // the local DB has been populated by `pnpm seed:officials` or by prior
+  // ingest tests. This test is designed to start from a clean slate.
+  await client.query(`truncate table public.officials restart identity cascade`)
   await client.query(`delete from public.districts where source_version='FIX'`)
 
   for (const state of TEST_STATES) {
@@ -225,7 +230,7 @@ afterAll(async () => {
   // turbo.json's `^test` dependency serializes turbo-managed runs.
   const cleanup = new Client({ connectionString: DB_URL })
   await cleanup.connect()
-  await cleanup.query(`delete from public.officials`)
+  await cleanup.query(`truncate table public.officials restart identity cascade`)
   await cleanup.query(`delete from public.officials_ingest_runs`)
   await cleanup.query(`delete from public.districts where source_version='FIX'`)
   await cleanup.end()
