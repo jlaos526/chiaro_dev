@@ -41,7 +41,13 @@ const ORDER: CategoryId[] = [
 const client = createSupabaseBrowserClient()
 const CYCLE = '2024'
 
-export function PerformanceSection({ officialId }: { officialId: string }): React.JSX.Element {
+export function PerformanceSection({
+  officialId,
+  chamber,
+}: {
+  officialId: string
+  chamber: 'house' | 'senate'
+}): React.JSX.Element {
   const expanded = useExpandedState()
   useUrlHashSync(expanded)
 
@@ -90,7 +96,7 @@ export function PerformanceSection({ officialId }: { officialId: string }): Reac
     switch (id) {
       case 'service-record':         return <ServiceRecordCategory officialId={officialId} />
       case 'issue-positions':        return <IssuePositionsCategory officialId={officialId} subCascade={subCascade} />
-      case 'community-presence':     return <CommunityPresenceCategory officialId={officialId} />
+      case 'community-presence':     return <CommunityPresenceCategory officialId={officialId} chamber={chamber} />
       case 'finance':                return <FinanceCategory officialId={officialId} subCascade={subCascade} />
       case 'ethics-accountability':  return <EthicsAccountabilityCategory officialId={officialId} />
       case 'voting-bills':           return <VotingBillsCategory officialId={officialId} subCascade={subCascade} />
