@@ -212,6 +212,41 @@ export type Database = {
         }
         Relationships: []
       }
+      finance_individual_donors: {
+        Row: {
+          amount: number
+          donor_name: string
+          employer: string | null
+          finance_summary_id: string
+          occupation: string | null
+          rank: number
+        }
+        Insert: {
+          amount: number
+          donor_name: string
+          employer?: string | null
+          finance_summary_id: string
+          occupation?: string | null
+          rank: number
+        }
+        Update: {
+          amount?: number
+          donor_name?: string
+          employer?: string | null
+          finance_summary_id?: string
+          occupation?: string | null
+          rank?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_individual_donors_finance_summary_id_fkey"
+            columns: ["finance_summary_id"]
+            isOneToOne: false
+            referencedRelation: "finance_summaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       finance_industry_top: {
         Row: {
           amount: number
@@ -316,6 +351,35 @@ export type Database = {
             columns: ["official_id"]
             isOneToOne: false
             referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_top_organizations: {
+        Row: {
+          amount: number
+          finance_summary_id: string
+          org_name: string
+          rank: number
+        }
+        Insert: {
+          amount: number
+          finance_summary_id: string
+          org_name: string
+          rank: number
+        }
+        Update: {
+          amount?: number
+          finance_summary_id?: string
+          org_name?: string
+          rank?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_top_organizations_finance_summary_id_fkey"
+            columns: ["finance_summary_id"]
+            isOneToOne: false
+            referencedRelation: "finance_summaries"
             referencedColumns: ["id"]
           },
         ]
