@@ -1,79 +1,95 @@
-import { Text, View, Pressable } from 'react-native'
-import { Link } from 'expo-router'
-import {
-  useMyOfficials,
-  useOfficialScorecardRatings,
-  useOfficialMetrics,
-  useOfficialFinance,
-  type OfficialWithDistrict,
-} from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { View, Text, Pressable } from 'react-native'
+import { useRouter } from 'expo-router'
 import { supabase } from '@/lib/supabase'
+import { useMyOfficials, useOfficialScorecardRatings, useOfficialMetrics } from '@chiaro/officials'
+import type { OfficialWithDistrict } from '@chiaro/officials'
 import { OfficialAvatar } from './OfficialAvatar'
-import { PartyBadge } from './PartyBadge'
-import { OfficialMeta } from './OfficialMeta'
+import { DistrictBadge } from './cards/DistrictBadge'
+import { AlignmentChip } from './cards/AlignmentChip'
+import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
+
+const STATE_NAMES: Record<string, string> = {
+  AL:'Alabama', AK:'Alaska', AZ:'Arizona', AR:'Arkansas', CA:'California', CO:'Colorado', CT:'Connecticut',
+  DE:'Delaware', FL:'Florida', GA:'Georgia', HI:'Hawaii', ID:'Idaho', IL:'Illinois', IN:'Indiana', IA:'Iowa',
+  KS:'Kansas', KY:'Kentucky', LA:'Louisiana', ME:'Maine', MD:'Maryland', MA:'Massachusetts', MI:'Michigan',
+  MN:'Minnesota', MS:'Mississippi', MO:'Missouri', MT:'Montana', NE:'Nebraska', NV:'Nevada', NH:'New Hampshire',
+  NJ:'New Jersey', NM:'New Mexico', NY:'New York', NC:'North Carolina', ND:'North Dakota', OH:'Ohio',
+  OK:'Oklahoma', OR:'Oregon', PA:'Pennsylvania', RI:'Rhode Island', SC:'South Carolina', SD:'South Dakota',
+  TN:'Tennessee', TX:'Texas', UT:'Utah', VT:'Vermont', VA:'Virginia', WA:'Washington', WV:'West Virginia',
+  WI:'Wisconsin', WY:'Wyoming', DC:'District of Columbia',
+}
+
+function parseDistrict(code: string | null | undefined): { districtNumber: number | null; atLarge: boolean } {
+  if (!code) return { districtNumber: null, atLarge: false }
+  if (code.endsWith('-AL')) return { districtNumber: null, atLarge: true }
+  const parts = code.split('-')
+  const tail = parts[1]
+  const n = tail ? parseInt(tail, 10) : NaN
+  return { districtNumber: Number.isFinite(n) ? n : null, atLarge: false }
+}
 
 function OfficialRow({ o }: { o: OfficialWithDistrict }) {
+  const router = useRouter()
   const scorecards = useOfficialScorecardRatings(supabase, o.id)
-  const metrics    = useOfficialMetrics(supabase, o.id)
-  const finance    = useOfficialFinance(supabase, o.id, '2024')
-
-  const top3        = (scorecards.data ?? []).slice(0, 3)
-  const topIndustry = finance.data?.industries[0]?.industry
-  const attendance  = metrics.data?.attendance_pct
-
-  const hasStrip = top3.length > 0 || !!topIndustry || attendance != null
-
-  const stripParts: string[] = []
-  if (top3.length > 0) {
-    stripParts.push(top3.map((s) => `${s.org.slug.toUpperCase()} ${s.score}`).join(' · '))
-  }
-  if (topIndustry) stripParts.push(topIndustry)
-  if (attendance != null) stripParts.push(`Att. ${attendance}%`)
+  const metrics = useOfficialMetrics(supabase, o.id)
+  const stateName = STATE_NAMES[o.state] ?? o.state
+  const chips = selectTopAlignmentChips(scorecards.data ?? [])
+  const currentRole = metrics.data?.salary_role && metrics.data.salary_role !== 'Member'
+    ? metrics.data.salary_role
+    : (o.chamber === 'house' ? 'Representative' : 'Senator')
+  const { districtNumber, atLarge } = parseDistrict(o.district?.code ?? null)
 
   return (
-    <Link href={`/officials/${o.id}`} asChild>
-      <Pressable
-        style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8 }}
-        accessibilityLabel={`${o.full_name}, ${o.party}`}
-      >
-        <OfficialAvatar fullName={o.full_name} portraitUrl={o.portrait_url} size={48} />
+    <View style={{ padding: 12, borderWidth: 1, borderColor: '#d8d4c9', borderRadius: 6, backgroundColor: '#fff', marginBottom: 8 }}>
+      <View style={{ flexDirection: 'row', gap: 12 }}>
+        <Pressable onPress={() => router.push(`/officials/${o.id}`)} accessibilityLabel={`View ${o.full_name}`}>
+          <OfficialAvatar fullName={o.full_name} portraitUrl={o.portrait_url} size={44} />
+        </Pressable>
         <View style={{ flex: 1 }}>
-          <Text style={{ fontWeight: '600' }}>{o.full_name}</Text>
-          <PartyBadge party={o.party as any} />
-          <OfficialMeta official={o} />
-          {hasStrip && (
-            <Text style={{ fontSize: 11, color: COLORS.neutral.mute, marginTop: 2 }}>
-              {stripParts.join(' · ')}
-            </Text>
-          )}
+          <Pressable onPress={() => router.push(`/officials/${o.id}`)}>
+            <Text style={{ fontWeight: '600', fontSize: 15, color: '#1a1714' }}>{o.full_name}</Text>
+          </Pressable>
+          <DistrictBadge
+            chamber={o.chamber as 'house' | 'senate'}
+            stateName={stateName}
+            districtNumber={o.chamber === 'house' ? districtNumber : null}
+            atLarge={o.chamber === 'house' && atLarge}
+          />
+          <Text style={{ fontSize: 11, color: '#3a352b', marginTop: 2 }}>
+            {currentRole} · {o.chamber === 'house' ? 'House' : 'Senate'}
+          </Text>
+          {chips.length > 0 ? (
+            <View style={{ flexDirection: 'row', gap: 5, flexWrap: 'wrap', marginTop: 8 }}>
+              {chips.map(c => (
+                <AlignmentChip
+                  key={c.issueArea}
+                  label={c.displayLabel}
+                  tier={c.tier}
+                  href={`/officials/${o.id}?cat=issue-positions&sub=${c.subCascadeSlug}`}
+                />
+              ))}
+            </View>
+          ) : null}
         </View>
-      </Pressable>
-    </Link>
+      </View>
+    </View>
   )
 }
 
 export function OfficialsCard() {
+  const router = useRouter()
   const { data, isLoading, error } = useMyOfficials(supabase)
-
-  if (isLoading) return <Text>Loading your officials…</Text>
-  if (error)     return <Text>Couldn't load officials.</Text>
-  if (!data || data.length === 0) {
-    return (
-      <View>
-        <Text style={{ fontWeight: '600' }}>Your officials</Text>
-        <Link href="/calibrate"><Text>Calibrate your address</Text></Link>
-      </View>
-    )
-  }
+  if (isLoading) return <Text>Loading officials…</Text>
+  if (error) return <Text>Failed to load officials.</Text>
+  if (!data || data.length === 0) return <Text>No officials yet — calibrate your address.</Text>
 
   return (
-    <View>
-      <Text style={{ fontWeight: '600', marginBottom: 8 }}>Your officials</Text>
-      {data.map((o) => (
-        <OfficialRow key={o.id} o={o} />
-      ))}
-      <Link href="/officials"><Text style={{ marginTop: 8 }}>See all officials →</Text></Link>
+    <View style={{ padding: 16, backgroundColor: '#f7f5ef', borderRadius: 8 }}>
+      <Text style={{ fontSize: 16, fontWeight: '700', color: '#1a1714', marginBottom: 10 }}>Your officials</Text>
+      {data.map(o => <OfficialRow key={o.id} o={o} />)}
+      <Pressable onPress={() => router.push('/officials')}>
+        <Text style={{ fontSize: 14, color: '#3b6ed1', marginTop: 10 }}>See all officials →</Text>
+      </Pressable>
     </View>
   )
 }

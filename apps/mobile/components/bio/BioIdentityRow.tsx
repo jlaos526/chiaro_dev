@@ -1,0 +1,34 @@
+import { View, Text } from 'react-native'
+import { PARTY_COLOR, PARTY_SHORT } from '@chiaro/ui-tokens'
+import { DistrictBadge } from '@/components/cards/DistrictBadge'
+
+export interface BioIdentityRowProps {
+  party: string
+  chamber: 'house' | 'senate'
+  stateName: string
+  districtNumber: number | null
+  atLarge: boolean
+}
+
+const chipBase = {
+  paddingHorizontal: 10, paddingVertical: 3,
+  borderRadius: 12,
+}
+
+export function BioIdentityRow({ party, chamber, stateName, districtNumber, atLarge }: BioIdentityRowProps) {
+  const partyColor = PARTY_COLOR[party as keyof typeof PARTY_COLOR] ?? '#807a72'
+  const partyLabel = PARTY_SHORT[party as keyof typeof PARTY_SHORT] ?? party
+  return (
+    <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+      <View style={[chipBase, { backgroundColor: partyColor }]}>
+        <Text style={{ color: '#fff', fontWeight: '600', fontSize: 12 }}>{partyLabel}</Text>
+      </View>
+      <View style={[chipBase, { backgroundColor: '#f0eee5' }]}>
+        <Text style={{ color: '#3a352b', fontSize: 12 }}>{chamber === 'house' ? 'House' : 'Senate'}</Text>
+      </View>
+      <View style={[chipBase, { backgroundColor: '#f0eee5' }]}>
+        <DistrictBadge chamber={chamber} stateName={stateName} districtNumber={districtNumber} atLarge={atLarge} />
+      </View>
+    </View>
+  )
+}

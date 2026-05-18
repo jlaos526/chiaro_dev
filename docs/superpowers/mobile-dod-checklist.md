@@ -1,7 +1,7 @@
 # Mobile On-Device DoD Checklist
 
 > Slice 2.5 / 3.5 follow-up. Run once per significant mobile-touching slice.
-> Last updated: 2026-05-15 (covers slices 1–3).
+> Last updated: 2026-05-18 (covers slices 1–3 + 4 + 4.5 + 5A redesigns).
 
 ## Build the APK
 
@@ -99,6 +99,61 @@ Run through each scenario on a real Android device. Tick once verified.
 - [ ] Kill app and reopen → still signed in (token persists via AsyncStorage)
 - [ ] Background then foreground → no auth refresh loops
 - [ ] Disable network → graceful error messages; no white-screen crashes
+
+### Officials detail redesign (slice 4 + 4.5)
+
+> Prereq: `pnpm seed:officials` so the officials table is populated. Re-run
+> `apps/web/scripts/audit-fixture-attach.ts` against Mike Carey (or current
+> audit target) so a fixture official has full slice-4 data.
+
+- [ ] Open detail page for the audit-fixture official (e.g. Mike Carey)
+- [ ] Bio header layout: Portrait → Name → BioIdentityRow (party | chamber |
+      📍 DistrictBadge) → top-3 AlignmentChip row → BioServiceCard →
+      contact links
+- [ ] DistrictBadge text reads "Ohio's 15th District" (or matching variant
+      for the official); map-pin SVG visible
+- [ ] Top-3 alignment chips render when scorecards exist; color-only
+      (no ✓✓ / ✗✗ glyph)
+- [ ] All 6 category bars collapse/expand on tap with pill-chevron flip
+- [ ] Sub-cascades inside Issue Positions + Finance + Voting & Bills expand
+      independently
+- [ ] Inline evidence expand on every metric card (no modal)
+- [ ] Senate variant — open Bernie Moreno or Jon Husted:
+   - BioIdentityRow district chip shows "Ohio" (full state name, no district number)
+   - Lives in District card: muted bg + italic grey "No Data" value +
+     grey dot + "Unavailable" label + "no data available for this seat"
+- [ ] At-large variant — open Harriet Hageman (WY):
+   - BioIdentityRow district chip shows "Wyoming's At-Large District"
+- [ ] Compliance icons in STOCK Act evidence rows: ✓ (green) on-time vs
+      ✖ (U+2716 amber) late
+- [ ] Placeholder sub-cascades (Committee Work) render soft beige italic;
+      non-tappable
+
+### Finance placeholders (slice 5A)
+
+- [ ] Individual Donors sub-cascade expands into bars (no longer
+      soft-beige placeholder)
+- [ ] Top Organizations sub-cascade expands into bars
+- [ ] Top Industries still renders correctly (regression check)
+- [ ] Tap "Show 5 more donors" / "Show 5 more organizations" reveals
+      rows 6-10
+- [ ] OpenSecrets external link at bottom of each bar block opens in
+      browser via Linking
+
+### Deep-link verification
+
+- [ ] From home OfficialsCard, tap an alignment chip
+- [ ] Detail page opens with Issue Positions category auto-expanded AND
+      the matching sub-cascade auto-expanded (e.g. "Environment")
+- [ ] Other chips work the same for civil-rights, business, etc.
+
+### Three variants summary
+
+| Variant            | Verify                                              |
+|--------------------|-----------------------------------------------------|
+| House w/ fixture   | Full data: salary, tenure, scorecards, finance bars, stock txns, town halls, votes/bills |
+| Senate (no fixture)| Empty-states clean; "N/A (Senate)" Lives-in-District; DistrictBadge full state name |
+| At-Large (WY)      | DistrictBadge reads "Wyoming's At-Large District"; no "WY-01" leak |
 
 ## Telemetry (deferred but flagged)
 
