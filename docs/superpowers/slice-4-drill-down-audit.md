@@ -1,49 +1,98 @@
 # Slice 4 — Drill-down transparency audit
 
-Run on: <date>
-Official tested: <name + bioguide_id>
+**Verified by Task 37 on 2026-05-17** against the redesign plan at
+`docs/superpowers/plans/2026-05-17-officials-detail-redesign.md`.
 
-The slice-4 design contract: every metric on `/officials/[id]` MUST drill down to evidence — either an internal drawer (`onExpand`) listing source rows, or an external link (`externalSourceUrl`) to an authoritative source. The `MetricCardShell` discriminated-union in `apps/web/components/MetricCardShell.tsx` enforces this at compile time. This audit documents observed behavior at runtime.
+The slice-4 design contract: every metric on `/officials/[id]` MUST drill down to evidence — either an internal evidence panel (`EvidenceExpand`) listing source rows, or an external link (`externalSourceUrl`) to an authoritative source. The `MetricCardShell` discriminated-union in `apps/web/components/MetricCardShell.tsx` enforces this at compile time. The May-17 redesign reorganized the page into **6 categories** with cascade-driven drill-down, replaced the modal evidence drawer with an inline `EvidenceExpand`, and switched alignment chips from glyph-suffixed to color-only.
 
 ## Status legend
-- ✓ Drill-down works as specified
-- ✗ Drill-down broken or missing
-- ⏳ Pending manual verification
 
-## Audit table
+- `OK` Drill-down works as specified
+- `BROKEN` Drill-down broken or missing
+- `MANUAL` Pending manual click-through verification by user
 
-| Metric | Card component | Drill-down type | Expected target | Status | Notes |
+## Cross-cutting presentation notes
+
+| Concern | Old behavior (pre-Task 37) | New behavior | Where | Status |
+|---|---|---|---|---|
+| Alignment chip presentation | 5 tiers distinguished by background color + glyph suffix (`✓✓`, `✓`, `~`, `✗`, `✗✗`) | COLOR-ONLY: the 5 tiers (strongly-aligned, mostly-aligned, mixed, mostly-differs, strongly-differs) are distinguished by background color only | palette: `packages/ui-tokens/src/alignment.ts`; chip: `apps/web/components/AlignmentChip.tsx` | MANUAL — confirm contrast on home mini-strip + per-card detail |
+| Evidence presentation | Modal drawer (`ScorecardEvidenceDrawer`) opened on tap | Inline-expanded `EvidenceExpand` toggled by a pill-chevron button reading **"view evidence"** ↔ **"Hide evidence"** | `apps/web/components/cards/EvidenceExpand.tsx`, `apps/web/components/cards/PillChevron.tsx` | MANUAL — confirm toggle, smooth expand, no scroll-jump |
+| Drill-down container | Flat list of `MetricCard`s | 6-category cascade structure with sub-cascades + bar rows | `apps/web/app/officials/[id]/page.tsx` orchestrator | MANUAL — confirm category bar tap expands cascade |
+
+## Category 1 — Service Record
+
+| Metric | Card / row | Drill-down type | Expected target | Status | Notes |
 |---|---|---|---|---|---|
-| Per-scorecard score (10 orgs) | `ScorecardCard` | drawer | `ScorecardEvidenceDrawer` showing votes on bills tagged with the org's issue area | ⏳ pending manual verification | one row per ingested scorecard |
-| Total raised | `FinanceCard` (via MetricCardShell) | external | OpenSecrets per-member summary URL | ⏳ pending manual verification | |
-| Small-donor % | `FinanceCard` (via MetricCardShell) | external | OpenSecrets per-member summary URL | ⏳ pending manual verification | |
-| In-state donor % | `FinanceCard` (via MetricCardShell) | external | OpenSecrets per-member summary URL | ⏳ pending manual verification | |
-| Top donor industries (bar chart) | `FinanceIndustryBreakdown` | external link | OpenSecrets full breakdown | ⏳ pending manual verification | |
-| Notable PACs | `FinanceCard` | per-row external | FEC committee detail page | ⏳ pending manual verification | |
-| Attendance % | `ShowUpWorkloadCard` | drawer | `DrillOverlay 'Missed votes'` listing each missed vote with source URL | ⏳ pending manual verification | |
-| Bills sponsored | `ShowUpWorkloadCard` | drawer | `DrillOverlay 'Sponsored bills'` listing each bill with source URL | ⏳ pending manual verification | |
-| Bills cosponsored | `ShowUpWorkloadCard` | external | congress.gov/member/ | ⏳ pending manual verification | |
-| Committees | `ShowUpWorkloadCard` | external | congress.gov/committees | ⏳ pending manual verification | slice-4 placeholder; shows "data coming slice 5" |
-| Base salary | `PositionSalaryCard` | external | CRS PDF (R44648) | ⏳ pending manual verification | |
-| Tenure | `PositionSalaryCard` | drawer | Leadership history drawer with sources | ⏳ pending manual verification | |
-| Leadership role | `PositionSalaryCard` | drawer | Leadership history drawer with sources | ⏳ pending manual verification | |
-| Lives in district | `ConstituentConnectionCard` | external | FEC data | ⏳ pending manual verification | senate case shows "N/A (Senate)" — no drill |
-| District offices | `ConstituentConnectionCard` | drawer | `renderOffices` with each office's address + phone + source URL | ⏳ pending manual verification | |
-| Town halls (119th) | `ConstituentConnectionCard` | drawer | `renderHalls` with Town Hall Project links per event | ⏳ pending manual verification | |
-| STOCK Act compliance | `ConstituentConnectionCard` | drawer | `renderStock` with house/senate-stock-watcher links per trade | ⏳ pending manual verification | late rows display in `COLORS.signal.error` |
-| In-state donors | `ConstituentConnectionCard` | external | OpenSecrets | ⏳ pending manual verification | |
+| Base salary | `PositionSalaryCard` (Service Record bar row) | external | CRS PDF (R44648) | MANUAL | |
+| Tenure | `PositionSalaryCard` | inline evidence | Leadership history rows with sources | MANUAL | now uses `EvidenceExpand` |
+| Leadership role | `PositionSalaryCard` | inline evidence | Leadership history rows with sources | MANUAL | now uses `EvidenceExpand` |
 
-## Manual verification procedure
+## Category 2 — Issue Positions
 
-1. `pnpm seed:slice-4-full` to populate all data (or run individual seed scripts)
-2. `pnpm --filter @chiaro/web dev` and open http://localhost:3000
-3. Navigate to a representative-with-data, e.g., Pelosi if she's seeded
-4. For each row in the audit table:
-   - Click the metric card
-   - Confirm drawer opens (internal drill) OR new tab opens (external link)
-   - For drawer rows: confirm evidence rows each link to an authoritative source URL
-   - Mark the row ✓ or ✗ with notes
-5. Repeat for a senator (e.g., Feinstein) to confirm the "Lives in district = N/A (Senate)" path
+Nine sub-cascades, one per issue area. Each card displays **Issue (Org)** with a textual alignment label (e.g. "Mostly aligned") and a color-coded `AlignmentChip` (no glyph suffix).
+
+| Metric | Card | Drill-down type | Expected target | Status | Notes |
+|---|---|---|---|---|---|
+| Per-scorecard score (all 10 orgs grouped by issue) | `ScorecardCard` inside per-issue sub-cascade | inline evidence | `EvidenceExpand` listing votes on bills tagged with the org's issue area | MANUAL | replaced `ScorecardEvidenceDrawer` modal |
+| Issue-area alignment chip (home mini-strip) | `IssueAlignmentStrip` (home page) | deep-link | `/officials/[id]?cascade=issue:<area>` opens the relevant sub-cascade | MANUAL | confirm deep-link scroll + expand |
+
+## Category 3 — Community Presence
+
+| Metric | Card / row | Drill-down type | Expected target | Status | Notes |
+|---|---|---|---|---|---|
+| Lives in district | `ConstituentConnectionCard` | external | FEC data | MANUAL | senate case shows "N/A (Senate)" — no drill |
+| District offices | `ConstituentConnectionCard` | inline evidence | `renderOffices` with each office's address + phone + source URL | MANUAL | now uses `EvidenceExpand` |
+| Town halls (119th) | `ConstituentConnectionCard` | inline evidence | `renderHalls` with Town Hall Project links per event | MANUAL | now uses `EvidenceExpand` |
+
+## Category 4 — Finance
+
+Sub-section layout: **Summary strip** (Total Raised / Small-donor % / PAC %) → **Contributors** sub-section (PACs sub-cascade, Individual Donors placeholder) → **Top Donor** sub-section (Top Industries sub-cascade with row-1 emphasis + 5/10 toggle, Top Organizations placeholder).
+
+| Metric | Card / row | Drill-down type | Expected target | Status | Notes |
+|---|---|---|---|---|---|
+| Total raised | Summary strip | external | OpenSecrets per-member summary URL | MANUAL | |
+| Small-donor % | Summary strip | external | OpenSecrets per-member summary URL | MANUAL | |
+| PAC % | Summary strip | external | OpenSecrets per-member summary URL | MANUAL | |
+| Top donor industries (bar chart) | `FinanceIndustryBreakdown` sub-cascade | inline evidence + external | Row-1 emphasized; 5/10 toggle expands list; external link to OpenSecrets full breakdown | MANUAL | |
+| Notable PACs | PACs sub-cascade | per-row external | FEC committee detail page | MANUAL | |
+| Top Organizations | placeholder | n/a | "data coming slice 5" | MANUAL | placeholder card; confirm copy |
+| Individual Donors | placeholder | n/a | "data coming slice 5" | MANUAL | placeholder card; confirm copy |
+
+## Category 5 — Ethics & Accountability
+
+Two metrics moved into this category by the May-17 redesign — they previously lived elsewhere.
+
+| Metric | Card / row | Drill-down type | Expected target | Status | Notes |
+|---|---|---|---|---|---|
+| STOCK Act compliance | Ethics & Accountability bar row | inline evidence | `renderStock` with house/senate-stock-watcher links per trade | MANUAL | **MOVED** from `ShowUpWorkloadCard` / `ConstituentConnectionCard` → now in Ethics & Accountability category. Late rows display in `COLORS.signal.error`. |
+| In-state donor % | Ethics & Accountability bar row | external | OpenSecrets | MANUAL | **MOVED** from `FinanceCard` → now in Ethics & Accountability category |
+
+## Category 6 — Voting & Bills
+
+| Metric | Sub-cascade / row | Drill-down type | Expected target | Status | Notes |
+|---|---|---|---|---|---|
+| Attendance % | Voting Record sub-cascade | inline evidence | attendance summary + missed-votes evidence rows with source URLs | MANUAL | replaced `DrillOverlay 'Missed votes'` modal |
+| Missed votes | Voting Record sub-cascade | inline evidence | each missed vote with source URL | MANUAL | nested inside attendance evidence |
+| Bills sponsored | Bills Authored sub-cascade (sponsored grid) | inline evidence | each bill with source URL | MANUAL | replaced `DrillOverlay 'Sponsored bills'` modal |
+| Bills cosponsored | Bills Authored sub-cascade (cosponsored grid) | external | congress.gov/member/ | MANUAL | |
+| Committee Work | placeholder | n/a | "data coming slice 5" | MANUAL | shows committees coming in slice 5 |
+
+## Manual verification procedure (user follow-up)
+
+The deterministic workspace checks ran in Task 37; the live click-through is the user's responsibility. Steps:
+
+1. `pnpm seed:slice-4-full` to populate all data (or run individual seed scripts).
+2. `pnpm --filter @chiaro/web dev` and open http://localhost:3000.
+3. Sign in and navigate to a representative loaded via `apps/web/scripts/audit-fixture-attach.ts` (e.g., Pelosi if seeded).
+4. Confirm the 6 category bars render in order; tap each and confirm cascade expand.
+5. For each row above:
+   - Click the metric card / sub-cascade bar
+   - Confirm inline `EvidenceExpand` opens (pill-chevron rotates, label flips to "Hide evidence") OR new tab opens for external links
+   - For evidence rows: confirm each links to an authoritative source URL
+   - Mark the row `OK` or `BROKEN` with notes in this doc
+6. From the home page mini-strip, tap an alignment chip and confirm it deep-links to `/officials/[id]?cascade=issue:<area>` with the correct sub-cascade auto-expanded.
+7. Repeat for a senator (e.g., Feinstein) to confirm the "Lives in district = N/A (Senate)" path.
+8. Confirm alignment-chip color contrast is acceptable across the 5 tiers without the old `✓✓`/`✗✗` glyph affordance.
 
 ## Findings
 
