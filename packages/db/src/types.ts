@@ -495,9 +495,10 @@ export type Database = {
       }
       officials: {
         Row: {
-          bioguide_id: string
+          bioguide_id: string | null
           chamber: Database["public"]["Enums"]["official_chamber"]
           created_at: string
+          district_code: string | null
           district_id: string
           fec_candidate_id: string | null
           first_name: string
@@ -508,18 +509,21 @@ export type Database = {
           next_election: string | null
           official_url: string | null
           opensecrets_id: string | null
+          openstates_person_id: string | null
           party: string
           portrait_url: string | null
           senate_class: number | null
           source_version: string
           state: string
+          title: string | null
           twitter_handle: string | null
           updated_at: string
         }
         Insert: {
-          bioguide_id: string
+          bioguide_id?: string | null
           chamber: Database["public"]["Enums"]["official_chamber"]
           created_at?: string
+          district_code?: string | null
           district_id: string
           fec_candidate_id?: string | null
           first_name: string
@@ -530,18 +534,21 @@ export type Database = {
           next_election?: string | null
           official_url?: string | null
           opensecrets_id?: string | null
+          openstates_person_id?: string | null
           party: string
           portrait_url?: string | null
           senate_class?: number | null
           source_version: string
           state: string
+          title?: string | null
           twitter_handle?: string | null
           updated_at?: string
         }
         Update: {
-          bioguide_id?: string
+          bioguide_id?: string | null
           chamber?: Database["public"]["Enums"]["official_chamber"]
           created_at?: string
+          district_code?: string | null
           district_id?: string
           fec_candidate_id?: string | null
           first_name?: string
@@ -552,11 +559,13 @@ export type Database = {
           next_election?: string | null
           official_url?: string | null
           opensecrets_id?: string | null
+          openstates_person_id?: string | null
           party?: string
           portrait_url?: string | null
           senate_class?: number | null
           source_version?: string
           state?: string
+          title?: string | null
           twitter_handle?: string | null
           updated_at?: string
         }
