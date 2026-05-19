@@ -28,6 +28,10 @@ const config: ExpoConfig = {
           'Allow Chiaro to use your location to find your elected officials.',
       },
     ],
+    [
+      '@sentry/react-native/expo',
+      { organization: 'chiaro', project: 'chiaro-mobile' },
+    ],
   ],
   experiments: { typedRoutes: true },
   updates: {
@@ -40,6 +44,7 @@ const config: ExpoConfig = {
     eas: {
       projectId: 'f4d18da9-9c95-4c6a-8a34-c77189eca749',
     },
+    sentryDsn: process.env.EXPO_PUBLIC_SENTRY_DSN_MOBILE,
   },
 }
 

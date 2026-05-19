@@ -2,6 +2,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { GeocodioHttpClient, GeocodioError, extractDistricts, type GeocodioClient } from './geocodio.ts'
 import type { CalibrateInput } from './types.ts'
+import { withSentry, Sentry } from '../_shared/sentry.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -62,6 +63,7 @@ export async function handle(req: Request, deps?: { geocodio?: GeocodioClient })
     if (err instanceof DOMException && err.name === 'AbortError') {
       return jsonResponse(502, { error: 'geocoder_timeout' })
     }
+    Sentry.captureException(err)
     console.error('geocodio_error', err)
     return jsonResponse(500, { error: 'internal' })
   }
@@ -90,6 +92,7 @@ export async function handle(req: Request, deps?: { geocodio?: GeocodioClient })
     if (msg.includes('unauthenticated')) {
       return jsonResponse(401, { error: 'unauthenticated' })
     }
+    Sentry.captureException(new Error(rpcResult.error.message ?? 'rpc_error'))
     console.error('rpc_error', rpcResult.error)
     return jsonResponse(500, { error: 'db_error' })
   }
@@ -98,4 +101,4 @@ export async function handle(req: Request, deps?: { geocodio?: GeocodioClient })
 }
 
 // Deno entry point.
-Deno.serve((req) => handle(req))
+Deno.serve(withSentry((req) => handle(req)))

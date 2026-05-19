@@ -1,7 +1,7 @@
 # Mobile On-Device DoD Checklist
 
 > Slice 2.5 / 3.5 follow-up. Run once per significant mobile-touching slice.
-> Last updated: 2026-05-18 (covers slices 1–3 + 4 + 4.5 + 5A redesigns).
+> Last updated: 2026-05-18 (covers slices 1–3 + 4 + 4.5 + 5A redesigns + 5B telemetry coverage).
 
 ## Build the APK
 
@@ -155,12 +155,24 @@ Run through each scenario on a real Android device. Tick once verified.
 | Senate (no fixture)| Empty-states clean; "N/A (Senate)" Lives-in-District; DistrictBadge full state name |
 | At-Large (WY)      | DistrictBadge reads "Wyoming's At-Large District"; no "WY-01" leak |
 
-## Telemetry (deferred but flagged)
+## Telemetry
 
-The audit called out "error-reporting hookup (Sentry/PostHog) — debugging
-on-device without telemetry is painful." Not in slice 3 scope; tracked for
-slice 4+. Until then, capture device logs via `adb logcat | grep -i chiaro`
-or Metro's terminal output for crash diagnosis.
+Sentry hooked up via `apps/mobile/lib/sentry.ts` (init at top of
+`app/_layout.tsx`, wraps root in `<Sentry.ErrorBoundary>`). Active in
+dev-client / preview / production builds. **NOT active in Expo Go** —
+@sentry/react-native requires the native module, which Expo Go doesn't
+ship.
+
+On-device errors land in Sentry project `chiaro-mobile`. Source maps
+upload during EAS builds when the `SENTRY_AUTH_TOKEN` EAS secret is
+configured (one-time operator setup; see
+`docs/superpowers/specs/2026-05-18-telemetry-design.md`).
+
+Capture an event by triggering a known throw (e.g. uncomment a `throw
+new Error('dod-smoke')` in a screen). Confirm the event appears in
+Sentry within ~30s; verify the stack trace is readable (source maps
+attached) and that `event.request.data.address` shows `[scrubbed]` if
+the user was on the calibrate flow.
 
 ## After the run
 

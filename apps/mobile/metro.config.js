@@ -1,10 +1,13 @@
-const { getDefaultConfig } = require('expo/metro-config')
+const { getSentryExpoConfig } = require('@sentry/react-native/metro')
 const path = require('path')
 
 const projectRoot = __dirname
 const workspaceRoot = path.resolve(projectRoot, '../..')
 
-const config = getDefaultConfig(projectRoot)
+// Wrap Expo's default Metro config with Sentry source-map / debug-id support.
+const config = getSentryExpoConfig(projectRoot)
+
+// Preserve monorepo path resolution (pnpm workspaces).
 config.watchFolders = [workspaceRoot]
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),

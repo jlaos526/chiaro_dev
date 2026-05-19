@@ -34,6 +34,16 @@ beforeAll(async () => {
     auth: { persistSession: false, storageKey: 'anon-integration-test' },
   })
 
+  // Pre-clean any leftover rows from prior failed runs OR sibling tests that
+  // truncate-and-insert P000197 without cleaning up (e.g.
+  // packages/db/supabase/seed/scorecards/index.test.ts seeds Nancy Pelosi
+  // into a fixture district and never deletes the official row). Without
+  // this, our batch `officials.insert([...])` below hits the unique
+  // constraint on bioguide_id and rolls back all three rows silently —
+  // user_districts insert succeeds, but the JOIN in fetchMyOfficials returns
+  // zero rows. See ROOT CAUSE in commit message.
+  await svc.from('officials').delete().in('bioguide_id', ['P000197', 'F000062', 'P000145'])
+
   const { data: dCA1, error: e1 } = await svc.from('districts').insert({
     tier: 'federal_senate',
     state: 'CA',
@@ -56,7 +66,7 @@ beforeAll(async () => {
   expect(e2).toBeNull()
   districtHouseCA12 = dCA2!.id
 
-  await svc.from('officials').insert([
+  const { error: oErr } = await svc.from('officials').insert([
     { bioguide_id: 'P000197', first_name: 'Nancy', last_name: 'Pelosi',
       full_name: 'Nancy Pelosi', chamber: 'house', party: 'D', state: 'CA',
       district_id: districtHouseCA12, senate_class: null, source_version: '119' },
@@ -67,6 +77,7 @@ beforeAll(async () => {
       full_name: 'Alex Padilla', chamber: 'senate', party: 'D', state: 'CA',
       district_id: districtSenateCA, senate_class: 3, source_version: '119' },
   ])
+  expect(oErr).toBeNull()
 
   const { data: u, error: ue } = await svc.auth.admin.createUser({
     email: 'integration@test', email_confirm: true, password: 'test1234',
