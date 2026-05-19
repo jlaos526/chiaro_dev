@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeAll } from 'vitest'
+import { describe, it, expect, afterAll } from 'vitest'
+import { createClient } from '@supabase/supabase-js'
 import { createChiaroClient } from '@chiaro/supabase-client'
 import { getMyProfile, updateMyProfile, ProfileError } from '../src/index.ts'
 
@@ -16,13 +17,40 @@ function uniqueEmail(label: string) {
   return `${label}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`
 }
 
+// Track each created auth.users id so afterAll can delete them.
+// Cascades to public.profiles via `references auth.users(id) on delete cascade`.
+const createdUserIds: string[] = []
+
 async function newSignedInUser(label: string) {
   const client = newClient()
   const email = uniqueEmail(label)
-  const { error } = await client.auth.signUp({ email, password: 'password123!' })
+  const { data, error } = await client.auth.signUp({ email, password: 'password123!' })
   if (error) throw error
+  if (data.user) createdUserIds.push(data.user.id)
   return { client, email }
 }
+
+afterAll(async () => {
+  if (createdUserIds.length === 0) return
+  const svcKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!svcKey) {
+    // Soft-fail: pre-existing test contract only required ANON_KEY.
+    // Cleanup is best-effort; without service role we can't admin.deleteUser.
+    console.warn(
+      '[profile integration] SUPABASE_SERVICE_ROLE_KEY not set — skipping auth.users cleanup. ' +
+      `${createdUserIds.length} test users will persist in local Supabase.`,
+    )
+    return
+  }
+  // Distinct storageKey per CLAUDE.md gotcha #1 — admin client mustn't share
+  // auth state with the anon-key client that the tests used to sign in.
+  const admin = createClient(url, svcKey, {
+    auth: { persistSession: false, autoRefreshToken: false, storageKey: 'profile-cleanup' },
+  })
+  for (const id of createdUserIds) {
+    await admin.auth.admin.deleteUser(id)
+  }
+})
 
 describe('profile integration', () => {
   it('signUp + getMyProfile returns a stub row with completed=false', async () => {

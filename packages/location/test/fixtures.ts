@@ -24,10 +24,24 @@ export function makeAdminClient(): TestClient {
   }) as TestClient
 }
 
+// Tracked across the suite so afterAll can delete each via admin.auth.admin.deleteUser.
+// Cascades to user_locations + user_districts (both `references auth.users(id) on delete cascade`).
+const createdUserIds = new Set<string>()
+
 export async function makeAuthedUser(suffix = ''): Promise<{ client: TestClient; userId: string; email: string }> {
   const email = `loc-test-${Date.now()}-${suffix}-${Math.random().toString(36).slice(2, 7)}@example.com`
   const client = makeAnonClient()
   const { data, error } = await client.auth.signUp({ email, password: 'testpassword123' })
   if (error || !data.user) throw error ?? new Error('signUp returned null user')
+  createdUserIds.add(data.user.id)
   return { client, userId: data.user.id, email }
+}
+
+export async function cleanupCreatedUsers(): Promise<void> {
+  if (createdUserIds.size === 0) return
+  const admin = makeAdminClient()
+  for (const id of createdUserIds) {
+    await admin.auth.admin.deleteUser(id)
+  }
+  createdUserIds.clear()
 }
