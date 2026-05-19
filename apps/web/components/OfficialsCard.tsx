@@ -80,6 +80,7 @@ function OfficialRow({ o }: { o: OfficialWithDistrict }): React.JSX.Element {
             <DistrictBadge
               chamber={o.chamber as 'federal_house' | 'federal_senate'}
               stateName={stateName}
+              stateAbbrev={o.state}
               districtNumber={o.chamber === 'federal_house' ? districtNumber : null}
               atLarge={o.chamber === 'federal_house' && atLarge}
             />

@@ -1,7 +1,12 @@
+import { type OfficialChamber } from '@chiaro/officials'
+
 export interface DistrictBadgeProps {
-  chamber: 'federal_house' | 'federal_senate'
+  chamber: OfficialChamber
   stateName: string
+  stateAbbrev: string
   districtNumber: number | null
+  /** Raw district code for state chambers (e.g. "15", "1A", "At-Large"). */
+  districtCode?: string
   atLarge?: boolean
 }
 
@@ -16,10 +21,21 @@ function ordinal(n: number): string {
 }
 
 function districtLabel(p: DistrictBadgeProps): string {
-  if (p.chamber === 'federal_senate') return p.stateName
-  if (p.atLarge) return `${p.stateName}'s At-Large District`
-  if (p.districtNumber == null) return p.stateName
-  return `${p.stateName}'s ${ordinal(p.districtNumber)} District`
+  const { chamber, stateName, stateAbbrev, districtCode, districtNumber, atLarge } = p
+
+  if (chamber === 'federal_senate') return stateName
+  if (chamber === 'federal_house') {
+    if (atLarge) return `${stateName}'s At-Large District`
+    if (districtNumber == null) return stateName
+    return `${stateName}'s ${ordinal(districtNumber)} District`
+  }
+
+  // State chambers — compact label for list density
+  const codeForState = districtCode ?? (districtNumber != null ? String(districtNumber) : '')
+  if (chamber === 'state_house')       return `${stateAbbrev}-${codeForState}`
+  if (chamber === 'state_senate')      return `${stateAbbrev}-SD ${codeForState}`
+  if (chamber === 'state_legislature') return `${stateAbbrev}-LD ${codeForState}`
+  return `${stateAbbrev}-${codeForState}`
 }
 
 export function DistrictBadge(props: DistrictBadgeProps): React.JSX.Element {
