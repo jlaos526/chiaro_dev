@@ -77,6 +77,7 @@ afterEach(async () => {
   await client.query("delete from public.bills where congress = '119' and number in (9001, 9002)")
   await client.query("delete from public.votes where congress = '119' and roll_call in (9001, 9002)")
   await client.query("delete from public.officials where bioguide_id = 'RCTEST1'")
+  await client.query("delete from public.districts where code = 'CA-11-rcfix'")
   await client.end()
 })
 

@@ -35,6 +35,7 @@ beforeEach(async () => {
 afterEach(async () => {
   await client.query("delete from public.stock_transactions where official_id in (select id from public.officials where bioguide_id in ('SKHOUSE1','SKSENATE1'))")
   await client.query("delete from public.officials where bioguide_id in ('SKHOUSE1','SKSENATE1')")
+  await client.query("delete from public.districts where code = 'CA-11-stkfix'")
   await client.end()
 })
 
