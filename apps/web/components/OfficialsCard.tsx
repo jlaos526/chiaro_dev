@@ -51,7 +51,7 @@ function OfficialRow({ o }: { o: OfficialWithDistrict }): React.JSX.Element {
   const salaryRole = metrics.data?.salary_role
   const currentRole = salaryRole && salaryRole !== 'Member'
     ? salaryRole
-    : o.chamber === 'house' ? 'Representative' : 'Senator'
+    : o.chamber === 'federal_house' ? 'Representative' : 'Senator'
   const tenure = metrics.data?.tenure_years
 
   const { districtNumber, atLarge } = parseDistrict(o.district?.code)
@@ -78,14 +78,14 @@ function OfficialRow({ o }: { o: OfficialWithDistrict }): React.JSX.Element {
           </Link>
           <div style={{ marginTop: 2 }}>
             <DistrictBadge
-              chamber={o.chamber}
+              chamber={o.chamber as 'federal_house' | 'federal_senate'}
               stateName={stateName}
-              districtNumber={o.chamber === 'house' ? districtNumber : null}
-              atLarge={o.chamber === 'house' && atLarge}
+              districtNumber={o.chamber === 'federal_house' ? districtNumber : null}
+              atLarge={o.chamber === 'federal_house' && atLarge}
             />
           </div>
           <div style={{ fontSize: '0.72rem', color: '#3a352b', marginTop: 0 }}>
-            {currentRole} · {o.chamber === 'house' ? 'House' : 'Senate'}
+            {currentRole} · {o.chamber === 'federal_house' ? 'House' : 'Senate'}
             {tenure != null && tenure > 0 ? ` · ${tenure} yr` : ''}
           </div>
           {chips.length > 0 && (

@@ -26,8 +26,8 @@ beforeEach(async () => {
   await client.query(`
     insert into public.officials (bioguide_id, first_name, last_name, full_name,
       chamber, party, state, district_id, senate_class, source_version)
-    values ('SKHOUSE1','SK','H','SK H','house','D','CA',$1::uuid,null,'119'),
-           ('SKSENATE1','SK','S','SK S','senate','D','CA',$1::uuid,1,'119')
+    values ('SKHOUSE1','SK','H','SK H','federal_house','D','CA',$1::uuid,null,'119'),
+           ('SKSENATE1','SK','S','SK S','federal_senate','D','CA',$1::uuid,1,'119')
     on conflict (bioguide_id) do nothing
   `, [d.rows[0].id])
 })

@@ -25,7 +25,7 @@ function isRecent(eventDate: string, days = 90): boolean {
   return event >= now - days * 24 * 60 * 60 * 1000 && event <= now
 }
 
-export function CommunityPresenceCategory({ officialId, chamber }: { officialId: string; chamber: 'house' | 'senate' }): React.JSX.Element {
+export function CommunityPresenceCategory({ officialId, chamber }: { officialId: string; chamber: 'federal_house' | 'federal_senate' }): React.JSX.Element {
   const metrics = useOfficialMetrics(client, officialId)
   const [officesOpen, setOfficesOpen] = useState(false)
   const [hallsOpen, setHallsOpen] = useState(false)
@@ -34,7 +34,7 @@ export function CommunityPresenceCategory({ officialId, chamber }: { officialId:
 
   if (metrics.isLoading) return <p style={{ padding: 12, color: '#807a72' }}>Loading…</p>
   const m = metrics.data
-  const livesInDistrictUnavailable = chamber === 'senate' || m?.lives_in_district == null
+  const livesInDistrictUnavailable = chamber === 'federal_senate' || m?.lives_in_district == null
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, padding: 12 }}>

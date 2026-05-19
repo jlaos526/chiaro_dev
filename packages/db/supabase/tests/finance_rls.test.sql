@@ -56,7 +56,7 @@ insert into public.districts (tier, state, code, name, geometry, source_version)
   on conflict (tier,code) do nothing;
 insert into public.officials (bioguide_id, first_name, last_name, full_name,
   chamber, party, state, district_id, senate_class, source_version)
-  select 'FINTEST1','F','T','Fin Test','senate','D','CA', id, 1, '119'
+  select 'FINTEST1','F','T','Fin Test','federal_senate','D','CA', id, 1, '119'
   from public.districts where code = 'CA-S1-fintest'
   on conflict (bioguide_id) do nothing;
 

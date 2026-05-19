@@ -51,7 +51,7 @@ type DistrictMap  = Map<DistrictKey, string>   // → district.id
 // rows per state ('<STATE>-S1' and '<STATE>-S2') but the active-officials
 // flow only needs ANY senate-tier district_id for the state's two seats.
 function districtKey(member: NormalizedMember): DistrictKey | null {
-  if (member.chamber === 'senate') {
+  if (member.chamber === 'federal_senate') {
     return `federal_senate:${member.state}`
   }
   if (AT_LARGE_STATES.has(member.state)) {
@@ -155,8 +155,8 @@ export async function ingestOfficials(args: IngestArgs): Promise<IngestStats> {
 
     // Step 2: fetch both chambers in parallel
     const [house, senate] = await Promise.all([
-      fetcher('house',  congress, args.apiKey),
-      fetcher('senate', congress, args.apiKey),
+      fetcher('federal_house',  congress, args.apiKey),
+      fetcher('federal_senate', congress, args.apiKey),
     ])
     stats.fetched = house.length + senate.length
 

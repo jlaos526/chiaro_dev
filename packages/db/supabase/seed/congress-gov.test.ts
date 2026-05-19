@@ -53,11 +53,11 @@ describe('fetchMembers', () => {
       return new Response('', { status: 404 })
     })
 
-    const members = await fetchMembers('house', '119', 'TEST_KEY')
+    const members = await fetchMembers('federal_house', '119', 'TEST_KEY')
     expect(members).toHaveLength(2)
 
     const pelosi = members.find(m => m.bioguideId === 'P000197')!
-    expect(pelosi.chamber).toBe('house')
+    expect(pelosi.chamber).toBe('federal_house')
     expect(pelosi.state).toBe('CA')
     expect(pelosi.fullName).toBe('Nancy Pelosi')
     expect(pelosi.party).toBe('D')
@@ -126,10 +126,10 @@ describe('fetchMembers', () => {
       return new Response('', { status: 404 })
     })
 
-    const members = await fetchMembers('senate', '119', 'TEST_KEY')
+    const members = await fetchMembers('federal_senate', '119', 'TEST_KEY')
     expect(members).toHaveLength(2)
     expect(members.map(m => m.bioguideId).sort()).toEqual(['X000001', 'X000002'])
-    expect(members.every(m => m.chamber === 'senate')).toBe(true)
+    expect(members.every(m => m.chamber === 'federal_senate')).toBe(true)
     expect(members.every(m => m.senateClass === 1)).toBe(true)
     expect(listCallCount).toBe(2)
 
@@ -140,7 +140,7 @@ describe('fetchMembers', () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response('forbidden', { status: 403 }),
     )
-    await expect(fetchMembers('house', '119', 'BAD')).rejects.toThrow(/403/)
+    await expect(fetchMembers('federal_house', '119', 'BAD')).rejects.toThrow(/403/)
     fetchSpy.mockRestore()
   })
 })

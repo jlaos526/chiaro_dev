@@ -67,7 +67,7 @@ export async function ingestSalaryAndResidency(args: IngestArgs) {
       stats.salariesSet++
 
       // 2. RESIDENCY (house only meaningful per spec; senators get a documented N/A path)
-      if (o.chamber !== 'house') {
+      if (o.chamber !== 'federal_house') {
         await client.query(`
           update public.official_metrics
           set lives_in_district = null,

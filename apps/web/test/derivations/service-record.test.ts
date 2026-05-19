@@ -9,7 +9,7 @@ function row(partial: Partial<LeadershipRow>): LeadershipRow {
     id: 'r-' + Math.random(),
     official_id: 'o1',
     role: 'Speaker',
-    chamber: 'house',
+    chamber: 'federal_house',
     party: 'D',
     start_date: '2007-01-04',
     end_date: null,
@@ -38,15 +38,15 @@ describe('tenureByChamber', () => {
   })
   it('sums non-overlapping closed terms per chamber', () => {
     const rows = [
-      row({ chamber: 'house',  start_date: '2007-01-01', end_date: '2013-01-01' }),
-      row({ chamber: 'senate', start_date: '2013-01-01', end_date: '2019-01-01' }),
+      row({ chamber: 'federal_house',  start_date: '2007-01-01', end_date: '2013-01-01' }),
+      row({ chamber: 'federal_senate', start_date: '2013-01-01', end_date: '2019-01-01' }),
     ]
     expect(tenureByChamber(rows)).toEqual({ house: 6, senate: 6 })
   })
   it('treats null end_date as "today" (uses current year)', () => {
     const today = new Date()
     const start = `${today.getFullYear() - 3}-01-01`
-    const rows = [row({ chamber: 'house', start_date: start, end_date: null })]
+    const rows = [row({ chamber: 'federal_house', start_date: start, end_date: null })]
     const { house } = tenureByChamber(rows)
     // start is Jan 1 of (current year - 3); elapsed is at least 3 years
     // and at most ~4 years (Dec 31 of current year). Allow generous bound.
@@ -54,7 +54,7 @@ describe('tenureByChamber', () => {
     expect(house).toBeLessThanOrEqual(4.05)
   })
   it('rounds to 1 decimal place', () => {
-    const rows = [row({ chamber: 'house', start_date: '2020-01-01', end_date: '2025-07-01' })]
+    const rows = [row({ chamber: 'federal_house', start_date: '2020-01-01', end_date: '2025-07-01' })]
     const { house } = tenureByChamber(rows)
     expect(house).toBeCloseTo(5.5, 1)
   })

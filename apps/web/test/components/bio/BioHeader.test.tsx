@@ -10,7 +10,7 @@ const PELOSI = {
   fullName: 'Nancy Pelosi',
   portraitUrl: null,
   party: 'D',
-  chamber: 'house' as const,
+  chamber: 'federal_house' as const,
   state: 'CA',
   stateName: 'California',
   districtNumber: 11,
@@ -46,7 +46,7 @@ describe('BioHeader', () => {
     render(
       <BioHeader
         {...PELOSI}
-        chamber="senate"
+        chamber="federal_senate"
         districtNumber={null}
         senateClass={1}
         role="Senator"

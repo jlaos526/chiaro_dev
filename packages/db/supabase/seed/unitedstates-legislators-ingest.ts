@@ -79,7 +79,14 @@ export async function ingestLegislators(args: IngestArgs = {}): Promise<{
         [bioguide],
       )
       for (const role of leg.leadership_roles ?? []) {
-        if (role.chamber !== 'house' && role.chamber !== 'senate') {
+        // unitedstates/congress-legislators YAML stores chamber as plain
+        // 'house' / 'senate'; the DB enum is now federal_*. Map here.
+        let chamberValue: 'federal_house' | 'federal_senate'
+        if (role.chamber === 'house') {
+          chamberValue = 'federal_house'
+        } else if (role.chamber === 'senate') {
+          chamberValue = 'federal_senate'
+        } else {
           console.warn(`Skipping leadership role with unsupported chamber=${role.chamber} for ${bioguide} (${role.title})`)
           continue
         }
@@ -90,7 +97,7 @@ export async function ingestLegislators(args: IngestArgs = {}): Promise<{
              'https://github.com/unitedstates/congress-legislators/blob/main/legislators-current.yaml'
            from public.officials where bioguide_id = $1
            returning id`,
-          [bioguide, role.title, role.chamber, role.start, role.end ?? null],
+          [bioguide, role.title, chamberValue, role.start, role.end ?? null],
         )
         leadershipRows += r.rowCount ?? 0
       }

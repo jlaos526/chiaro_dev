@@ -2,7 +2,7 @@ import { View, Text } from 'react-native'
 import Svg, { Path } from 'react-native-svg'
 
 export interface DistrictBadgeProps {
-  chamber: 'house' | 'senate'
+  chamber: 'federal_house' | 'federal_senate'
   stateName: string
   districtNumber: number | null
   atLarge?: boolean
@@ -19,7 +19,7 @@ function ordinal(n: number): string {
 }
 
 function districtLabel(p: DistrictBadgeProps): string {
-  if (p.chamber === 'senate') return p.stateName
+  if (p.chamber === 'federal_senate') return p.stateName
   if (p.atLarge) return `${p.stateName}'s At-Large District`
   if (p.districtNumber == null) return p.stateName
   return `${p.stateName}'s ${ordinal(p.districtNumber)} District`

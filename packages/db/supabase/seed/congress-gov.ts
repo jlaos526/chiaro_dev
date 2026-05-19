@@ -56,9 +56,16 @@ function mapPartyAbbreviation(abbr: string | undefined): Party {
 }
 
 function normalizeChamberString(raw: string | undefined): Chamber | null {
-  if (raw === 'Senate') return 'senate'
-  if (raw === 'House of Representatives') return 'house'
+  if (raw === 'Senate') return 'federal_senate'
+  if (raw === 'House of Representatives') return 'federal_house'
   return null
+}
+
+// API path token expected by Congress.gov's `?chamber=` querystring.
+// Distinct from our DB enum: API speaks "house" / "senate"; DB stores
+// "federal_house" / "federal_senate".
+function chamberApiToken(chamber: Chamber): 'house' | 'senate' {
+  return chamber === 'federal_house' ? 'house' : 'senate'
 }
 
 function buildPortraitUrl(bioguideId: string): string {
@@ -66,11 +73,11 @@ function buildPortraitUrl(bioguideId: string): string {
   return `https://bioguide.congress.gov/bioguide/photo/${firstLetter}/${bioguideId}.jpg`
 }
 
-function buildUrl(chamber: 'house' | 'senate', congress: string): string {
+function buildUrl(chamber: Chamber, congress: string): string {
   // Congress.gov's list endpoint uses chamber name in path-style: /member/congress/{c}/{state?} — the simpler
   // shape is /member?congress=N&chamber=house|senate but the chamber filter actually requires the path form.
   // Test against the public docs: querystring `chamber=house` works.
-  return `${API_BASE}/member?congress=${congress}&currentMember=true&chamber=${chamber}&limit=${PAGE_SIZE}&offset=0`
+  return `${API_BASE}/member?congress=${congress}&currentMember=true&chamber=${chamberApiToken(chamber)}&limit=${PAGE_SIZE}&offset=0`
 }
 
 async function fetchListPage(url: string, apiKey: string): Promise<ListPage> {
@@ -111,7 +118,7 @@ async function fetchDetail(detailUrl: string, apiKey: string): Promise<DetailMem
 //       == 5 → Class 2   (term starts 2015, 2021, 2027, ...)
 //       == 1 → Class 3   (term starts 2017, 2023, 2029, ...)
 function deriveSenateClass(allTerms: DetailTerm[]): 1 | 2 | 3 | null {
-  const senateTerms = allTerms.filter(t => normalizeChamberString(t.chamber) === 'senate' && typeof t.startYear === 'number')
+  const senateTerms = allTerms.filter(t => normalizeChamberString(t.chamber) === 'federal_senate' && typeof t.startYear === 'number')
   if (senateTerms.length === 0) return null
 
   // Find contiguous run ending at the last senate term — walk back while each
@@ -146,7 +153,7 @@ function deriveSenateClass(allTerms: DetailTerm[]): 1 | 2 | 3 | null {
   return null
 }
 
-function detailToNormalized(d: DetailMember, expectedChamber: 'house' | 'senate'): NormalizedMember | null {
+function detailToNormalized(d: DetailMember, expectedChamber: Chamber): NormalizedMember | null {
   if (!d.firstName || !d.lastName) return null
 
   // Pick the most-recent term to derive chamber + stateCode. Detail's `terms`
@@ -167,10 +174,10 @@ function detailToNormalized(d: DetailMember, expectedChamber: 'house' | 'senate'
 
   // Senate class derived from the senator's most-recent contiguous 6-year
   // term window (see deriveSenateClass).
-  const senateClass = chamber === 'senate' ? deriveSenateClass(d.terms ?? []) : null
+  const senateClass = chamber === 'federal_senate' ? deriveSenateClass(d.terms ?? []) : null
   // Constraint senate_class_matches_chamber requires senators have a class —
   // skip senators whose class we can't derive (rare: term endYear missing).
-  if (chamber === 'senate' && senateClass === null) return null
+  if (chamber === 'federal_senate' && senateClass === null) return null
 
   // Latest party from partyHistory (also chronological).
   const ph = d.partyHistory ?? []
@@ -184,7 +191,7 @@ function detailToNormalized(d: DetailMember, expectedChamber: 'house' | 'senate'
     chamber,
     party,
     state: stateCode,
-    districtNumber: chamber === 'senate' ? null : (typeof d.district === 'number' ? d.district : null),
+    districtNumber: chamber === 'federal_senate' ? null : (typeof d.district === 'number' ? d.district : null),
     senateClass,
     portraitUrl: buildPortraitUrl(d.bioguideId),
     officialUrl: d.officialWebsiteUrl ?? null,
@@ -196,7 +203,7 @@ function detailToNormalized(d: DetailMember, expectedChamber: 'house' | 'senate'
 async function fetchDetailsBatched(
   items: ListItem[],
   apiKey: string,
-  expectedChamber: 'house' | 'senate',
+  expectedChamber: Chamber,
 ): Promise<NormalizedMember[]> {
   const out: NormalizedMember[] = []
   for (let i = 0; i < items.length; i += DETAIL_CONCURRENCY) {
@@ -216,7 +223,7 @@ async function fetchDetailsBatched(
 }
 
 export async function fetchMembers(
-  chamber: 'house' | 'senate',
+  chamber: Chamber,
   congress: string,
   apiKey: string,
 ): Promise<NormalizedMember[]> {

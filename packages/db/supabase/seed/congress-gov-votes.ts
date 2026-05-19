@@ -22,11 +22,13 @@ export interface NormalizedVote {
 const API_BASE = 'https://api.congress.gov/v3'
 
 export async function fetchVotes(
-  chamber: 'house' | 'senate',
+  chamber: 'federal_house' | 'federal_senate',
   congress: string,
   apiKey: string,
 ): Promise<NormalizedVote[]> {
-  const endpoint = chamber === 'house' ? 'house-vote' : 'senate-vote'
+  // Congress.gov v3 URL token: 'house' / 'senate'. DB chamber: federal_*.
+  const apiToken = chamber === 'federal_house' ? 'house' : 'senate'
+  const endpoint = chamber === 'federal_house' ? 'house-vote' : 'senate-vote'
   const out: NormalizedVote[] = []
   let url: string | null = `${API_BASE}/${endpoint}?congress=${congress}&limit=250&offset=0`
   while (url) {
@@ -48,7 +50,7 @@ export async function fetchVotes(
         question: v.voteQuestion ?? '',
         result: v.result ?? '',
         bill_ref: v.bill ? { type: v.bill.type, number: v.bill.number } : null,
-        source_url: v.url ?? `https://www.congress.gov/vote/${congress}/${chamber}/${v.session}/${v.rollCallNumber}`,
+        source_url: v.url ?? `https://www.congress.gov/vote/${congress}/${apiToken}/${v.session}/${v.rollCallNumber}`,
         positions: members,
       })
     }

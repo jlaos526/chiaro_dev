@@ -11,7 +11,7 @@ export interface BioHeaderProps {
   fullName: string
   portraitUrl: string | null
   party: string
-  chamber: 'house' | 'senate'
+  chamber: 'federal_house' | 'federal_senate'
   state: string
   stateName: string
   districtNumber: number | null

@@ -11,8 +11,8 @@ const client = createSupabaseBrowserClient()
 
 function group(officials: OfficialWithDistrict[]) {
   return {
-    senate: officials.filter((o) => o.chamber === 'senate'),
-    house:  officials.filter((o) => o.chamber === 'house'),
+    senate: officials.filter((o) => o.chamber === 'federal_senate'),
+    house:  officials.filter((o) => o.chamber === 'federal_house'),
   }
 }
 

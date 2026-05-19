@@ -24,7 +24,7 @@ beforeEach(async () => {
   await client.query(`
     insert into public.officials (bioguide_id, opensecrets_id, first_name, last_name, full_name,
       chamber, party, state, district_id, senate_class, source_version)
-    values ('FINTEST1','N00007360','Nancy','Pelosi','Nancy Pelosi','house','D','CA',$1::uuid,null,'119')
+    values ('FINTEST1','N00007360','Nancy','Pelosi','Nancy Pelosi','federal_house','D','CA',$1::uuid,null,'119')
     on conflict (bioguide_id) do update set opensecrets_id = excluded.opensecrets_id
   `, [d.rows[0].id])
 })

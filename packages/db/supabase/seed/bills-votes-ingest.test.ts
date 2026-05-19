@@ -22,7 +22,7 @@ beforeEach(async () => {
   await client.query(`
     insert into public.officials (bioguide_id, first_name, last_name, full_name,
       chamber, party, state, district_id, senate_class, source_version)
-    values ('BVTEST1','BV','One','BV One','senate','D','CA',$1::uuid,1,'119')
+    values ('BVTEST1','BV','One','BV One','federal_senate','D','CA',$1::uuid,1,'119')
     on conflict (bioguide_id) do nothing
   `, [d.rows[0].id])
 })
@@ -51,7 +51,7 @@ describe('ingestBillsAndVotes', () => {
     }]
     const fakeHouseVotes: NormalizedVote[] = []
     const fakeSenateVotes: NormalizedVote[] = [{
-      congress: '119', chamber: 'senate', session: 1, roll_call: 101,
+      congress: '119', chamber: 'federal_senate', session: 1, roll_call: 101,
       vote_date: '2026-01-20', question: 'On Passage', result: 'Passed',
       bill_ref: { type: 's', number: 9001 },
       source_url: 'https://congress.gov/vote/101',
@@ -61,7 +61,7 @@ describe('ingestBillsAndVotes', () => {
     const stats = await ingestBillsAndVotes({
       apiKey: 'unused',
       billsFetcher: async () => fakeBills,
-      votesFetcher: async (chamber) => chamber === 'house' ? fakeHouseVotes : fakeSenateVotes,
+      votesFetcher: async (chamber) => chamber === 'federal_house' ? fakeHouseVotes : fakeSenateVotes,
     })
 
     expect(stats.status).toBe('completed')
@@ -79,7 +79,7 @@ describe('ingestBillsAndVotes', () => {
     expect(bill.rows[0].status).toBe('introduced')
 
     const vote = await client.query(
-      "select id, bill_id, result from public.votes where congress='119' and chamber='senate' and roll_call=101",
+      "select id, bill_id, result from public.votes where congress='119' and chamber='federal_senate' and roll_call=101",
     )
     expect(vote.rows.length).toBe(1)
     expect(vote.rows[0].bill_id).toBe(bill.rows[0].id)
@@ -95,7 +95,7 @@ describe('ingestBillsAndVotes', () => {
     const stats2 = await ingestBillsAndVotes({
       apiKey: 'unused',
       billsFetcher: async () => fakeBills,
-      votesFetcher: async (chamber) => chamber === 'house' ? fakeHouseVotes : fakeSenateVotes,
+      votesFetcher: async (chamber) => chamber === 'federal_house' ? fakeHouseVotes : fakeSenateVotes,
     })
     expect(stats2.status).toBe('completed')
 

@@ -36,7 +36,7 @@ function OfficialRow({ o }: { o: OfficialWithDistrict }) {
   const chips = selectTopAlignmentChips(scorecards.data ?? [])
   const currentRole = metrics.data?.salary_role && metrics.data.salary_role !== 'Member'
     ? metrics.data.salary_role
-    : (o.chamber === 'house' ? 'Representative' : 'Senator')
+    : (o.chamber === 'federal_house' ? 'Representative' : 'Senator')
   const { districtNumber, atLarge } = parseDistrict(o.district?.code ?? null)
 
   return (
@@ -50,13 +50,13 @@ function OfficialRow({ o }: { o: OfficialWithDistrict }) {
             <Text style={{ fontWeight: '600', fontSize: 15, color: '#1a1714' }}>{o.full_name}</Text>
           </Pressable>
           <DistrictBadge
-            chamber={o.chamber as 'house' | 'senate'}
+            chamber={o.chamber as 'federal_house' | 'federal_senate'}
             stateName={stateName}
-            districtNumber={o.chamber === 'house' ? districtNumber : null}
-            atLarge={o.chamber === 'house' && atLarge}
+            districtNumber={o.chamber === 'federal_house' ? districtNumber : null}
+            atLarge={o.chamber === 'federal_house' && atLarge}
           />
           <Text style={{ fontSize: 11, color: '#3a352b', marginTop: 2 }}>
-            {currentRole} · {o.chamber === 'house' ? 'House' : 'Senate'}
+            {currentRole} · {o.chamber === 'federal_house' ? 'House' : 'Senate'}
           </Text>
           {chips.length > 0 ? (
             <View style={{ flexDirection: 'row', gap: 5, flexWrap: 'wrap', marginTop: 8 }}>

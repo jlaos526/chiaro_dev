@@ -6,7 +6,7 @@ select plan(26);
 select has_enum('public', 'official_chamber', 'official_chamber enum exists');
 select enum_has_labels(
   'public', 'official_chamber',
-  array['house','senate']::text[],
+  array['federal_house','federal_senate','state_house','state_senate','state_legislature']::text[],
   'official_chamber has correct labels'
 );
 
@@ -98,7 +98,7 @@ insert into public.districts (id, tier, state, code, name, geometry, source_vers
 
 insert into public.officials (bioguide_id, first_name, last_name, full_name,
   chamber, party, state, district_id, senate_class, source_version)
-  values ('X000001','Test','Senator','Test Senator','senate','D','CA',
+  values ('X000001','Test','Senator','Test Senator','federal_senate','D','CA',
           '11111111-1111-1111-1111-111111111111', 1, '119');
 
 -- 8. anon SELECT permitted (public-read)
@@ -113,7 +113,7 @@ select is(
 select throws_ok(
   $$ insert into public.officials (bioguide_id, first_name, last_name, full_name,
        chamber, party, state, district_id, senate_class, source_version)
-     values ('X000002','Y','Y','Y','senate','R','TX',
+     values ('X000002','Y','Y','Y','federal_senate','R','TX',
        '11111111-1111-1111-1111-111111111111', 2, '119') $$,
   '42501',
   null,
@@ -141,7 +141,7 @@ set local role service_role;
 select lives_ok(
   $$ insert into public.officials (bioguide_id, first_name, last_name, full_name,
        chamber, party, state, district_id, senate_class, source_version)
-     values ('X000003','Z','Z','Z','senate','I','VT',
+     values ('X000003','Z','Z','Z','federal_senate','I','VT',
        '11111111-1111-1111-1111-111111111111', 1, '119') $$,
   'service_role can INSERT'
 );

@@ -105,8 +105,8 @@ export async function ingestBillsAndVotes(args: IngestArgs): Promise<IngestStats
 
     // 3. Fetch + upsert votes (both chambers in parallel)
     const [houseVotes, senateVotes] = await Promise.all([
-      votesF('house',  congress, args.apiKey),
-      votesF('senate', congress, args.apiKey),
+      votesF('federal_house',  congress, args.apiKey),
+      votesF('federal_senate', congress, args.apiKey),
     ])
 
     for (const v of [...houseVotes, ...senateVotes]) {

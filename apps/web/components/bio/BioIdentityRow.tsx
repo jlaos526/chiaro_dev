@@ -3,7 +3,7 @@ import { DistrictBadge } from '@/components/cards/DistrictBadge'
 
 export interface BioIdentityRowProps {
   party: string
-  chamber: 'house' | 'senate'
+  chamber: 'federal_house' | 'federal_senate'
   stateName: string
   districtNumber: number | null
   atLarge: boolean
@@ -24,7 +24,7 @@ export function BioIdentityRow({ party, chamber, stateName, districtNumber, atLa
   return (
     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
       <span style={{ ...chipBase, background: partyColor, color: '#fff', fontWeight: 600 }}>{partyLabel}</span>
-      <span style={{ ...chipBase, background: '#f0eee5', color: '#3a352b' }}>{chamber === 'house' ? 'House' : 'Senate'}</span>
+      <span style={{ ...chipBase, background: '#f0eee5', color: '#3a352b' }}>{chamber === 'federal_house' ? 'House' : 'Senate'}</span>
       <span style={{ ...chipBase, background: '#f0eee5' }}>
         <DistrictBadge chamber={chamber} stateName={stateName} districtNumber={districtNumber} atLarge={atLarge} />
       </span>

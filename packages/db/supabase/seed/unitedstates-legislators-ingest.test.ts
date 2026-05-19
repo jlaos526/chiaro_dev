@@ -24,8 +24,8 @@ beforeEach(async () => {
   await client.query(`
     insert into public.officials (bioguide_id, first_name, last_name, full_name,
       chamber, party, state, district_id, senate_class, source_version)
-    values ('P000197','Nancy','Pelosi','Nancy Pelosi','house','D','CA',$1::uuid,null,'119'),
-           ('F000062','Dianne','Feinstein','Dianne Feinstein','senate','D','CA',$1::uuid,1,'119')
+    values ('P000197','Nancy','Pelosi','Nancy Pelosi','federal_house','D','CA',$1::uuid,null,'119'),
+           ('F000062','Dianne','Feinstein','Dianne Feinstein','federal_senate','D','CA',$1::uuid,1,'119')
     on conflict (bioguide_id) do nothing
   `, [d.rows[0].id])
 })

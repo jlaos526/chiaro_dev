@@ -48,7 +48,7 @@ insert into public.districts (tier, state, code, name, geometry, source_version)
   on conflict (tier,code) do nothing;
 insert into public.officials (bioguide_id, first_name, last_name, full_name,
   chamber, party, state, district_id, senate_class, source_version)
-  select 'IAOTST1','F','T','IAO Test','house','D','CA', id, null, '119'
+  select 'IAOTST1','F','T','IAO Test','federal_house','D','CA', id, null, '119'
   from public.districts where code = 'CA-fin-iao-test'
   on conflict (bioguide_id) do nothing;
 insert into public.finance_summaries (official_id, cycle, opensecrets_id, source_url)

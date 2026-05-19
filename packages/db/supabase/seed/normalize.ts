@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export type Chamber = 'house' | 'senate'
+export type Chamber = 'federal_house' | 'federal_senate'
 export type Party = 'D' | 'R' | 'I' | 'L' | 'G' | 'ID'
 
 export interface NormalizedMember {
@@ -59,9 +59,9 @@ function buildPortraitUrl(bioguideId: string): string {
   return `https://bioguide.congress.gov/bioguide/photo/${firstLetter}/${bioguideId}.jpg`
 }
 
-function normalizeChamber(raw: string): 'house' | 'senate' {
-  if (raw === 'Senate') return 'senate'
-  if (raw === 'House of Representatives') return 'house'
+function normalizeChamber(raw: string): Chamber {
+  if (raw === 'Senate') return 'federal_senate'
+  if (raw === 'House of Representatives') return 'federal_house'
   throw new Error(`Unexpected chamber: ${raw}`)
 }
 
@@ -76,8 +76,8 @@ export function normalizeMember(raw: unknown): NormalizedMember {
     chamber,
     party: mapParty(m.partyName),
     state: m.stateCode,
-    districtNumber: chamber === 'senate' ? null : (m.district ?? null),
-    senateClass: chamber === 'senate'
+    districtNumber: chamber === 'federal_senate' ? null : (m.district ?? null),
+    senateClass: chamber === 'federal_senate'
       ? (m.senateClass === 1 || m.senateClass === 2 || m.senateClass === 3
           ? m.senateClass
           : null)
