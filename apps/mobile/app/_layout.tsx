@@ -1,9 +1,12 @@
 import { Slot, useRouter, useSegments } from 'expo-router'
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, View } from 'react-native'
-import { supabase } from '@/lib/supabase'
 import { QueryProvider } from '@/lib/query-client'
+import { ErrorBoundary, initSentry } from '@/lib/sentry'
+import { supabase } from '@/lib/supabase'
 import type { Session } from '@supabase/supabase-js'
+
+initSentry()
 
 export default function RootLayout() {
   const [session, setSession] = useState<Session | null>(null)
@@ -29,14 +32,18 @@ export default function RootLayout() {
 
   if (!loaded) {
     return (
-      <QueryProvider>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator /></View>
-      </QueryProvider>
+      <ErrorBoundary>
+        <QueryProvider>
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator /></View>
+        </QueryProvider>
+      </ErrorBoundary>
     )
   }
   return (
-    <QueryProvider>
-      <Slot />
-    </QueryProvider>
+    <ErrorBoundary>
+      <QueryProvider>
+        <Slot />
+      </QueryProvider>
+    </ErrorBoundary>
   )
 }
