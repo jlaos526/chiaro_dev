@@ -106,7 +106,7 @@ describe('fetchBill', () => {
     const bill = await fetchBill(anon, billA)
     expect(bill.subjects).toContain('Environmental protection')
     expect(bill.sponsors).toHaveLength(1)
-    expect(bill.sponsors[0].role).toBe('sponsor')
+    expect(bill.sponsors[0]!.role).toBe('sponsor')
   })
 })
 
@@ -114,7 +114,7 @@ describe('fetchBillVotes', () => {
   it('returns all votes on a bill with rep positions', async () => {
     const votes = await fetchBillVotes(anon, billA)
     expect(votes).toHaveLength(1)
-    expect(votes[0].positions[0].position).toBe('yes')
+    expect(votes[0]!.positions[0]!.position).toBe('yes')
   })
 })
 
@@ -150,6 +150,6 @@ describe('fetchOfficialVotesOnSubject', () => {
   it('joins via bill_subjects and returns rep positions on tagged bills', async () => {
     const rows = await fetchOfficialVotesOnSubject(anon, officialId, 'Environmental protection')
     expect(rows.length).toBeGreaterThanOrEqual(1)
-    expect(rows[0].position).toBe('yes')
+    expect(rows[0]!.position).toBe('yes')
   })
 })
