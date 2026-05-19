@@ -1,5 +1,5 @@
 begin;
-select plan(10);
+select plan(11);
 
 select has_column('public', 'officials', 'openstates_person_id',
   'openstates_person_id column exists');
@@ -42,6 +42,22 @@ select throws_ok(
   '23514',
   null,
   'insert with both bioguide_id and openstates_person_id violates CHECK'
+);
+
+-- Attempt insert with NEITHER bioguide_id nor openstates_person_id — should fail.
+-- Federal seed must provide bioguide_id; state seed must provide openstates_person_id.
+-- Neither-set is a programmer error.
+select throws_ok(
+  $$insert into public.officials
+    (first_name, last_name, full_name,
+     chamber, party, state, district_id, senate_class, source_version)
+    select 'X','X','X',
+           'federal_senate', 'D', 'XX',
+           id, 1, 'FK-XOR-test'
+    from public.districts where code = 'XX-FK-test'$$,
+  '23514',
+  null,
+  'insert with neither bioguide_id nor openstates_person_id violates CHECK'
 );
 
 -- Verify party CHECK is gone — insert with 'Nonpartisan' should succeed.
