@@ -35,7 +35,17 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
+  // Full cleanup so downstream suites (e.g. @chiaro/officials integration
+  // tests, when serialized under turbo's `^test` topology against a shared
+  // local Supabase) see no leftover P000197 / CA-S1-scrcrd / scorecard_orgs.
+  // Order matters: ratings reference orgs AND officials, so ratings go first.
   await client.query("delete from public.scorecard_ratings where official_id in (select id from public.officials where bioguide_id = 'P000197')")
+  await client.query("delete from public.officials where bioguide_id = 'P000197'")
+  await client.query("delete from public.districts where code = 'CA-S1-scrcrd'")
+  await client.query(
+    "delete from public.scorecard_orgs where slug = ANY($1::text[])",
+    [ADAPTERS.map(a => a.slug)],
+  )
   await client.end()
 })
 
