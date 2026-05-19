@@ -68,13 +68,13 @@ beforeAll(async () => {
 
   const { error: oErr } = await svc.from('officials').insert([
     { bioguide_id: 'P000197', first_name: 'Nancy', last_name: 'Pelosi',
-      full_name: 'Nancy Pelosi', chamber: 'house', party: 'D', state: 'CA',
+      full_name: 'Nancy Pelosi', chamber: 'federal_house', party: 'D', state: 'CA',
       district_id: districtHouseCA12, senate_class: null, source_version: '119' },
     { bioguide_id: 'F000062', first_name: 'Dianne', last_name: 'Feinstein',
-      full_name: 'Dianne Feinstein', chamber: 'senate', party: 'D', state: 'CA',
+      full_name: 'Dianne Feinstein', chamber: 'federal_senate', party: 'D', state: 'CA',
       district_id: districtSenateCA, senate_class: 1, source_version: '119' },
     { bioguide_id: 'P000145', first_name: 'Alex', last_name: 'Padilla',
-      full_name: 'Alex Padilla', chamber: 'senate', party: 'D', state: 'CA',
+      full_name: 'Alex Padilla', chamber: 'federal_senate', party: 'D', state: 'CA',
       district_id: districtSenateCA, senate_class: 3, source_version: '119' },
   ])
   expect(oErr).toBeNull()

@@ -2084,7 +2084,12 @@ export type Database = {
         | "state_house"
         | "county"
         | "place"
-      official_chamber: "house" | "senate"
+      official_chamber:
+        | "federal_house"
+        | "federal_senate"
+        | "state_house"
+        | "state_senate"
+        | "state_legislature"
       push_platform: "ios" | "android" | "web"
       vote_position: "yes" | "no" | "present" | "not_voting"
     }
@@ -2255,7 +2260,13 @@ export const Constants = {
         "county",
         "place",
       ],
-      official_chamber: ["house", "senate"],
+      official_chamber: [
+        "federal_house",
+        "federal_senate",
+        "state_house",
+        "state_senate",
+        "state_legislature",
+      ],
       push_platform: ["ios", "android", "web"],
       vote_position: ["yes", "no", "present", "not_voting"],
     },
