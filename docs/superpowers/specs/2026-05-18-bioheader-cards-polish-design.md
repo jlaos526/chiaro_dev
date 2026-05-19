@@ -1,7 +1,7 @@
 # BioHeader + Cards Polish — Design Spec
 
 **Date:** 2026-05-18
-**Status:** Design — pending plan
+**Status:** Shipped 2026-05-18 via PR #3 (`d6da6d5`)
 **Scope:** `/officials/[id]` page bio header + `MetricCardShell` N/A treatment + `CommunityPresenceCategory` chamber-gating fix
 **Predecessor:** [Officials Detail Redesign](2026-05-17-officials-detail-redesign-design.md) (slice 4.x, merged 2026-05-18 as PR #2)
 

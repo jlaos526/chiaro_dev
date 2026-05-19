@@ -1,7 +1,7 @@
 # Officials Detail Page Redesign — Design Spec
 
 **Date:** 2026-05-17
-**Status:** Design — pending plan
+**Status:** Shipped 2026-05-17 via PR #2 (`f8009c0`)
 **Scope:** `apps/web/app/officials/[id]/page.tsx` (detail page) + `apps/web/components/OfficialsCard.tsx` (home mini-strip)
 **Predecessor:** Slice 4 (`docs/superpowers/specs/2026-05-15-slice-4-bills-votes-metrics-design.md`)
 

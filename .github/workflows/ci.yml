@@ -5,6 +5,16 @@ on:
     branches: [main, master]
   pull_request:
 
+# Cancel in-progress CI runs on re-pushed branches so we don't double-spend runners
+# and race the same TIGER cache key.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Non-deploying workflow — least-privilege token.
+permissions:
+  contents: read
+
 jobs:
   db:
     runs-on: ubuntu-latest
@@ -75,6 +85,17 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Cache turbo
+        uses: actions/cache@v5
+        with:
+          path: |
+            .turbo
+            apps/*/.turbo
+            packages/*/.turbo
+          key: turbo-build-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}-${{ github.sha }}
+          restore-keys: |
+            turbo-build-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}-
+            turbo-build-${{ runner.os }}-
       - run: pnpm typecheck
       - run: pnpm build
 
@@ -120,6 +141,17 @@ jobs:
         with:
           version: latest
       - run: pnpm install --frozen-lockfile
+      - name: Cache turbo
+        uses: actions/cache@v5
+        with:
+          path: |
+            .turbo
+            apps/*/.turbo
+            packages/*/.turbo
+          key: turbo-test-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}-${{ github.sha }}
+          restore-keys: |
+            turbo-test-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}-
+            turbo-test-${{ runner.os }}-
       - name: Start Supabase
         run: pnpm db:start
       - name: Seed TIGER

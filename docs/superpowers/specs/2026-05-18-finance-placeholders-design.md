@@ -1,7 +1,7 @@
 # Finance Placeholders — Design Spec
 
 **Date:** 2026-05-18
-**Status:** Design — pending plan
+**Status:** Shipped 2026-05-18 via PR #4 (`1f73a46`)
 **Scope:** Replace the two soft-beige placeholder sub-cascades in the Finance category ("Individual Donors" and "Top Organizations") with full UI + DB + live OpenSecrets ingest. Refactor `IndustryBreakdown` into a generalized `TopAmountBreakdown` and reuse across all three Finance bar-chart sub-cascades.
 **Predecessor:** [BioHeader + Cards Polish](2026-05-18-bioheader-cards-polish-design.md) (merged 2026-05-18 as PR #3)
 
