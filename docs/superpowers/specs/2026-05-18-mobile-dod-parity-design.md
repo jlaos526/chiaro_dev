@@ -1,7 +1,7 @@
 # Mobile DoD Parity — Design Spec
 
 **Date:** 2026-05-18
-**Status:** Design — pending plan
+**Status:** Shipped 2026-05-18 via PR #5 (`2a2c2e5`). On-device DoD smoke still pending Android (need EAS APK) + iOS (need paid Apple Developer credentials).
 **Scope:** Port the entire officials-detail redesign (PR #2) + BioHeader polish (PR #3) + Finance placeholders (PR #4) to `apps/mobile/` (Expo Router, React Native), targeting Android + iOS. Delete superseded slice-4 mobile components.
 **Predecessor:** [Finance Placeholders](2026-05-18-finance-placeholders-design.md) (merged 2026-05-18 as PR #4)
 

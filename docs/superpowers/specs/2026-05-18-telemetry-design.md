@@ -1,7 +1,7 @@
 # Telemetry (Sentry) — Design Spec
 
 **Date:** 2026-05-18
-**Status:** Design — pending plan
+**Status:** Shipped 2026-05-19 via PR #6 (`4d9280e`). Operator pre-flight (Sentry org + 3 projects + GitHub/EAS/Supabase secrets) still pending — SDKs no-op until DSNs are set.
 **Scope:** Hook up Sentry error-only telemetry across all three Chiaro surfaces: `apps/web` (Next 15 / React 19), `apps/mobile` (Expo SDK 54 / RN 0.81), and `packages/db/supabase/functions/*` (Deno Edge Functions). Wire source-map upload into web + mobile builds.
 **Predecessor:** [Mobile DoD Parity](2026-05-18-mobile-dod-parity-design.md) (merged 2026-05-18 as PR #5)
 
