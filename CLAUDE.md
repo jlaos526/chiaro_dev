@@ -9,8 +9,8 @@ pnpm install                           # workspace deps; uses pnpm 9.x
 
 # Local backend
 pnpm db:start                          # boot local Supabase (port 54321; DB 54322)
-pnpm db:reset                          # apply all migrations 0001–0026
-pnpm db:test                           # pgTAP suite (228 tests across 17 files)
+pnpm db:reset                          # apply all migrations 0001–0027
+pnpm db:test                           # pgTAP suite (232 tests across 18 files)
 pnpm seed:tiger                        # ingest TIGER 2024 district geometries (~5–15 min, ~51 Census shapefiles)
 pnpm seed:officials                    # ingest federal officials from Congress.gov v3 (requires CONGRESS_GOV_API_KEY)
 
@@ -79,7 +79,7 @@ See `.env.example` files at repo root, `apps/web/`, and `apps/mobile/`.
 
 ## Testing
 
-- **pgTAP**: `pnpm db:test` → 228 tests across 17 files. Requires `pnpm db:start` and `pnpm db:reset`. Some tests (TIGER ingest assertions) require `pnpm seed:tiger` to have run first.
+- **pgTAP**: `pnpm db:test` → 232 tests across 18 files. Requires `pnpm db:start` and `pnpm db:reset`. Some tests (TIGER ingest assertions) require `pnpm seed:tiger` to have run first.
 - **Vitest**: `pnpm test` → turbo-managed, runs each package's test script. Officials/location/bills/profile integration tests need Supabase env vars exported first.
 - **CI** (`.github/workflows/ci.yml`): 4 jobs — `db` (migrations + pgTAP + 9 fixture-ingest suites: officials, legislators, bills/votes, scorecards, finance, salary-residency, town-halls, stock-watcher, recompute-metrics), `build` (Next 15 + Sentry source-map upload when secret present), `functions` (Deno tests for Edge Function + shared Sentry helper), `test` (full workspace tests). Each job boots a fresh local Supabase via `supabase/setup-cli`.
 
