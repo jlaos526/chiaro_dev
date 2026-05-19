@@ -1,6 +1,10 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, afterAll } from 'vitest'
 import { getMyLocation, getMyDistricts } from '../src/queries.ts'
-import { makeAuthedUser, makeAnonClient, makeAdminClient } from './fixtures.ts'
+import { makeAuthedUser, makeAnonClient, makeAdminClient, cleanupCreatedUsers } from './fixtures.ts'
+
+afterAll(async () => {
+  await cleanupCreatedUsers()
+})
 
 const URBAN_ADDRESS = '350 5th Ave, New York, NY 10118'
 const RURAL_ADDRESS = '1 Old Faithful Geyser Loop, Yellowstone, WY 82190'
