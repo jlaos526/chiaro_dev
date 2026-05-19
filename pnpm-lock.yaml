@@ -57,7 +57,7 @@ importers:
         specifier: ^8.11.1
         version: 8.11.1(@expo/env@2.0.11)(dotenv@16.4.7)(expo@54.0.34)(react-native@0.81.5(@babel/core@7.29.0)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
       '@supabase/supabase-js':
-        specifier: ^2.45.0
+        specifier: ^2.105.0
         version: 2.105.3
       '@tanstack/react-query':
         specifier: ^5.59.0
@@ -181,7 +181,7 @@ importers:
         specifier: ^0.10.3
         version: 0.10.3(@supabase/supabase-js@2.105.3)
       '@supabase/supabase-js':
-        specifier: ^2.45.0
+        specifier: ^2.105.0
         version: 2.105.3
       '@tanstack/react-query':
         specifier: ^5.59.0
@@ -397,7 +397,7 @@ importers:
         version: 3.25.76
     devDependencies:
       '@supabase/supabase-js':
-        specifier: ^2.45.0
+        specifier: ^2.105.0
         version: 2.105.3
       typescript:
         specifier: ^5.4.0
@@ -412,7 +412,7 @@ importers:
         specifier: workspace:*
         version: link:../db
       '@supabase/supabase-js':
-        specifier: ^2.45.0
+        specifier: ^2.105.0
         version: 2.105.3
     devDependencies:
       typescript:
