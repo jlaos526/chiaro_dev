@@ -39,13 +39,22 @@ export interface OpenStatesVoteEnvelope {
   sources: Array<{ url: string }>
 }
 
+function hasStringId(x: unknown): x is { id: string } {
+  return typeof x === 'object' && x !== null && typeof (x as { id?: unknown }).id === 'string'
+}
+
 export async function loadOpenStatesBillsDir(dir: string): Promise<OpenStatesBillEnvelope[]> {
   const files = await safeReaddir(dir)
   const out: OpenStatesBillEnvelope[] = []
   for (const file of files) {
-    const parsed = await safeParse(join(dir, file))
-    if (parsed && typeof parsed === 'object' && typeof (parsed as { id?: unknown }).id === 'string'
-        && (parsed as { id: string }).id.startsWith('ocd-bill/')) {
+    const path = join(dir, file)
+    const parsed = await safeParse(path)
+    if (parsed == null) continue
+    if (!hasStringId(parsed)) {
+      console.error(`[openstates-bills-loader] skipped ${path}: payload missing string id field`)
+      continue
+    }
+    if (parsed.id.startsWith('ocd-bill/')) {
       out.push(parsed as OpenStatesBillEnvelope)
     }
   }
@@ -56,9 +65,14 @@ export async function loadOpenStatesVotesDir(dir: string): Promise<OpenStatesVot
   const files = await safeReaddir(dir)
   const out: OpenStatesVoteEnvelope[] = []
   for (const file of files) {
-    const parsed = await safeParse(join(dir, file))
-    if (parsed && typeof parsed === 'object' && typeof (parsed as { id?: unknown }).id === 'string'
-        && (parsed as { id: string }).id.startsWith('ocd-vote/')) {
+    const path = join(dir, file)
+    const parsed = await safeParse(path)
+    if (parsed == null) continue
+    if (!hasStringId(parsed)) {
+      console.error(`[openstates-bills-loader] skipped ${path}: payload missing string id field`)
+      continue
+    }
+    if (parsed.id.startsWith('ocd-vote/')) {
       out.push(parsed as OpenStatesVoteEnvelope)
     }
   }
@@ -68,7 +82,7 @@ export async function loadOpenStatesVotesDir(dir: string): Promise<OpenStatesVot
 async function safeReaddir(dir: string): Promise<string[]> {
   try {
     const entries = await readdir(dir)
-    return entries.filter(f => /\.(ya?ml|json)$/i.test(f))
+    return entries.filter(f => /\.(ya?ml|json)$/i.test(f)).sort()
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') return []
     throw err
@@ -81,7 +95,8 @@ async function safeParse(path: string): Promise<unknown> {
     if (path.endsWith('.json')) return JSON.parse(text)
     return parseYaml(text)
   } catch (err) {
-    console.error(`[openstates-bills-loader] parse error in ${path}: ${(err as Error).message}`)
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error(`[openstates-bills-loader] parse error in ${path}: ${msg}`)
     return null
   }
 }
