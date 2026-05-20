@@ -2,11 +2,13 @@ import { COLORS } from '@chiaro/ui-tokens'
 import { ComingSoonCard, type ComingSoonCategory } from '@/components/cards/ComingSoonCard'
 import type { OfficialWithDistrict } from '@chiaro/officials'
 import type { Database } from '@chiaro/db'
+import { StateServiceRecordCard } from './StateServiceRecordCard'
 
 type DistrictOffice = Database['public']['Tables']['district_offices']['Row']
 
-const CATEGORIES: ComingSoonCategory[] = [
-  'Service Record',
+// 'Service Record' is now rendered by <StateServiceRecordCard> using real data;
+// the remaining 4 categories stay as ComingSoonCard placeholders until 5E + 5F.
+const PLACEHOLDER_CATEGORIES: ComingSoonCategory[] = [
   'Issue Positions',
   'Community Presence',
   'Finance',
@@ -94,9 +96,10 @@ export function StateOfficialDetailPage({
         </section>
       )}
 
-      {/* Category cascade — all ComingSoonCard placeholders */}
+      {/* Category cascade — real Service Record + 4 ComingSoonCard placeholders */}
       <section style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {CATEGORIES.map(cat => <ComingSoonCard key={cat} category={cat} />)}
+        <StateServiceRecordCard official={official} />
+        {PLACEHOLDER_CATEGORIES.map(cat => <ComingSoonCard key={cat} category={cat} />)}
       </section>
     </main>
   )

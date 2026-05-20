@@ -392,16 +392,19 @@ export type Database = {
           bipartisan_vote_pct: number | null
           career_bills_sponsored_count: number | null
           committee_assignment_count: number | null
+          committee_chair_count: number | null
           committee_leadership_count: number | null
           computed_at: string
           congress: string
           district_offices_count: number | null
+          fiscal_impact_total: number | null
           home_district_id: string | null
           in_state_donations_pct: number | null
           lives_in_district: boolean | null
           official_id: string
           out_of_state_donations_pct: number | null
           party_unity_pct: number | null
+          party_unity_state: number | null
           salary_role: string | null
           salary_usd: number | null
           stock_act_compliance_pct: number | null
@@ -420,16 +423,19 @@ export type Database = {
           bipartisan_vote_pct?: number | null
           career_bills_sponsored_count?: number | null
           committee_assignment_count?: number | null
+          committee_chair_count?: number | null
           committee_leadership_count?: number | null
           computed_at?: string
           congress: string
           district_offices_count?: number | null
+          fiscal_impact_total?: number | null
           home_district_id?: string | null
           in_state_donations_pct?: number | null
           lives_in_district?: boolean | null
           official_id: string
           out_of_state_donations_pct?: number | null
           party_unity_pct?: number | null
+          party_unity_state?: number | null
           salary_role?: string | null
           salary_usd?: number | null
           stock_act_compliance_pct?: number | null
@@ -448,16 +454,19 @@ export type Database = {
           bipartisan_vote_pct?: number | null
           career_bills_sponsored_count?: number | null
           committee_assignment_count?: number | null
+          committee_chair_count?: number | null
           committee_leadership_count?: number | null
           computed_at?: string
           congress?: string
           district_offices_count?: number | null
+          fiscal_impact_total?: number | null
           home_district_id?: string | null
           in_state_donations_pct?: number | null
           lives_in_district?: boolean | null
           official_id?: string
           out_of_state_donations_pct?: number | null
           party_unity_pct?: number | null
+          party_unity_state?: number | null
           salary_role?: string | null
           salary_usd?: number | null
           stock_act_compliance_pct?: number | null
@@ -824,6 +833,226 @@ export type Database = {
           srtext?: string | null
         }
         Relationships: []
+      }
+      state_bill_sponsors: {
+        Row: {
+          added_date: string | null
+          bill_id: string
+          id: string
+          official_id: string
+          role: string
+        }
+        Insert: {
+          added_date?: string | null
+          bill_id: string
+          id?: string
+          official_id: string
+          role: string
+        }
+        Update: {
+          added_date?: string | null
+          bill_id?: string
+          id?: string
+          official_id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_bill_sponsors_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "state_bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "state_bill_sponsors_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      state_bill_subjects: {
+        Row: {
+          bill_id: string
+          subject: string
+        }
+        Insert: {
+          bill_id: string
+          subject: string
+        }
+        Update: {
+          bill_id?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_bill_subjects_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "state_bills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      state_bills: {
+        Row: {
+          augmented_from: string | null
+          bill_type: string
+          created_at: string
+          fiscal_impact_amount: number | null
+          hearing_date: string | null
+          id: string
+          introduced_date: string | null
+          latest_action: string | null
+          latest_action_date: string | null
+          number: number
+          openstates_bill_id: string
+          openstates_url: string
+          party_vote_split: Json | null
+          session: string
+          source_url: string
+          state: string
+          status: string | null
+          status_substage: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          augmented_from?: string | null
+          bill_type: string
+          created_at?: string
+          fiscal_impact_amount?: number | null
+          hearing_date?: string | null
+          id?: string
+          introduced_date?: string | null
+          latest_action?: string | null
+          latest_action_date?: string | null
+          number: number
+          openstates_bill_id: string
+          openstates_url: string
+          party_vote_split?: Json | null
+          session: string
+          source_url: string
+          state: string
+          status?: string | null
+          status_substage?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          augmented_from?: string | null
+          bill_type?: string
+          created_at?: string
+          fiscal_impact_amount?: number | null
+          hearing_date?: string | null
+          id?: string
+          introduced_date?: string | null
+          latest_action?: string | null
+          latest_action_date?: string | null
+          number?: number
+          openstates_bill_id?: string
+          openstates_url?: string
+          party_vote_split?: Json | null
+          session?: string
+          source_url?: string
+          state?: string
+          status?: string | null
+          status_substage?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      state_vote_positions: {
+        Row: {
+          id: string
+          official_id: string
+          position: string
+          vote_id: string
+        }
+        Insert: {
+          id?: string
+          official_id: string
+          position: string
+          vote_id: string
+        }
+        Update: {
+          id?: string
+          official_id?: string
+          position?: string
+          vote_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_vote_positions_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "state_vote_positions_vote_id_fkey"
+            columns: ["vote_id"]
+            isOneToOne: false
+            referencedRelation: "state_votes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      state_votes: {
+        Row: {
+          bill_id: string
+          chamber: Database["public"]["Enums"]["official_chamber"]
+          created_at: string
+          id: string
+          openstates_vote_id: string
+          party_vote_split: Json | null
+          question: string
+          result: string
+          session: string
+          source_url: string
+          state: string
+          vote_date: string
+        }
+        Insert: {
+          bill_id: string
+          chamber: Database["public"]["Enums"]["official_chamber"]
+          created_at?: string
+          id?: string
+          openstates_vote_id: string
+          party_vote_split?: Json | null
+          question: string
+          result: string
+          session: string
+          source_url: string
+          state: string
+          vote_date: string
+        }
+        Update: {
+          bill_id?: string
+          chamber?: Database["public"]["Enums"]["official_chamber"]
+          created_at?: string
+          id?: string
+          openstates_vote_id?: string
+          party_vote_split?: Json | null
+          question?: string
+          result?: string
+          session?: string
+          source_url?: string
+          state?: string
+          vote_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_votes_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "state_bills"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stock_transactions: {
         Row: {

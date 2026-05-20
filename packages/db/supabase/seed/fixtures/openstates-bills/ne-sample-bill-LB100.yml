@@ -1,0 +1,22 @@
+id: ocd-bill/00000000-0000-0000-0000-00000000b003
+jurisdiction:
+  id: ocd-jurisdiction/country:us/state:ne/government
+  classification: state
+session: '109'
+identifier: 'LB 100'
+title: Test Nebraska Legislative Bill — Education Funding
+classification:
+  - bill
+subject:
+  - Education
+sponsorships:
+  - person_id: ocd-person/00000000-0000-0000-0000-000000000003
+    name: Test NE Sen
+    classification: primary
+actions:
+  - description: Introduced
+    date: '2025-01-08'
+    classification: [introduction]
+sources:
+  - url: https://nebraskalegislature.gov/bill/LB-100
+openstates_url: https://openstates.org/ne/bills/109/LB100/

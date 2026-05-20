@@ -41,6 +41,9 @@ importers:
       '@chiaro/profile':
         specifier: workspace:*
         version: link:../../packages/profile
+      '@chiaro/state-bills':
+        specifier: workspace:*
+        version: link:../../packages/state-bills
       '@chiaro/supabase-client':
         specifier: workspace:*
         version: link:../../packages/supabase-client
@@ -168,6 +171,9 @@ importers:
       '@chiaro/profile':
         specifier: workspace:*
         version: link:../../packages/profile
+      '@chiaro/state-bills':
+        specifier: workspace:*
+        version: link:../../packages/state-bills
       '@chiaro/supabase-client':
         specifier: workspace:*
         version: link:../../packages/supabase-client
@@ -399,6 +405,52 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.105.0
         version: 2.105.3
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.0.0
+        version: 2.1.9(@types/node@25.6.0)(jsdom@25.0.1)(lightningcss@1.32.0)(terser@5.46.2)
+
+  packages/state-bills:
+    dependencies:
+      '@chiaro/db':
+        specifier: workspace:*
+        version: link:../db
+      '@chiaro/officials':
+        specifier: workspace:*
+        version: link:../officials
+      '@chiaro/supabase-client':
+        specifier: workspace:*
+        version: link:../supabase-client
+      '@chiaro/ui-tokens':
+        specifier: workspace:*
+        version: link:../ui-tokens
+      '@supabase/supabase-js':
+        specifier: ^2.105.0
+        version: 2.105.3
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+    devDependencies:
+      '@tanstack/react-query':
+        specifier: ^5.59.0
+        version: 5.100.10(react@19.1.0)
+      '@testing-library/dom':
+        specifier: ^10.4.0
+        version: 10.4.1
+      '@testing-library/react':
+        specifier: ^16.0.0
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.1.11(@types/react@19.1.17))(@types/react@19.1.17)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@types/react':
+        specifier: ~19.1.17
+        version: 19.1.17
+      jsdom:
+        specifier: ^25.0.0
+        version: 25.0.1
+      react:
+        specifier: 19.1.0
+        version: 19.1.0
       typescript:
         specifier: ^5.4.0
         version: 5.9.3

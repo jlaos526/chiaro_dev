@@ -29,8 +29,16 @@ function backoffMs(attempt: number): number {
   return Math.max(0, Math.round(base + jitter))
 }
 
+function isTimeoutError(err: unknown): boolean {
+  // undici fetch + AbortController emits DOMException('This operation was aborted', 'AbortError').
+  // Node's fetch on some platforms also surfaces TimeoutError. Either way: zero bytes received.
+  if (!(err instanceof Error)) return false
+  return err.name === 'AbortError' || err.name === 'TimeoutError'
+}
+
 export async function fetchWithRetry(url: string): Promise<FetchResult> {
   let lastError = 'unknown'
+  let timeoutAttempts = 0
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     const ctrl = new AbortController()
     const timeoutId = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS)
@@ -57,11 +65,18 @@ export async function fetchWithRetry(url: string): Promise<FetchResult> {
       // AbortError (our timeout), ECONNRESET, ECONNREFUSED, ENOTFOUND, ETIMEDOUT,
       // socket hang up, etc. All transient — retry.
       lastError = err instanceof Error ? err.message : String(err)
+      if (isTimeoutError(err)) timeoutAttempts += 1
     }
 
     if (attempt < MAX_ATTEMPTS) {
       await new Promise(resolve => setTimeout(resolve, backoffMs(attempt)))
     }
+  }
+  // All attempts timed out with zero bytes received — Census's upstream is
+  // hung on this specific file. Functionally equivalent to a 404 gap; let
+  // the rest of the ingest succeed and surface this for an operator re-run.
+  if (timeoutAttempts === MAX_ATTEMPTS) {
+    return { kind: 'gap', status: 0, message: `timeout after ${MAX_ATTEMPTS} attempts: ${lastError}` }
   }
   return { kind: 'error', message: lastError, attempts: MAX_ATTEMPTS }
 }

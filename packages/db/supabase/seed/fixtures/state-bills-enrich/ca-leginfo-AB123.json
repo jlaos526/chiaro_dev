@@ -1,0 +1,11 @@
+{
+  "bill_id": "AB123",
+  "session": "20252026",
+  "status_substage": "Senate Appropriations Committee — Suspense File",
+  "hearing_date": "2025-04-12",
+  "fiscal_impact_amount": 2500000,
+  "party_vote_split": {
+    "D-yes": 12, "D-no": 0,
+    "R-yes": 8,  "R-no": 5
+  }
+}

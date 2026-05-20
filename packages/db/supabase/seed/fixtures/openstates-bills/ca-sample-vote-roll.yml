@@ -1,0 +1,13 @@
+id: ocd-vote/00000000-0000-0000-0000-00000000v001
+bill_id: ocd-bill/00000000-0000-0000-0000-00000000b002
+motion_text: On Passage as Amended
+result: passed
+start_date: '2025-03-04'
+organization:
+  classification: upper
+votes:
+  - voter_name: Test Sen
+    voter_id: ocd-person/00000000-0000-0000-0000-000000000002
+    option: yes
+sources:
+  - url: https://leginfo.legislature.ca.gov/vote/SB-45/2025-03-04

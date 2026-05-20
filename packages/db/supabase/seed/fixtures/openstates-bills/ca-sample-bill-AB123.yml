@@ -1,0 +1,26 @@
+id: ocd-bill/00000000-0000-0000-0000-00000000b001
+jurisdiction:
+  id: ocd-jurisdiction/country:us/state:ca/government
+  classification: state
+session: '20252026'
+identifier: 'AB 123'
+title: Test California Assembly Bill — Clean Air
+classification:
+  - bill
+subject:
+  - Air quality
+  - Environmental protection
+sponsorships:
+  - person_id: ocd-person/00000000-0000-0000-0000-000000000001
+    name: Test Asm
+    classification: primary
+actions:
+  - description: Introduced
+    date: '2025-01-15'
+    classification: [introduction]
+  - description: Referred to Committee
+    date: '2025-01-20'
+    classification: [committee-referral]
+sources:
+  - url: https://leginfo.legislature.ca.gov/bill/AB-123
+openstates_url: https://openstates.org/ca/bills/20252026/AB123/

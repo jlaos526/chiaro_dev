@@ -21,6 +21,7 @@ let testUserId: string
 let districtSenateCA: string
 let districtHouseCA12: string
 let districtStateHouseCA: string
+let stateAsmId: string
 
 beforeAll(async () => {
   // IMPORTANT: each Supabase client must use a distinct auth storage key.
@@ -104,6 +105,37 @@ beforeAll(async () => {
   ])
   expect(oErr).toBeNull()
 
+  // Capture the state assemblymember's id so we can attach bill + vote rows.
+  const stateAsmRow = await svc.from('officials').select('id')
+    .eq('openstates_person_id', 'ocd-person/00000000-0000-0000-0000-000000000001-int')
+    .single()
+  stateAsmId = stateAsmRow.data!.id
+
+  // Seed 1 state_bill + sponsorship + 1 state_vote + position so the slice-5D
+  // state-bills queries return real rows for this official.
+  const { data: stateBill, error: sbErr } = await svc.from('state_bills').insert({
+    openstates_bill_id: 'ocd-bill/0000-int',
+    state: 'CA', session: '20252026', bill_type: 'AB', number: 999,
+    title: 'Integration Test Bill',
+    source_url: 'https://x', openstates_url: 'https://y',
+  }).select().single()
+  expect(sbErr).toBeNull()
+
+  await svc.from('state_bill_sponsors').insert({
+    bill_id: stateBill!.id, official_id: stateAsmId, role: 'sponsor',
+  })
+
+  const { data: stateVote } = await svc.from('state_votes').insert({
+    openstates_vote_id: 'ocd-vote/0000-int',
+    bill_id: stateBill!.id, state: 'CA', session: '20252026',
+    chamber: 'state_house', vote_date: '2025-03-01',
+    question: 'On Passage', result: 'passed', source_url: 'https://x',
+  }).select().single()
+
+  await svc.from('state_vote_positions').insert({
+    vote_id: stateVote!.id, official_id: stateAsmId, position: 'yes',
+  })
+
   const { data: u, error: ue } = await svc.auth.admin.createUser({
     email: 'integration@test', email_confirm: true, password: 'test1234',
   })
@@ -127,6 +159,13 @@ afterAll(async () => {
   if (!svc) return
   // Idempotent cleanup — deletes by content filter, not by stored UUIDs, so a
   // crashed beforeAll or a stale prior run doesn't leave orphans behind.
+  // FK order: vote_positions → votes → bill_sponsors → bills → officials → districts.
+  if (stateAsmId) {
+    await svc.from('state_vote_positions').delete().eq('official_id', stateAsmId)
+    await svc.from('state_bill_sponsors').delete().eq('official_id', stateAsmId)
+  }
+  await svc.from('state_votes').delete().eq('openstates_vote_id', 'ocd-vote/0000-int')
+  await svc.from('state_bills').delete().eq('openstates_bill_id', 'ocd-bill/0000-int')
   await svc.from('officials').delete().in('bioguide_id', ['P000197', 'F000062', 'P000145'])
   // State official keyed by openstates_person_id (no bioguide_id on state rows).
   await svc.from('officials').delete().eq('openstates_person_id', 'ocd-person/00000000-0000-0000-0000-000000000001-int')
@@ -178,6 +217,15 @@ describe('fetchMyOfficials', () => {
     const officials = await fetchMyOfficials(anon)
     const pelosi = officials.find((o) => o.bioguide_id === 'P000197')!
     expect(pelosi.openstates_person_id).toBeNull()
+  })
+
+  it('state officials can read their own state_bill_sponsors via anon RLS', async () => {
+    const { data, error } = await anon.from('state_bill_sponsors')
+      .select('bill_id, role')
+      .eq('official_id', stateAsmId)
+    expect(error).toBeNull()
+    expect(data).toHaveLength(1)
+    expect(data![0]!.role).toBe('sponsor')
   })
 })
 

@@ -1,0 +1,128 @@
+import type { ChiaroClient } from '@chiaro/supabase-client'
+import type {
+  StateBillRow,
+  StateBillWithSponsors,
+  StateVoteRow,
+  StateVoteWithBill,
+  StateVoteWithPosition,
+  StateVotePositionRow,
+} from './types.ts'
+
+const SELECT_BILL_WITH_SPONSORS = `
+  *,
+  sponsors:state_bill_sponsors(*),
+  subjects:state_bill_subjects(subject)
+`
+
+export async function fetchOfficialSponsoredStateBills(
+  client: ChiaroClient,
+  officialId: string,
+): Promise<StateBillWithSponsors[]> {
+  // Two-step: find sponsor bill_ids, then fetch bills with joined sponsors+subjects.
+  const { data: bsRows, error: bsErr } = await client
+    .from('state_bill_sponsors')
+    .select('bill_id')
+    .eq('official_id', officialId)
+    .eq('role', 'sponsor')
+  if (bsErr) throw bsErr
+  if (!bsRows || bsRows.length === 0) return []
+
+  const { data, error } = await client
+    .from('state_bills')
+    .select(SELECT_BILL_WITH_SPONSORS)
+    .in('id', bsRows.map(r => r.bill_id))
+    .order('latest_action_date', { ascending: false })
+  if (error) throw error
+  return (data ?? []).map(row => normalizeBill(row as never)) as StateBillWithSponsors[]
+}
+
+export async function fetchOfficialCosponsoredStateBills(
+  client: ChiaroClient,
+  officialId: string,
+): Promise<StateBillWithSponsors[]> {
+  const { data: bsRows, error: bsErr } = await client
+    .from('state_bill_sponsors')
+    .select('bill_id')
+    .eq('official_id', officialId)
+    .eq('role', 'cosponsor')
+  if (bsErr) throw bsErr
+  if (!bsRows || bsRows.length === 0) return []
+
+  const { data, error } = await client
+    .from('state_bills')
+    .select(SELECT_BILL_WITH_SPONSORS)
+    .in('id', bsRows.map(r => r.bill_id))
+    .order('latest_action_date', { ascending: false })
+  if (error) throw error
+  return (data ?? []).map(row => normalizeBill(row as never)) as StateBillWithSponsors[]
+}
+
+export async function fetchStateBill(
+  client: ChiaroClient,
+  billId: string,
+): Promise<StateBillWithSponsors> {
+  const { data, error } = await client
+    .from('state_bills')
+    .select(SELECT_BILL_WITH_SPONSORS)
+    .eq('id', billId)
+    .single()
+  if (error) throw error
+  return normalizeBill(data as never) as StateBillWithSponsors
+}
+
+export async function fetchOfficialStateVotes(
+  client: ChiaroClient,
+  officialId: string,
+): Promise<StateVoteWithPosition[]> {
+  const { data, error } = await client
+    .from('state_vote_positions')
+    .select(`
+      position,
+      vote:state_votes!state_vote_positions_vote_id_fkey(
+        *,
+        bill:state_bills!state_votes_bill_id_fkey(id, state, session, bill_type, number, title)
+      )
+    `)
+    .eq('official_id', officialId)
+  if (error) throw error
+  // Sort client-side by vote_date desc (Supabase can't order via joined column reliably).
+  const rows = (data ?? []).map(row => ({
+    vote: (row as { vote: StateVoteWithBill }).vote,
+    position: (row as { position: StateVotePositionRow['position'] }).position,
+  }))
+  rows.sort((a, b) => (b.vote.vote_date < a.vote.vote_date ? -1 : 1))
+  return rows as StateVoteWithPosition[]
+}
+
+export async function fetchOfficialMissedStateVotes(
+  client: ChiaroClient,
+  officialId: string,
+): Promise<StateVoteWithPosition[]> {
+  const all = await fetchOfficialStateVotes(client, officialId)
+  return all.filter(v => v.position === 'not_voting' || v.position === 'abstain')
+}
+
+export async function fetchStateBillVotes(
+  client: ChiaroClient,
+  billId: string,
+): Promise<StateVoteRow[]> {
+  const { data, error } = await client
+    .from('state_votes')
+    .select('*')
+    .eq('bill_id', billId)
+    .order('vote_date', { ascending: false })
+  if (error) throw error
+  return (data ?? []) as StateVoteRow[]
+}
+
+// Internal helper: normalize the joined Supabase result into StateBillWithSponsors shape.
+function normalizeBill(row: StateBillRow & {
+  sponsors: unknown[]
+  subjects: { subject: string }[]
+}): StateBillWithSponsors {
+  return {
+    ...row,
+    sponsors: row.sponsors as StateBillWithSponsors['sponsors'],
+    subjects: (row.subjects ?? []).map(s => s.subject),
+  }
+}
