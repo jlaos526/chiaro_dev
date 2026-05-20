@@ -13,6 +13,7 @@ pnpm db:reset                          # apply all migrations 0001–0029
 pnpm db:test                           # pgTAP suite (250 tests across 20 files)
 pnpm seed:tiger                        # ingest TIGER 2024 district geometries (~5–15 min, ~51 Census shapefiles)
 pnpm seed:officials                    # ingest federal officials from Congress.gov v3 (requires CONGRESS_GOV_API_KEY)
+pnpm seed:state-officials              # ingest state legislators from openstates/people YAML repo (no API key)
 
 # App dev
 pnpm --filter @chiaro/web dev          # Next.js on http://localhost:3000
