@@ -15,6 +15,7 @@
     "@chiaro/location": "workspace:*",
     "@chiaro/officials": "workspace:*",
     "@chiaro/profile": "workspace:*",
+    "@chiaro/state-bills": "workspace:*",
     "@chiaro/supabase-client": "workspace:*",
     "@chiaro/ui-tokens": "workspace:*",
     "@sentry/nextjs": "^10.53.1",

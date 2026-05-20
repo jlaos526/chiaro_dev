@@ -168,6 +168,9 @@ importers:
       '@chiaro/profile':
         specifier: workspace:*
         version: link:../../packages/profile
+      '@chiaro/state-bills':
+        specifier: workspace:*
+        version: link:../../packages/state-bills
       '@chiaro/supabase-client':
         specifier: workspace:*
         version: link:../../packages/supabase-client
