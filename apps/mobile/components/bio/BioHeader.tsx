@@ -33,6 +33,7 @@ export function BioHeader(p: BioHeaderProps) {
         party={p.party}
         chamber={p.chamber}
         stateName={p.stateName}
+        stateAbbrev={p.state}
         districtNumber={p.districtNumber}
         atLarge={p.atLarge}
       />

@@ -7,6 +7,8 @@ import { OfficialAvatar } from './OfficialAvatar'
 import { DistrictBadge } from './cards/DistrictBadge'
 import { AlignmentChip } from './cards/AlignmentChip'
 import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
+import { groupOfficialsByLevel } from '@/lib/derivations/officials-by-level'
+import { StateOfficialsCardSection } from './state/StateOfficialsCardSection'
 
 const STATE_NAMES: Record<string, string> = {
   AL:'Alabama', AK:'Alaska', AZ:'Arizona', AR:'Arkansas', CA:'California', CO:'Colorado', CT:'Connecticut',
@@ -50,8 +52,9 @@ function OfficialRow({ o }: { o: OfficialWithDistrict }) {
             <Text style={{ fontWeight: '600', fontSize: 15, color: '#1a1714' }}>{o.full_name}</Text>
           </Pressable>
           <DistrictBadge
-            chamber={o.chamber as 'federal_house' | 'federal_senate'}
+            chamber={o.chamber}
             stateName={stateName}
+            stateAbbrev={o.state}
             districtNumber={o.chamber === 'federal_house' ? districtNumber : null}
             atLarge={o.chamber === 'federal_house' && atLarge}
           />
@@ -83,10 +86,28 @@ export function OfficialsCard() {
   if (error) return <Text>Failed to load officials.</Text>
   if (!data || data.length === 0) return <Text>No officials yet — calibrate your address.</Text>
 
+  const { federal, state } = groupOfficialsByLevel(data)
+
   return (
     <View style={{ padding: 16, backgroundColor: '#f7f5ef', borderRadius: 8 }}>
       <Text style={{ fontSize: 16, fontWeight: '700', color: '#1a1714', marginBottom: 10 }}>Your officials</Text>
-      {data.map(o => <OfficialRow key={o.id} o={o} />)}
+      {federal.length > 0 && (
+        <View testID="federal-section">
+          <Text
+            style={{
+              fontSize: 14,
+              fontWeight: '700',
+              textTransform: 'uppercase',
+              color: '#666',
+              marginBottom: 12,
+            }}
+          >
+            Federal
+          </Text>
+          {federal.map(o => <OfficialRow key={o.id} o={o} />)}
+        </View>
+      )}
+      <StateOfficialsCardSection officials={state} />
       <Pressable onPress={() => router.push('/officials')}>
         <Text style={{ fontSize: 14, color: '#3b6ed1', marginTop: 10 }}>See all officials →</Text>
       </Pressable>
