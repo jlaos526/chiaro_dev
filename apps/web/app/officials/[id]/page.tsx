@@ -4,6 +4,7 @@ import { BioHeader } from '@/components/bio/BioHeader'
 import { PerformanceSection } from '@/components/performance/PerformanceSection'
 import { firstElectedYear as deriveFirstElectedYear } from '@/lib/derivations/service-record'
 import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
+import { isStateLevel } from '@chiaro/officials'
 import type { Database } from '@chiaro/db'
 
 interface Params { id: string }
@@ -81,6 +82,9 @@ export default async function OfficialPage(
     .eq('id', id)
     .single<OfficialRow>()
   if (!official) redirect('/')
+
+  // Cross-route guard: state IDs land on /state-officials/[id]
+  if (isStateLevel(official.chamber)) redirect(`/state-officials/${id}`)
 
   // Parallel fetch: district code + leadership history + scorecard ratings.
   const [districtRes, leadershipRes, scorecardsRes] = await Promise.all([
