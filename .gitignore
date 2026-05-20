@@ -37,6 +37,10 @@ dist/
 # Claude Code worktrees (per-machine, not shared)
 .claude/worktrees/
 
+# Claude Code per-user settings + runtime artifacts (not shared)
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
 # Superpowers brainstorm artifacts (per-machine, not shared)
 .superpowers/
 
