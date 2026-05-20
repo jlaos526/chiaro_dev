@@ -1,0 +1,22 @@
+id: ocd-bill/00000000-0000-0000-0000-00000000b002
+jurisdiction:
+  id: ocd-jurisdiction/country:us/state:ca/government
+  classification: state
+session: '20252026'
+identifier: 'SB 45'
+title: Test California Senate Bill — Public Safety
+classification:
+  - bill
+subject:
+  - Public safety
+sponsorships:
+  - person_id: ocd-person/00000000-0000-0000-0000-000000000002
+    name: Test Sen
+    classification: primary
+actions:
+  - description: Introduced
+    date: '2025-01-10'
+    classification: [introduction]
+sources:
+  - url: https://leginfo.legislature.ca.gov/bill/SB-45
+openstates_url: https://openstates.org/ca/bills/20252026/SB45/
