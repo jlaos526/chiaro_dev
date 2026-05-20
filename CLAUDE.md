@@ -9,8 +9,8 @@ pnpm install                           # workspace deps; uses pnpm 9.x
 
 # Local backend
 pnpm db:start                          # boot local Supabase (port 54321; DB 54322)
-pnpm db:reset                          # apply all migrations 0001–0027
-pnpm db:test                           # pgTAP suite (232 tests across 18 files)
+pnpm db:reset                          # apply all migrations 0001–0029
+pnpm db:test                           # pgTAP suite (250 tests across 20 files)
 pnpm seed:tiger                        # ingest TIGER 2024 district geometries (~5–15 min, ~51 Census shapefiles)
 pnpm seed:officials                    # ingest federal officials from Congress.gov v3 (requires CONGRESS_GOV_API_KEY)
 
@@ -54,6 +54,7 @@ Dependency direction is strict — see Gotchas #4.
 - **Slice 5 mobile DoD parity** (2026-05-18, PR #5 `2a2c2e5`): port officials-detail redesign + bio polish + finance placeholders to RN. On-device DoD smoke still pending devices.
 - **Slice 5B — Sentry telemetry** (2026-05-19, PR #6 `4d9280e`): error-only Sentry across web (`@sentry/nextjs@10`) + mobile (`@sentry/react-native@8`) + edge (`npm:@sentry/deno@8`) with PII scrubbing (recursive `/^address/i` redaction, WeakSet cycle guard).
 - **Test hygiene follow-ups** (2026-05-19): scorecards producer-side cleanup (PR #7 `65b2165`), 3 inert district leaks in stock-watcher/town-halls/recompute-metrics (PR #8 `cf6eb05`).
+- **Sub-slice 5C — state officials identity** (2026-05-19): OpenStates ingest of US state legislators (state house + state senate + NE unicameral) via the `openstates/people` GitHub YAML repo. Calibrated users see state reps alongside federal on home + new `/state-officials/[id]` route with 5 federal-only categories rendered as `ComingSoonCard` placeholders. Migrations 0028 (chamber enum 5-value expand) + 0029 (openstates_person_id + district_code + title columns, party CHECK relaxed). 19 new pgTAP plans across 2 new files + ~60 new vitest cases.
 
 Specs live in `docs/superpowers/specs/`. Plans in `docs/superpowers/plans/`. Audits in `docs/superpowers/audits/`. Mobile DoD checklist at `docs/superpowers/mobile-dod-checklist.md`.
 
@@ -79,7 +80,7 @@ See `.env.example` files at repo root, `apps/web/`, and `apps/mobile/`.
 
 ## Testing
 
-- **pgTAP**: `pnpm db:test` → 232 tests across 18 files. Requires `pnpm db:start` and `pnpm db:reset`. Some tests (TIGER ingest assertions) require `pnpm seed:tiger` to have run first.
+- **pgTAP**: `pnpm db:test` → 250 tests across 20 files. Requires `pnpm db:start` and `pnpm db:reset`. Some tests (TIGER ingest assertions) require `pnpm seed:tiger` to have run first.
 - **Vitest**: `pnpm test` → turbo-managed, runs each package's test script. Officials/location/bills/profile integration tests need Supabase env vars exported first.
 - **CI** (`.github/workflows/ci.yml`): 4 jobs — `db` (migrations + pgTAP + 9 fixture-ingest suites: officials, legislators, bills/votes, scorecards, finance, salary-residency, town-halls, stock-watcher, recompute-metrics), `build` (Next 15 + Sentry source-map upload when secret present), `functions` (Deno tests for Edge Function + shared Sentry helper), `test` (full workspace tests). Each job boots a fresh local Supabase via `supabase/setup-cli`.
 
@@ -98,6 +99,16 @@ See `.env.example` files at repo root, `apps/web/`, and `apps/mobile/`.
 6. **TIGER seed is a prerequisite for full pgTAP green** — `pnpm db:reset` alone leaves `tiger_ingest.test.sql` tests failing (it `plan(7)`s row-count assertions that require TIGER data). CI's `db` job runs `seed:tiger` before `db:test`. Locally, expect up to 7 failures in that file unless you also ran `seed:tiger`.
 
 7. **`pnpm test` not `pnpm -r test`** — `pnpm -r test` runs packages in parallel and races on the shared local Supabase, causing intermittent failures (e.g., the ingest happy-path's deactivation sweeps officials seeded by a parallel test). The canonical command is `pnpm test`, which goes through turbo and respects `^test` topological serialization (see `turbo.json`). If you must use pnpm-recursive directly: `pnpm -r --workspace-concurrency=1 test`.
+
+8. **State-legislator data sources have known quirks** —
+   - **OpenStates `openstates/people` GitHub YAML repo is the source of truth**, not the v3 API. Free, no rate limits, audit trail via git diffs.
+   - **NE is unicameral**: chamber=`state_legislature`, party often `Nonpartisan`. The state_senate UI label still says "State Senator" by design.
+   - **MD multi-member districts** (1A/1B/1C): all delegates share the same `district_id` (matched to `MD-01` via `state-leg-config.ts`). Multiple officials per district is legitimate.
+   - **NH multi-word district codes** (e.g. "Rockingham 5") aren't normalizable to TIGER `STATE-N` format — `state-leg-config.ts` returns null, ingest logs to `stats.unmatchedDistricts` + skips. Documented as a known limitation.
+   - **AK uses letter-only districts** (`A`, `B`...): code is `AK-<letter>`, not zero-padded.
+   - **Party values** are no longer CHECK-constrained as of migration 0029 — state legislators include Nonpartisan (NE), DFL (MN), Working Families, Progressive (VT), and minor parties.
+   - **DC + territories** (Guam, USVI, NMI, AS) are NOT covered by OpenStates and intentionally skipped.
+   - **`district_tier` enum does NOT include `state_legislature`** — only `official_chamber` was expanded in migration 0028. NE district rows live under `state_senate` tier (matching TIGER's natural representation), and the officials table holds `chamber='state_legislature'`. Bridge logic lives in `state-officials-ingest.ts`.
 
 ## Code style
 
