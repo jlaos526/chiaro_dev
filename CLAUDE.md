@@ -80,6 +80,7 @@ Specs live in `docs/superpowers/specs/`. Plans in `docs/superpowers/plans/`. Aud
 | `EXPO_PUBLIC_SENTRY_DSN_MOBILE` | Mobile Sentry init | Public-by-design. Active in dev-client / preview / production builds, NOT Expo Go. |
 | `SENTRY_DSN_EDGE` | Edge Function Sentry init via `withSentry` wrapper | Set as Supabase secret. SDK no-ops if absent. |
 | `NY_SENATE_API_KEY` | `pnpm seed:state-bills-enrich` (NY adapter) | Free signup at legislation.nysenate.gov/keyOptions. Server-side only. Optional — NY augment skipped gracefully without it. |
+| `OPENSTATES_API_KEY` | `pnpm seed:openstates-v3-fetch` | Free signup at openstates.org/accounts/profile (500 req/day). Server-side only. Required by the v3 fetcher; the loader/orchestrator runs fine without it (uses pre-populated cache dir or fixtures). |
 
 See `.env.example` files at repo root, `apps/web/`, and `apps/mobile/`.
 
@@ -116,7 +117,7 @@ See `.env.example` files at repo root, `apps/web/`, and `apps/mobile/`.
    - **`district_tier` enum does NOT include `state_legislature`** — only `official_chamber` was expanded in migration 0028. NE district rows live under `state_senate` tier (matching TIGER's natural representation), and the officials table holds `chamber='state_legislature'`. Bridge logic lives in `state-officials-ingest.ts`.
 
 9. **State bills + votes data sources have known quirks** —
-   - **OpenStates v3 API at https://v3.openstates.org/bills is the baseline source for 50 states** (slice 5D Task 1 source pin). The `openstates/data` GitHub repo doesn't exist; the `open.pluralpolicy.com` bulk endpoint is paywalled. Free tier rate-limited to 500/day — production ingest needs on-disk caching. Re-runnable via `pnpm seed:state-bills-votes`. Loader at `openstates-bills-loader.ts` accepts JSON (production) or YAML (test fixtures).
+   - **OpenStates v3 API at https://v3.openstates.org/bills is the baseline source for 50 states** (slice 5D Task 1 source pin). The `openstates/data` GitHub repo doesn't exist; the `open.pluralpolicy.com` bulk endpoint is paywalled. Free tier rate-limited to 500/day. Production fetch + 7-day on-disk cache lives in `seed/openstates-v3-fetch.ts` (`pnpm seed:openstates-v3-fetch --state=XX --session=YYYY [--force]`). Cache writes one JSON per bill to `packages/db/supabase/seed/.cache/openstates/` (gitignored). Then `OPENSTATES_BILLS_DATA_DIR=…/.cache/openstates pnpm seed:state-bills-votes` ingests from cache. Loader at `openstates-bills-loader.ts` accepts JSON (production cache) or YAML (test fixtures); same dir-walker for both. **v1 fetches bills only — vote envelopes deferred to a follow-up.**
    - **5 states get per-state-API augment** (CA leginfo, NY senate, FL Senate+House, TX capitol, MI legislature). Adapter pattern under `packages/db/supabase/seed/state-bills/enrich-*.ts`. Each adapter isolated — one failure doesn't abort others.
    - **NY requires `NY_SENATE_API_KEY`** env var. Adapter skips gracefully (with `skipReason`) without it.
    - **`session` field is text — format varies per state**: CA `'20252026'` (biennial), NY `'2025'` (annual), MD `'2025rs'` (regular session suffix), TX `'89R'` (legislature-numbered), MI `'2025-2026'`. Don't normalize — preserve raw.
