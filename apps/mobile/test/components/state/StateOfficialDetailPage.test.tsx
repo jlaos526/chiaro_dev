@@ -1,6 +1,38 @@
 import { render } from '@testing-library/react-native'
-import { StateOfficialDetailPage } from '@/components/state/StateOfficialDetailPage'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import type { ReactNode } from 'react'
 import type { OfficialWithDistrict } from '@chiaro/officials'
+
+// Mocks must be declared before the component import.
+// Avoid loading apps/mobile/lib/supabase which pulls in AsyncStorage native module.
+jest.mock('@/lib/supabase', () => ({
+  supabase: {} as unknown,
+}))
+
+jest.mock('@chiaro/state-bills', () => {
+  const actual = jest.requireActual('@chiaro/state-bills')
+  return {
+    ...actual,
+    useOfficialSponsoredStateBills: () => ({ data: [], isLoading: false, isSuccess: true }),
+    useOfficialCosponsoredStateBills: () => ({ data: [], isLoading: false, isSuccess: true }),
+    useOfficialStateVotes: () => ({ data: [], isLoading: false, isSuccess: true }),
+  }
+})
+
+jest.mock('@chiaro/officials', () => {
+  const actual = jest.requireActual('@chiaro/officials')
+  return {
+    ...actual,
+    useOfficialMetrics: () => ({ data: null, isLoading: false, isSuccess: true }),
+  }
+})
+
+import { StateOfficialDetailPage } from '@/components/state/StateOfficialDetailPage'
+
+function wrap({ children }: { children: ReactNode }) {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+}
 
 function mkState(overrides: Partial<OfficialWithDistrict> = {}): OfficialWithDistrict {
   return {
@@ -17,15 +49,23 @@ function mkState(overrides: Partial<OfficialWithDistrict> = {}): OfficialWithDis
 
 describe('mobile StateOfficialDetailPage', () => {
   it('renders bio header with name + party + district', () => {
-    const { getByText } = render(<StateOfficialDetailPage official={mkState()} offices={[]} />)
+    const { getByText, getAllByText } = render(
+      <StateOfficialDetailPage official={mkState()} offices={[]} />,
+      { wrapper: wrap },
+    )
     expect(getByText('Test Asm')).toBeTruthy()
-    expect(getByText(/Democratic/)).toBeTruthy()
+    // Party + chamber render in both bio header AND Service Record header.
+    expect(getAllByText(/Democratic/).length).toBeGreaterThanOrEqual(1)
     expect(getByText(/CA-15/)).toBeTruthy()
   })
 
-  it('renders 5 ComingSoonCard placeholders', () => {
-    const { getAllByText } = render(<StateOfficialDetailPage official={mkState()} offices={[]} />)
+  it('renders Service Record + 4 ComingSoonCard placeholders', () => {
+    const { getAllByText } = render(
+      <StateOfficialDetailPage official={mkState()} offices={[]} />,
+      { wrapper: wrap },
+    )
     // Anchor matching to avoid Finance body copy double-matching (Task 10 tightened this).
+    // 'Service Record' is now rendered by <StateServiceRecordCard>; the remaining 4 are placeholders.
     const titles = [
       'Service Record',
       'Issue Positions',
@@ -44,7 +84,10 @@ describe('mobile StateOfficialDetailPage', () => {
       city: 'Sacramento', state: 'CA', zip: null, phone: '555-0100',
       source_url: 'https://openstates.org/',
     }]
-    const { getByText } = render(<StateOfficialDetailPage official={mkState()} offices={offices as never} />)
+    const { getByText } = render(
+      <StateOfficialDetailPage official={mkState()} offices={offices as never} />,
+      { wrapper: wrap },
+    )
     expect(getByText(/1 Capitol/)).toBeTruthy()
     expect(getByText('555-0100')).toBeTruthy()
   })
@@ -52,14 +95,21 @@ describe('mobile StateOfficialDetailPage', () => {
   it('NE state_legislature renders chamber as State Senator', () => {
     const ne = mkState({ chamber: 'state_legislature', state: 'NE', title: 'Senator',
       district: { id: 'did', tier: 'state_legislature' as never, state: 'NE', code: 'NE-23', name: 'NE District 23' } })
-    const { getByText } = render(<StateOfficialDetailPage official={ne} offices={[]} />)
-    expect(getByText(/State Senator/)).toBeTruthy()
+    const { getAllByText } = render(
+      <StateOfficialDetailPage official={ne} offices={[]} />,
+      { wrapper: wrap },
+    )
+    // Bio header + Service Record header both render "State Senator".
+    expect(getAllByText(/State Senator/).length).toBeGreaterThanOrEqual(1)
   })
 
   it('multi-member district shows district code', () => {
     const md = mkState({ state: 'MD', district_code: '1A', title: 'Delegate',
       district: { id: 'did', tier: 'state_house', state: 'MD', code: 'MD-01', name: 'MD HD 01' } })
-    const { getByText } = render(<StateOfficialDetailPage official={md} offices={[]} />)
+    const { getByText } = render(
+      <StateOfficialDetailPage official={md} offices={[]} />,
+      { wrapper: wrap },
+    )
     expect(getByText(/Delegate/)).toBeTruthy()
     expect(getByText(/MD-01/)).toBeTruthy()
   })
