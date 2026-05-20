@@ -4,8 +4,9 @@ import { DistrictBadge } from '@/components/cards/DistrictBadge'
 
 export interface BioIdentityRowProps {
   party: string
-  chamber: 'house' | 'senate'
+  chamber: 'federal_house' | 'federal_senate'
   stateName: string
+  stateAbbrev: string
   districtNumber: number | null
   atLarge: boolean
 }
@@ -15,7 +16,7 @@ const chipBase = {
   borderRadius: 12,
 }
 
-export function BioIdentityRow({ party, chamber, stateName, districtNumber, atLarge }: BioIdentityRowProps) {
+export function BioIdentityRow({ party, chamber, stateName, stateAbbrev, districtNumber, atLarge }: BioIdentityRowProps) {
   const partyColor = PARTY_COLOR[party as keyof typeof PARTY_COLOR] ?? '#807a72'
   const partyLabel = PARTY_SHORT[party as keyof typeof PARTY_SHORT] ?? party
   return (
@@ -24,10 +25,10 @@ export function BioIdentityRow({ party, chamber, stateName, districtNumber, atLa
         <Text style={{ color: '#fff', fontWeight: '600', fontSize: 12 }}>{partyLabel}</Text>
       </View>
       <View style={[chipBase, { backgroundColor: '#f0eee5' }]}>
-        <Text style={{ color: '#3a352b', fontSize: 12 }}>{chamber === 'house' ? 'House' : 'Senate'}</Text>
+        <Text style={{ color: '#3a352b', fontSize: 12 }}>{chamber === 'federal_house' ? 'House' : 'Senate'}</Text>
       </View>
       <View style={[chipBase, { backgroundColor: '#f0eee5' }]}>
-        <DistrictBadge chamber={chamber} stateName={stateName} districtNumber={districtNumber} atLarge={atLarge} />
+        <DistrictBadge chamber={chamber} stateName={stateName} stateAbbrev={stateAbbrev} districtNumber={districtNumber} atLarge={atLarge} />
       </View>
     </View>
   )

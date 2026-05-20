@@ -106,7 +106,7 @@ select throws_ok(
 );
 select throws_ok(
   $$ insert into public.officials_leadership_history (official_id, role, chamber, start_date, source_url)
-       values ('00000000-0000-0000-0000-000000000001','Whip','senate','2023-01-01','https://x') $$,
+       values ('00000000-0000-0000-0000-000000000001','Whip','federal_senate','2023-01-01','https://x') $$,
   '42501', null,
   'anon cannot INSERT into officials_leadership_history'
 );

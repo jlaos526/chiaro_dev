@@ -43,7 +43,7 @@ async function main(): Promise<void> {
   } else {
     const fallback = await client.query<Target>(
       `select id, bioguide_id, full_name, state, district_id, chamber::text
-         from public.officials where chamber = 'house' and in_office = true
+         from public.officials where chamber = 'federal_house' and in_office = true
          order by bioguide_id asc limit 1`,
     )
     target = fallback.rows[0]
@@ -288,7 +288,7 @@ async function main(): Promise<void> {
          stock_act_disclosures_late = excluded.stock_act_disclosures_late,
          stock_act_compliance_pct = excluded.stock_act_compliance_pct,
          computed_at = now()`,
-      [target.id, target.chamber === 'house', target.district_id],
+      [target.id, target.chamber === 'federal_house', target.district_id],
     )
     console.log(`  ✓ official_metrics scalar rollup`)
 

@@ -35,7 +35,7 @@ select ok(
 set local role anon;
 select throws_ok(
   $$ insert into public.votes (congress, chamber, session, roll_call, vote_date, question, result, source_url)
-     values ('119','house',1,1,'2026-01-01','test','Failed','https://example.gov/v1') $$,
+     values ('119','federal_house',1,1,'2026-01-01','test','Failed','https://example.gov/v1') $$,
   '42501', null,
   'anon cannot INSERT into votes'
 );
@@ -44,7 +44,7 @@ reset role;
 set local role service_role;
 select lives_ok(
   $$ insert into public.votes (congress, chamber, session, roll_call, vote_date, question, result, source_url)
-     values ('119','house',1,1,'2026-01-01','test','Failed','https://example.gov/v1') $$,
+     values ('119','federal_house',1,1,'2026-01-01','test','Failed','https://example.gov/v1') $$,
   'service_role can INSERT into votes'
 );
 reset role;

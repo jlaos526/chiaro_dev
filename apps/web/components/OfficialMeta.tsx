@@ -5,9 +5,9 @@ interface Props {
 }
 
 export function OfficialMeta({ official }: Props) {
-  const chamberLabel = official.chamber === 'house' ? 'House' : 'Senate'
+  const chamberLabel = official.chamber === 'federal_house' ? 'House' : 'Senate'
   const districtSuffix =
-    official.chamber === 'house'
+    official.chamber === 'federal_house'
       ? ` · ${official.district.code}`
       : ` · ${official.state}`
   const term = official.next_election

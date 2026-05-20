@@ -1,0 +1,21 @@
+id: ocd-person/00000000-0000-0000-0000-000000000001
+name: Test Asm
+given_name: Test
+family_name: Asm
+party:
+  - name: Democratic
+image: https://example.com/asm.jpg
+email: asm@example.test
+roles:
+  - type: lower
+    jurisdiction: ocd-jurisdiction/country:us/state:ca/government
+    district: '15'
+    title: Assemblymember
+    start_date: '2024-12-02'
+    end_date: '2026-12-01'
+offices:
+  - classification: capitol
+    address: 1 Capitol, Sacramento CA
+    voice: 555-0100
+links:
+  - url: https://a15.asmdc.org/

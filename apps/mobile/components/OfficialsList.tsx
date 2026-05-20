@@ -15,8 +15,8 @@ export function OfficialsList() {
     return <Link href="/calibrate"><Text>Calibrate your address</Text></Link>
   }
 
-  const senate = data.filter((o) => o.chamber === 'senate')
-  const house  = data.filter((o) => o.chamber === 'house')
+  const senate = data.filter((o) => o.chamber === 'federal_senate')
+  const house  = data.filter((o) => o.chamber === 'federal_house')
 
   return (
     <View>

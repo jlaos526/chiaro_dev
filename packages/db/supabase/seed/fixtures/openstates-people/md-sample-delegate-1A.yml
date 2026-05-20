@@ -1,0 +1,13 @@
+id: ocd-person/00000000-0000-0000-0000-000000000004
+name: Test Del 1A
+given_name: Test
+family_name: One-A
+party:
+  - name: Democratic
+roles:
+  - type: lower
+    jurisdiction: ocd-jurisdiction/country:us/state:md/government
+    district: 1A
+    title: Delegate
+    start_date: '2023-01-11'
+    end_date: '2027-01-13'

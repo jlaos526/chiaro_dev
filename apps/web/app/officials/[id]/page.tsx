@@ -4,6 +4,7 @@ import { BioHeader } from '@/components/bio/BioHeader'
 import { PerformanceSection } from '@/components/performance/PerformanceSection'
 import { firstElectedYear as deriveFirstElectedYear } from '@/lib/derivations/service-record'
 import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
+import { isStateLevel } from '@chiaro/officials'
 import type { Database } from '@chiaro/db'
 
 interface Params { id: string }
@@ -29,7 +30,7 @@ interface DistrictParts {
 }
 
 function parseDistrictCode(chamber: OfficialRow['chamber'], code: string | null | undefined): DistrictParts {
-  if (chamber !== 'house' || !code) return { districtNumber: null, atLarge: false }
+  if (chamber !== 'federal_house' || !code) return { districtNumber: null, atLarge: false }
   // House codes: STATE-XX (zero-padded number) or STATE-AL (at-large)
   const suffix = code.split('-')[1]
   if (!suffix) return { districtNumber: null, atLarge: false }
@@ -52,7 +53,9 @@ function deriveBioProps(input: BuildBioInput) {
     fullName: official.full_name,
     portraitUrl: official.portrait_url,
     party: official.party,
-    chamber: official.chamber,
+    // BioHeader is federal-only — slice-3 only loads federal officials.
+    // State officials get their own detail route + components later in slice-5C.
+    chamber: official.chamber as 'federal_house' | 'federal_senate',
     state: official.state,
     stateName: STATE_NAMES[official.state] ?? official.state,
     districtNumber,
@@ -80,6 +83,9 @@ export default async function OfficialPage(
     .single<OfficialRow>()
   if (!official) redirect('/')
 
+  // Cross-route guard: state IDs land on /state-officials/[id]
+  if (isStateLevel(official.chamber)) redirect(`/state-officials/${id}`)
+
   // Parallel fetch: district code + leadership history + scorecard ratings.
   const [districtRes, leadershipRes, scorecardsRes] = await Promise.all([
     supabase
@@ -103,7 +109,7 @@ export default async function OfficialPage(
   const scorecards = scorecardsRes.data ?? []
   const chips = selectTopAlignmentChips(scorecards as Parameters<typeof selectTopAlignmentChips>[0])
   const currentRole = leadershipRows.find((r) => r.end_date == null)?.role
-    ?? (official.chamber === 'house' ? 'Representative' : 'Senator')
+    ?? (official.chamber === 'federal_house' ? 'Representative' : 'Senator')
   const firstElectedYearValue = deriveFirstElectedYear(leadershipRows)
 
   const bioProps = deriveBioProps({
@@ -116,7 +122,7 @@ export default async function OfficialPage(
   return (
     <main>
       <BioHeader officialId={official.id} {...bioProps} chips={chips} />
-      <PerformanceSection officialId={id} chamber={official.chamber as 'house' | 'senate'} />
+      <PerformanceSection officialId={id} chamber={official.chamber as 'federal_house' | 'federal_senate'} />
     </main>
   )
 }

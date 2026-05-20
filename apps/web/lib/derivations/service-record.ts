@@ -30,8 +30,8 @@ export function tenureByChamber(rows: ReadonlyArray<LeadershipRow>): TenureByCha
   for (const r of rows) {
     const end = r.end_date ?? now
     const years = yearsBetween(r.start_date, end)
-    if (r.chamber === 'house') acc.house += years
-    else if (r.chamber === 'senate') acc.senate += years
+    if (r.chamber === 'federal_house') acc.house += years
+    else if (r.chamber === 'federal_senate') acc.senate += years
   }
   return {
     house:  Math.round(acc.house * 10) / 10,

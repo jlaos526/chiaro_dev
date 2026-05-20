@@ -1,0 +1,18 @@
+id: ocd-person/00000000-0000-0000-0000-000000000002
+name: Test Sen
+given_name: Test
+family_name: Sen
+party:
+  - name: Republican
+image: https://example.com/sen.jpg
+roles:
+  - type: upper
+    jurisdiction: ocd-jurisdiction/country:us/state:ca/government
+    district: '8'
+    title: Senator
+    start_date: '2024-12-02'
+    end_date: '2028-12-01'
+offices:
+  - classification: capitol
+    address: 1 Capitol, Sacramento CA
+    voice: 555-0200

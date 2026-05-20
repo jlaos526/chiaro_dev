@@ -139,8 +139,8 @@ async function ensureFixtures() {
 // ---- fetcher dispatch ------------------------------------------------------
 
 function fetcherFor(houseFile: string, senateFile: string) {
-  return async (chamber: 'house' | 'senate', _c: string, _k: string) => {
-    const j = await loadFixture(chamber === 'house' ? houseFile : senateFile)
+  return async (chamber: 'federal_house' | 'federal_senate', _c: string, _k: string) => {
+    const j = await loadFixture(chamber === 'federal_house' ? houseFile : senateFile)
     const { normalizeMember } = await import('./normalize.ts')
     return j.members.map(normalizeMember)
   }
@@ -378,9 +378,9 @@ describe('officials-ingest — transaction atomicity (Improvement 4)', () => {
     // ONE senate record with senateClass=null. That violates the
     // senate_class_matches_chamber CHECK during the upsert loop, AFTER the
     // house chamber has been written, forcing ROLLBACK.
-    const broken = async (chamber: 'house' | 'senate', _c: string, _k: string) => {
+    const broken = async (chamber: 'federal_house' | 'federal_senate', _c: string, _k: string) => {
       const { normalizeMember } = await import('./normalize.ts')
-      if (chamber === 'senate') {
+      if (chamber === 'federal_senate') {
         const j = await loadFixture('congress-gov-senate-119-full.json')
         const members = j.members.map(normalizeMember)
         // Append one normalized member that bypasses the schema but trips the
@@ -391,7 +391,7 @@ describe('officials-ingest — transaction atomicity (Improvement 4)', () => {
           firstName: 'V',
           lastName: 'V',
           fullName: 'V V',
-          chamber: 'senate' as const,
+          chamber: 'federal_senate' as const,
           party: 'D' as const,
           state: 'CA',
           districtNumber: null,

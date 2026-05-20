@@ -23,7 +23,7 @@ beforeEach(async () => {
   const o = await client.query(`
     insert into public.officials (bioguide_id, first_name, last_name, full_name,
       chamber, party, state, district_id, senate_class, source_version, in_office)
-    values ('RCTEST1','RC','One','RC One','house','D','CA',$1::uuid,null,'119', true)
+    values ('RCTEST1','RC','One','RC One','federal_house','D','CA',$1::uuid,null,'119', true)
     on conflict (bioguide_id) do update set in_office = true
     returning id
   `, [d.rows[0].id])
@@ -32,13 +32,13 @@ beforeEach(async () => {
   // 2 votes in this Congress (one voted, one missed)
   const v1 = await client.query(`
     insert into public.votes (congress, chamber, session, roll_call, vote_date, question, result, source_url)
-    values ('119','house',1,9001,'2026-01-15','On Passage','Passed','https://x/9001')
+    values ('119','federal_house',1,9001,'2026-01-15','On Passage','Passed','https://x/9001')
     on conflict (congress, chamber, session, roll_call) do update set vote_date = excluded.vote_date
     returning id
   `)
   const v2 = await client.query(`
     insert into public.votes (congress, chamber, session, roll_call, vote_date, question, result, source_url)
-    values ('119','house',1,9002,'2026-02-10','On Motion','Failed','https://x/9002')
+    values ('119','federal_house',1,9002,'2026-02-10','On Motion','Failed','https://x/9002')
     on conflict (congress, chamber, session, roll_call) do update set vote_date = excluded.vote_date
     returning id
   `)

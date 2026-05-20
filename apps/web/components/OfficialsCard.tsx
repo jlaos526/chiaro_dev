@@ -12,6 +12,8 @@ import { OfficialAvatar } from './OfficialAvatar'
 import { DistrictBadge } from './cards/DistrictBadge'
 import { AlignmentChip } from './cards/AlignmentChip'
 import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
+import { groupOfficialsByLevel } from '@/lib/derivations/officials-by-level'
+import { StateOfficialsCardSection } from './state/StateOfficialsCardSection'
 
 const STATE_NAMES: Record<string, string> = {
   AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California',
@@ -51,7 +53,7 @@ function OfficialRow({ o }: { o: OfficialWithDistrict }): React.JSX.Element {
   const salaryRole = metrics.data?.salary_role
   const currentRole = salaryRole && salaryRole !== 'Member'
     ? salaryRole
-    : o.chamber === 'house' ? 'Representative' : 'Senator'
+    : o.chamber === 'federal_house' ? 'Representative' : 'Senator'
   const tenure = metrics.data?.tenure_years
 
   const { districtNumber, atLarge } = parseDistrict(o.district?.code)
@@ -78,14 +80,15 @@ function OfficialRow({ o }: { o: OfficialWithDistrict }): React.JSX.Element {
           </Link>
           <div style={{ marginTop: 2 }}>
             <DistrictBadge
-              chamber={o.chamber}
+              chamber={o.chamber as 'federal_house' | 'federal_senate'}
               stateName={stateName}
-              districtNumber={o.chamber === 'house' ? districtNumber : null}
-              atLarge={o.chamber === 'house' && atLarge}
+              stateAbbrev={o.state}
+              districtNumber={o.chamber === 'federal_house' ? districtNumber : null}
+              atLarge={o.chamber === 'federal_house' && atLarge}
             />
           </div>
           <div style={{ fontSize: '0.72rem', color: '#3a352b', marginTop: 0 }}>
-            {currentRole} · {o.chamber === 'house' ? 'House' : 'Senate'}
+            {currentRole} · {o.chamber === 'federal_house' ? 'House' : 'Senate'}
             {tenure != null && tenure > 0 ? ` · ${tenure} yr` : ''}
           </div>
           {chips.length > 0 && (
@@ -132,14 +135,33 @@ export function OfficialsCard(): React.JSX.Element {
     )
   }
 
+  const { federal, state } = groupOfficialsByLevel(data)
+
   return (
     <section aria-label="Your officials" style={{ padding: 16, background: '#f7f5ef', borderRadius: 8 }}>
       <h2 style={{ margin: 0, marginBottom: 10, fontSize: '1rem', color: '#1a1714' }}>Your officials</h2>
-      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-        {data.map((o) => (
-          <OfficialRow key={o.id} o={o} />
-        ))}
-      </ul>
+      {federal.length > 0 && (
+        <section data-testid="federal-section">
+          <h3
+            style={{
+              fontSize: 14,
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              color: '#666',
+              margin: 0,
+              marginBottom: 12,
+            }}
+          >
+            Federal
+          </h3>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {federal.map((o) => (
+              <OfficialRow key={o.id} o={o} />
+            ))}
+          </ul>
+        </section>
+      )}
+      <StateOfficialsCardSection officials={state} />
       <p style={{ margin: '10px 0 0 0' }}>
         <Link href="/officials" style={{ fontSize: '0.85rem', color: '#3b6ed1' }}>
           See all officials →

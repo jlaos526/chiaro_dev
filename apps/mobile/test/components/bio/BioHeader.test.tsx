@@ -9,7 +9,7 @@ const PELOSI = {
   fullName: 'Nancy Pelosi',
   portraitUrl: null,
   party: 'D',
-  chamber: 'house' as const,
+  chamber: 'federal_house' as const,
   state: 'CA',
   stateName: 'California',
   districtNumber: 11,
@@ -33,7 +33,7 @@ describe('BioHeader', () => {
     expect(screen.getByText(/Since 2007/)).toBeTruthy()
   })
   it('senate variant uses full state name', () => {
-    render(<BioHeader {...PELOSI} chamber="senate" districtNumber={null} senateClass={1} role="Senator" />)
+    render(<BioHeader {...PELOSI} chamber="federal_senate" districtNumber={null} senateClass={1} role="Senator" />)
     expect(screen.getByText('California')).toBeTruthy()
     expect(screen.queryByText(/District/)).toBeNull()
   })

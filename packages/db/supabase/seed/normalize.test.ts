@@ -45,7 +45,7 @@ describe('normalizeMember', () => {
       nextElection: '2026-11-03',
     }
     const member = normalizeMember(raw)
-    expect(member.chamber).toBe('house')
+    expect(member.chamber).toBe('federal_house')
     expect(member.party).toBe('D')
     expect(member.state).toBe('CA')
     expect(member.districtNumber).toBe(11)
@@ -72,7 +72,7 @@ describe('normalizeMember', () => {
       nextElection: null,
     }
     const member = normalizeMember(raw)
-    expect(member.chamber).toBe('senate')
+    expect(member.chamber).toBe('federal_senate')
     expect(member.party).toBe('I')
     expect(member.senateClass).toBe(1)
     expect(member.districtNumber).toBeNull()

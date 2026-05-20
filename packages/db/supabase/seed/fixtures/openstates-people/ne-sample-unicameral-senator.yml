@@ -1,0 +1,18 @@
+id: ocd-person/00000000-0000-0000-0000-000000000003
+name: Test NE Sen
+given_name: Test
+family_name: NE
+party:
+  - name: Nonpartisan
+image: https://example.com/ne.jpg
+roles:
+  - type: legislature
+    jurisdiction: ocd-jurisdiction/country:us/state:ne/government
+    district: '23'
+    title: Senator
+    start_date: '2025-01-01'
+    end_date: '2029-01-01'
+offices:
+  - classification: capitol
+    address: NE State Capitol
+    voice: 555-0300

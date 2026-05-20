@@ -44,7 +44,7 @@ export function PerformanceSection({
   chamber,
 }: {
   officialId: string
-  chamber: 'house' | 'senate'
+  chamber: 'federal_house' | 'federal_senate'
 }): React.JSX.Element {
   const expanded = useExpandedState()
   useExpoParamSync(expanded)

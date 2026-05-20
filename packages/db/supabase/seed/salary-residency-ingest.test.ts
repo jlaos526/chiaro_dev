@@ -27,7 +27,7 @@ beforeEach(async () => {
   await client.query(`
     insert into public.officials (bioguide_id, fec_candidate_id, first_name, last_name, full_name,
       chamber, party, state, district_id, senate_class, source_version, in_office)
-    values ('SRTEST1','H8CA05035','Test','Speaker','Test Speaker','house','D','ZZ',$1::uuid,null,'119', true)
+    values ('SRTEST1','H8CA05035','Test','Speaker','Test Speaker','federal_house','D','ZZ',$1::uuid,null,'119', true)
     on conflict (bioguide_id) do update set
       fec_candidate_id = excluded.fec_candidate_id,
       district_id = excluded.district_id,
@@ -41,7 +41,7 @@ beforeEach(async () => {
   `)
   await client.query(`
     insert into public.officials_leadership_history (official_id, role, chamber, start_date, source_url)
-    select id, 'Speaker', 'house', '2023-01-03',
+    select id, 'Speaker', 'federal_house', '2023-01-03',
       'https://github.com/unitedstates/congress-legislators/blob/main/legislators-current.yaml'
     from public.officials where bioguide_id = 'SRTEST1'
   `)

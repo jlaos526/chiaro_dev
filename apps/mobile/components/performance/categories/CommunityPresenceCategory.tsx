@@ -30,7 +30,7 @@ export function CommunityPresenceCategory({
   chamber,
 }: {
   officialId: string
-  chamber: 'house' | 'senate'
+  chamber: 'federal_house' | 'federal_senate'
 }): React.JSX.Element {
   const metrics = useOfficialMetrics(supabase, officialId)
   const [officesOpen, setOfficesOpen] = useState(false)
@@ -42,7 +42,7 @@ export function CommunityPresenceCategory({
     return <Text style={{ padding: 12, color: '#807a72' }}>Loading…</Text>
   }
   const m = metrics.data
-  const livesInDistrictUnavailable = chamber === 'senate' || m?.lives_in_district == null
+  const livesInDistrictUnavailable = chamber === 'federal_senate' || m?.lives_in_district == null
 
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, padding: 12 }}>

@@ -10,7 +10,7 @@ export interface BioHeaderProps {
   fullName: string
   portraitUrl: string | null
   party: string
-  chamber: 'house' | 'senate'
+  chamber: 'federal_house' | 'federal_senate'
   state: string
   stateName: string
   districtNumber: number | null
@@ -44,6 +44,7 @@ export function BioHeader(p: BioHeaderProps): React.JSX.Element {
         party={p.party}
         chamber={p.chamber}
         stateName={p.stateName}
+        stateAbbrev={p.state}
         districtNumber={p.districtNumber}
         atLarge={p.atLarge}
       />

@@ -18,6 +18,7 @@
     "supabase:gen-types": "supabase gen types typescript --local > src/types.ts",
     "db:seed-officials": "tsx supabase/seed/officials-ingest.ts",
     "db:seed-tiger": "tsx supabase/seed/tiger-ingest.ts",
+    "seed:state-officials": "tsx supabase/seed/state-officials-ingest.ts",
     "db:seed-unitedstates": "tsx supabase/seed/unitedstates-legislators-ingest.ts",
     "db:seed-bills-votes": "tsx supabase/seed/bills-votes-ingest.ts",
     "db:seed-scorecards": "tsx supabase/seed/scorecards/index.ts",

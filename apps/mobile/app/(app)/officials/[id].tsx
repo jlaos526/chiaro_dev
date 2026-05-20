@@ -1,7 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ScrollView, Text } from 'react-native'
-import { useLocalSearchParams } from 'expo-router'
-import { useOfficial, useOfficialScorecardRatings, useOfficialLeadershipHistory } from '@chiaro/officials'
+import { useLocalSearchParams, Redirect } from 'expo-router'
+import { useOfficial, useOfficialScorecardRatings, useOfficialLeadershipHistory, isStateLevel } from '@chiaro/officials'
 import { supabase } from '@/lib/supabase'
 import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
 import { firstElectedYear as deriveFirstElectedYear } from '@/lib/derivations/service-record'
@@ -20,7 +20,7 @@ const STATE_NAMES: Record<string, string> = {
 }
 
 function parseDistrictCode(chamber: string, code: string | null | undefined): { districtNumber: number | null; atLarge: boolean } {
-  if (chamber !== 'house' || !code) return { districtNumber: null, atLarge: false }
+  if (chamber !== 'federal_house' || !code) return { districtNumber: null, atLarge: false }
   if (code.endsWith('-AL')) return { districtNumber: null, atLarge: true }
   const parts = code.split('-')
   const tail = parts[1]
@@ -38,11 +38,16 @@ export default function OfficialDetailScreen() {
   if (officialQ.isLoading) return <Text>Loading…</Text>
   if (!officialQ.data) return <Text>Not found</Text>
 
+  // Cross-route guard: state-level IDs land on /state-officials/[id]
+  if (isStateLevel(officialQ.data.chamber)) {
+    return <Redirect href={`/state-officials/${officialId}` as never} />
+  }
+
   const official = officialQ.data
   const leadership = leadershipQ.data ?? []
   const chips = selectTopAlignmentChips(scorecardsQ.data ?? [])
   const currentRole = leadership.find(r => r.end_date == null)?.role
-    ?? (official.chamber === 'house' ? 'Representative' : 'Senator')
+    ?? (official.chamber === 'federal_house' ? 'Representative' : 'Senator')
   const firstElectedYearValue = deriveFirstElectedYear(leadership)
   const districtCode = official.district?.code ?? null
   const { districtNumber, atLarge } = parseDistrictCode(official.chamber, districtCode)
@@ -55,7 +60,7 @@ export default function OfficialDetailScreen() {
           fullName={official.full_name}
           portraitUrl={official.portrait_url}
           party={official.party}
-          chamber={official.chamber as 'house' | 'senate'}
+          chamber={official.chamber as 'federal_house' | 'federal_senate'}
           state={official.state}
           stateName={STATE_NAMES[official.state] ?? official.state}
           districtNumber={districtNumber}
@@ -67,7 +72,7 @@ export default function OfficialDetailScreen() {
           twitterHandle={official.twitter_handle}
           chips={chips}
         />
-        <PerformanceSection officialId={officialId} chamber={official.chamber as 'house' | 'senate'} />
+        <PerformanceSection officialId={officialId} chamber={official.chamber as 'federal_house' | 'federal_senate'} />
       </ScrollView>
     </SafeAreaView>
   )

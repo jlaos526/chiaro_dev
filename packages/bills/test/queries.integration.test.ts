@@ -34,7 +34,7 @@ beforeAll(async () => {
 
   const { data: o } = await svc.from('officials').insert({
     bioguide_id: 'BILLTEST1', first_name: 'B', last_name: 'T', full_name: 'Bill T',
-    chamber: 'senate', party: 'D', state: 'CA', district_id: districtId,
+    chamber: 'federal_senate', party: 'D', state: 'CA', district_id: districtId,
     senate_class: 1, source_version: '119',
   }).select().single()
   officialId = o!.id
@@ -66,7 +66,7 @@ beforeAll(async () => {
 
   // Seed 1 vote on bill A
   const { data: v } = await svc.from('votes').insert({
-    congress: '119', chamber: 'senate', session: 1, roll_call: 101,
+    congress: '119', chamber: 'federal_senate', session: 1, roll_call: 101,
     vote_date: '2026-01-20', question: 'On Passage', result: 'Passed',
     bill_id: billA, source_url: 'https://congress.gov/vote/101',
   }).select().single()
@@ -129,7 +129,7 @@ describe('fetchOfficialMissedVotes', () => {
   it('returns vote_positions with position = not_voting', async () => {
     // Add a missed vote
     const { data: v2 } = await svc.from('votes').insert({
-      congress: '119', chamber: 'senate', session: 1, roll_call: 102,
+      congress: '119', chamber: 'federal_senate', session: 1, roll_call: 102,
       vote_date: '2026-01-21', question: 'On Cloture', result: 'Failed',
       bill_id: billA, source_url: 'https://congress.gov/vote/102',
     }).select().single()
