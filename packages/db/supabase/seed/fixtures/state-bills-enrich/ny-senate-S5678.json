@@ -1,0 +1,26 @@
+{
+  "result": {
+    "basePrintNo": "S5678",
+    "session": 2025,
+    "status": {
+      "statusType": "IN_COMMITTEE",
+      "statusDesc": "Senate Finance Committee",
+      "actionDate": "2025-02-10"
+    },
+    "billCalNo": null,
+    "votes": {
+      "items": [{
+        "memberVotes": {
+          "items": {
+            "AYE": { "count": 30, "items": [] },
+            "NAY": { "count": 12, "items": [] },
+            "EXC": { "count": 1, "items": [] }
+          }
+        }
+      }]
+    },
+    "fiscalNote": {
+      "totalCost": 5400000
+    }
+  }
+}
