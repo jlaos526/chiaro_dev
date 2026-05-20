@@ -1,7 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ScrollView, Text } from 'react-native'
-import { useLocalSearchParams } from 'expo-router'
-import { useOfficial, useOfficialScorecardRatings, useOfficialLeadershipHistory } from '@chiaro/officials'
+import { useLocalSearchParams, Redirect } from 'expo-router'
+import { useOfficial, useOfficialScorecardRatings, useOfficialLeadershipHistory, isStateLevel } from '@chiaro/officials'
 import { supabase } from '@/lib/supabase'
 import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
 import { firstElectedYear as deriveFirstElectedYear } from '@/lib/derivations/service-record'
@@ -37,6 +37,11 @@ export default function OfficialDetailScreen() {
 
   if (officialQ.isLoading) return <Text>Loading…</Text>
   if (!officialQ.data) return <Text>Not found</Text>
+
+  // Cross-route guard: state-level IDs land on /state-officials/[id]
+  if (isStateLevel(officialQ.data.chamber)) {
+    return <Redirect href={`/state-officials/${officialId}` as never} />
+  }
 
   const official = officialQ.data
   const leadership = leadershipQ.data ?? []
