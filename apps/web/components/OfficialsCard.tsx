@@ -12,6 +12,8 @@ import { OfficialAvatar } from './OfficialAvatar'
 import { DistrictBadge } from './cards/DistrictBadge'
 import { AlignmentChip } from './cards/AlignmentChip'
 import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
+import { groupOfficialsByLevel } from '@/lib/derivations/officials-by-level'
+import { StateOfficialsCardSection } from './state/StateOfficialsCardSection'
 
 const STATE_NAMES: Record<string, string> = {
   AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California',
@@ -133,14 +135,33 @@ export function OfficialsCard(): React.JSX.Element {
     )
   }
 
+  const { federal, state } = groupOfficialsByLevel(data)
+
   return (
     <section aria-label="Your officials" style={{ padding: 16, background: '#f7f5ef', borderRadius: 8 }}>
       <h2 style={{ margin: 0, marginBottom: 10, fontSize: '1rem', color: '#1a1714' }}>Your officials</h2>
-      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-        {data.map((o) => (
-          <OfficialRow key={o.id} o={o} />
-        ))}
-      </ul>
+      {federal.length > 0 && (
+        <section data-testid="federal-section">
+          <h3
+            style={{
+              fontSize: 14,
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              color: '#666',
+              margin: 0,
+              marginBottom: 12,
+            }}
+          >
+            Federal
+          </h3>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {federal.map((o) => (
+              <OfficialRow key={o.id} o={o} />
+            ))}
+          </ul>
+        </section>
+      )}
+      <StateOfficialsCardSection officials={state} />
       <p style={{ margin: '10px 0 0 0' }}>
         <Link href="/officials" style={{ fontSize: '0.85rem', color: '#3b6ed1' }}>
           See all officials →
