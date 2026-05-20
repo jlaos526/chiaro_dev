@@ -9,18 +9,19 @@ pnpm install                           # workspace deps; uses pnpm 9.x
 
 # Local backend
 pnpm db:start                          # boot local Supabase (port 54321; DB 54322)
-pnpm db:reset                          # apply all migrations 0001–0029
-pnpm db:test                           # pgTAP suite (250 tests across 20 files)
+pnpm db:reset                          # apply all migrations 0001–0034
+pnpm db:test                           # pgTAP suite (305 tests across 23 files)
 pnpm seed:tiger                        # ingest TIGER 2024 district geometries (~5–15 min, ~51 Census shapefiles)
 pnpm seed:officials                    # ingest federal officials from Congress.gov v3 (requires CONGRESS_GOV_API_KEY)
 pnpm seed:state-officials              # ingest state legislators from openstates/people YAML repo (no API key)
+pnpm seed:state-bills-full             # ingest state bills + votes + per-state augment + state metrics
 
 # App dev
 pnpm --filter @chiaro/web dev          # Next.js on http://localhost:3000
 pnpm --filter @chiaro/mobile dev       # Expo Metro
 
 # Verify before push
-pnpm -r typecheck                      # 9 packages
+pnpm -r typecheck                      # 10 packages
 pnpm test                              # full workspace tests via turbo (see Gotchas: don't use `pnpm -r test`)
 pnpm --filter @chiaro/web build        # Next 15 build
 ```
@@ -38,6 +39,7 @@ packages/
   location/           # districts + user_locations (queries, TanStack hooks, district groups, schema)
   officials/          # federal officials domain (queries, TanStack hooks, types, zod schemas, finance + metrics)
   bills/              # bills + votes domain (queries, TanStack hooks, types)
+  state-bills/        # state bills + votes domain (queries, TanStack hooks, types, schemas)
   ui-tokens/          # shared design tokens (COLORS, MAP_COLORS, PARTY_COLOR/LABEL/SHORT, PARTY_SHORT, SCORECARD_LEAN_*)
 ```
 
@@ -56,6 +58,7 @@ Dependency direction is strict — see Gotchas #4.
 - **Slice 5B — Sentry telemetry** (2026-05-19, PR #6 `4d9280e`): error-only Sentry across web (`@sentry/nextjs@10`) + mobile (`@sentry/react-native@8`) + edge (`npm:@sentry/deno@8`) with PII scrubbing (recursive `/^address/i` redaction, WeakSet cycle guard).
 - **Test hygiene follow-ups** (2026-05-19): scorecards producer-side cleanup (PR #7 `65b2165`), 3 inert district leaks in stock-watcher/town-halls/recompute-metrics (PR #8 `cf6eb05`).
 - **Sub-slice 5C — state officials identity** (2026-05-19): OpenStates ingest of US state legislators (state house + state senate + NE unicameral) via the `openstates/people` GitHub YAML repo. Calibrated users see state reps alongside federal on home + new `/state-officials/[id]` route with 5 federal-only categories rendered as `ComingSoonCard` placeholders. Migrations 0028 (chamber enum 5-value expand) + 0029 (openstates_person_id + district_code + title columns, party CHECK relaxed). 19 new pgTAP plans across 2 new files + ~60 new vitest cases.
+- **Sub-slice 5D — state bills + votes** (2026-05-20): OpenStates v3-API baseline ingest of state legislators' bills + votes + 5 per-state public-API augment adapters (CA leginfo, NY senate API, FL Senate+House, TX capitol, MI legislature). New `@chiaro/state-bills` package (workspace 9 → 10). Migrations 0030–0034: `state_bills` + `state_bill_sponsors` + `state_bill_subjects` + `state_votes` + `state_vote_positions` tables + 3 new `official_metrics` columns (`committee_chair_count`, `fiscal_impact_total`, `party_unity_state`). `/state-officials/[id]` Service Record card becomes real (composes `useOfficialMetrics` + `useOfficialSponsoredStateBills` + `useOfficialStateVotes`). NY adapter skips gracefully without `NY_SENATE_API_KEY`. 55 new pgTAP plans across 3 new files + ~46 new vitest cases (db) + ~10 web + ~18 mobile.
 
 Specs live in `docs/superpowers/specs/`. Plans in `docs/superpowers/plans/`. Audits in `docs/superpowers/audits/`. Mobile DoD checklist at `docs/superpowers/mobile-dod-checklist.md`.
 
@@ -76,12 +79,13 @@ Specs live in `docs/superpowers/specs/`. Plans in `docs/superpowers/plans/`. Aud
 | `NEXT_PUBLIC_SENTRY_DSN_WEB` | Web Sentry init (browser + server + edge runtimes) | Public-by-design. SDK no-ops if absent. |
 | `EXPO_PUBLIC_SENTRY_DSN_MOBILE` | Mobile Sentry init | Public-by-design. Active in dev-client / preview / production builds, NOT Expo Go. |
 | `SENTRY_DSN_EDGE` | Edge Function Sentry init via `withSentry` wrapper | Set as Supabase secret. SDK no-ops if absent. |
+| `NY_SENATE_API_KEY` | `pnpm seed:state-bills-enrich` (NY adapter) | Free signup at legislation.nysenate.gov/keyOptions. Server-side only. Optional — NY augment skipped gracefully without it. |
 
 See `.env.example` files at repo root, `apps/web/`, and `apps/mobile/`.
 
 ## Testing
 
-- **pgTAP**: `pnpm db:test` → 250 tests across 20 files. Requires `pnpm db:start` and `pnpm db:reset`. Some tests (TIGER ingest assertions) require `pnpm seed:tiger` to have run first.
+- **pgTAP**: `pnpm db:test` → 305 tests across 23 files. Requires `pnpm db:start` and `pnpm db:reset`. Some tests (TIGER ingest assertions) require `pnpm seed:tiger` to have run first.
 - **Vitest**: `pnpm test` → turbo-managed, runs each package's test script. Officials/location/bills/profile integration tests need Supabase env vars exported first.
 - **CI** (`.github/workflows/ci.yml`): 4 jobs — `db` (migrations + pgTAP + 9 fixture-ingest suites: officials, legislators, bills/votes, scorecards, finance, salary-residency, town-halls, stock-watcher, recompute-metrics), `build` (Next 15 + Sentry source-map upload when secret present), `functions` (Deno tests for Edge Function + shared Sentry helper), `test` (full workspace tests). Each job boots a fresh local Supabase via `supabase/setup-cli`.
 
@@ -110,6 +114,17 @@ See `.env.example` files at repo root, `apps/web/`, and `apps/mobile/`.
    - **Party values** are no longer CHECK-constrained as of migration 0029 — state legislators include Nonpartisan (NE), DFL (MN), Working Families, Progressive (VT), and minor parties.
    - **DC + territories** (Guam, USVI, NMI, AS) are NOT covered by OpenStates and intentionally skipped.
    - **`district_tier` enum does NOT include `state_legislature`** — only `official_chamber` was expanded in migration 0028. NE district rows live under `state_senate` tier (matching TIGER's natural representation), and the officials table holds `chamber='state_legislature'`. Bridge logic lives in `state-officials-ingest.ts`.
+
+9. **State bills + votes data sources have known quirks** —
+   - **OpenStates v3 API at https://v3.openstates.org/bills is the baseline source for 50 states** (slice 5D Task 1 source pin). The `openstates/data` GitHub repo doesn't exist; the `open.pluralpolicy.com` bulk endpoint is paywalled. Free tier rate-limited to 500/day — production ingest needs on-disk caching. Re-runnable via `pnpm seed:state-bills-votes`. Loader at `openstates-bills-loader.ts` accepts JSON (production) or YAML (test fixtures).
+   - **5 states get per-state-API augment** (CA leginfo, NY senate, FL Senate+House, TX capitol, MI legislature). Adapter pattern under `packages/db/supabase/seed/state-bills/enrich-*.ts`. Each adapter isolated — one failure doesn't abort others.
+   - **NY requires `NY_SENATE_API_KEY`** env var. Adapter skips gracefully (with `skipReason`) without it.
+   - **`session` field is text — format varies per state**: CA `'20252026'` (biennial), NY `'2025'` (annual), MD `'2025rs'` (regular session suffix), TX `'89R'` (legislature-numbered), MI `'2025-2026'`. Don't normalize — preserve raw.
+   - **`state_votes.bill_id` uses `ON DELETE RESTRICT`** (preserves vote history if a bill row is later deleted). Per slice-5C 0026 audit precedent. Sponsor/subject tables `CASCADE`.
+   - **`augmented_from` column tracks which per-state adapter populated augment fields** (`'ca-leginfo'`, `'ny-senate-api'`, etc). Re-running an adapter overwrites prior augment values.
+   - **`recompute-state-metrics.ts` placeholders**: `committee_chair_count = 0` and `party_unity_state = 100 when voted >= 3` are MVP stubs. Real implementations require committee + party-roll-call data not yet ingested. Refine in sub-slice 5F.
+   - **NH multi-word district legislators (still unmatched from 5C)**: their bills get logged to `stats.unmatchedBills` in `state-bills-votes-ingest` and skipped. Follow-up.
+   - **`--skip-bills` / `--skip-votes` flags** on `seed:state-bills-votes` for surgical re-runs. `--skip-bills` requires bills already present in DB (vote FK references them).
 
 ## Code style
 
