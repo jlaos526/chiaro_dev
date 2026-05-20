@@ -1,0 +1,11 @@
+{
+  "bill": {
+    "Session": 2025,
+    "Number": "SB 9",
+    "CurrentCommittee": "Senate Appropriations Subcommittee on Education",
+    "LastActionDate": "2025-03-01",
+    "FiscalImpactStatement": {
+      "TotalAmount": 750000
+    }
+  }
+}
