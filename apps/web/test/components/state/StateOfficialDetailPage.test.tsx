@@ -23,6 +23,9 @@ vi.mock('@chiaro/officials', async () => {
   return {
     ...actual,
     useOfficialMetrics: () => ({ data: undefined, isLoading: false, isSuccess: true }),
+    // NEW for slice 5E:
+    useOfficialStateFinanceSummary: () => ({ data: null, isLoading: false, isSuccess: true }),
+    useOfficialStateDonors:         () => ({ data: [], isLoading: false, isSuccess: true }),
   }
 })
 
@@ -54,7 +57,7 @@ describe('StateOfficialDetailPage', () => {
     expect(getByText(/CA-15/)).toBeTruthy()
   })
 
-  it('renders real Service Record card + 4 remaining ComingSoonCards', () => {
+  it('renders real Service Record + Finance cards + 3 remaining ComingSoonCards', () => {
     const { getAllByText } = render(<StateOfficialDetailPage official={mkState()} offices={[]} />, { wrapper: wrap })
     expect(getAllByText(/^(?:Service Record|Issue Positions|Community Presence|Finance|Ethics & Accountability)$/i))
       .toHaveLength(5)

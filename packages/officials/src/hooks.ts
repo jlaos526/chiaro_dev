@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, type UseQueryResult } from '@tanstack/react-query'
 import type { ChiaroClient } from '@chiaro/supabase-client'
 import { officialsKeys } from './keys.ts'
 import {
@@ -7,7 +7,12 @@ import {
   fetchOfficialFinance, fetchOfficialDistrictOffices,
   fetchOfficialTownHalls, fetchOfficialStockTransactions,
   fetchOfficialLeadershipHistory,
+  fetchOfficialStateFinanceSummary, fetchOfficialStateDonors,
 } from './queries.ts'
+import type {
+  StateFinanceSummaryRow,
+  StateFinanceIndividualDonorRow,
+} from './types.ts'
 
 const FIVE_MIN = 5 * 60 * 1000
 const THIRTY_MIN = 30 * 60 * 1000
@@ -99,5 +104,34 @@ export function useOfficialLeadershipHistory(
     queryFn: () => fetchOfficialLeadershipHistory(client, officialId),
     staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
     enabled: opts?.enabled !== false && !!officialId,
+  })
+}
+
+// Explicit UseQueryResult<T, Error> annotations dodge TS2742 — cross-workspace
+// Database-derived row types from @chiaro/db can't be named from inference
+// alone. Same workaround as @chiaro/state-bills hooks (slice 5D).
+export function useOfficialStateFinanceSummary(
+  client: ChiaroClient,
+  officialId: string,
+): UseQueryResult<StateFinanceSummaryRow | null, Error> {
+  return useQuery({
+    queryKey: officialsKeys.stateFinanceSummary(officialId),
+    queryFn: () => fetchOfficialStateFinanceSummary(client, officialId),
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
+    enabled: !!officialId,
+  })
+}
+
+export function useOfficialStateDonors(
+  client: ChiaroClient,
+  officialId: string,
+): UseQueryResult<StateFinanceIndividualDonorRow[], Error> {
+  return useQuery({
+    queryKey: officialsKeys.stateDonors(officialId),
+    queryFn: () => fetchOfficialStateDonors(client, officialId),
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
+    enabled: !!officialId,
   })
 }

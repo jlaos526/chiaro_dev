@@ -24,6 +24,8 @@ jest.mock('@chiaro/officials', () => {
   return {
     ...actual,
     useOfficialMetrics: () => ({ data: null, isLoading: false, isSuccess: true }),
+    useOfficialStateFinanceSummary: () => ({ data: null, isLoading: false, isSuccess: true }),
+    useOfficialStateDonors: () => ({ data: [], isLoading: false, isSuccess: true }),
   }
 })
 
@@ -59,18 +61,18 @@ describe('mobile StateOfficialDetailPage', () => {
     expect(getByText(/CA-15/)).toBeTruthy()
   })
 
-  it('renders Service Record + 4 ComingSoonCard placeholders', () => {
+  it('renders Service Record + Finance + 3 ComingSoonCard placeholders', () => {
     const { getAllByText } = render(
       <StateOfficialDetailPage official={mkState()} offices={[]} />,
       { wrapper: wrap },
     )
-    // Anchor matching to avoid Finance body copy double-matching (Task 10 tightened this).
-    // 'Service Record' is now rendered by <StateServiceRecordCard>; the remaining 4 are placeholders.
+    // 'Service Record' rendered by <StateServiceRecordCard>; 'Finance' rendered by
+    // <StateFinanceCard> (empty-state header). Remaining 3 are placeholders.
     const titles = [
       'Service Record',
+      'Finance',
       'Issue Positions',
       'Community Presence',
-      'Finance',
       'Ethics & Accountability',
     ]
     for (const t of titles) {

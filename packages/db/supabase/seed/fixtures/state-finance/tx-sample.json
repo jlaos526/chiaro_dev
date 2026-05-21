@@ -1,0 +1,17 @@
+{
+  "filings": [
+    {
+      "full_name": "Test TX Rep",
+      "chamber": "state_house",
+      "total_raised": 120000,
+      "total_disbursed": 95000,
+      "small_donor_pct": 12.0,
+      "in_state_pct": null,
+      "source_url": "https://www.ethics.state.tx.us/dfs/Filing/test-rep-2024",
+      "donors": [
+        {"rank": 1, "donor_name": "Texas Energy PAC", "amount": 12000, "city": "Austin", "donor_state": "TX"},
+        {"rank": 2, "donor_name": "Oil Donor", "amount": 8000, "employer": "BigOil", "occupation": "Executive", "city": "Houston", "donor_state": "TX"}
+      ]
+    }
+  ]
+}

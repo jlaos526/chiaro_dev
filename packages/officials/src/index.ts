@@ -4,6 +4,8 @@ export type {
   Chamber,
   OfficialChamber,
   Party,
+  StateFinanceSummaryRow,
+  StateFinanceIndividualDonorRow,
 } from './types.ts'
 
 export {
@@ -30,6 +32,7 @@ export {
   useOfficialMetrics, useOfficialScorecardRatings, useOfficialFinance,
   useOfficialDistrictOffices, useOfficialTownHalls, useOfficialStockTransactions,
   useOfficialLeadershipHistory,
+  useOfficialStateFinanceSummary, useOfficialStateDonors,
 } from './hooks.ts'
 
 export { ChamberSchema } from './schemas.ts'

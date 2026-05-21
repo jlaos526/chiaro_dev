@@ -1,6 +1,10 @@
 import type { ChiaroClient } from '@chiaro/supabase-client'
 import type { Database } from '@chiaro/db'
-import type { OfficialWithDistrict } from './types.ts'
+import type {
+  OfficialWithDistrict,
+  StateFinanceSummaryRow,
+  StateFinanceIndividualDonorRow,
+} from './types.ts'
 
 const SELECT_WITH_DISTRICT =
   '*, district:districts!officials_district_id_fkey(id,tier,state,code,name)'
@@ -114,6 +118,46 @@ export async function fetchOfficialFinance(
     individualDonors: (donorsRes.data ?? []) as FinanceIndividualDonorRow[],
     topOrgs: (orgsRes.data ?? []) as FinanceTopOrganizationRow[],
   }
+}
+
+/**
+ * Returns the most-recent (by ingested_at) state_finance_summaries row for
+ * an official, or null when none exists. Federal officials never have rows
+ * here, so a null return is normal for federal_house / federal_senate.
+ */
+export async function fetchOfficialStateFinanceSummary(
+  client: ChiaroClient,
+  officialId: string,
+): Promise<StateFinanceSummaryRow | null> {
+  const { data, error } = await client
+    .from('state_finance_summaries')
+    .select('*')
+    .eq('official_id', officialId)
+    .order('ingested_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  if (error) throw error
+  return data
+}
+
+/**
+ * Returns up to 10 top individual donors for the official's most-recent
+ * cycle, ranked ascending (rank 1 first). Returns [] when no finance
+ * summary exists or the summary has no donor rows.
+ */
+export async function fetchOfficialStateDonors(
+  client: ChiaroClient,
+  officialId: string,
+): Promise<StateFinanceIndividualDonorRow[]> {
+  const summary = await fetchOfficialStateFinanceSummary(client, officialId)
+  if (!summary) return []
+  const { data, error } = await client
+    .from('state_finance_individual_donors')
+    .select('*')
+    .eq('state_finance_summary_id', summary.id)
+    .order('rank', { ascending: true })
+  if (error) throw error
+  return data ?? []
 }
 
 export async function fetchOfficialDistrictOffices(

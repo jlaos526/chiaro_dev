@@ -1,0 +1,18 @@
+{
+  "filings": [
+    {
+      "full_name": "Test FL Rep",
+      "chamber": "state_house",
+      "total_raised": 95000,
+      "total_disbursed": 72000,
+      "small_donor_pct": null,
+      "in_state_pct": null,
+      "source_url": "https://dos.elections.myflorida.com/candidate/test-rep-2024",
+      "donors": [
+        {"rank": 1, "donor_name": "FL Builders PAC", "amount": 4500, "city": "Tallahassee", "donor_state": "FL"},
+        {"rank": 2, "donor_name": "Sunshine LLC", "amount": 3000, "city": "Miami", "donor_state": "FL"},
+        {"rank": 3, "donor_name": "Out PAC", "amount": 2000, "city": "Atlanta", "donor_state": "GA"}
+      ]
+    }
+  ]
+}

@@ -2,6 +2,12 @@ import type { Database } from '@chiaro/db'
 
 export type OfficialRow = Database['public']['Tables']['officials']['Row']
 
+export type StateFinanceSummaryRow =
+  Database['public']['Tables']['state_finance_summaries']['Row']
+
+export type StateFinanceIndividualDonorRow =
+  Database['public']['Tables']['state_finance_individual_donors']['Row']
+
 // Source of truth — mirrors the public.official_chamber enum (migration 0028)
 // expanded to 5 values for state-level legislators.
 export type OfficialChamber = Database['public']['Enums']['official_chamber']

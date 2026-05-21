@@ -965,6 +965,94 @@ export type Database = {
         }
         Relationships: []
       }
+      state_finance_individual_donors: {
+        Row: {
+          amount: number
+          city: string | null
+          donor_name: string
+          donor_state: string | null
+          employer: string | null
+          occupation: string | null
+          rank: number
+          state_finance_summary_id: string
+        }
+        Insert: {
+          amount: number
+          city?: string | null
+          donor_name: string
+          donor_state?: string | null
+          employer?: string | null
+          occupation?: string | null
+          rank: number
+          state_finance_summary_id: string
+        }
+        Update: {
+          amount?: number
+          city?: string | null
+          donor_name?: string
+          donor_state?: string | null
+          employer?: string | null
+          occupation?: string | null
+          rank?: number
+          state_finance_summary_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_finance_individual_donors_state_finance_summary_id_fkey"
+            columns: ["state_finance_summary_id"]
+            isOneToOne: false
+            referencedRelation: "state_finance_summaries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      state_finance_summaries: {
+        Row: {
+          cycle: string
+          id: string
+          in_state_pct: number | null
+          ingested_at: string
+          official_id: string
+          small_donor_pct: number | null
+          source: string
+          source_url: string
+          total_disbursed: number | null
+          total_raised: number | null
+        }
+        Insert: {
+          cycle: string
+          id?: string
+          in_state_pct?: number | null
+          ingested_at?: string
+          official_id: string
+          small_donor_pct?: number | null
+          source: string
+          source_url: string
+          total_disbursed?: number | null
+          total_raised?: number | null
+        }
+        Update: {
+          cycle?: string
+          id?: string
+          in_state_pct?: number | null
+          ingested_at?: string
+          official_id?: string
+          small_donor_pct?: number | null
+          source?: string
+          source_url?: string
+          total_disbursed?: number | null
+          total_raised?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_finance_summaries_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       state_vote_positions: {
         Row: {
           id: string

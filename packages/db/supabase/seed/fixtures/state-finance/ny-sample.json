@@ -1,0 +1,27 @@
+{
+  "filings": [
+    {
+      "full_name": "Test NY Assembly",
+      "chamber": "state_house",
+      "total_raised": 80000,
+      "total_disbursed": 60000,
+      "small_donor_pct": 35.0,
+      "in_state_pct": null,
+      "source_url": "https://publicreporting.elections.ny.gov/Filing/test-asm-2024",
+      "donors": [
+        {"rank": 1, "donor_name": "NY Labor PAC", "amount": 4000, "employer": null, "occupation": null, "city": "Albany", "donor_state": "NY"},
+        {"rank": 2, "donor_name": "Smith Donor", "amount": 2500, "employer": "Local Corp", "occupation": "Lawyer", "city": "Brooklyn", "donor_state": "NY"}
+      ]
+    },
+    {
+      "full_name": "Test NY Senator",
+      "chamber": "state_senate",
+      "total_raised": 150000,
+      "total_disbursed": 100000,
+      "small_donor_pct": null,
+      "in_state_pct": null,
+      "source_url": "https://publicreporting.elections.ny.gov/Filing/test-sen-2024",
+      "donors": []
+    }
+  ]
+}

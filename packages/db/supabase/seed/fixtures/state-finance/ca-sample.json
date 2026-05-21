@@ -1,0 +1,31 @@
+{
+  "filings": [
+    {
+      "full_name": "Test CA Asm",
+      "chamber": "state_house",
+      "total_raised": 250000,
+      "total_disbursed": 180000,
+      "small_donor_pct": 22.5,
+      "in_state_pct": 78.0,
+      "source_url": "https://cal-access.sos.ca.gov/Campaign/Candidates/Detail.aspx?id=test-asm-2024",
+      "donors": [
+        {"rank": 1, "donor_name": "Acme PAC", "amount": 9000, "employer": null, "occupation": null, "city": "Sacramento", "donor_state": "CA"},
+        {"rank": 2, "donor_name": "Jane Donor", "amount": 5000, "employer": "BigCo", "occupation": "Engineer", "city": "San Francisco", "donor_state": "CA"},
+        {"rank": 3, "donor_name": "Out-of-state Donor", "amount": 3000, "employer": "OOSCorp", "occupation": "Manager", "city": "Reno", "donor_state": "NV"}
+      ]
+    },
+    {
+      "full_name": "Test CA Sen",
+      "chamber": "state_senate",
+      "total_raised": 500000,
+      "total_disbursed": 350000,
+      "small_donor_pct": 18.0,
+      "in_state_pct": 82.5,
+      "source_url": "https://cal-access.sos.ca.gov/Campaign/Candidates/Detail.aspx?id=test-sen-2024",
+      "donors": [
+        {"rank": 1, "donor_name": "Big PAC", "amount": 15000, "employer": null, "occupation": null, "city": "Sacramento", "donor_state": "CA"},
+        {"rank": 2, "donor_name": "Tech Donor", "amount": 10000, "employer": "TechCo", "occupation": "CEO", "city": "Mountain View", "donor_state": "CA"}
+      ]
+    }
+  ]
+}

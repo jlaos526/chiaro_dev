@@ -9,12 +9,13 @@ pnpm install                           # workspace deps; uses pnpm 9.x
 
 # Local backend
 pnpm db:start                          # boot local Supabase (port 54321; DB 54322)
-pnpm db:reset                          # apply all migrations 0001–0034
-pnpm db:test                           # pgTAP suite (305 tests across 23 files)
+pnpm db:reset                          # apply all migrations 0001–0036
+pnpm db:test                           # pgTAP suite (321 tests across 24 files)
 pnpm seed:tiger                        # ingest TIGER 2024 district geometries (~5–15 min, ~51 Census shapefiles)
 pnpm seed:officials                    # ingest federal officials from Congress.gov v3 (requires CONGRESS_GOV_API_KEY)
 pnpm seed:state-officials              # ingest state legislators from openstates/people YAML repo (no API key)
 pnpm seed:state-bills-full             # ingest state bills + votes + per-state augment + state metrics
+pnpm seed:state-finance --cycle=2024 --skip-on-error   # state campaign finance (5 states: CA NY FL TX MI)
 
 # App dev
 pnpm --filter @chiaro/web dev          # Next.js on http://localhost:3000
@@ -59,6 +60,7 @@ Dependency direction is strict — see Gotchas #4.
 - **Test hygiene follow-ups** (2026-05-19): scorecards producer-side cleanup (PR #7 `65b2165`), 3 inert district leaks in stock-watcher/town-halls/recompute-metrics (PR #8 `cf6eb05`).
 - **Sub-slice 5C — state officials identity** (2026-05-19): OpenStates ingest of US state legislators (state house + state senate + NE unicameral) via the `openstates/people` GitHub YAML repo. Calibrated users see state reps alongside federal on home + new `/state-officials/[id]` route with 5 federal-only categories rendered as `ComingSoonCard` placeholders. Migrations 0028 (chamber enum 5-value expand) + 0029 (openstates_person_id + district_code + title columns, party CHECK relaxed). 19 new pgTAP plans across 2 new files + ~60 new vitest cases.
 - **Sub-slice 5D — state bills + votes** (2026-05-20): OpenStates v3-API baseline ingest of state legislators' bills + votes + 5 per-state public-API augment adapters (CA leginfo, NY senate API, FL Senate+House, TX capitol, MI legislature). New `@chiaro/state-bills` package (workspace 9 → 10). Migrations 0030–0034: `state_bills` + `state_bill_sponsors` + `state_bill_subjects` + `state_votes` + `state_vote_positions` tables + 3 new `official_metrics` columns (`committee_chair_count`, `fiscal_impact_total`, `party_unity_state`). `/state-officials/[id]` Service Record card becomes real (composes `useOfficialMetrics` + `useOfficialSponsoredStateBills` + `useOfficialStateVotes`). NY adapter skips gracefully without `NY_SENATE_API_KEY`. 55 new pgTAP plans across 3 new files + ~46 new vitest cases (db) + ~10 web + ~18 mobile.
+- **Sub-slice 5E — state campaign finance** (2026-05-21): per-state adapters (CA Cal-Access, NY NYSBOE, FL DOE, TX Ethics, MI BOE) writing to `state_finance_summaries` + `state_finance_individual_donors`. Replaces `ComingSoonCard('Finance')` on `/state-officials/[id]` with real `StateFinanceCard` + `StateDonorsEvidence` panels (web + mobile). Migrations 0035 + 0036. State finance queries live in `@chiaro/officials` alongside federal finance (workspace stays at 10). 5 adapter test files + 1 orchestrator integration test + ~37 vitest cases (db) + ~12 web + ~12 mobile + 1 new pgTAP file (16 plans).
 
 Specs live in `docs/superpowers/specs/`. Plans in `docs/superpowers/plans/`. Audits in `docs/superpowers/audits/`. Mobile DoD checklist at `docs/superpowers/mobile-dod-checklist.md`.
 
@@ -86,7 +88,7 @@ See `.env.example` files at repo root, `apps/web/`, and `apps/mobile/`.
 
 ## Testing
 
-- **pgTAP**: `pnpm db:test` → 305 tests across 23 files. Requires `pnpm db:start` and `pnpm db:reset`. Some tests (TIGER ingest assertions) require `pnpm seed:tiger` to have run first.
+- **pgTAP**: `pnpm db:test` → 321 tests across 24 files. Requires `pnpm db:start` and `pnpm db:reset`. Some tests (TIGER ingest assertions) require `pnpm seed:tiger` to have run first.
 - **Vitest**: `pnpm test` → turbo-managed, runs each package's test script. Officials/location/bills/profile integration tests need Supabase env vars exported first.
 - **CI** (`.github/workflows/ci.yml`): 4 jobs — `db` (migrations + pgTAP + 9 fixture-ingest suites: officials, legislators, bills/votes, scorecards, finance, salary-residency, town-halls, stock-watcher, recompute-metrics), `build` (Next 15 + Sentry source-map upload when secret present), `functions` (Deno tests for Edge Function + shared Sentry helper), `test` (full workspace tests). Each job boots a fresh local Supabase via `supabase/setup-cli`.
 
@@ -126,6 +128,18 @@ See `.env.example` files at repo root, `apps/web/`, and `apps/mobile/`.
    - **`recompute-state-metrics.ts` placeholders**: `committee_chair_count = 0` and `party_unity_state = 100 when voted >= 3` are MVP stubs. Real implementations require committee + party-roll-call data not yet ingested. Refine in sub-slice 5F.
    - **NH multi-word district legislators (still unmatched from 5C)**: their bills get logged to `stats.unmatchedBills` in `state-bills-votes-ingest` and skipped. Follow-up.
    - **`--skip-bills` / `--skip-votes` flags** on `seed:state-bills-votes` for surgical re-runs. `--skip-bills` requires bills already present in DB (vote FK references them).
+
+10. **State finance data sources have known quirks** —
+    - **Each state has its own public filing site, all free + scrape-friendly to varying degrees.** Adapter slugs: `ca-cal-access`, `ny-nysboe`, `fl-doe`, `tx-ethics`, `mi-boe`. The slug lives in `state_finance_summaries.source` and identifies which adapter populated the row.
+    - **No paid aggregator (FollowTheMoney, etc.) integrated.** Adding the other 45 states means writing per-state adapters. The pattern in `packages/db/supabase/seed/state-finance/` is extensible.
+    - **Cycle is text, varies per state.** CA `'2023-2024'` (biennial), NY `'2024'` (annual), TX `'2024'`, MI `'2023-2024'`. Per slice 5D session-format precedent — don't normalize.
+    - **`small_donor_pct` (<$200) + `in_state_pct` not universally available.** CA + MI derive both from donor-level data; NY + TX partial; FL often unavailable. Adapter sets to NULL when data isn't derivable; UI renders `—` for NULL (NOT `0` — distinguishes "no data" from "actually zero").
+    - **Official matching is per-adapter heuristic.** State filings rarely carry `openstates_person_id`. Adapters use `resolveOfficialByName(client, { full_name, state, chamber })` — case-insensitive exact match. Mismatches surface to `stats.officialsUnmatched[]`; logged not fatal. Operator triages.
+    - **FL DOE is HTML-scrape only and most likely to break.** The `defaultFetcher` for `fetch-fl.ts` is fragile; expect maintenance churn. Production-run with `--skip-on-error` so FL drift doesn't block other states.
+    - **No `official_metrics` integration in 5E.** Total raised does NOT feed `recompute-state-metrics.ts`. Aggregated finance metrics are slice 5F scope.
+    - **`--state=XX` flag for surgical re-runs.** After fixing a per-state parser issue: `pnpm seed:state-finance --cycle=2024 --state=FL`.
+    - **`source_url`** on every summary row links to the state's canonical filing detail page. UI surfaces it as the source pill ("Cal-Access" etc.) — clickthrough to be added in a future UI polish task.
+    - **All 5 adapters ship with stub `defaultFetcher` returning `[]`.** Real source parsers (CA XML, NY API, FL HTML, TX/MI CSV) are operator follow-up work. Tests inject fetchers returning normalized fixture envelopes (slice 5D enrich pattern).
 
 ## Code style
 

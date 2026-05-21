@@ -10,6 +10,10 @@ export const officialsKeys = {
   metrics:           (id: string) => [...officialsKeys.all, 'metrics', id] as const,
   scorecards:        (id: string) => [...officialsKeys.all, 'scorecards', id] as const,
   finance:           (id: string, cycle: string) => [...officialsKeys.all, 'finance', id, cycle] as const,
+  stateFinanceSummary: (officialId: string) =>
+    ['officials', 'stateFinanceSummary', officialId] as const,
+  stateDonors: (officialId: string) =>
+    ['officials', 'stateDonors', officialId] as const,
   districtOffices:   (id: string) => [...officialsKeys.all, 'district-offices', id] as const,
   townHalls:         (id: string, congress: string) => [...officialsKeys.all, 'town-halls', id, congress] as const,
   stockTransactions: (id: string) => [...officialsKeys.all, 'stock-transactions', id] as const,

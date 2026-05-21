@@ -1,0 +1,29 @@
+{
+  "filings": [
+    {
+      "full_name": "Test MI Rep",
+      "chamber": "state_house",
+      "total_raised": 60000,
+      "total_disbursed": 45000,
+      "small_donor_pct": 28.0,
+      "in_state_pct": 92.0,
+      "source_url": "https://miboecfr.nictusa.com/cgi-bin/cfr/test-rep-2024.cgi",
+      "donors": [
+        {"rank": 1, "donor_name": "MI Auto PAC", "amount": 5000, "city": "Lansing", "donor_state": "MI"},
+        {"rank": 2, "donor_name": "Detroit Donor", "amount": 3500, "employer": "AutoCo", "occupation": "Engineer", "city": "Detroit", "donor_state": "MI"}
+      ]
+    },
+    {
+      "full_name": "Test MI Sen",
+      "chamber": "state_senate",
+      "total_raised": 100000,
+      "total_disbursed": 78000,
+      "small_donor_pct": 22.0,
+      "in_state_pct": 88.0,
+      "source_url": "https://miboecfr.nictusa.com/cgi-bin/cfr/test-sen-2024.cgi",
+      "donors": [
+        {"rank": 1, "donor_name": "Statewide PAC", "amount": 9500, "city": "Lansing", "donor_state": "MI"}
+      ]
+    }
+  ]
+}

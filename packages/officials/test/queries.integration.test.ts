@@ -22,6 +22,7 @@ let districtSenateCA: string
 let districtHouseCA12: string
 let districtStateHouseCA: string
 let stateAsmId: string
+let stateFinanceSummaryId: string
 
 beforeAll(async () => {
   // IMPORTANT: each Supabase client must use a distinct auth storage key.
@@ -136,6 +137,26 @@ beforeAll(async () => {
     vote_id: stateVote!.id, official_id: stateAsmId, position: 'yes',
   })
 
+  // Seed 1 state_finance_summary + 2 individual donors so the slice-5E state
+  // finance queries return real rows for this official.
+  const { data: stateFinanceSummary, error: sfErr } = await svc.from('state_finance_summaries').insert({
+    official_id: stateAsmId,
+    cycle: '2024',
+    total_raised: 50000,
+    total_disbursed: 35000,
+    small_donor_pct: 20.0,
+    in_state_pct: 75.0,
+    source: 'ca-cal-access',
+    source_url: 'https://x',
+  }).select().single()
+  expect(sfErr).toBeNull()
+  stateFinanceSummaryId = stateFinanceSummary!.id
+
+  await svc.from('state_finance_individual_donors').insert([
+    { state_finance_summary_id: stateFinanceSummaryId, rank: 1, donor_name: 'IT Donor', amount: 5000 },
+    { state_finance_summary_id: stateFinanceSummaryId, rank: 2, donor_name: 'OG Donor', amount: 3000 },
+  ])
+
   const { data: u, error: ue } = await svc.auth.admin.createUser({
     email: 'integration@test', email_confirm: true, password: 'test1234',
   })
@@ -159,7 +180,13 @@ afterAll(async () => {
   if (!svc) return
   // Idempotent cleanup — deletes by content filter, not by stored UUIDs, so a
   // crashed beforeAll or a stale prior run doesn't leave orphans behind.
-  // FK order: vote_positions → votes → bill_sponsors → bills → officials → districts.
+  // FK order: finance_donors → finance_summaries → vote_positions → votes →
+  // bill_sponsors → bills → officials → districts. (Donors CASCADE on summary
+  // delete, but explicit delete is clearer.)
+  if (stateFinanceSummaryId) {
+    await svc.from('state_finance_individual_donors').delete().eq('state_finance_summary_id', stateFinanceSummaryId)
+    await svc.from('state_finance_summaries').delete().eq('id', stateFinanceSummaryId)
+  }
   if (stateAsmId) {
     await svc.from('state_vote_positions').delete().eq('official_id', stateAsmId)
     await svc.from('state_bill_sponsors').delete().eq('official_id', stateAsmId)
@@ -226,6 +253,17 @@ describe('fetchMyOfficials', () => {
     expect(error).toBeNull()
     expect(data).toHaveLength(1)
     expect(data![0]!.role).toBe('sponsor')
+  })
+
+  it('state officials can read their own state_finance_individual_donors via anon RLS', async () => {
+    const { data, error } = await anon.from('state_finance_individual_donors')
+      .select('rank, donor_name, amount')
+      .eq('state_finance_summary_id', stateFinanceSummaryId)
+      .order('rank')
+    expect(error).toBeNull()
+    expect(data).toHaveLength(2)
+    expect(data![0]!.donor_name).toBe('IT Donor')
+    expect(Number(data![0]!.amount)).toBe(5000)
   })
 })
 
