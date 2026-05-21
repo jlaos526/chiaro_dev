@@ -41,6 +41,9 @@ dist/
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
 
+# OpenStates v3 fetcher on-disk cache (per-machine, runtime artifact)
+packages/db/supabase/seed/.cache/
+
 # Superpowers brainstorm artifacts (per-machine, not shared)
 .superpowers/
 
