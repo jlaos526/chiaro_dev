@@ -21,6 +21,7 @@
     "seed:state-officials": "tsx supabase/seed/state-officials-ingest.ts",
     "seed:openstates-v3-fetch": "tsx supabase/seed/openstates-v3-fetch.ts",
     "seed:openstates-v3-cache-prune": "tsx supabase/seed/openstates-v3-cache-prune.ts",
+    "seed:openstates-v3-fetch-all": "tsx supabase/seed/openstates-v3-fetch-all.ts",
     "seed:state-bills-votes": "tsx supabase/seed/state-bills-votes-ingest.ts",
     "seed:state-bills-enrich": "tsx supabase/seed/state-bills-enrich.ts",
     "seed:state-metrics-recompute": "tsx supabase/seed/recompute-state-metrics.ts",
