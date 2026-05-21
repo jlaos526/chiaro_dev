@@ -11,39 +11,65 @@ jest.mock('@/lib/supabase', () => ({
   supabase: {} as unknown,
 }))
 
+// Mutable mock state — tests reassign before rendering so the same jest.mock
+// factory closure can serve different fixtures without jest.resetModules()
+// (which breaks React's module identity under jest-expo).
+const DEFAULT_BILLS_DATA = [{
+  id: 'b1', title: 'Test Sponsored', state: 'CA', bill_type: 'SB',
+  number: 1, latest_action_date: '2025-02-01', sponsors: [],
+  subjects: [], status: 'introduced', status_substage: null,
+  source_url: 'https://x',
+}]
+const DEFAULT_VOTES_DATA = [
+  {
+    vote: {
+      id: 'v1', question: 'On Passage', vote_date: '2025-03-01',
+      result: 'passed', source_url: 'https://x',
+      party_vote_split: null, bill: { bill_type: 'SB', number: 1 },
+    },
+    position: 'yes',
+  },
+  {
+    vote: {
+      id: 'v2', question: 'On Motion', vote_date: '2025-03-15',
+      result: 'failed', source_url: 'https://x',
+      party_vote_split: null, bill: { bill_type: 'SB', number: 2 },
+    },
+    position: 'not_voting',
+  },
+]
+const DEFAULT_METRICS = {
+  bills_sponsored_count: 1,
+  bills_cosponsored_count: 0,
+  votes_voted_count: 1,
+  votes_missed_count: 1,
+  total_roll_calls: 2,
+  attendance_pct: 50,
+  party_unity_state: null,
+  committee_chair_count: 2,
+  fiscal_impact_total: 1000000,
+  bills_passed_count: 3,
+  hearings_held_count: 2,
+  subject_breadth: 5,
+  bill_passage_rate: 75,
+  fiscal_impact_per_dollar_raised: 12500,
+}
+
+let mockSponsoredBills: unknown = DEFAULT_BILLS_DATA
+let mockVotes: unknown = DEFAULT_VOTES_DATA
+let mockMetrics: unknown = DEFAULT_METRICS
+
 jest.mock('@chiaro/state-bills', () => {
   const actual = jest.requireActual('@chiaro/state-bills')
   return {
     ...actual,
     useOfficialSponsoredStateBills: () => ({
-      data: [{
-        id: 'b1', title: 'Test Sponsored', state: 'CA', bill_type: 'SB',
-        number: 1, latest_action_date: '2025-02-01', sponsors: [],
-        subjects: [], status: 'introduced', status_substage: null,
-        source_url: 'https://x',
-      }],
+      data: mockSponsoredBills,
       isLoading: false, isSuccess: true,
     }),
     useOfficialCosponsoredStateBills: () => ({ data: [], isLoading: false, isSuccess: true }),
     useOfficialStateVotes: () => ({
-      data: [
-        {
-          vote: {
-            id: 'v1', question: 'On Passage', vote_date: '2025-03-01',
-            result: 'passed', source_url: 'https://x',
-            party_vote_split: null, bill: { bill_type: 'SB', number: 1 },
-          },
-          position: 'yes',
-        },
-        {
-          vote: {
-            id: 'v2', question: 'On Motion', vote_date: '2025-03-15',
-            result: 'failed', source_url: 'https://x',
-            party_vote_split: null, bill: { bill_type: 'SB', number: 2 },
-          },
-          position: 'not_voting',
-        },
-      ],
+      data: mockVotes,
       isLoading: false, isSuccess: true,
     }),
   }
@@ -54,17 +80,7 @@ jest.mock('@chiaro/officials', () => {
   return {
     ...actual,
     useOfficialMetrics: () => ({
-      data: {
-        bills_sponsored_count: 1,
-        bills_cosponsored_count: 0,
-        votes_voted_count: 1,
-        votes_missed_count: 1,
-        total_roll_calls: 2,
-        attendance_pct: 50,
-        party_unity_state: null,
-        committee_chair_count: 0,
-        fiscal_impact_total: 1000000,
-      },
+      data: mockMetrics,
       isLoading: false, isSuccess: true,
     }),
   }
@@ -92,6 +108,12 @@ function mkOfficial(overrides: Partial<OfficialWithDistrict> = {}): OfficialWith
 }
 
 describe('mobile StateServiceRecordCard', () => {
+  beforeEach(() => {
+    mockSponsoredBills = DEFAULT_BILLS_DATA
+    mockVotes = DEFAULT_VOTES_DATA
+    mockMetrics = DEFAULT_METRICS
+  })
+
   it('renders tenure + bills sponsored + votes counts + attendance', () => {
     const { getByText } = render(<StateServiceRecordCard official={mkOfficial()} />, { wrapper: wrap })
     expect(getByText(/Service Record/i)).toBeTruthy()
@@ -136,5 +158,67 @@ describe('mobile StateServiceRecordCard', () => {
   it('empty metrics → falls back to scalar 0', () => {
     const { getByText } = render(<StateServiceRecordCard official={mkOfficial()} />, { wrapper: wrap })
     expect(getByText(/Bills cosponsored/i)).toBeTruthy()
+  })
+
+  it('renders Performance metrics subsection header', () => {
+    const { getByText } = render(<StateServiceRecordCard official={mkOfficial()} />, { wrapper: wrap })
+    expect(getByText('Performance metrics')).toBeTruthy()
+  })
+
+  it('renders all 5 KPI scalar rows with formatted values', () => {
+    const { getByText } = render(<StateServiceRecordCard official={mkOfficial()} />, { wrapper: wrap })
+    expect(getByText('Bills passed')).toBeTruthy()
+    expect(getByText('3')).toBeTruthy()
+    expect(getByText('Hearings held')).toBeTruthy()
+    expect(getByText('5')).toBeTruthy()
+    expect(getByText('Bill passage rate')).toBeTruthy()
+    expect(getByText('75%')).toBeTruthy()
+    expect(getByText('Fiscal impact / $')).toBeTruthy()
+    expect(getByText('$12,500')).toBeTruthy()
+  })
+
+  it('em-dash for NULL KPIs', () => {
+    mockSponsoredBills = []
+    mockVotes = []
+    mockMetrics = {
+      bills_sponsored_count: 1, bills_cosponsored_count: 0,
+      votes_voted_count: 0, votes_missed_count: 0, total_roll_calls: 0,
+      attendance_pct: null, party_unity_state: null, fiscal_impact_total: 0,
+      committee_chair_count: null,
+      bills_passed_count: null, hearings_held_count: null, subject_breadth: null,
+      bill_passage_rate: null, fiscal_impact_per_dollar_raised: null,
+    }
+    const { getAllByText } = render(<StateServiceRecordCard official={mkOfficial()} />, { wrapper: wrap })
+    expect(getAllByText('—').length).toBeGreaterThanOrEqual(5)
+  })
+
+  it('committee_chair_count row hidden when NULL', () => {
+    mockSponsoredBills = []
+    mockVotes = []
+    mockMetrics = {
+      bills_sponsored_count: 1, bills_cosponsored_count: 0,
+      votes_voted_count: 0, votes_missed_count: 0, total_roll_calls: 0,
+      attendance_pct: null, party_unity_state: null, fiscal_impact_total: 0,
+      committee_chair_count: null,
+      bills_passed_count: 0, hearings_held_count: 0, subject_breadth: 0,
+      bill_passage_rate: 0, fiscal_impact_per_dollar_raised: 0,
+    }
+    const { queryByText } = render(<StateServiceRecordCard official={mkOfficial()} />, { wrapper: wrap })
+    expect(queryByText('Committee chair seats')).toBeNull()
+  })
+
+  it('fiscal_impact_per_dollar_raised formats small values as $0.04', () => {
+    mockSponsoredBills = []
+    mockVotes = []
+    mockMetrics = {
+      bills_sponsored_count: 1, bills_cosponsored_count: 0,
+      votes_voted_count: 0, votes_missed_count: 0, total_roll_calls: 0,
+      attendance_pct: null, party_unity_state: null, fiscal_impact_total: 0,
+      committee_chair_count: 0,
+      bills_passed_count: 0, hearings_held_count: 0, subject_breadth: 0,
+      bill_passage_rate: 0, fiscal_impact_per_dollar_raised: 0.04,
+    }
+    const { getByText } = render(<StateServiceRecordCard official={mkOfficial()} />, { wrapper: wrap })
+    expect(getByText('$0.04')).toBeTruthy()
   })
 })

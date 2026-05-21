@@ -69,8 +69,13 @@ vi.mock('@chiaro/officials', async () => {
         total_roll_calls: 2,
         attendance_pct: 50,
         party_unity_state: null,
-        committee_chair_count: 0,
+        committee_chair_count: 2,
         fiscal_impact_total: 1000000,
+        bills_passed_count: 3,
+        hearings_held_count: 2,
+        subject_breadth: 5,
+        bill_passage_rate: 75,
+        fiscal_impact_per_dollar_raised: 12500,
       },
       isLoading: false, isSuccess: true,
     }),
@@ -135,5 +140,132 @@ describe('StateServiceRecordCard', () => {
   it('empty metrics → falls back to scalar 0', () => {
     const { getByText } = render(<StateServiceRecordCard official={mkOfficial()} />, { wrapper: wrap })
     expect(getByText(/Bills cosponsored/i)).toBeTruthy()
+  })
+
+  it('renders Performance metrics subsection header', () => {
+    const { getByText } = render(<StateServiceRecordCard official={mkOfficial()} />, { wrapper: wrap })
+    expect(getByText('Performance metrics')).toBeTruthy()
+  })
+
+  it('renders all 5 KPI scalar rows with formatted values', () => {
+    const { getByText } = render(<StateServiceRecordCard official={mkOfficial()} />, { wrapper: wrap })
+    expect(getByText('Bills passed')).toBeTruthy()
+    expect(getByText('3')).toBeTruthy()
+    expect(getByText('Hearings held')).toBeTruthy()
+    expect(getByText('Subject breadth')).toBeTruthy()
+    expect(getByText('5')).toBeTruthy()
+    expect(getByText('Bill passage rate')).toBeTruthy()
+    expect(getByText('75%')).toBeTruthy()
+    expect(getByText('Fiscal impact / $')).toBeTruthy()
+    expect(getByText('$12,500')).toBeTruthy()
+  })
+
+  it('em-dash for NULL KPIs', async () => {
+    vi.resetModules()
+    vi.doMock('@/lib/supabase/client', () => ({
+      createSupabaseBrowserClient: () => ({} as unknown),
+    }))
+    vi.doMock('@chiaro/state-bills', async () => {
+      const actual = await vi.importActual<object>('@chiaro/state-bills')
+      return {
+        ...actual,
+        useOfficialSponsoredStateBills:   () => ({ data: [], isLoading: false, isSuccess: true }),
+        useOfficialCosponsoredStateBills: () => ({ data: [], isLoading: false, isSuccess: true }),
+        useOfficialStateVotes:            () => ({ data: [], isLoading: false, isSuccess: true }),
+      }
+    })
+    vi.doMock('@chiaro/officials', async () => {
+      const actual = await vi.importActual<object>('@chiaro/officials')
+      return {
+        ...actual,
+        useOfficialMetrics: () => ({
+          data: {
+            bills_sponsored_count: 1, bills_cosponsored_count: 0,
+            votes_voted_count: 1, votes_missed_count: 0, total_roll_calls: 1,
+            attendance_pct: 100, party_unity_state: null, fiscal_impact_total: 0,
+            committee_chair_count: null,
+            bills_passed_count: null, hearings_held_count: null, subject_breadth: null,
+            bill_passage_rate: null, fiscal_impact_per_dollar_raised: null,
+          },
+          isLoading: false, isSuccess: true,
+        }),
+      }
+    })
+    const { StateServiceRecordCard: Reimported } = await import('@/components/state/StateServiceRecordCard')
+    const { getAllByText } = render(<Reimported official={mkOfficial()} />, { wrapper: wrap })
+    // 5 NULL KPI rows → 5 em-dashes (plus any from existing scalars when NULL)
+    expect(getAllByText('—').length).toBeGreaterThanOrEqual(5)
+  })
+
+  it('committee_chair_count row hidden when NULL', async () => {
+    vi.resetModules()
+    vi.doMock('@/lib/supabase/client', () => ({
+      createSupabaseBrowserClient: () => ({} as unknown),
+    }))
+    vi.doMock('@chiaro/state-bills', async () => {
+      const actual = await vi.importActual<object>('@chiaro/state-bills')
+      return {
+        ...actual,
+        useOfficialSponsoredStateBills:   () => ({ data: [], isLoading: false, isSuccess: true }),
+        useOfficialCosponsoredStateBills: () => ({ data: [], isLoading: false, isSuccess: true }),
+        useOfficialStateVotes:            () => ({ data: [], isLoading: false, isSuccess: true }),
+      }
+    })
+    vi.doMock('@chiaro/officials', async () => {
+      const actual = await vi.importActual<object>('@chiaro/officials')
+      return {
+        ...actual,
+        useOfficialMetrics: () => ({
+          data: {
+            bills_sponsored_count: 1, bills_cosponsored_count: 0,
+            votes_voted_count: 1, votes_missed_count: 0, total_roll_calls: 1,
+            attendance_pct: 100, party_unity_state: null, fiscal_impact_total: 0,
+            committee_chair_count: null,
+            bills_passed_count: 0, hearings_held_count: 0, subject_breadth: 0,
+            bill_passage_rate: 0, fiscal_impact_per_dollar_raised: 0,
+          },
+          isLoading: false, isSuccess: true,
+        }),
+      }
+    })
+    const { StateServiceRecordCard: Reimported } = await import('@/components/state/StateServiceRecordCard')
+    const { queryByText } = render(<Reimported official={mkOfficial()} />, { wrapper: wrap })
+    expect(queryByText('Committee chair seats')).toBeNull()
+  })
+
+  it('fiscal_impact_per_dollar_raised formats small values as $0.04', async () => {
+    vi.resetModules()
+    vi.doMock('@/lib/supabase/client', () => ({
+      createSupabaseBrowserClient: () => ({} as unknown),
+    }))
+    vi.doMock('@chiaro/state-bills', async () => {
+      const actual = await vi.importActual<object>('@chiaro/state-bills')
+      return {
+        ...actual,
+        useOfficialSponsoredStateBills:   () => ({ data: [], isLoading: false, isSuccess: true }),
+        useOfficialCosponsoredStateBills: () => ({ data: [], isLoading: false, isSuccess: true }),
+        useOfficialStateVotes:            () => ({ data: [], isLoading: false, isSuccess: true }),
+      }
+    })
+    vi.doMock('@chiaro/officials', async () => {
+      const actual = await vi.importActual<object>('@chiaro/officials')
+      return {
+        ...actual,
+        useOfficialMetrics: () => ({
+          data: {
+            bills_sponsored_count: 1, bills_cosponsored_count: 0,
+            votes_voted_count: 1, votes_missed_count: 0, total_roll_calls: 1,
+            attendance_pct: 100, party_unity_state: null, fiscal_impact_total: 0,
+            committee_chair_count: 0,
+            bills_passed_count: 0, hearings_held_count: 0, subject_breadth: 0,
+            bill_passage_rate: 0, fiscal_impact_per_dollar_raised: 0.04,
+          },
+          isLoading: false, isSuccess: true,
+        }),
+      }
+    })
+    const { StateServiceRecordCard: Reimported } = await import('@/components/state/StateServiceRecordCard')
+    const { getByText } = render(<Reimported official={mkOfficial()} />, { wrapper: wrap })
+    expect(getByText('$0.04')).toBeTruthy()
   })
 })

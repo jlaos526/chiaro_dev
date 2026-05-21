@@ -387,7 +387,9 @@ export type Database = {
       official_metrics: {
         Row: {
           attendance_pct: number | null
+          bill_passage_rate: number | null
           bills_cosponsored_count: number | null
+          bills_passed_count: number | null
           bills_sponsored_count: number | null
           bipartisan_vote_pct: number | null
           career_bills_sponsored_count: number | null
@@ -397,7 +399,9 @@ export type Database = {
           computed_at: string
           congress: string
           district_offices_count: number | null
+          fiscal_impact_per_dollar_raised: number | null
           fiscal_impact_total: number | null
+          hearings_held_count: number | null
           home_district_id: string | null
           in_state_donations_pct: number | null
           lives_in_district: boolean | null
@@ -410,6 +414,7 @@ export type Database = {
           stock_act_compliance_pct: number | null
           stock_act_disclosures_late: number | null
           stock_act_disclosures_total: number | null
+          subject_breadth: number | null
           tenure_years: number | null
           total_roll_calls: number | null
           town_halls_count: number | null
@@ -418,7 +423,9 @@ export type Database = {
         }
         Insert: {
           attendance_pct?: number | null
+          bill_passage_rate?: number | null
           bills_cosponsored_count?: number | null
+          bills_passed_count?: number | null
           bills_sponsored_count?: number | null
           bipartisan_vote_pct?: number | null
           career_bills_sponsored_count?: number | null
@@ -428,7 +435,9 @@ export type Database = {
           computed_at?: string
           congress: string
           district_offices_count?: number | null
+          fiscal_impact_per_dollar_raised?: number | null
           fiscal_impact_total?: number | null
+          hearings_held_count?: number | null
           home_district_id?: string | null
           in_state_donations_pct?: number | null
           lives_in_district?: boolean | null
@@ -441,6 +450,7 @@ export type Database = {
           stock_act_compliance_pct?: number | null
           stock_act_disclosures_late?: number | null
           stock_act_disclosures_total?: number | null
+          subject_breadth?: number | null
           tenure_years?: number | null
           total_roll_calls?: number | null
           town_halls_count?: number | null
@@ -449,7 +459,9 @@ export type Database = {
         }
         Update: {
           attendance_pct?: number | null
+          bill_passage_rate?: number | null
           bills_cosponsored_count?: number | null
+          bills_passed_count?: number | null
           bills_sponsored_count?: number | null
           bipartisan_vote_pct?: number | null
           career_bills_sponsored_count?: number | null
@@ -459,7 +471,9 @@ export type Database = {
           computed_at?: string
           congress?: string
           district_offices_count?: number | null
+          fiscal_impact_per_dollar_raised?: number | null
           fiscal_impact_total?: number | null
+          hearings_held_count?: number | null
           home_district_id?: string | null
           in_state_donations_pct?: number | null
           lives_in_district?: boolean | null
@@ -472,6 +486,7 @@ export type Database = {
           stock_act_compliance_pct?: number | null
           stock_act_disclosures_late?: number | null
           stock_act_disclosures_total?: number | null
+          subject_breadth?: number | null
           tenure_years?: number | null
           total_roll_calls?: number | null
           town_halls_count?: number | null
@@ -964,6 +979,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      state_committee_memberships: {
+        Row: {
+          chamber: Database["public"]["Enums"]["official_chamber"]
+          committee_name: string
+          id: string
+          ingested_at: string
+          official_id: string
+          openstates_committee_id: string
+          role: string
+          session: string | null
+          source_url: string
+          state: string
+        }
+        Insert: {
+          chamber: Database["public"]["Enums"]["official_chamber"]
+          committee_name: string
+          id?: string
+          ingested_at?: string
+          official_id: string
+          openstates_committee_id: string
+          role: string
+          session?: string | null
+          source_url: string
+          state: string
+        }
+        Update: {
+          chamber?: Database["public"]["Enums"]["official_chamber"]
+          committee_name?: string
+          id?: string
+          ingested_at?: string
+          official_id?: string
+          openstates_committee_id?: string
+          role?: string
+          session?: string | null
+          source_url?: string
+          state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_committee_memberships_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       state_finance_individual_donors: {
         Row: {

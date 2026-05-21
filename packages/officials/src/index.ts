@@ -6,6 +6,7 @@ export type {
   Party,
   StateFinanceSummaryRow,
   StateFinanceIndividualDonorRow,
+  StateCommitteeMembershipRow,
 } from './types.ts'
 
 export {

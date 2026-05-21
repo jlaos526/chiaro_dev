@@ -157,6 +157,17 @@ beforeAll(async () => {
     { state_finance_summary_id: stateFinanceSummaryId, rank: 2, donor_name: 'OG Donor', amount: 3000 },
   ])
 
+  const { error: scErr } = await svc.from('state_committee_memberships').insert({
+    official_id: stateAsmId,
+    openstates_committee_id: 'ocd-committee/int-test',
+    committee_name: 'Integration Test Cmt',
+    state: 'CA',
+    chamber: 'state_house',
+    role: 'chair',
+    source_url: 'https://x',
+  })
+  expect(scErr).toBeNull()
+
   const { data: u, error: ue } = await svc.auth.admin.createUser({
     email: 'integration@test', email_confirm: true, password: 'test1234',
   })
@@ -180,9 +191,13 @@ afterAll(async () => {
   if (!svc) return
   // Idempotent cleanup — deletes by content filter, not by stored UUIDs, so a
   // crashed beforeAll or a stale prior run doesn't leave orphans behind.
-  // FK order: finance_donors → finance_summaries → vote_positions → votes →
-  // bill_sponsors → bills → officials → districts. (Donors CASCADE on summary
-  // delete, but explicit delete is clearer.)
+  // FK order: committee_memberships → finance_donors → finance_summaries →
+  // vote_positions → votes → bill_sponsors → bills → officials → districts.
+  // (Donors CASCADE on summary delete, but explicit delete is clearer.
+  // Memberships are FK RESTRICT to officials so must precede officials delete.)
+  if (stateAsmId) {
+    await svc.from('state_committee_memberships').delete().eq('official_id', stateAsmId)
+  }
   if (stateFinanceSummaryId) {
     await svc.from('state_finance_individual_donors').delete().eq('state_finance_summary_id', stateFinanceSummaryId)
     await svc.from('state_finance_summaries').delete().eq('id', stateFinanceSummaryId)
@@ -264,6 +279,16 @@ describe('fetchMyOfficials', () => {
     expect(data).toHaveLength(2)
     expect(data![0]!.donor_name).toBe('IT Donor')
     expect(Number(data![0]!.amount)).toBe(5000)
+  })
+
+  it('state officials can read their own state_committee_memberships via anon RLS', async () => {
+    const { data, error } = await anon.from('state_committee_memberships')
+      .select('committee_name, role')
+      .eq('official_id', stateAsmId)
+    expect(error).toBeNull()
+    expect(data).toHaveLength(1)
+    expect(data![0]!.role).toBe('chair')
+    expect(data![0]!.committee_name).toBe('Integration Test Cmt')
   })
 })
 

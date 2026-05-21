@@ -23,7 +23,17 @@ jest.mock('@chiaro/officials', () => {
   const actual = jest.requireActual('@chiaro/officials')
   return {
     ...actual,
-    useOfficialMetrics: () => ({ data: null, isLoading: false, isSuccess: true }),
+    useOfficialMetrics: () => ({
+      data: {
+        bills_sponsored_count: 1, bills_cosponsored_count: 0,
+        votes_voted_count: 0, votes_missed_count: 0, total_roll_calls: 0,
+        attendance_pct: null, party_unity_state: null, fiscal_impact_total: 0,
+        committee_chair_count: null,
+        bills_passed_count: null, hearings_held_count: null, subject_breadth: null,
+        bill_passage_rate: null, fiscal_impact_per_dollar_raised: null,
+      },
+      isLoading: false, isSuccess: true,
+    }),
     useOfficialStateFinanceSummary: () => ({ data: null, isLoading: false, isSuccess: true }),
     useOfficialStateDonors: () => ({ data: [], isLoading: false, isSuccess: true }),
   }

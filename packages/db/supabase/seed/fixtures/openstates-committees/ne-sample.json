@@ -1,0 +1,15 @@
+{
+  "committees": [
+    {
+      "id": "ocd-committee/00000000-0000-0000-0000-cmt-ne-aaa",
+      "name": "Revenue Committee",
+      "jurisdiction": { "id": "ocd-jurisdiction/country:us/state:ne/government", "classification": "state" },
+      "chamber": "legislature",
+      "memberships": [
+        { "person_id": "ocd-person/00000000-0000-0000-0000-fx-ne-sen-1", "name": "FX NE Sen Chair", "role": "Chair" },
+        { "person_id": "ocd-person/00000000-0000-0000-0000-fx-ne-sen-2", "name": "FX NE Sen Mem", "role": "Member" }
+      ],
+      "sources": [ { "url": "https://nebraskalegislature.gov/committees/revenue" } ]
+    }
+  ]
+}

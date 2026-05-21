@@ -19,6 +19,22 @@ function chamberLabel(chamber: OfficialWithDistrict['chamber']): string {
   return 'State Senator'
 }
 
+function fmtCount(n: number | null | undefined): string {
+  if (n == null) return '—'
+  return String(n)
+}
+
+function fmtPct(n: number | string | null | undefined): string {
+  if (n == null) return '—'
+  const num = Number(n)
+  return num % 1 === 0 ? `${num}%` : `${num.toFixed(1)}%`
+}
+
+function fmtRatio(n: number | string | null | undefined): string {
+  if (n == null) return '—'
+  return `$${Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 })}`
+}
+
 export function StateServiceRecordCard({ official }: { official: OfficialWithDistrict }) {
   // Hooks must be called unconditionally (Rules of Hooks); chamber gate runs after.
   const sponsored = useOfficialSponsoredStateBills(supabase, official.id)
@@ -72,6 +88,25 @@ export function StateServiceRecordCard({ official }: { official: OfficialWithDis
         <ScalarRow label="Votes missed"      value={m?.votes_missed_count      ?? 0} />
         <ScalarRow label="Attendance"        value={attendance} />
         <ScalarRow label="Party unity"       value={partyUnity} />
+      </View>
+
+      <Text style={{
+        marginTop: 16,
+        fontSize: 13,
+        fontWeight: '700',
+        color: COLORS.brand.text,
+      }}>
+        Performance metrics
+      </Text>
+      <View style={{ marginTop: 8, gap: 8 }}>
+        <ScalarRow label="Bills passed"        value={fmtCount(m?.bills_passed_count)} />
+        <ScalarRow label="Hearings held"       value={fmtCount(m?.hearings_held_count)} />
+        <ScalarRow label="Subject breadth"     value={fmtCount(m?.subject_breadth)} />
+        <ScalarRow label="Bill passage rate"   value={fmtPct(m?.bill_passage_rate)} />
+        <ScalarRow label="Fiscal impact / $"   value={fmtRatio(m?.fiscal_impact_per_dollar_raised)} />
+        {m?.committee_chair_count != null && (
+          <ScalarRow label="Committee chair seats" value={String(m.committee_chair_count)} />
+        )}
       </View>
 
       <View style={{ marginTop: 12 }}>

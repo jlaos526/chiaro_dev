@@ -8,6 +8,9 @@ export type StateFinanceSummaryRow =
 export type StateFinanceIndividualDonorRow =
   Database['public']['Tables']['state_finance_individual_donors']['Row']
 
+export type StateCommitteeMembershipRow =
+  Database['public']['Tables']['state_committee_memberships']['Row']
+
 // Source of truth — mirrors the public.official_chamber enum (migration 0028)
 // expanded to 5 values for state-level legislators.
 export type OfficialChamber = Database['public']['Enums']['official_chamber']

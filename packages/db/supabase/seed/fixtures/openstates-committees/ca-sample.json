@@ -1,0 +1,27 @@
+{
+  "committees": [
+    {
+      "id": "ocd-committee/00000000-0000-0000-0000-cmt-ca-aaa",
+      "name": "Assembly Education Committee",
+      "jurisdiction": { "id": "ocd-jurisdiction/country:us/state:ca/government", "classification": "state" },
+      "chamber": "lower",
+      "memberships": [
+        { "person_id": "ocd-person/00000000-0000-0000-0000-fx-ca-asm-1", "name": "FX CA Asm Chair", "role": "Chair" },
+        { "person_id": "ocd-person/00000000-0000-0000-0000-fx-ca-asm-2", "name": "FX CA Asm VC", "role": "Vice Chair" },
+        { "person_id": "ocd-person/00000000-0000-0000-0000-fx-ca-asm-3", "name": "FX CA Asm Mem", "role": "Member" }
+      ],
+      "sources": [ { "url": "https://leginfo.legislature.ca.gov/committees/edu" } ]
+    },
+    {
+      "id": "ocd-committee/00000000-0000-0000-0000-cmt-ca-bbb",
+      "name": "Senate Health Committee",
+      "jurisdiction": { "id": "ocd-jurisdiction/country:us/state:ca/government", "classification": "state" },
+      "chamber": "upper",
+      "memberships": [
+        { "person_id": "ocd-person/00000000-0000-0000-0000-fx-ca-sen-1", "name": "FX CA Sen Chair", "role": "chair" },
+        { "person_id": "ocd-person/00000000-0000-0000-0000-fx-ca-sen-2", "name": "FX CA Sen Mem", "role": "member" }
+      ],
+      "sources": [ { "url": "https://leginfo.legislature.ca.gov/committees/health" } ]
+    }
+  ]
+}

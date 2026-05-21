@@ -1,0 +1,16 @@
+{
+  "committees": [
+    {
+      "id": "ocd-committee/00000000-0000-0000-0000-cmt-ny-aaa",
+      "name": "Assembly Ways and Means Committee",
+      "jurisdiction": { "id": "ocd-jurisdiction/country:us/state:ny/government", "classification": "state" },
+      "chamber": "lower",
+      "memberships": [
+        { "person_id": "ocd-person/00000000-0000-0000-0000-fx-ny-asm-1", "name": "FX NY Asm Chair", "role": "Chair" },
+        { "person_id": "ocd-person/00000000-0000-0000-0000-fx-ny-asm-2", "name": "FX NY Asm RM", "role": "Ranking Member" },
+        { "person_id": "ocd-person/00000000-0000-0000-0000-fx-ny-asm-3", "name": "FX NY Asm Mem", "role": "Member" }
+      ],
+      "sources": [ { "url": "https://nyassembly.gov/committees/wm" } ]
+    }
+  ]
+}

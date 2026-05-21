@@ -9,13 +9,16 @@ pnpm install                           # workspace deps; uses pnpm 9.x
 
 # Local backend
 pnpm db:start                          # boot local Supabase (port 54321; DB 54322)
-pnpm db:reset                          # apply all migrations 0001–0036
-pnpm db:test                           # pgTAP suite (321 tests across 24 files)
+pnpm db:reset                          # apply all migrations 0001–0039
+pnpm db:test                           # pgTAP suite (341 tests across 26 files)
 pnpm seed:tiger                        # ingest TIGER 2024 district geometries (~5–15 min, ~51 Census shapefiles)
 pnpm seed:officials                    # ingest federal officials from Congress.gov v3 (requires CONGRESS_GOV_API_KEY)
 pnpm seed:state-officials              # ingest state legislators from openstates/people YAML repo (no API key)
 pnpm seed:state-bills-full             # ingest state bills + votes + per-state augment + state metrics
 pnpm seed:state-finance --cycle=2024 --skip-on-error   # state campaign finance (5 states: CA NY FL TX MI)
+pnpm seed:openstates-committees-fetch --state=CA   # one state at a time; repeat per state
+pnpm seed:openstates-committees-ingest             # parse cache → state_committee_memberships
+pnpm seed:state-metrics-recompute --session=2024   # populates new KPI columns
 
 # App dev
 pnpm --filter @chiaro/web dev          # Next.js on http://localhost:3000
@@ -61,6 +64,7 @@ Dependency direction is strict — see Gotchas #4.
 - **Sub-slice 5C — state officials identity** (2026-05-19): OpenStates ingest of US state legislators (state house + state senate + NE unicameral) via the `openstates/people` GitHub YAML repo. Calibrated users see state reps alongside federal on home + new `/state-officials/[id]` route with 5 federal-only categories rendered as `ComingSoonCard` placeholders. Migrations 0028 (chamber enum 5-value expand) + 0029 (openstates_person_id + district_code + title columns, party CHECK relaxed). 19 new pgTAP plans across 2 new files + ~60 new vitest cases.
 - **Sub-slice 5D — state bills + votes** (2026-05-20): OpenStates v3-API baseline ingest of state legislators' bills + votes + 5 per-state public-API augment adapters (CA leginfo, NY senate API, FL Senate+House, TX capitol, MI legislature). New `@chiaro/state-bills` package (workspace 9 → 10). Migrations 0030–0034: `state_bills` + `state_bill_sponsors` + `state_bill_subjects` + `state_votes` + `state_vote_positions` tables + 3 new `official_metrics` columns (`committee_chair_count`, `fiscal_impact_total`, `party_unity_state`). `/state-officials/[id]` Service Record card becomes real (composes `useOfficialMetrics` + `useOfficialSponsoredStateBills` + `useOfficialStateVotes`). NY adapter skips gracefully without `NY_SENATE_API_KEY`. 55 new pgTAP plans across 3 new files + ~46 new vitest cases (db) + ~10 web + ~18 mobile.
 - **Sub-slice 5E — state campaign finance** (2026-05-21): per-state adapters (CA Cal-Access, NY NYSBOE, FL DOE, TX Ethics, MI BOE) writing to `state_finance_summaries` + `state_finance_individual_donors`. Replaces `ComingSoonCard('Finance')` on `/state-officials/[id]` with real `StateFinanceCard` + `StateDonorsEvidence` panels (web + mobile). Migrations 0035 + 0036. State finance queries live in `@chiaro/officials` alongside federal finance (workspace stays at 10). 5 adapter test files + 1 orchestrator integration test + ~37 vitest cases (db) + ~12 web + ~12 mobile + 1 new pgTAP file (16 plans).
+- **Sub-slice 5F — state performance metrics + KPIs** (2026-05-21): real `committee_chair_count` via new OpenStates committees ingest (state_committee_memberships table + fetcher + ingest scripts). 5 new KPI columns on `official_metrics`: bills_passed_count (status heuristic), hearings_held_count, subject_breadth, bill_passage_rate (E1), fiscal_impact_per_dollar_raised (E2, descriptive ROI ratio). UI: StateServiceRecordCard (web + mobile) extended with "Performance metrics" subsection — 5 new rows + conditional committee chair seats row (hidden when NULL). Migrations 0037–0039. `party_unity_state` stub UNCHANGED (deferred). 2 new pgTAP files (12 + 8 plans = 20). Workspace stays at 10.
 
 Specs live in `docs/superpowers/specs/`. Plans in `docs/superpowers/plans/`. Audits in `docs/superpowers/audits/`. Mobile DoD checklist at `docs/superpowers/mobile-dod-checklist.md`.
 
@@ -88,7 +92,7 @@ See `.env.example` files at repo root, `apps/web/`, and `apps/mobile/`.
 
 ## Testing
 
-- **pgTAP**: `pnpm db:test` → 321 tests across 24 files. Requires `pnpm db:start` and `pnpm db:reset`. Some tests (TIGER ingest assertions) require `pnpm seed:tiger` to have run first.
+- **pgTAP**: `pnpm db:test` → 341 tests across 26 files. Requires `pnpm db:start` and `pnpm db:reset`. Some tests (TIGER ingest assertions) require `pnpm seed:tiger` to have run first.
 - **Vitest**: `pnpm test` → turbo-managed, runs each package's test script. Officials/location/bills/profile integration tests need Supabase env vars exported first.
 - **CI** (`.github/workflows/ci.yml`): 4 jobs — `db` (migrations + pgTAP + 9 fixture-ingest suites: officials, legislators, bills/votes, scorecards, finance, salary-residency, town-halls, stock-watcher, recompute-metrics), `build` (Next 15 + Sentry source-map upload when secret present), `functions` (Deno tests for Edge Function + shared Sentry helper), `test` (full workspace tests). Each job boots a fresh local Supabase via `supabase/setup-cli`.
 
@@ -140,6 +144,20 @@ See `.env.example` files at repo root, `apps/web/`, and `apps/mobile/`.
     - **`--state=XX` flag for surgical re-runs.** After fixing a per-state parser issue: `pnpm seed:state-finance --cycle=2024 --state=FL`.
     - **`source_url`** on every summary row links to the state's canonical filing detail page. UI surfaces it as the source pill ("Cal-Access" etc.) — clickthrough to be added in a future UI polish task.
     - **All 5 adapters ship with stub `defaultFetcher` returning `[]`.** Real source parsers (CA XML, NY API, FL HTML, TX/MI CSV) are operator follow-up work. Tests inject fetchers returning normalized fixture envelopes (slice 5D enrich pattern).
+
+11. **State performance KPIs have known limitations** —
+    - **`party_unity_state` is still a stub** (`= 100 when voted >= 3, else NULL`). Real majority-of-same-party-peers computation deferred to a future slice. Tracked.
+    - **`bills_passed_count` is a heuristic.** Substring match on `state_bills.status` against `'%signed%' | '%enacted%' | '%became law%' | '%passed%governor%' | '%chaptered%'` (CA convention). Per-state status conventions vary; false negatives possible. Acceptable v1 (conservative under-count, not over-count).
+    - **`hearings_held_count` underreports when augment adapter doesn't populate hearing_date.** CA + NY + MI generally populate; FL + TX sparse. Reads as `0` (not NULL) in sparse-state cases.
+    - **`fiscal_impact_per_dollar_raised` is descriptive, NOT normative.** UI labels neutrally ("Fiscal impact / $"). High ratio ≠ "good ROI" — could mean "delivered a lot for cheap" OR "introduced budget-busting bills without raising much." Don't editorialize in copy.
+    - **`committee_chair_count` NULL semantics.** NULL when no rows in `state_committee_memberships` for the official's state (data not ingested). 0 means "ingested, this official is not a chair." UI hides the row when NULL.
+    - **Subcommittees count identically to full committees** in `committee_chair_count`. v1 trade-off; documented.
+    - **Role normalization is lossy.** OpenStates roles like "Ranking Member", "Ex Officio", "Vice Chairwoman" fold to `'member'` or `'vice_chair'` per `normalizeRole()`. Original strings discarded.
+    - **Joint committees skipped** when OpenStates `chamber` is `'joint'` or non-standard. Logged to `stats.errors[]`; ingest continues with other committees.
+    - **NULL-session uniqueness gap.** The unique constraint `(official_id, openstates_committee_id, session, role)` doesn't deduplicate when `session` is NULL (default Postgres treats NULLs as distinct). The ingest (`openstates-committees-ingest.ts`) works around this with a manual `select ... where session is not distinct from $4` lookup before insert. If the workaround drifts, NULL-session memberships could accumulate duplicate rows on re-runs.
+    - **OpenStates committee data freshness: 7-day cache.** Operator re-runs `seed:openstates-committees-fetch` after committee turnover (start of session, mid-session chair changes).
+    - **`fiscal_impact_per_dollar_raised` cycle alignment.** Numerator (`fiscal_impact_total`) is session-filtered; denominator (`total_raised`) is latest-cycle finance. Not the same time window — descriptive ratio, not a rigorous time-aligned metric. Document for future tightening.
+    - **jest-expo + `jest.resetModules() + jest.doMock + require()` pattern crashes.** Triggers `Cannot read properties of null (reading 'useState')` because module reset invalidates React's identity for the post-reset re-import. Workaround used in `apps/mobile/test/components/state/StateServiceRecordCard.test.tsx`: a mutable `let mockMetrics = DEFAULT_METRICS` reset in `beforeEach`, with the `jest.mock` factory closing over the variable. Same per-test fixtures, idiomatic for jest-expo.
 
 ## Code style
 
