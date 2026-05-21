@@ -32,6 +32,8 @@ export interface FetchOpenStatesV3Stats {
   pagesFetched: number
   billsCached: number
   billsSkippedFresh: number
+  votesCached: number
+  votesSkippedFresh: number
   errors: string[]
 }
 
@@ -117,6 +119,8 @@ export async function fetchOpenStatesV3(
     pagesFetched: 0,
     billsCached: 0,
     billsSkippedFresh: 0,
+    votesCached: 0,
+    votesSkippedFresh: 0,
     errors: [],
   }
 
@@ -128,7 +132,7 @@ export async function fetchOpenStatesV3(
     url.searchParams.set('session', opts.session)
     url.searchParams.set('page', String(page))
     url.searchParams.set('per_page', String(PER_PAGE))
-    url.searchParams.set('include', 'sponsorships,subjects,actions,sources')
+    url.searchParams.set('include', 'sponsorships,subjects,actions,sources,votes')
 
     let body: V3BillsResponse
     try {
@@ -149,10 +153,32 @@ export async function fetchOpenStatesV3(
       const file = join(cacheDir, slugFilename(state, billId))
       if (!opts.force && (await isFresh(file, ttlMs))) {
         stats.billsSkippedFresh += 1
-        continue
+      } else {
+        await writeFile(file, JSON.stringify(bill, null, 2), 'utf8')
+        stats.billsCached += 1
       }
-      await writeFile(file, JSON.stringify(bill, null, 2), 'utf8')
-      stats.billsCached += 1
+      // Extract embedded vote events. v3 returns votes inline when include=votes;
+      // each entry lacks an explicit bill_id field (parent is implicit), so we
+      // inject one before writing to match the OpenStatesVoteEnvelope shape the
+      // loader expects.
+      const embeddedVotes = (bill as { votes?: unknown }).votes
+      if (Array.isArray(embeddedVotes)) {
+        for (const v of embeddedVotes) {
+          const voteId = (v as { id?: unknown }).id
+          if (typeof voteId !== 'string' || !voteId.startsWith('ocd-vote/')) {
+            stats.errors.push(`bill ${billId}: embedded vote has non-string or non-vote id`)
+            continue
+          }
+          const voteFile = join(cacheDir, slugFilename(state, voteId))
+          if (!opts.force && (await isFresh(voteFile, ttlMs))) {
+            stats.votesSkippedFresh += 1
+            continue
+          }
+          const voteEnvelope = { ...(v as object), bill_id: billId }
+          await writeFile(voteFile, JSON.stringify(voteEnvelope, null, 2), 'utf8')
+          stats.votesCached += 1
+        }
+      }
     }
     page += 1
   } while (page <= maxPage)
@@ -200,12 +226,14 @@ if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
   })
     .then(stats => {
       console.log('OpenStates v3 fetch summary:')
-      console.log(`  state:              ${stats.state}`)
-      console.log(`  session:            ${stats.session}`)
-      console.log(`  pages fetched:      ${stats.pagesFetched}`)
-      console.log(`  bills cached:       ${stats.billsCached}`)
+      console.log(`  state:                ${stats.state}`)
+      console.log(`  session:              ${stats.session}`)
+      console.log(`  pages fetched:        ${stats.pagesFetched}`)
+      console.log(`  bills cached:         ${stats.billsCached}`)
       console.log(`  bills skipped(fresh): ${stats.billsSkippedFresh}`)
-      console.log(`  errors:             ${stats.errors.length}`)
+      console.log(`  votes cached:         ${stats.votesCached}`)
+      console.log(`  votes skipped(fresh): ${stats.votesSkippedFresh}`)
+      console.log(`  errors:               ${stats.errors.length}`)
       for (const e of stats.errors) console.log(`    - ${e}`)
       process.exit(stats.errors.length > 0 ? 1 : 0)
     })

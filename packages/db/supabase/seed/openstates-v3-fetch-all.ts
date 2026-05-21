@@ -44,6 +44,8 @@ export interface FetchAllStats {
   statesErrored: Array<{ state: string; error: string }>
   totalBillsCached: number
   totalBillsSkippedFresh: number
+  totalVotesCached: number
+  totalVotesSkippedFresh: number
   perStateStats: FetchOpenStatesV3Stats[]
 }
 
@@ -76,6 +78,8 @@ export async function fetchOpenStatesV3All(opts: FetchAllOpts = {}): Promise<Fet
     statesErrored: [],
     totalBillsCached: 0,
     totalBillsSkippedFresh: 0,
+    totalVotesCached: 0,
+    totalVotesSkippedFresh: 0,
     perStateStats: [],
   }
 
@@ -87,6 +91,8 @@ export async function fetchOpenStatesV3All(opts: FetchAllOpts = {}): Promise<Fet
       stats.perStateStats.push(result)
       stats.totalBillsCached       += result.billsCached
       stats.totalBillsSkippedFresh += result.billsSkippedFresh
+      stats.totalVotesCached       += result.votesCached
+      stats.totalVotesSkippedFresh += result.votesSkippedFresh
       if (result.errors.length > 0) {
         stats.statesErrored.push({ state, error: result.errors.join('; ') })
         if (!opts.skipOnError) {
@@ -121,7 +127,9 @@ if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
       console.log(`  states ok:            ${stats.statesOk}`)
       console.log(`  states with errors:   ${stats.statesErrored.length}`)
       console.log(`  total bills cached:   ${stats.totalBillsCached}`)
-      console.log(`  total skipped fresh:  ${stats.totalBillsSkippedFresh}`)
+      console.log(`  total bills skipped:  ${stats.totalBillsSkippedFresh}`)
+      console.log(`  total votes cached:   ${stats.totalVotesCached}`)
+      console.log(`  total votes skipped:  ${stats.totalVotesSkippedFresh}`)
       for (const e of stats.statesErrored) console.log(`    - ${e.state}: ${e.error}`)
       process.exit(stats.statesErrored.length > 0 && !skipOnError ? 1 : 0)
     })

@@ -5,7 +5,10 @@ import type { FetchOpenStatesV3Stats } from './openstates-v3-fetch.ts'
 function mkStats(state: string, overrides: Partial<FetchOpenStatesV3Stats> = {}): FetchOpenStatesV3Stats {
   return {
     state, session: 'whatever',
-    pagesFetched: 1, billsCached: 0, billsSkippedFresh: 0, errors: [],
+    pagesFetched: 1,
+    billsCached: 0, billsSkippedFresh: 0,
+    votesCached: 0, votesSkippedFresh: 0,
+    errors: [],
     ...overrides,
   }
 }

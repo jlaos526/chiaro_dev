@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fetchOpenStatesV3, pruneStaleCache } from './openstates-v3-fetch.ts'
 
-function mkBill(suffix: string) {
+function mkBill(suffix: string, extra: object = {}) {
   return {
     id: `ocd-bill/00000000-0000-0000-0000-${suffix}`,
     jurisdiction: { id: 'ocd-jurisdiction/country:us/state:ca/government', classification: 'state' },
@@ -13,6 +13,19 @@ function mkBill(suffix: string) {
     title: `Test ${suffix}`,
     sources: [{ url: 'https://x' }],
     openstates_url: 'https://y',
+    ...extra,
+  }
+}
+
+function mkEmbeddedVote(suffix: string) {
+  return {
+    id: `ocd-vote/00000000-0000-0000-0000-${suffix}`,
+    motion_text: `Motion ${suffix}`,
+    result: 'passed',
+    start_date: '2025-03-01',
+    organization: { classification: 'lower' },
+    votes: [{ voter_name: 'X', voter_id: 'ocd-person/1', option: 'yes' }],
+    sources: [{ url: 'https://v' }],
   }
 }
 
@@ -138,6 +151,111 @@ describe('fetchOpenStatesV3', () => {
       cacheDir,
       fetcher: vi.fn() as never,
     })).rejects.toThrow(/OPENSTATES_API_KEY/)
+  })
+
+  it('extracts embedded votes and writes them as separate envelopes with injected bill_id', async () => {
+    const bill = mkBill('001', { votes: [mkEmbeddedVote('v01'), mkEmbeddedVote('v02')] })
+    const fetcher = vi.fn().mockResolvedValueOnce(mkResponse([bill], 1, 1))
+    const stats = await fetchOpenStatesV3({
+      state: 'CA', session: '20252026',
+      cacheDir, apiKey: 'test',
+      fetcher: fetcher as never,
+    })
+    expect(stats.billsCached).toBe(1)
+    expect(stats.votesCached).toBe(2)
+    expect(stats.errors).toEqual([])
+
+    const files = (await readdir(cacheDir)).filter(f => f.endsWith('.json'))
+    expect(files).toHaveLength(3)  // 1 bill + 2 votes
+
+    const voteFile = files.find(f => f.includes('ocd-vote-00000000-0000-0000-0000-v01'))!
+    const voteEnvelope = JSON.parse(await readFile(join(cacheDir, voteFile), 'utf8'))
+    expect(voteEnvelope.bill_id).toBe(bill.id)
+    expect(voteEnvelope.id).toBe('ocd-vote/00000000-0000-0000-0000-v01')
+    expect(voteEnvelope.motion_text).toBe('Motion v01')
+    expect(voteEnvelope.organization.classification).toBe('lower')
+  })
+
+  it('bill with empty votes array: only bill cached, no vote files', async () => {
+    const bill = mkBill('001', { votes: [] })
+    const fetcher = vi.fn().mockResolvedValueOnce(mkResponse([bill], 1, 1))
+    const stats = await fetchOpenStatesV3({
+      state: 'CA', session: '20252026',
+      cacheDir, apiKey: 'test',
+      fetcher: fetcher as never,
+    })
+    expect(stats.billsCached).toBe(1)
+    expect(stats.votesCached).toBe(0)
+    const files = (await readdir(cacheDir)).filter(f => f.endsWith('.json'))
+    expect(files).toHaveLength(1)
+  })
+
+  it('bill missing votes field: graceful skip, no vote files', async () => {
+    const bill = mkBill('001')  // no votes field at all
+    const fetcher = vi.fn().mockResolvedValueOnce(mkResponse([bill], 1, 1))
+    const stats = await fetchOpenStatesV3({
+      state: 'CA', session: '20252026',
+      cacheDir, apiKey: 'test',
+      fetcher: fetcher as never,
+    })
+    expect(stats.billsCached).toBe(1)
+    expect(stats.votesCached).toBe(0)
+    expect(stats.errors).toEqual([])
+  })
+
+  it('embedded vote missing id is logged + skipped', async () => {
+    const bill = mkBill('001', {
+      votes: [
+        mkEmbeddedVote('vok'),
+        { motion_text: 'orphan vote, no id' },
+      ],
+    })
+    const fetcher = vi.fn().mockResolvedValueOnce(mkResponse([bill], 1, 1))
+    const stats = await fetchOpenStatesV3({
+      state: 'CA', session: '20252026',
+      cacheDir, apiKey: 'test',
+      fetcher: fetcher as never,
+    })
+    expect(stats.billsCached).toBe(1)
+    expect(stats.votesCached).toBe(1)
+    expect(stats.errors).toHaveLength(1)
+    expect(stats.errors[0]).toMatch(/embedded vote has non-string or non-vote id/)
+  })
+
+  it('vote TTL skip: fresh vote file not re-written', async () => {
+    const bill = mkBill('001', { votes: [mkEmbeddedVote('v01')] })
+    const voteId = 'ocd-vote/00000000-0000-0000-0000-v01'
+    const voteSlug = voteId.replace(/[^a-zA-Z0-9-]/g, '-')
+    const voteFile = join(cacheDir, `CA-${voteSlug}.json`)
+    await writeFile(voteFile, JSON.stringify({ stale: 'preserved' }), 'utf8')
+    const fetcher = vi.fn().mockResolvedValueOnce(mkResponse([bill], 1, 1))
+    const stats = await fetchOpenStatesV3({
+      state: 'CA', session: '20252026',
+      cacheDir, apiKey: 'test',
+      fetcher: fetcher as never,
+    })
+    expect(stats.votesCached).toBe(0)
+    expect(stats.votesSkippedFresh).toBe(1)
+    const onDisk = JSON.parse(await readFile(voteFile, 'utf8'))
+    expect(onDisk).toEqual({ stale: 'preserved' })
+  })
+
+  it('--force re-fetches votes too', async () => {
+    const bill = mkBill('001', { votes: [mkEmbeddedVote('v01')] })
+    const voteId = 'ocd-vote/00000000-0000-0000-0000-v01'
+    const voteSlug = voteId.replace(/[^a-zA-Z0-9-]/g, '-')
+    const voteFile = join(cacheDir, `CA-${voteSlug}.json`)
+    await writeFile(voteFile, JSON.stringify({ stale: 'old' }), 'utf8')
+    const fetcher = vi.fn().mockResolvedValueOnce(mkResponse([bill], 1, 1))
+    const stats = await fetchOpenStatesV3({
+      state: 'CA', session: '20252026',
+      cacheDir, apiKey: 'test', force: true,
+      fetcher: fetcher as never,
+    })
+    expect(stats.votesCached).toBe(1)
+    const onDisk = JSON.parse(await readFile(voteFile, 'utf8'))
+    expect(onDisk.id).toBe(voteId)
+    expect(onDisk.bill_id).toBe(bill.id)
   })
 })
 
