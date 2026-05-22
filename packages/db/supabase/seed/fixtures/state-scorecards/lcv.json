@@ -1,0 +1,6 @@
+{
+  "ratings": [
+    { "openstates_person_id": "ocd-person/fx-lcv-ca-1", "state": "CA", "score": 95, "source_url": "https://lcv.org/ca/1" },
+    { "openstates_person_id": "ocd-person/fx-lcv-mi-1", "state": "MI", "score": 72, "source_url": "https://lcv.org/mi/1" }
+  ]
+}

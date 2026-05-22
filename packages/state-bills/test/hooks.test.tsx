@@ -9,10 +9,11 @@ vi.mock('../src/queries.ts', () => ({
   fetchStateBill: vi.fn(),
   fetchOfficialStateVotes: vi.fn(),
   fetchOfficialMissedStateVotes: vi.fn(),
+  fetchOfficialStateVotesOnSubject: vi.fn(),
   fetchStateBillVotes: vi.fn(),
 }))
 
-import { useOfficialSponsoredStateBills } from '../src/hooks.ts'
+import { useOfficialSponsoredStateBills, useOfficialStateVotesOnSubject } from '../src/hooks.ts'
 import * as queries from '../src/queries.ts'
 
 function wrap({ children }: { children: ReactNode }) {
@@ -50,5 +51,49 @@ describe('useOfficialSponsoredStateBills', () => {
     )
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(result.current.dataUpdatedAt).toBeGreaterThan(0)
+  })
+})
+
+describe('useOfficialStateVotesOnSubject', () => {
+  beforeEach(() => {
+    vi.mocked(queries.fetchOfficialStateVotesOnSubject).mockResolvedValue([
+      {
+        position: 'yes',
+        vote: {
+          id: 'v1', openstates_vote_id: 'ocd-vote/x', bill_id: 'b1',
+          state: 'CA', session: '20252026', chamber: 'state_senate',
+          vote_date: '2025-03-01', question: 'On Passage', result: 'passed',
+          source_url: 'https://x', party_vote_split: null,
+          created_at: '2025-03-01',
+          bill: { id: 'b1', state: 'CA', session: '20252026', bill_type: 'SB', number: 100, title: 'Env Test' },
+        },
+      },
+    ] as never)
+  })
+
+  it('returns vote positions when subjects matched', async () => {
+    const { result } = renderHook(
+      () => useOfficialStateVotesOnSubject({} as never, 'oid', ['Environment', 'Energy']),
+      { wrapper: wrap },
+    )
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data).toHaveLength(1)
+    expect(result.current.data![0]!.position).toBe('yes')
+  })
+
+  it('disabled when subjects array is empty', () => {
+    const { result } = renderHook(
+      () => useOfficialStateVotesOnSubject({} as never, 'oid', []),
+      { wrapper: wrap },
+    )
+    expect(result.current.fetchStatus).toBe('idle')
+  })
+
+  it('respects opts.enabled: false', () => {
+    const { result } = renderHook(
+      () => useOfficialStateVotesOnSubject({} as never, 'oid', ['Environment'], { enabled: false }),
+      { wrapper: wrap },
+    )
+    expect(result.current.fetchStatus).toBe('idle')
   })
 })

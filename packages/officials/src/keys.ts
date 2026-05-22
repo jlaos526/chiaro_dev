@@ -14,6 +14,8 @@ export const officialsKeys = {
     ['officials', 'stateFinanceSummary', officialId] as const,
   stateDonors: (officialId: string) =>
     ['officials', 'stateDonors', officialId] as const,
+  stateScorecardRatings: (officialId: string) =>
+    ['officials', 'stateScorecardRatings', officialId] as const,
   districtOffices:   (id: string) => [...officialsKeys.all, 'district-offices', id] as const,
   townHalls:         (id: string, congress: string) => [...officialsKeys.all, 'town-halls', id, congress] as const,
   stockTransactions: (id: string) => [...officialsKeys.all, 'stock-transactions', id] as const,

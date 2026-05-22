@@ -29,6 +29,7 @@
     "seed:state-metrics-recompute": "tsx supabase/seed/recompute-state-metrics.ts",
     "seed:state-bills-full": "tsx supabase/seed/state-bills-votes-ingest.ts && tsx supabase/seed/state-bills-enrich.ts && tsx supabase/seed/recompute-state-metrics.ts",
     "seed:state-finance": "tsx supabase/seed/state-finance-ingest.ts",
+    "seed:state-scorecards": "tsx supabase/seed/state-scorecards-ingest.ts",
     "db:seed-unitedstates": "tsx supabase/seed/unitedstates-legislators-ingest.ts",
     "db:seed-bills-votes": "tsx supabase/seed/bills-votes-ingest.ts",
     "db:seed-scorecards": "tsx supabase/seed/scorecards/index.ts",

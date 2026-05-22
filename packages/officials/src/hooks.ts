@@ -8,10 +8,12 @@ import {
   fetchOfficialTownHalls, fetchOfficialStockTransactions,
   fetchOfficialLeadershipHistory,
   fetchOfficialStateFinanceSummary, fetchOfficialStateDonors,
+  fetchOfficialStateScorecardRatings,
 } from './queries.ts'
 import type {
   StateFinanceSummaryRow,
   StateFinanceIndividualDonorRow,
+  StateScorecardRatingWithOrg,
 } from './types.ts'
 
 const FIVE_MIN = 5 * 60 * 1000
@@ -130,6 +132,19 @@ export function useOfficialStateDonors(
   return useQuery({
     queryKey: officialsKeys.stateDonors(officialId),
     queryFn: () => fetchOfficialStateDonors(client, officialId),
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
+    enabled: !!officialId,
+  })
+}
+
+export function useOfficialStateScorecardRatings(
+  client: ChiaroClient,
+  officialId: string,
+): UseQueryResult<StateScorecardRatingWithOrg[], Error> {
+  return useQuery({
+    queryKey: officialsKeys.stateScorecardRatings(officialId),
+    queryFn: () => fetchOfficialStateScorecardRatings(client, officialId),
     staleTime: FIVE_MIN,
     gcTime: THIRTY_MIN,
     enabled: !!officialId,

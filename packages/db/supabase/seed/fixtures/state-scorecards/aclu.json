@@ -1,0 +1,7 @@
+{
+  "ratings": [
+    { "openstates_person_id": "ocd-person/fx-aclu-ca-1", "state": "CA", "score": 92,   "source_url": "https://aclu.ca.org/scorecard/1" },
+    { "openstates_person_id": "ocd-person/fx-aclu-ca-2", "state": "CA", "score": 45,   "source_url": "https://aclu.ca.org/scorecard/2" },
+    { "openstates_person_id": "ocd-person/fx-aclu-ny-1", "state": "NY", "score": 88.5, "source_url": "https://aclu.ny.org/scorecard/1" }
+  ]
+}

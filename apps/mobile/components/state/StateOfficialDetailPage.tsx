@@ -5,13 +5,13 @@ import type { OfficialWithDistrict } from '@chiaro/officials'
 import type { Database } from '@chiaro/db'
 import { StateServiceRecordCard } from './StateServiceRecordCard'
 import { StateFinanceCard } from './StateFinanceCard'
+import { StateIssuePositionsCard } from './StateIssuePositionsCard'
 
 type DistrictOffice = Database['public']['Tables']['district_offices']['Row']
 
-// 'Service Record' + 'Finance' are now rendered with real data; the remaining
-// 3 categories stay as ComingSoonCard placeholders until 5F.
+// 'Service Record' + 'Finance' + 'Issue Positions' are rendered with real data
+// (slices 5D + 5E + 5G); the remaining 2 stay as ComingSoonCard placeholders.
 const PLACEHOLDER_CATEGORIES: ComingSoonCategory[] = [
-  'Issue Positions',
   'Community Presence',
   'Ethics & Accountability',
 ]
@@ -104,10 +104,11 @@ export function StateOfficialDetailPage({
         </View>
       )}
 
-      {/* Category cascade — real Service Record + Finance + 3 ComingSoonCard placeholders */}
+      {/* Category cascade — real Service Record + Finance + Issue Positions + 2 placeholders */}
       <View style={{ gap: 12 }}>
         <StateServiceRecordCard official={official} />
         <StateFinanceCard official={official} />
+        <StateIssuePositionsCard officialId={official.id} />
         {PLACEHOLDER_CATEGORIES.map(cat => <ComingSoonCard key={cat} category={cat} />)}
       </View>
     </ScrollView>

@@ -5,6 +5,7 @@ import {
   fetchOfficialCosponsoredStateBills,
   fetchOfficialStateVotes,
   fetchOfficialMissedStateVotes,
+  fetchOfficialStateVotesOnSubject,
   fetchStateBill,
   fetchStateBillVotes,
 } from './queries.ts'
@@ -87,5 +88,20 @@ export function useStateBillVotes(
     queryFn: () => fetchStateBillVotes(client, billId),
     staleTime: STALE_TIME,
     gcTime: GC_TIME,
+  })
+}
+
+export function useOfficialStateVotesOnSubject(
+  client: ChiaroClient,
+  officialId: string,
+  subjects: string[],
+  opts: { enabled?: boolean } = {},
+): UseQueryResult<StateVoteWithPosition[], Error> {
+  return useQuery({
+    queryKey: stateBillsKeys.officialStateVotesOnSubject(officialId, subjects),
+    queryFn: () => fetchOfficialStateVotesOnSubject(client, officialId, subjects),
+    staleTime: STALE_TIME,
+    gcTime: GC_TIME,
+    enabled: opts.enabled !== false && !!officialId && subjects.length > 0,
   })
 }

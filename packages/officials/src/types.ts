@@ -11,6 +11,16 @@ export type StateFinanceIndividualDonorRow =
 export type StateCommitteeMembershipRow =
   Database['public']['Tables']['state_committee_memberships']['Row']
 
+export type StateScorecardOrgRow =
+  Database['public']['Tables']['state_scorecard_orgs']['Row']
+
+export type StateScorecardRatingRow =
+  Database['public']['Tables']['state_scorecard_ratings']['Row']
+
+export interface StateScorecardRatingWithOrg extends StateScorecardRatingRow {
+  org: StateScorecardOrgRow
+}
+
 // Source of truth — mirrors the public.official_chamber enum (migration 0028)
 // expanded to 5 values for state-level legislators.
 export type OfficialChamber = Database['public']['Enums']['official_chamber']

@@ -6,6 +6,7 @@ export {
   fetchStateBill,
   fetchOfficialStateVotes,
   fetchOfficialMissedStateVotes,
+  fetchOfficialStateVotesOnSubject,
   fetchStateBillVotes,
 } from './queries.ts'
 export {
@@ -13,6 +14,7 @@ export {
   useOfficialCosponsoredStateBills,
   useOfficialStateVotes,
   useOfficialMissedStateVotes,
+  useOfficialStateVotesOnSubject,
   useStateBill,
   useStateBillVotes,
 } from './hooks.ts'

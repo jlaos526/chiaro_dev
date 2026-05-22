@@ -9,11 +9,12 @@ pnpm install                           # workspace deps; uses pnpm 9.x
 
 # Local backend
 pnpm db:start                          # boot local Supabase (port 54321; DB 54322)
-pnpm db:reset                          # apply all migrations 0001–0039
+pnpm db:reset                          # apply all migrations 0001–0041
 pnpm db:test                           # pgTAP suite (341 tests across 26 files)
 pnpm seed:tiger                        # ingest TIGER 2024 district geometries (~5–15 min, ~51 Census shapefiles)
 pnpm seed:officials                    # ingest federal officials from Congress.gov v3 (requires CONGRESS_GOV_API_KEY)
 pnpm seed:state-officials              # ingest state legislators from openstates/people YAML repo (no API key)
+pnpm seed:state-scorecards --session=20252026     # ingest 5 per-org state scorecards (stubs in v1)
 pnpm seed:state-bills-full             # ingest state bills + votes + per-state augment + state metrics
 pnpm seed:state-finance --cycle=2024 --skip-on-error   # state campaign finance (5 states: CA NY FL TX MI)
 pnpm seed:openstates-committees-fetch --state=CA   # one state at a time; repeat per state
@@ -65,6 +66,7 @@ Dependency direction is strict — see Gotchas #4.
 - **Sub-slice 5D — state bills + votes** (2026-05-20): OpenStates v3-API baseline ingest of state legislators' bills + votes + 5 per-state public-API augment adapters (CA leginfo, NY senate API, FL Senate+House, TX capitol, MI legislature). New `@chiaro/state-bills` package (workspace 9 → 10). Migrations 0030–0034: `state_bills` + `state_bill_sponsors` + `state_bill_subjects` + `state_votes` + `state_vote_positions` tables + 3 new `official_metrics` columns (`committee_chair_count`, `fiscal_impact_total`, `party_unity_state`). `/state-officials/[id]` Service Record card becomes real (composes `useOfficialMetrics` + `useOfficialSponsoredStateBills` + `useOfficialStateVotes`). NY adapter skips gracefully without `NY_SENATE_API_KEY`. 55 new pgTAP plans across 3 new files + ~46 new vitest cases (db) + ~10 web + ~18 mobile.
 - **Sub-slice 5E — state campaign finance** (2026-05-21): per-state adapters (CA Cal-Access, NY NYSBOE, FL DOE, TX Ethics, MI BOE) writing to `state_finance_summaries` + `state_finance_individual_donors`. Replaces `ComingSoonCard('Finance')` on `/state-officials/[id]` with real `StateFinanceCard` + `StateDonorsEvidence` panels (web + mobile). Migrations 0035 + 0036. State finance queries live in `@chiaro/officials` alongside federal finance (workspace stays at 10). 5 adapter test files + 1 orchestrator integration test + ~37 vitest cases (db) + ~12 web + ~12 mobile + 1 new pgTAP file (16 plans).
 - **Sub-slice 5F — state performance metrics + KPIs** (2026-05-21): real `committee_chair_count` via new OpenStates committees ingest (state_committee_memberships table + fetcher + ingest scripts). 5 new KPI columns on `official_metrics`: bills_passed_count (status heuristic), hearings_held_count, subject_breadth, bill_passage_rate (E1), fiscal_impact_per_dollar_raised (E2, descriptive ROI ratio). UI: StateServiceRecordCard (web + mobile) extended with "Performance metrics" subsection — 5 new rows + conditional committee chair seats row (hidden when NULL). Migrations 0037–0039. `party_unity_state` stub UNCHANGED (deferred). 2 new pgTAP files (12 + 8 plans = 20). Workspace stays at 10.
+- **Sub-slice 5G — state issue positions** (2026-05-21): per-org adapter pattern for state-leg scorecards (ACLU + LCV + NRA + Planned Parenthood + AFP). Migrations 0040 (`state_scorecard_orgs` + `state_scorecard_ratings`) + 0041 (RLS). New `StateIssuePositionsCard` web + mobile replaces `ComingSoonCard('Issue Positions')` on `/state-officials/[id]`. New `useOfficialStateVotesOnSubject` hook in `@chiaro/state-bills` joins votes by subject candidates. 5 adapters ship as stubs returning `[]`; production parsers per (org, state) are operator follow-up.
 
 Specs live in `docs/superpowers/specs/`. Plans in `docs/superpowers/plans/`. Audits in `docs/superpowers/audits/`. Mobile DoD checklist at `docs/superpowers/mobile-dod-checklist.md`.
 
@@ -158,6 +160,8 @@ See `.env.example` files at repo root, `apps/web/`, and `apps/mobile/`.
     - **OpenStates committee data freshness: 7-day cache.** Operator re-runs `seed:openstates-committees-fetch` after committee turnover (start of session, mid-session chair changes).
     - **`fiscal_impact_per_dollar_raised` cycle alignment.** Numerator (`fiscal_impact_total`) is session-filtered; denominator (`total_raised`) is latest-cycle finance. Not the same time window — descriptive ratio, not a rigorous time-aligned metric. Document for future tightening.
     - **jest-expo + `jest.resetModules() + jest.doMock + require()` pattern crashes.** Triggers `Cannot read properties of null (reading 'useState')` because module reset invalidates React's identity for the post-reset re-import. Workaround used in `apps/mobile/test/components/state/StateServiceRecordCard.test.tsx`: a mutable `let mockMetrics = DEFAULT_METRICS` reset in `beforeEach`, with the `jest.mock` factory closing over the variable. Same per-test fixtures, idiomatic for jest-expo.
+
+12. **State scorecards adapter pattern is per-org, not per-state** — distinct from slices 5D/5E/5F which use per-state adapters. The 5 orgs (`aclu`, `lcv`, `nra`, `planned-parenthood`, `afp`) each span N states via `covered_states[]`. v1 adapters return `[]` (operator wires per-state parsers); orchestrator iterates `covered_states` and UPSERTs per-state `state_scorecard_orgs` rows. NRA grades letters mapped to numeric via `letterToNumeric()` (A=100..F=20) at write side; UI reverse-maps via `numericToLetterGrade()` for display.
 
 ## Code style
 

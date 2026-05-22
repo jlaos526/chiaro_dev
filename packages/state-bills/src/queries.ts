@@ -102,6 +102,58 @@ export async function fetchOfficialMissedStateVotes(
   return all.filter(v => v.position === 'not_voting' || v.position === 'abstain')
 }
 
+/**
+ * Returns the legislator's votes on state bills tagged with any of the
+ * provided subject candidates (state_bill_subjects.subject). Empty when
+ * subjects array is empty (caller should pass `enabled: false` in the
+ * hook to avoid the query altogether).
+ */
+export async function fetchOfficialStateVotesOnSubject(
+  client: ChiaroClient,
+  officialId: string,
+  subjects: string[],
+): Promise<StateVoteWithPosition[]> {
+  if (subjects.length === 0) return []
+
+  // Step 1: find bill ids matching any candidate subject.
+  const billRows = await client
+    .from('state_bill_subjects')
+    .select('bill_id')
+    .in('subject', subjects)
+  if (billRows.error) throw billRows.error
+  const billIds = Array.from(new Set((billRows.data ?? []).map(r => r.bill_id)))
+  if (billIds.length === 0) return []
+
+  // Step 2: find vote ids on those bills.
+  const voteRows = await client
+    .from('state_votes')
+    .select('id')
+    .in('bill_id', billIds)
+  if (voteRows.error) throw voteRows.error
+  const voteIds = (voteRows.data ?? []).map(r => r.id)
+  if (voteIds.length === 0) return []
+
+  // Step 3: find vote positions for this official on those votes.
+  const { data, error } = await client
+    .from('state_vote_positions')
+    .select(`
+      position,
+      vote:state_votes!state_vote_positions_vote_id_fkey(
+        *,
+        bill:state_bills!state_votes_bill_id_fkey(id, state, session, bill_type, number, title)
+      )
+    `)
+    .eq('official_id', officialId)
+    .in('vote_id', voteIds)
+  if (error) throw error
+  const rows = (data ?? []).map(row => ({
+    vote: (row as { vote: StateVoteWithBill }).vote,
+    position: (row as { position: StateVotePositionRow['position'] }).position,
+  }))
+  rows.sort((a, b) => (b.vote.vote_date < a.vote.vote_date ? -1 : 1))
+  return rows as StateVoteWithPosition[]
+}
+
 export async function fetchStateBillVotes(
   client: ChiaroClient,
   billId: string,

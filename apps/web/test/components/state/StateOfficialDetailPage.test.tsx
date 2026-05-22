@@ -36,6 +36,8 @@ vi.mock('@chiaro/officials', async () => {
     // NEW for slice 5E:
     useOfficialStateFinanceSummary: () => ({ data: null, isLoading: false, isSuccess: true }),
     useOfficialStateDonors:         () => ({ data: [], isLoading: false, isSuccess: true }),
+    // NEW for slice 5G:
+    useOfficialStateScorecardRatings: () => ({ data: [], isLoading: false, isSuccess: true }),
   }
 })
 
@@ -67,10 +69,17 @@ describe('StateOfficialDetailPage', () => {
     expect(getByText(/CA-15/)).toBeTruthy()
   })
 
-  it('renders real Service Record + Finance cards + 3 remaining ComingSoonCards', () => {
+  it('renders real Service Record + Finance + Issue Positions cards + 2 remaining ComingSoonCards', () => {
     const { getAllByText } = render(<StateOfficialDetailPage official={mkState()} offices={[]} />, { wrapper: wrap })
     expect(getAllByText(/^(?:Service Record|Issue Positions|Community Presence|Finance|Ethics & Accountability)$/i))
       .toHaveLength(5)
+  })
+
+  it('renders StateIssuePositionsCard (no longer a placeholder)', () => {
+    const { getByText } = render(<StateOfficialDetailPage official={mkState()} offices={[]} />, { wrapper: wrap })
+    // The real card renders its own empty-state copy when there are no ratings;
+    // ComingSoonCard would render the CATEGORY_COPY string for 'Issue Positions'.
+    expect(getByText(/No issue-position ratings available/i)).toBeTruthy()
   })
 
   it('renders offices section above the cascade', () => {

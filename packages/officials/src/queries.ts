@@ -4,6 +4,7 @@ import type {
   OfficialWithDistrict,
   StateFinanceSummaryRow,
   StateFinanceIndividualDonorRow,
+  StateScorecardRatingWithOrg,
 } from './types.ts'
 
 const SELECT_WITH_DISTRICT =
@@ -158,6 +159,34 @@ export async function fetchOfficialStateDonors(
     .order('rank', { ascending: true })
   if (error) throw error
   return data ?? []
+}
+
+/**
+ * Returns the legislator's state scorecard ratings, one per org. For each
+ * (org, official) tuple, keeps the row with the most recent ingested_at
+ * when multiple sessions exist (matches the latest-by-ingested pattern
+ * used by fetchOfficialStateFinanceSummary in slice 5E). Empty array when
+ * no ratings exist.
+ */
+export async function fetchOfficialStateScorecardRatings(
+  client: ChiaroClient,
+  officialId: string,
+): Promise<StateScorecardRatingWithOrg[]> {
+  const { data, error } = await client
+    .from('state_scorecard_ratings')
+    .select('*, org:state_scorecard_orgs!state_scorecard_ratings_scorecard_id_fkey(*)')
+    .eq('official_id', officialId)
+    .order('ingested_at', { ascending: false })
+  if (error) throw error
+  // De-dupe to one rating per scorecard_id, keeping the latest by ingested_at.
+  const seen = new Set<string>()
+  const out: StateScorecardRatingWithOrg[] = []
+  for (const row of (data ?? []) as unknown as StateScorecardRatingWithOrg[]) {
+    if (seen.has(row.scorecard_id)) continue
+    seen.add(row.scorecard_id)
+    out.push(row)
+  }
+  return out
 }
 
 export async function fetchOfficialDistrictOffices(

@@ -8,6 +8,7 @@ import {
   useOfficial,
   useOfficialStateFinanceSummary,
   useOfficialStateDonors,
+  useOfficialStateScorecardRatings,
 } from '../src/hooks.ts'
 import * as queries from '../src/queries.ts'
 
@@ -107,5 +108,45 @@ describe('useOfficialStateDonors', () => {
     expect(result.current.data).toHaveLength(2)
     expect(result.current.data![0]!.rank).toBe(1)
     expect(result.current.data![1]!.donor_name).toBe('Bob')
+  })
+})
+
+describe('useOfficialStateScorecardRatings', () => {
+  beforeEach(() => {
+    vi.spyOn(queries, 'fetchOfficialStateScorecardRatings').mockResolvedValue([
+      {
+        id: 'r1',
+        scorecard_id: 's1',
+        official_id: 'oid',
+        session: '20252026',
+        score: 82.5,
+        source_url: 'https://x',
+        ingested_at: '2025-01-01T00:00:00Z',
+        org: {
+          id: 's1',
+          slug: 'aclu',
+          state: 'CA',
+          name: 'ACLU of California',
+          issue_area: 'civil-liberties',
+          lean: 'progressive',
+          methodology_url: 'https://y',
+          scoring_min: 0,
+          scoring_max: 100,
+          notes: null,
+        },
+      },
+    ] as never)
+  })
+
+  it('returns scorecard ratings joined to org', async () => {
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const { result } = renderHook(
+      () => useOfficialStateScorecardRatings({} as ChiaroClient, 'oid'),
+      { wrapper: wrapper(qc) },
+    )
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data).toHaveLength(1)
+    expect(result.current.data![0]!.org.slug).toBe('aclu')
+    expect(Number(result.current.data![0]!.score)).toBe(82.5)
   })
 })

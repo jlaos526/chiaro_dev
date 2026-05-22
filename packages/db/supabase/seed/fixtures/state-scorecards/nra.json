@@ -1,0 +1,7 @@
+{
+  "ratings": [
+    { "openstates_person_id": "ocd-person/fx-nra-ca-1", "state": "CA", "score": 100, "source_url": "https://nrapvf.org/ca/1" },
+    { "openstates_person_id": "ocd-person/fx-nra-ca-2", "state": "CA", "score": 60,  "source_url": "https://nrapvf.org/ca/2" },
+    { "openstates_person_id": "ocd-person/fx-nra-tx-1", "state": "TX", "score": 80,  "source_url": "https://nrapvf.org/tx/1" }
+  ]
+}

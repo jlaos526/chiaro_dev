@@ -36,6 +36,7 @@ jest.mock('@chiaro/officials', () => {
     }),
     useOfficialStateFinanceSummary: () => ({ data: null, isLoading: false, isSuccess: true }),
     useOfficialStateDonors: () => ({ data: [], isLoading: false, isSuccess: true }),
+    useOfficialStateScorecardRatings: () => ({ data: [], isLoading: false, isSuccess: true }),
   }
 })
 
@@ -71,13 +72,13 @@ describe('mobile StateOfficialDetailPage', () => {
     expect(getByText(/CA-15/)).toBeTruthy()
   })
 
-  it('renders Service Record + Finance + 3 ComingSoonCard placeholders', () => {
+  it('renders Service Record + Finance + Issue Positions + 2 ComingSoonCard placeholders', () => {
     const { getAllByText } = render(
       <StateOfficialDetailPage official={mkState()} offices={[]} />,
       { wrapper: wrap },
     )
-    // 'Service Record' rendered by <StateServiceRecordCard>; 'Finance' rendered by
-    // <StateFinanceCard> (empty-state header). Remaining 3 are placeholders.
+    // 'Service Record' from <StateServiceRecordCard>; 'Finance' from <StateFinanceCard>;
+    // 'Issue Positions' from <StateIssuePositionsCard> (slice 5G); remaining 2 are placeholders.
     const titles = [
       'Service Record',
       'Finance',
@@ -88,6 +89,14 @@ describe('mobile StateOfficialDetailPage', () => {
     for (const t of titles) {
       expect(getAllByText(t).length).toBeGreaterThanOrEqual(1)
     }
+  })
+
+  it('renders Issue Positions as real card (empty ratings → empty-state copy)', () => {
+    const { getByText } = render(
+      <StateOfficialDetailPage official={mkState()} offices={[]} />,
+      { wrapper: wrap },
+    )
+    expect(getByText(/No issue-position ratings available/i)).toBeTruthy()
   })
 
   it('renders offices section above the placeholder cascade', () => {

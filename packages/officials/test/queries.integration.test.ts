@@ -307,3 +307,58 @@ describe('fetchOfficial', () => {
     ).rejects.toThrow()
   })
 })
+
+describe('state_scorecard_* RLS + fetchOfficialStateScorecardRatings', () => {
+  let scorecardId: string
+
+  beforeAll(async () => {
+    const o = await svc.from('state_scorecard_orgs').insert({
+      slug: 'aclu', state: 'CA',
+      name: 'ACLU of California',
+      issue_area: 'civil-liberties',
+      lean: 'progressive',
+      methodology_url: 'https://aclu.ca.org/scorecard',
+      scoring_min: 0, scoring_max: 100,
+    }).select('id').single()
+    if (o.error) throw o.error
+    scorecardId = o.data!.id
+
+    const r = await svc.from('state_scorecard_ratings').insert({
+      scorecard_id: scorecardId, official_id: stateAsmId,
+      session: '20252026', score: 88, source_url: 'https://x',
+    })
+    if (r.error) throw r.error
+  })
+
+  afterAll(async () => {
+    if (!svc) return
+    await svc.from('state_scorecard_ratings').delete().eq('scorecard_id', scorecardId)
+    await svc.from('state_scorecard_orgs').delete().eq('id', scorecardId)
+  })
+
+  it('unauthenticated SELECT denied (RLS returns empty array, no error)', async () => {
+    // Use a fresh client with no session — distinct storageKey so we don't
+    // clobber the signed-in `anon` client's auth state.
+    const unauth = createClient<Database>(URL, ANON, {
+      auth: { persistSession: false, storageKey: 'unauth-integration-test' },
+    })
+    const { data, error } = await unauth.from('state_scorecard_orgs').select('*').eq('id', scorecardId)
+    expect(data ?? []).toHaveLength(0)
+    expect(error).toBeNull()
+  })
+
+  it('authenticated SELECT allowed', async () => {
+    const { data, error } = await anon.from('state_scorecard_orgs').select('*').eq('id', scorecardId)
+    expect(error).toBeNull()
+    expect(data).toHaveLength(1)
+  })
+
+  it('fetchOfficialStateScorecardRatings joins org row', async () => {
+    const { fetchOfficialStateScorecardRatings } = await import('../src/queries.ts')
+    const rows = await fetchOfficialStateScorecardRatings(anon, stateAsmId)
+    expect(rows.length).toBeGreaterThanOrEqual(1)
+    const aclu = rows.find((r) => r.org.slug === 'aclu')
+    expect(aclu).toBeDefined()
+    expect(aclu!.org.name).toBe('ACLU of California')
+  })
+})

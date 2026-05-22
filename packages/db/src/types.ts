@@ -1115,6 +1115,90 @@ export type Database = {
           },
         ]
       }
+      state_scorecard_orgs: {
+        Row: {
+          id: string
+          issue_area: string
+          lean: string
+          methodology_url: string
+          name: string
+          notes: string | null
+          scoring_max: number
+          scoring_min: number
+          slug: string
+          state: string
+        }
+        Insert: {
+          id?: string
+          issue_area: string
+          lean: string
+          methodology_url: string
+          name: string
+          notes?: string | null
+          scoring_max?: number
+          scoring_min?: number
+          slug: string
+          state: string
+        }
+        Update: {
+          id?: string
+          issue_area?: string
+          lean?: string
+          methodology_url?: string
+          name?: string
+          notes?: string | null
+          scoring_max?: number
+          scoring_min?: number
+          slug?: string
+          state?: string
+        }
+        Relationships: []
+      }
+      state_scorecard_ratings: {
+        Row: {
+          id: string
+          ingested_at: string
+          official_id: string
+          score: number
+          scorecard_id: string
+          session: string
+          source_url: string
+        }
+        Insert: {
+          id?: string
+          ingested_at?: string
+          official_id: string
+          score: number
+          scorecard_id: string
+          session: string
+          source_url: string
+        }
+        Update: {
+          id?: string
+          ingested_at?: string
+          official_id?: string
+          score?: number
+          scorecard_id?: string
+          session?: string
+          source_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_scorecard_ratings_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "state_scorecard_ratings_scorecard_id_fkey"
+            columns: ["scorecard_id"]
+            isOneToOne: false
+            referencedRelation: "state_scorecard_orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       state_vote_positions: {
         Row: {
           id: string
