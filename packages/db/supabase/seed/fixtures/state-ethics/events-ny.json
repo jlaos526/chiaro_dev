@@ -1,0 +1,3 @@
+{ "events": [
+  { "official_openstates_person_id": "ocd-person/fx-fpv-ny-1", "event_date": "2025-04-12", "event_type": "campaign_finance_violation", "outcome": "$5000 fine", "summary": "JCOPE fine for unreported lobbying contact", "state": "NY", "source_url": "https://jcope.ny.gov/x", "source": "ny-jcope", "external_id": "ny-jcope-violation-1" }
+]}

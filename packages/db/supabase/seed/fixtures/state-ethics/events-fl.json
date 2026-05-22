@@ -1,0 +1,3 @@
+{ "events": [
+  { "official_openstates_person_id": "ocd-person/fx-fpv-fl-1", "event_date": "2025-07-20", "event_type": "campaign_finance_violation", "outcome": "$1000 fine", "summary": "FL Commission on Ethics finding for late Form 6", "state": "FL", "source_url": "https://ethics.state.fl.us/x", "source": "fl-coe", "external_id": "fl-coe-violation-1" }
+]}

@@ -42,6 +42,11 @@ vi.mock('@chiaro/officials', async () => {
     useOfficialStateTownHalls:         () => ({ data: [], isLoading: false, isSuccess: true }),
     useOfficialStateDistrictOffices:   () => ({ data: [], isLoading: false, isSuccess: true }),
     useOfficialStateCommitteeHearings: () => ({ data: [], isLoading: false, isSuccess: true }),
+    // NEW for slice 5I (ethics & accountability):
+    useOfficialStateStockTransactions:    () => ({ data: [], isLoading: false, isSuccess: true }),
+    useOfficialStateFinancialDisclosures: () => ({ data: [], isLoading: false, isSuccess: true }),
+    useOfficialStateEthicsComplaints:     () => ({ data: [], isLoading: false, isSuccess: true }),
+    useOfficialStateOfficialEvents:       () => ({ data: [], isLoading: false, isSuccess: true }),
   }
 })
 
@@ -73,10 +78,22 @@ describe('StateOfficialDetailPage', () => {
     expect(getByText(/CA-15/)).toBeTruthy()
   })
 
-  it('renders real Service Record + Finance + Issue Positions + Community Presence cards + 1 remaining ComingSoonCard', () => {
-    const { getAllByText } = render(<StateOfficialDetailPage official={mkState()} offices={[]} />, { wrapper: wrap })
-    expect(getAllByText(/^(?:Service Record|Issue Positions|Community Presence|Finance|Ethics & Accountability)$/i))
-      .toHaveLength(5)
+  it('renders all 6 real cards + 0 ComingSoonCard placeholders (slice 5I closes redesign)', () => {
+    const { getAllByText, queryByText } = render(<StateOfficialDetailPage official={mkState()} offices={[]} />, { wrapper: wrap })
+    expect(getAllByText(/^(?:Service Record|Issue Positions|Community Presence|Finance|Financial Activity|Conduct & Sanctions)$/i))
+      .toHaveLength(6)
+    // No more ComingSoonCard placeholder for Ethics & Accountability.
+    expect(queryByText(/^Ethics & Accountability$/i)).toBeNull()
+  })
+
+  it('renders StateFinancialActivityCard (no longer a placeholder)', () => {
+    const { getByText } = render(<StateOfficialDetailPage official={mkState()} offices={[]} />, { wrapper: wrap })
+    expect(getByText(/No stock or financial-disclosure records on file/i)).toBeTruthy()
+  })
+
+  it('renders StateConductCard (no longer a placeholder)', () => {
+    const { getByText } = render(<StateOfficialDetailPage official={mkState()} offices={[]} />, { wrapper: wrap })
+    expect(getByText(/No ethics complaints or conduct events on record/i)).toBeTruthy()
   })
 
   it('renders StateCommunityPresenceCard (no longer a placeholder)', () => {

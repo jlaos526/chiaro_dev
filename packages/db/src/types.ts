@@ -1149,6 +1149,56 @@ export type Database = {
           },
         ]
       }
+      state_ethics_complaints: {
+        Row: {
+          complaint_date: string
+          disposition: string | null
+          external_id: string | null
+          id: string
+          ingested_at: string
+          official_id: string
+          source: string
+          source_url: string
+          state: string
+          status: string
+          summary: string
+        }
+        Insert: {
+          complaint_date: string
+          disposition?: string | null
+          external_id?: string | null
+          id?: string
+          ingested_at?: string
+          official_id: string
+          source: string
+          source_url: string
+          state: string
+          status: string
+          summary: string
+        }
+        Update: {
+          complaint_date?: string
+          disposition?: string | null
+          external_id?: string | null
+          id?: string
+          ingested_at?: string
+          official_id?: string
+          source?: string
+          source_url?: string
+          state?: string
+          status?: string
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_ethics_complaints_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       state_finance_individual_donors: {
         Row: {
           amount: number
@@ -1237,6 +1287,112 @@ export type Database = {
           },
         ]
       }
+      state_financial_disclosures: {
+        Row: {
+          amount_range_high: number | null
+          amount_range_low: number | null
+          external_id: string | null
+          filing_date: string | null
+          filing_year: number
+          id: string
+          income_kind: string | null
+          income_source: string | null
+          ingested_at: string
+          official_id: string
+          source: string
+          source_url: string
+          state: string
+        }
+        Insert: {
+          amount_range_high?: number | null
+          amount_range_low?: number | null
+          external_id?: string | null
+          filing_date?: string | null
+          filing_year: number
+          id?: string
+          income_kind?: string | null
+          income_source?: string | null
+          ingested_at?: string
+          official_id: string
+          source: string
+          source_url: string
+          state: string
+        }
+        Update: {
+          amount_range_high?: number | null
+          amount_range_low?: number | null
+          external_id?: string | null
+          filing_date?: string | null
+          filing_year?: number
+          id?: string
+          income_kind?: string | null
+          income_source?: string | null
+          ingested_at?: string
+          official_id?: string
+          source?: string
+          source_url?: string
+          state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_financial_disclosures_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      state_official_events: {
+        Row: {
+          event_date: string
+          event_type: string
+          external_id: string | null
+          id: string
+          ingested_at: string
+          official_id: string
+          outcome: string | null
+          source: string
+          source_url: string
+          state: string
+          summary: string
+        }
+        Insert: {
+          event_date: string
+          event_type: string
+          external_id?: string | null
+          id?: string
+          ingested_at?: string
+          official_id: string
+          outcome?: string | null
+          source: string
+          source_url: string
+          state: string
+          summary: string
+        }
+        Update: {
+          event_date?: string
+          event_type?: string
+          external_id?: string | null
+          id?: string
+          ingested_at?: string
+          official_id?: string
+          outcome?: string | null
+          source?: string
+          source_url?: string
+          state?: string
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_official_events_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       state_scorecard_orgs: {
         Row: {
           id: string
@@ -1317,6 +1473,68 @@ export type Database = {
             columns: ["scorecard_id"]
             isOneToOne: false
             referencedRelation: "state_scorecard_orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      state_stock_transactions: {
+        Row: {
+          amount_range_high: number | null
+          amount_range_low: number | null
+          asset_name: string | null
+          asset_ticker: string | null
+          days_late: number | null
+          external_id: string | null
+          filing_date: string
+          id: string
+          ingested_at: string
+          official_id: string
+          source: string
+          source_url: string
+          state: string
+          transaction_date: string
+          transaction_type: string | null
+        }
+        Insert: {
+          amount_range_high?: number | null
+          amount_range_low?: number | null
+          asset_name?: string | null
+          asset_ticker?: string | null
+          days_late?: number | null
+          external_id?: string | null
+          filing_date: string
+          id?: string
+          ingested_at?: string
+          official_id: string
+          source: string
+          source_url: string
+          state: string
+          transaction_date: string
+          transaction_type?: string | null
+        }
+        Update: {
+          amount_range_high?: number | null
+          amount_range_low?: number | null
+          asset_name?: string | null
+          asset_ticker?: string | null
+          days_late?: number | null
+          external_id?: string | null
+          filing_date?: string
+          id?: string
+          ingested_at?: string
+          official_id?: string
+          source?: string
+          source_url?: string
+          state?: string
+          transaction_date?: string
+          transaction_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_stock_transactions_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
             referencedColumns: ["id"]
           },
         ]

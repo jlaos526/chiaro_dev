@@ -441,3 +441,96 @@ describe('state_community_* RLS + 3 fetchers', () => {
     expect(found).toBeDefined()
   })
 })
+
+describe('state_ethics_* RLS + 4 fetchers', () => {
+  let officialIdLocal: string
+  let stockId: string
+  let discId: string
+  let complaintId: string
+  let eventId: string
+
+  beforeAll(async () => {
+    const off = await svc.from('officials').select('id').eq('chamber', 'state_house').limit(1).single()
+    if (off.error) throw off.error
+    officialIdLocal = off.data!.id
+
+    const s = await svc.from('state_stock_transactions').insert({
+      official_id: officialIdLocal, transaction_date: '2026-01-01',
+      filing_date: '2026-01-15', transaction_type: 'purchase',
+      state: 'CA', source_url: 'https://x', source: 'integ', external_id: 'integ-stk',
+    }).select('id').single()
+    if (s.error) throw s.error
+    stockId = s.data!.id
+
+    const d = await svc.from('state_financial_disclosures').insert({
+      official_id: officialIdLocal, filing_year: 2025,
+      income_kind: 'salary', state: 'CA',
+      source_url: 'https://x', source: 'integ', external_id: 'integ-disc',
+    }).select('id').single()
+    if (d.error) throw d.error
+    discId = d.data!.id
+
+    const c = await svc.from('state_ethics_complaints').insert({
+      official_id: officialIdLocal, complaint_date: '2026-01-01',
+      status: 'open', summary: 'integration test complaint',
+      state: 'CA', source_url: 'https://x', source: 'integ', external_id: 'integ-comp',
+    }).select('id').single()
+    if (c.error) throw c.error
+    complaintId = c.data!.id
+
+    const e = await svc.from('state_official_events').insert({
+      official_id: officialIdLocal, event_date: '2026-01-01',
+      event_type: 'censure', summary: 'integration test event',
+      state: 'CA', source_url: 'https://x', source: 'integ', external_id: 'integ-evt',
+    }).select('id').single()
+    if (e.error) throw e.error
+    eventId = e.data!.id
+  })
+
+  afterAll(async () => {
+    await svc.from('state_stock_transactions')    .delete().eq('id', stockId)
+    await svc.from('state_financial_disclosures') .delete().eq('id', discId)
+    await svc.from('state_ethics_complaints')     .delete().eq('id', complaintId)
+    await svc.from('state_official_events')       .delete().eq('id', eventId)
+  })
+
+  it('authd SELECT allowed on all 4 tables', async () => {
+    const s = await anon.from('state_stock_transactions').select('*').eq('id', stockId)
+    expect(s.data).toHaveLength(1)
+    const d = await anon.from('state_financial_disclosures').select('*').eq('id', discId)
+    expect(d.data).toHaveLength(1)
+    const c = await anon.from('state_ethics_complaints').select('*').eq('id', complaintId)
+    expect(c.data).toHaveLength(1)
+    const e = await anon.from('state_official_events').select('*').eq('id', eventId)
+    expect(e.data).toHaveLength(1)
+  })
+
+  it('anon SELECT denied (RLS empty array, representative table)', async () => {
+    const { createClient } = await import('@supabase/supabase-js')
+    const unauth = createClient(
+      process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!,
+      { auth: { persistSession: false, storageKey: 'unauth-5i-integ' } },
+    )
+    const { data } = await unauth.from('state_stock_transactions').select('*').eq('id', stockId)
+    expect(data ?? []).toHaveLength(0)
+  })
+
+  it('fetchOfficialStateStockTransactions retrieves rows', async () => {
+    const { fetchOfficialStateStockTransactions } = await import('../src/queries.ts')
+    const rows = await fetchOfficialStateStockTransactions(anon as never, officialIdLocal)
+    expect(rows.length).toBeGreaterThanOrEqual(1)
+    expect(rows.find(r => r.id === stockId)).toBeDefined()
+  })
+
+  it('fetchOfficialStateEthicsComplaints retrieves rows', async () => {
+    const { fetchOfficialStateEthicsComplaints } = await import('../src/queries.ts')
+    const rows = await fetchOfficialStateEthicsComplaints(anon as never, officialIdLocal)
+    expect(rows.find(r => r.id === complaintId)).toBeDefined()
+  })
+
+  it('fetchOfficialStateOfficialEvents retrieves rows', async () => {
+    const { fetchOfficialStateOfficialEvents } = await import('../src/queries.ts')
+    const rows = await fetchOfficialStateOfficialEvents(anon as never, officialIdLocal)
+    expect(rows.find(r => r.id === eventId)).toBeDefined()
+  })
+})

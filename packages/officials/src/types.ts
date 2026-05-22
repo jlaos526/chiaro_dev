@@ -30,6 +30,18 @@ export type StateDistrictOfficeRow =
 export type StateCommitteeHearingRow =
   Database['public']['Tables']['state_committee_hearings']['Row']
 
+export type StateStockTransactionRow =
+  Database['public']['Tables']['state_stock_transactions']['Row']
+
+export type StateFinancialDisclosureRow =
+  Database['public']['Tables']['state_financial_disclosures']['Row']
+
+export type StateEthicsComplaintRow =
+  Database['public']['Tables']['state_ethics_complaints']['Row']
+
+export type StateOfficialEventRow =
+  Database['public']['Tables']['state_official_events']['Row']
+
 // Source of truth — mirrors the public.official_chamber enum (migration 0028)
 // expanded to 5 values for state-level legislators.
 export type OfficialChamber = Database['public']['Enums']['official_chamber']

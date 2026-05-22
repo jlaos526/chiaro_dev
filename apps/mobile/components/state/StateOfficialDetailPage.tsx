@@ -7,13 +7,14 @@ import { StateServiceRecordCard } from './StateServiceRecordCard'
 import { StateFinanceCard } from './StateFinanceCard'
 import { StateIssuePositionsCard } from './StateIssuePositionsCard'
 import { StateCommunityPresenceCard } from './StateCommunityPresenceCard'
+import { StateFinancialActivityCard } from './StateFinancialActivityCard'
+import { StateConductCard } from './StateConductCard'
 
 type DistrictOffice = Database['public']['Tables']['district_offices']['Row']
 
-// 'Service Record' + 'Finance' + 'Issue Positions' + 'Community Presence' are rendered
-// with real data (slices 5D + 5E + 5G + 5H); only 'Ethics & Accountability' remains as
-// a ComingSoonCard placeholder.
-const PLACEHOLDER_CATEGORIES: ComingSoonCategory[] = ['Ethics & Accountability']
+// State-officials detail-page redesign closed (slice 5I) — all 5
+// placeholder categories now render real cards (slices 5D + 5E + 5G + 5H + 5I).
+const PLACEHOLDER_CATEGORIES: ComingSoonCategory[] = []
 
 function chamberLabel(chamber: OfficialWithDistrict['chamber']): string {
   if (chamber === 'state_house') return 'State Representative'
@@ -103,12 +104,14 @@ export function StateOfficialDetailPage({
         </View>
       )}
 
-      {/* Category cascade — real Service Record + Finance + Issue Positions + Community Presence + 1 placeholder */}
+      {/* Category cascade — all 6 real cards; redesign closed (slice 5I) */}
       <View style={{ gap: 12 }}>
         <StateServiceRecordCard official={official} />
         <StateFinanceCard official={official} />
         <StateIssuePositionsCard officialId={official.id} />
         <StateCommunityPresenceCard officialId={official.id} />
+        <StateFinancialActivityCard officialId={official.id} />
+        <StateConductCard officialId={official.id} />
         {PLACEHOLDER_CATEGORIES.map(cat => <ComingSoonCard key={cat} category={cat} />)}
       </View>
     </ScrollView>

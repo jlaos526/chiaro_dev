@@ -1,0 +1,6 @@
+{
+  "events": [
+    { "official_openstates_person_id": "ocd-person/fx-ev-ca-1", "event_date": "2025-11-15", "event_type": "resignation", "outcome": "Resigned for personal reasons", "summary": "Resignation per OpenStates roles[].end_reason='resigned'", "state": "CA", "source_url": "https://openstates.org/person/ocd-person/fx-ev-ca-1/", "source": "openstates-end-reason", "external_id": "openstates-end-reason:ocd-person/fx-ev-ca-1:2025-11-15" },
+    { "official_openstates_person_id": "ocd-person/fx-ev-ny-1", "event_date": "2025-09-01", "event_type": "resignation", "outcome": "Death (per OpenStates end_reason='died')", "summary": "Deceased per OpenStates roles[].end_reason", "state": "NY", "source_url": "https://openstates.org/person/ocd-person/fx-ev-ny-1/", "source": "openstates-end-reason", "external_id": "openstates-end-reason:ocd-person/fx-ev-ny-1:2025-09-01" }
+  ]
+}

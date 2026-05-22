@@ -1,0 +1,3 @@
+{ "events": [
+  { "official_openstates_person_id": "ocd-person/fx-comp-tx-1", "complaint_date": "2025-08-14", "status": "sanctioned", "disposition": "$5000 civil penalty", "summary": "Sworn complaint resolved with finding of violation", "state": "TX", "source_url": "https://ethics.state.tx.us/x", "source": "tx-tec", "external_id": "tx-tec-comp-1" }
+]}

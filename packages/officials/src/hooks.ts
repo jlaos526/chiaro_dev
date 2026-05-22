@@ -11,6 +11,10 @@ import {
   fetchOfficialStateScorecardRatings,
   fetchOfficialStateTownHalls, fetchOfficialStateDistrictOffices,
   fetchOfficialStateCommitteeHearings,
+  fetchOfficialStateStockTransactions,
+  fetchOfficialStateFinancialDisclosures,
+  fetchOfficialStateEthicsComplaints,
+  fetchOfficialStateOfficialEvents,
 } from './queries.ts'
 import type {
   StateFinanceSummaryRow,
@@ -19,6 +23,10 @@ import type {
   StateTownHallRow,
   StateDistrictOfficeRow,
   StateCommitteeHearingRow,
+  StateStockTransactionRow,
+  StateFinancialDisclosureRow,
+  StateEthicsComplaintRow,
+  StateOfficialEventRow,
 } from './types.ts'
 
 const FIVE_MIN = 5 * 60 * 1000
@@ -190,6 +198,58 @@ export function useOfficialStateCommitteeHearings(
   return useQuery({
     queryKey: officialsKeys.stateCommitteeHearings(officialId, session),
     queryFn: () => fetchOfficialStateCommitteeHearings(client, officialId, session),
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
+    enabled: !!officialId,
+  })
+}
+
+export function useOfficialStateStockTransactions(
+  client: ChiaroClient,
+  officialId: string,
+): UseQueryResult<StateStockTransactionRow[], Error> {
+  return useQuery({
+    queryKey: officialsKeys.stateStockTransactions(officialId),
+    queryFn: () => fetchOfficialStateStockTransactions(client, officialId),
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
+    enabled: !!officialId,
+  })
+}
+
+export function useOfficialStateFinancialDisclosures(
+  client: ChiaroClient,
+  officialId: string,
+): UseQueryResult<StateFinancialDisclosureRow[], Error> {
+  return useQuery({
+    queryKey: officialsKeys.stateFinancialDisclosures(officialId),
+    queryFn: () => fetchOfficialStateFinancialDisclosures(client, officialId),
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
+    enabled: !!officialId,
+  })
+}
+
+export function useOfficialStateEthicsComplaints(
+  client: ChiaroClient,
+  officialId: string,
+): UseQueryResult<StateEthicsComplaintRow[], Error> {
+  return useQuery({
+    queryKey: officialsKeys.stateEthicsComplaints(officialId),
+    queryFn: () => fetchOfficialStateEthicsComplaints(client, officialId),
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
+    enabled: !!officialId,
+  })
+}
+
+export function useOfficialStateOfficialEvents(
+  client: ChiaroClient,
+  officialId: string,
+): UseQueryResult<StateOfficialEventRow[], Error> {
+  return useQuery({
+    queryKey: officialsKeys.stateOfficialEvents(officialId),
+    queryFn: () => fetchOfficialStateOfficialEvents(client, officialId),
     staleTime: FIVE_MIN,
     gcTime: THIRTY_MIN,
     enabled: !!officialId,

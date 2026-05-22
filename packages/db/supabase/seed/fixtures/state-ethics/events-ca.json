@@ -1,0 +1,3 @@
+{ "events": [
+  { "official_openstates_person_id": "ocd-person/fx-fpv-ca-1", "event_date": "2025-06-01", "event_type": "campaign_finance_violation", "outcome": "$2500 fine", "summary": "FPPC fine for late campaign finance filing", "state": "CA", "source_url": "https://fppc.ca.gov/x", "source": "ca-fppc", "external_id": "ca-fppc-violation-1" }
+]}

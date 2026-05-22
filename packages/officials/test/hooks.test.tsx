@@ -12,6 +12,10 @@ import {
   useOfficialStateTownHalls,
   useOfficialStateDistrictOffices,
   useOfficialStateCommitteeHearings,
+  useOfficialStateStockTransactions,
+  useOfficialStateFinancialDisclosures,
+  useOfficialStateEthicsComplaints,
+  useOfficialStateOfficialEvents,
 } from '../src/hooks.ts'
 import * as queries from '../src/queries.ts'
 
@@ -222,5 +226,103 @@ describe('useOfficialStateCommitteeHearings', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(result.current.data).toHaveLength(1)
     expect(result.current.data![0]!.agenda_topic).toBe('SB-91')
+  })
+})
+
+describe('useOfficialStateStockTransactions', () => {
+  beforeEach(() => {
+    vi.spyOn(queries, 'fetchOfficialStateStockTransactions').mockResolvedValue([
+      {
+        id: 'stk1', official_id: 'oid', transaction_date: '2026-01-15',
+        filing_date: '2026-02-15', days_late: 1, asset_ticker: 'AAPL',
+        asset_name: 'Apple Inc.', transaction_type: 'purchase',
+        amount_range_low: 1000, amount_range_high: 10000, state: 'CA',
+        source_url: 'https://x', source: 'ca-fppc', external_id: 'stk-1',
+        ingested_at: '2026-01-01',
+      },
+    ] as never)
+  })
+  it('returns hooked rows', async () => {
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const { result } = renderHook(
+      () => useOfficialStateStockTransactions({} as ChiaroClient, 'oid'),
+      { wrapper: wrapper(qc) },
+    )
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data).toHaveLength(1)
+    expect(result.current.data![0]!.transaction_type).toBe('purchase')
+  })
+})
+
+describe('useOfficialStateFinancialDisclosures', () => {
+  beforeEach(() => {
+    vi.spyOn(queries, 'fetchOfficialStateFinancialDisclosures').mockResolvedValue([
+      {
+        id: 'fd1', official_id: 'oid', filing_year: 2025,
+        filing_date: '2026-02-01',
+        income_source: 'Acme Consulting', income_kind: 'consulting',
+        amount_range_low: 5000, amount_range_high: 25000,
+        state: 'CA', source_url: 'https://x', source: 'ca-fppc',
+        external_id: 'fd-1', ingested_at: '2026-01-01',
+      },
+    ] as never)
+  })
+  it('returns hooked rows', async () => {
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const { result } = renderHook(
+      () => useOfficialStateFinancialDisclosures({} as ChiaroClient, 'oid'),
+      { wrapper: wrapper(qc) },
+    )
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data).toHaveLength(1)
+    expect(result.current.data![0]!.filing_year).toBe(2025)
+  })
+})
+
+describe('useOfficialStateEthicsComplaints', () => {
+  beforeEach(() => {
+    vi.spyOn(queries, 'fetchOfficialStateEthicsComplaints').mockResolvedValue([
+      {
+        id: 'ec1', official_id: 'oid', complaint_date: '2025-09-10',
+        status: 'dismissed', disposition: 'no violation found',
+        summary: 'Allegation of misuse of district funds',
+        state: 'CA', source_url: 'https://x', source: 'ca-fppc',
+        external_id: 'ec-1', ingested_at: '2026-01-01',
+      },
+    ] as never)
+  })
+  it('returns hooked rows', async () => {
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const { result } = renderHook(
+      () => useOfficialStateEthicsComplaints({} as ChiaroClient, 'oid'),
+      { wrapper: wrapper(qc) },
+    )
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data).toHaveLength(1)
+    expect(result.current.data![0]!.status).toBe('dismissed')
+  })
+})
+
+describe('useOfficialStateOfficialEvents', () => {
+  beforeEach(() => {
+    vi.spyOn(queries, 'fetchOfficialStateOfficialEvents').mockResolvedValue([
+      {
+        id: 'ev1', official_id: 'oid', event_date: '2025-06-15',
+        event_type: 'expulsion_vote', outcome: 'failed',
+        summary: 'Vote to expel did not pass committee',
+        state: 'CA', source_url: 'https://x', source: 'ballotpedia',
+        external_id: 'ev-1', ingested_at: '2026-01-01',
+      },
+    ] as never)
+  })
+  it('returns hooked rows', async () => {
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const { result } = renderHook(
+      () => useOfficialStateOfficialEvents({} as ChiaroClient, 'oid'),
+      { wrapper: wrapper(qc) },
+    )
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data).toHaveLength(1)
+    expect(result.current.data![0]!.event_type).toBe('expulsion_vote')
   })
 })

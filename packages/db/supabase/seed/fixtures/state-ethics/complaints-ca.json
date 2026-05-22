@@ -1,0 +1,3 @@
+{ "events": [
+  { "official_openstates_person_id": "ocd-person/fx-comp-ca-1", "complaint_date": "2025-05-15", "status": "open", "summary": "Failure to disclose conflict of interest on AB-1234", "state": "CA", "source_url": "https://fppc.ca.gov/x", "source": "ca-fppc", "external_id": "ca-fppc-comp-1" }
+]}

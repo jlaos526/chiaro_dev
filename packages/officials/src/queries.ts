@@ -8,6 +8,10 @@ import type {
   StateTownHallRow,
   StateDistrictOfficeRow,
   StateCommitteeHearingRow,
+  StateStockTransactionRow,
+  StateFinancialDisclosureRow,
+  StateEthicsComplaintRow,
+  StateOfficialEventRow,
 } from './types.ts'
 
 const SELECT_WITH_DISTRICT =
@@ -318,4 +322,58 @@ export async function fetchOfficialStateCommitteeHearings(
     .order('hearing_date', { ascending: false })
   if (error) throw error
   return (data ?? []) as StateCommitteeHearingRow[]
+}
+
+export async function fetchOfficialStateStockTransactions(
+  client: ChiaroClient,
+  officialId: string,
+): Promise<StateStockTransactionRow[]> {
+  const { data, error } = await client
+    .from('state_stock_transactions')
+    .select('*')
+    .eq('official_id', officialId)
+    .order('transaction_date', { ascending: false })
+    .limit(50)
+  if (error) throw error
+  return (data ?? []) as StateStockTransactionRow[]
+}
+
+export async function fetchOfficialStateFinancialDisclosures(
+  client: ChiaroClient,
+  officialId: string,
+): Promise<StateFinancialDisclosureRow[]> {
+  const { data, error } = await client
+    .from('state_financial_disclosures')
+    .select('*')
+    .eq('official_id', officialId)
+    .order('filing_year', { ascending: false })
+    .order('ingested_at', { ascending: false })
+  if (error) throw error
+  return (data ?? []) as StateFinancialDisclosureRow[]
+}
+
+export async function fetchOfficialStateEthicsComplaints(
+  client: ChiaroClient,
+  officialId: string,
+): Promise<StateEthicsComplaintRow[]> {
+  const { data, error } = await client
+    .from('state_ethics_complaints')
+    .select('*')
+    .eq('official_id', officialId)
+    .order('complaint_date', { ascending: false })
+  if (error) throw error
+  return (data ?? []) as StateEthicsComplaintRow[]
+}
+
+export async function fetchOfficialStateOfficialEvents(
+  client: ChiaroClient,
+  officialId: string,
+): Promise<StateOfficialEventRow[]> {
+  const { data, error } = await client
+    .from('state_official_events')
+    .select('*')
+    .eq('official_id', officialId)
+    .order('event_date', { ascending: false })
+  if (error) throw error
+  return (data ?? []) as StateOfficialEventRow[]
 }

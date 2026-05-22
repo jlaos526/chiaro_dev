@@ -6,15 +6,16 @@ import { StateServiceRecordCard } from './StateServiceRecordCard'
 import { StateFinanceCard } from './StateFinanceCard'
 import { StateIssuePositionsCard } from './StateIssuePositionsCard'
 import { StateCommunityPresenceCard } from './StateCommunityPresenceCard'
+import { StateFinancialActivityCard } from './StateFinancialActivityCard'
+import { StateConductCard } from './StateConductCard'
 
 type DistrictOffice = Database['public']['Tables']['district_offices']['Row']
 
-// 'Service Record', 'Finance', 'Issue Positions', and 'Community Presence'
-// are real cards backed by ingest data; the remaining category stays as a
-// ComingSoonCard placeholder until a future slice.
-const PLACEHOLDER_CATEGORIES: ComingSoonCategory[] = [
-  'Ethics & Accountability',
-]
+// All 6 categories now have real cards backed by ingest data:
+// Service Record, Finance, Issue Positions, Community Presence,
+// Financial Activity, and Conduct & Sanctions. Slice 5I closes the redesign
+// begun in slice 5C — no ComingSoonCard placeholders remain.
+const PLACEHOLDER_CATEGORIES: ComingSoonCategory[] = []
 
 function chamberLabel(chamber: OfficialWithDistrict['chamber']): string {
   if (chamber === 'state_house') return 'State Representative'
@@ -97,13 +98,15 @@ export function StateOfficialDetailPage({
         </section>
       )}
 
-      {/* Category cascade — real Service Record + Finance + Issue Positions
-          + Community Presence + 1 remaining ComingSoonCard placeholder */}
+      {/* Category cascade — all 6 cards are real; 0 placeholders remain
+          (slice 5I closes the redesign). */}
       <section style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <StateServiceRecordCard official={official} />
         <StateFinanceCard official={official} />
         <StateIssuePositionsCard officialId={official.id} />
         <StateCommunityPresenceCard officialId={official.id} />
+        <StateFinancialActivityCard officialId={official.id} />
+        <StateConductCard officialId={official.id} />
         {PLACEHOLDER_CATEGORIES.map(cat => <ComingSoonCard key={cat} category={cat} />)}
       </section>
     </main>

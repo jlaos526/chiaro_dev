@@ -1,0 +1,3 @@
+{ "events": [
+  { "official_openstates_person_id": "ocd-person/fx-comp-mi-1", "complaint_date": "2025-09-03", "status": "closed_no_action", "summary": "Complaint reviewed, no further action taken", "state": "MI", "source_url": "https://michigan.gov/sos/x", "source": "mi-board", "external_id": "mi-board-comp-1" }
+]}

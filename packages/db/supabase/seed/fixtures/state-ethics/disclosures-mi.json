@@ -1,0 +1,3 @@
+{ "events": [
+  { "official_openstates_person_id": "ocd-person/fx-disc-mi-1", "filing_year": 2024, "filing_date": "2025-04-15", "income_source": "Great Lakes Advisory Group", "income_kind": "salary", "amount_range_low": 50000, "amount_range_high": 150000, "state": "MI", "source_url": "https://michigan.gov/sos/x", "source": "mi-board", "external_id": "mi-board-disc-1" }
+]}

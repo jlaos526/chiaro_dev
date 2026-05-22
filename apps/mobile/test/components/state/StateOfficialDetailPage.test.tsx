@@ -40,6 +40,10 @@ jest.mock('@chiaro/officials', () => {
     useOfficialStateTownHalls: () => ({ data: [], isLoading: false, isSuccess: true }),
     useOfficialStateDistrictOffices: () => ({ data: [], isLoading: false, isSuccess: true }),
     useOfficialStateCommitteeHearings: () => ({ data: [], isLoading: false, isSuccess: true }),
+    useOfficialStateStockTransactions: () => ({ data: [], isLoading: false, isSuccess: true }),
+    useOfficialStateFinancialDisclosures: () => ({ data: [], isLoading: false, isSuccess: true }),
+    useOfficialStateEthicsComplaints: () => ({ data: [], isLoading: false, isSuccess: true }),
+    useOfficialStateOfficialEvents: () => ({ data: [], isLoading: false, isSuccess: true }),
   }
 })
 
@@ -75,25 +79,25 @@ describe('mobile StateOfficialDetailPage', () => {
     expect(getByText(/CA-15/)).toBeTruthy()
   })
 
-  it('renders Service Record + Finance + Issue Positions + Community Presence + 1 ComingSoonCard placeholder', () => {
-    const { getAllByText } = render(
+  it('renders 6 real cards; 0 ComingSoonCard placeholders (redesign closed slice 5I)', () => {
+    const { getAllByText, queryByText } = render(
       <StateOfficialDetailPage official={mkState()} offices={[]} />,
       { wrapper: wrap },
     )
-    // 'Service Record' from <StateServiceRecordCard>; 'Finance' from <StateFinanceCard>;
-    // 'Issue Positions' from <StateIssuePositionsCard> (slice 5G);
-    // 'Community Presence' from <StateCommunityPresenceCard> (slice 5H);
-    // only 'Ethics & Accountability' is a placeholder.
+    // All 6 real cards across slices 5D-5I.
     const titles = [
       'Service Record',
       'Finance',
       'Issue Positions',
       'Community Presence',
-      'Ethics & Accountability',
+      'Financial Activity',
+      'Conduct & Sanctions',
     ]
     for (const t of titles) {
       expect(getAllByText(t).length).toBeGreaterThanOrEqual(1)
     }
+    // No ComingSoonCard placeholder remains.
+    expect(queryByText('Ethics & Accountability')).toBeNull()
   })
 
   it('renders Community Presence as real card (empty 3 sources → empty-state copy)', () => {

@@ -1,0 +1,3 @@
+{ "events": [
+  { "official_openstates_person_id": "ocd-person/fx-disc-fl-1", "filing_year": 2024, "filing_date": "2025-07-01", "income_source": "Sunshine Realty Inc.", "income_kind": "rental", "amount_range_low": 25000, "amount_range_high": 100000, "state": "FL", "source_url": "https://ethics.state.fl.us/x", "source": "fl-coe", "external_id": "fl-coe-disc-1" }
+]}
