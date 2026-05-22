@@ -1,0 +1,8 @@
+id: ocd-person/fx-yaml-ca-1
+name: Test YAML CA1
+roles:
+  - type: lower
+    jurisdiction: ocd-jurisdiction/country:us/state:ca/government
+    start_date: '2023-01-03'
+    end_date: '2025-11-15'
+    end_reason: resigned

@@ -2,6 +2,7 @@ import type { StateEthicsAdapter, NormalizedOfficialEvent } from '../shared.ts'
 import { readFile, readdir } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { parse as parseYaml } from 'yaml'
 
 const ALL_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY']
 
@@ -12,6 +13,16 @@ function peopleCacheDir(): string {
 
 const RESIGN_RE = /resign/i
 const DEATH_RE  = /(death|died|deceased)/i
+
+const JURISDICTION_RE = /state:([a-z]{2})\//i
+
+function extractStateFromJurisdiction(jurisdiction: string | undefined): string | null {
+  if (!jurisdiction) return null
+  const m = jurisdiction.match(JURISDICTION_RE)
+  if (m) return m[1]!.toUpperCase()
+  if (/^[A-Z]{2}$/.test(jurisdiction)) return jurisdiction
+  return null
+}
 
 interface OpenStatesPerson {
   id: string
@@ -25,16 +36,16 @@ interface OpenStatesPerson {
 }
 
 /**
- * Reads slice 5C cached OpenStates people files and emits resignation
- * events for any role with end_reason matching /resign/i or
- * /(death|died|deceased)/i.
+ * Reads slice 5C cached OpenStates people files (`.json` / `.yml` / `.yaml`)
+ * and emits resignation events for any role with end_reason matching
+ * /resign/i or /(death|died|deceased)/i.
  *
  * Returns [] when cache dir absent (v1 stub fallback).
  *
- * NOTE: slice 5C caches OpenStates people as YAML, not JSON. The v1
- * production path here uses JSON.parse, which fails silently per the
- * try/catch. Operator wires a YAML parser when this adapter goes live;
- * fixture-injected tests work fine today.
+ * State extraction handles both formats:
+ *   - OCD-jurisdiction: `ocd-jurisdiction/country:us/state:ca/government`
+ *     (slice 5C format) → extracts `CA` via JURISDICTION_RE
+ *   - Plain 2-letter: `CA` → passes through unchanged
  */
 export const openstatesEndReason: StateEthicsAdapter = {
   slug: 'openstates-end-reason',
@@ -57,27 +68,30 @@ export const openstatesEndReason: StateEthicsAdapter = {
     }
 
     for (const file of files) {
-      if (!file.endsWith('.json') && !file.endsWith('.yml')) continue
+      if (!file.endsWith('.json') && !file.endsWith('.yml') && !file.endsWith('.yaml')) continue
       let person: OpenStatesPerson
       try {
         const raw = await readFile(join(dir, file), 'utf8')
-        // For v1 we assume JSON. Slice 5C may cache YAML; production
-        // operator wires a YAML parser if needed.
-        person = JSON.parse(raw) as OpenStatesPerson
+        if (file.endsWith('.yml') || file.endsWith('.yaml')) {
+          person = parseYaml(raw) as OpenStatesPerson
+        } else {
+          person = JSON.parse(raw) as OpenStatesPerson
+        }
       } catch {
         continue
       }
       if (!person.roles) continue
       for (const role of person.roles) {
         if (!role.end_date || !role.end_reason) continue
-        if (opts.state && role.jurisdiction !== opts.state) continue
+
+        const roleState = extractStateFromJurisdiction(role.jurisdiction)
+        if (opts.state && roleState !== opts.state) continue
 
         const isResign = RESIGN_RE.test(role.end_reason)
         const isDeath  = DEATH_RE.test(role.end_reason)
         if (!isResign && !isDeath) continue
 
-        const stateMatch = role.jurisdiction?.match(/^[A-Z]{2}$/)
-        const state = stateMatch ? role.jurisdiction! : opts.state ?? ''
+        const state = roleState ?? opts.state ?? ''
         if (!state) continue
 
         out.push({

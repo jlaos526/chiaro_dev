@@ -10,7 +10,7 @@ import {
   type NormalizedDistrictOffice,
   type NormalizedCommitteeHearing,
 } from './state-community/shared.ts'
-import { townhallproject } from './state-community/town-halls/townhallproject.ts'
+import { mobilize } from './state-community/town-halls/mobilize.ts'
 import { caLeginfoTownHalls }     from './state-community/town-halls/ca-leginfo.ts'
 import { nySenateTownHalls }      from './state-community/town-halls/ny-senate.ts'
 import { flDoeTownHalls }         from './state-community/town-halls/fl-doe.ts'
@@ -27,8 +27,10 @@ const DB_URL = process.env.SUPABASE_DB_URL
   ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 
 const ADAPTERS_DEFAULT: StateCommunityAdapter[] = [
-  // halls first (TownHallProject nationwide baseline, then per-state augment)
-  townhallproject,
+  // halls first (Mobilize nationwide baseline replaces dead TownHallProject;
+  // per-state augment runs after). townhallproject.ts is retained as a
+  // no-op stub (file kept for backwards-compat; @deprecated JSDoc).
+  mobilize,
   caLeginfoTownHalls, nySenateTownHalls, flDoeTownHalls, txCapitolTownHalls, miLegislatureTownHalls,
   // offices
   caLeginfoOffices, nySenateOffices, flDoeOffices, txCapitolOffices, miLegislatureOffices,

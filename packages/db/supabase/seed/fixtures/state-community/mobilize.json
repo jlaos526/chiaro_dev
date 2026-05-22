@@ -1,0 +1,81 @@
+{
+  "data": [
+    {
+      "id": 100001,
+      "title": "Town Hall with State Senator Mike Foote",
+      "description": "Join CO State Senator Mike Foote for a community town hall.",
+      "event_type": "TOWN_HALL",
+      "is_virtual": false,
+      "event_url": "https://www.mobilize.us/example/event/100001/",
+      "location": {
+        "venue": "Lafayette Library",
+        "address_lines": ["775 W Baseline Rd"],
+        "locality": "Lafayette",
+        "region": "CO",
+        "postal_code": "80026",
+        "country": "US"
+      },
+      "timeslots": [{ "id": 200001, "start_date": 1738800000, "end_date": 1738807200 }]
+    },
+    {
+      "id": 100002,
+      "title": "Assemblymember Emily Sirota — Community Town Hall",
+      "description": "Constituent town hall in Sacramento.",
+      "event_type": "TOWN_HALL",
+      "is_virtual": false,
+      "event_url": "https://us02web.zoom.us/j/123456",
+      "location": {
+        "venue": "Capitol Conference Room 100",
+        "address_lines": ["1315 10th St"],
+        "locality": "Sacramento",
+        "region": "CA",
+        "postal_code": "95814",
+        "country": "US"
+      },
+      "timeslots": [{ "id": 200002, "start_date": 1739404800, "end_date": 1739412000 }]
+    },
+    {
+      "id": 100003,
+      "title": "Town Hall with Senator Elizabeth Warren",
+      "description": "US Senator town hall.",
+      "event_type": "TOWN_HALL",
+      "is_virtual": false,
+      "event_url": "https://www.mobilize.us/example/event/100003/",
+      "location": {
+        "venue": "Boston Convention Center",
+        "locality": "Boston",
+        "region": "MA",
+        "country": "US"
+      },
+      "timeslots": [{ "id": 200003, "start_date": 1739491200, "end_date": 1739498400 }]
+    },
+    {
+      "id": 100004,
+      "title": "Community Town Hall in Brooklyn",
+      "description": "Town hall meeting.",
+      "event_type": "TOWN_HALL",
+      "is_virtual": false,
+      "event_url": "https://www.mobilize.us/example/event/100004/",
+      "location": {
+        "venue": "Brooklyn Public Library",
+        "locality": "Brooklyn",
+        "region": "NY",
+        "country": "US"
+      },
+      "timeslots": [{ "id": 200004, "start_date": 1739577600, "end_date": 1739584800 }]
+    },
+    {
+      "id": 100005,
+      "title": "Delegate Pat Smith Virtual Town Hall",
+      "description": "Maryland Delegate Pat Smith virtual town hall.",
+      "event_type": "TOWN_HALL",
+      "is_virtual": true,
+      "event_url": "https://us02web.zoom.us/j/654321",
+      "location": null,
+      "timeslots": [{ "id": 200005, "start_date": 1739664000, "end_date": 1739671200 }]
+    }
+  ],
+  "count": 5,
+  "next": null,
+  "previous": null
+}
