@@ -1,11 +1,19 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { BioHeader } from '@/components/bio/BioHeader'
-import { PerformanceSection } from '@/components/performance/PerformanceSection'
+import { FederalServiceRecordCard } from '@/components/federal/FederalServiceRecordCard'
+import { FederalFinanceCard } from '@/components/federal/FederalFinanceCard'
+import { FederalIssuePositionsCard } from '@/components/federal/FederalIssuePositionsCard'
+import { FederalCommunityPresenceCard } from '@/components/federal/FederalCommunityPresenceCard'
+import { FederalEthicsAccountabilityCard } from '@/components/federal/FederalEthicsAccountabilityCard'
+import { FederalVotingBillsCard } from '@/components/federal/FederalVotingBillsCard'
 import { firstElectedYear as deriveFirstElectedYear } from '@/lib/derivations/service-record'
 import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
 import { isStateLevel } from '@chiaro/officials'
 import type { Database } from '@chiaro/db'
+
+const CURRENT_CYCLE = '2024'
+const CURRENT_CONGRESS = '119'
 
 interface Params { id: string }
 
@@ -122,7 +130,18 @@ export default async function OfficialPage(
   return (
     <main>
       <BioHeader officialId={official.id} {...bioProps} chips={chips} />
-      <PerformanceSection officialId={id} chamber={official.chamber as 'federal_house' | 'federal_senate'} />
+      {/* Federal officials redesign (slice 6) — 6 cards in vertical cascade */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <FederalServiceRecordCard
+          officialId={id}
+          {...(official.chamber === 'federal_senate' ? { hideLivesInDistrict: true } : {})}
+        />
+        <FederalFinanceCard officialId={id} cycle={CURRENT_CYCLE} />
+        <FederalIssuePositionsCard officialId={id} />
+        <FederalCommunityPresenceCard officialId={id} congress={CURRENT_CONGRESS} />
+        <FederalEthicsAccountabilityCard officialId={id} />
+        <FederalVotingBillsCard officialId={id} congress={CURRENT_CONGRESS} />
+      </div>
     </main>
   )
 }

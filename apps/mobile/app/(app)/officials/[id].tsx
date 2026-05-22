@@ -1,12 +1,20 @@
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { ScrollView, Text } from 'react-native'
+import { ScrollView, Text, View } from 'react-native'
 import { useLocalSearchParams, Redirect } from 'expo-router'
 import { useOfficial, useOfficialScorecardRatings, useOfficialLeadershipHistory, isStateLevel } from '@chiaro/officials'
 import { supabase } from '@/lib/supabase'
 import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
 import { firstElectedYear as deriveFirstElectedYear } from '@/lib/derivations/service-record'
 import { BioHeader } from '@/components/bio/BioHeader'
-import { PerformanceSection } from '@/components/performance/PerformanceSection'
+import { FederalServiceRecordCard } from '@/components/federal/FederalServiceRecordCard'
+import { FederalFinanceCard } from '@/components/federal/FederalFinanceCard'
+import { FederalIssuePositionsCard } from '@/components/federal/FederalIssuePositionsCard'
+import { FederalCommunityPresenceCard } from '@/components/federal/FederalCommunityPresenceCard'
+import { FederalEthicsAccountabilityCard } from '@/components/federal/FederalEthicsAccountabilityCard'
+import { FederalVotingBillsCard } from '@/components/federal/FederalVotingBillsCard'
+
+const CURRENT_CYCLE = '2024'
+const CURRENT_CONGRESS = '119'
 
 const STATE_NAMES: Record<string, string> = {
   AL:'Alabama', AK:'Alaska', AZ:'Arizona', AR:'Arkansas', CA:'California', CO:'Colorado', CT:'Connecticut',
@@ -72,7 +80,18 @@ export default function OfficialDetailScreen() {
           twitterHandle={official.twitter_handle}
           chips={chips}
         />
-        <PerformanceSection officialId={officialId} chamber={official.chamber as 'federal_house' | 'federal_senate'} />
+        {/* Federal officials redesign (slice 6) — 6 cards in vertical cascade */}
+        <View style={{ gap: 12, paddingHorizontal: 16, paddingTop: 12 }}>
+          <FederalServiceRecordCard
+            officialId={officialId}
+            {...(official.chamber === 'federal_senate' ? { hideLivesInDistrict: true } : {})}
+          />
+          <FederalFinanceCard officialId={officialId} cycle={CURRENT_CYCLE} />
+          <FederalIssuePositionsCard officialId={officialId} />
+          <FederalCommunityPresenceCard officialId={officialId} congress={CURRENT_CONGRESS} />
+          <FederalEthicsAccountabilityCard officialId={officialId} />
+          <FederalVotingBillsCard officialId={officialId} congress={CURRENT_CONGRESS} />
+        </View>
       </ScrollView>
     </SafeAreaView>
   )
