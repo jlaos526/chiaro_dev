@@ -1,0 +1,15 @@
+{
+  "events": [
+    {
+      "official_openstates_person_id": "ocd-person/fx-mi-leg-1",
+      "event_date": "2026-06-07",
+      "city": "Lansing",
+      "state": "MI",
+      "format": "in_person",
+      "attendance_estimate": 50,
+      "source_url": "https://www.legislature.mi.gov/Members/Member-1/events/7",
+      "source": "mi-legislature",
+      "external_id": "mi-leg-event-7"
+    }
+  ]
+}

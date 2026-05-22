@@ -980,6 +980,72 @@ export type Database = {
         }
         Relationships: []
       }
+      state_committee_hearing_attendance: {
+        Row: {
+          hearing_id: string
+          official_id: string
+        }
+        Insert: {
+          hearing_id: string
+          official_id: string
+        }
+        Update: {
+          hearing_id?: string
+          official_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_committee_hearing_attendance_hearing_id_fkey"
+            columns: ["hearing_id"]
+            isOneToOne: false
+            referencedRelation: "state_committee_hearings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "state_committee_hearing_attendance_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      state_committee_hearings: {
+        Row: {
+          agenda_topic: string | null
+          hearing_date: string
+          id: string
+          ingested_at: string
+          location: string | null
+          openstates_committee_id: string | null
+          session: string
+          source_url: string
+          state: string
+        }
+        Insert: {
+          agenda_topic?: string | null
+          hearing_date: string
+          id?: string
+          ingested_at?: string
+          location?: string | null
+          openstates_committee_id?: string | null
+          session: string
+          source_url: string
+          state: string
+        }
+        Update: {
+          agenda_topic?: string | null
+          hearing_date?: string
+          id?: string
+          ingested_at?: string
+          location?: string | null
+          openstates_committee_id?: string | null
+          session?: string
+          source_url?: string
+          state?: string
+        }
+        Relationships: []
+      }
       state_committee_memberships: {
         Row: {
           chamber: Database["public"]["Enums"]["official_chamber"]
@@ -1020,6 +1086,62 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "state_committee_memberships_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      state_district_offices: {
+        Row: {
+          city: string
+          email: string | null
+          hours_text: string | null
+          id: string
+          ingested_at: string
+          kind: string
+          official_id: string
+          phone: string | null
+          postal_code: string | null
+          source_url: string
+          state: string
+          street_1: string
+          street_2: string | null
+        }
+        Insert: {
+          city: string
+          email?: string | null
+          hours_text?: string | null
+          id?: string
+          ingested_at?: string
+          kind: string
+          official_id: string
+          phone?: string | null
+          postal_code?: string | null
+          source_url: string
+          state: string
+          street_1: string
+          street_2?: string | null
+        }
+        Update: {
+          city?: string
+          email?: string | null
+          hours_text?: string | null
+          id?: string
+          ingested_at?: string
+          kind?: string
+          official_id?: string
+          phone?: string | null
+          postal_code?: string | null
+          source_url?: string
+          state?: string
+          street_1?: string
+          street_2?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_district_offices_official_id_fkey"
             columns: ["official_id"]
             isOneToOne: false
             referencedRelation: "officials"
@@ -1195,6 +1317,56 @@ export type Database = {
             columns: ["scorecard_id"]
             isOneToOne: false
             referencedRelation: "state_scorecard_orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      state_town_halls: {
+        Row: {
+          attendance_estimate: number | null
+          city: string | null
+          event_date: string
+          external_id: string | null
+          format: string | null
+          id: string
+          ingested_at: string
+          official_id: string
+          source: string
+          source_url: string
+          state: string
+        }
+        Insert: {
+          attendance_estimate?: number | null
+          city?: string | null
+          event_date: string
+          external_id?: string | null
+          format?: string | null
+          id?: string
+          ingested_at?: string
+          official_id: string
+          source: string
+          source_url: string
+          state: string
+        }
+        Update: {
+          attendance_estimate?: number | null
+          city?: string | null
+          event_date?: string
+          external_id?: string | null
+          format?: string | null
+          id?: string
+          ingested_at?: string
+          official_id?: string
+          source?: string
+          source_url?: string
+          state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "state_town_halls_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
             referencedColumns: ["id"]
           },
         ]

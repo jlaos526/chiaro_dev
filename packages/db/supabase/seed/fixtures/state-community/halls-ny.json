@@ -1,0 +1,25 @@
+{
+  "events": [
+    {
+      "official_openstates_person_id": "ocd-person/fx-ny-sen-1",
+      "event_date": "2026-03-05",
+      "city": "Buffalo",
+      "state": "NY",
+      "format": "in_person",
+      "attendance_estimate": 95,
+      "source_url": "https://www.nysenate.gov/senators/member-1/events/5",
+      "source": "ny-senate",
+      "external_id": "ny-senate-event-5"
+    },
+    {
+      "official_openstates_person_id": "ocd-person/fx-ny-sen-2",
+      "event_date": "2026-03-19",
+      "city": "Syracuse",
+      "state": "NY",
+      "format": "hybrid",
+      "source_url": "https://www.nysenate.gov/senators/member-2/events/9",
+      "source": "ny-senate",
+      "external_id": "ny-senate-event-9"
+    }
+  ]
+}

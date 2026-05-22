@@ -1,0 +1,25 @@
+{
+  "events": [
+    {
+      "official_openstates_person_id": "ocd-person/fx-ca-leg-1",
+      "event_date": "2026-02-10",
+      "city": "Sacramento",
+      "state": "CA",
+      "format": "in_person",
+      "attendance_estimate": 60,
+      "source_url": "https://leginfo.legislature.ca.gov/members/member-1/events/10",
+      "source": "ca-leginfo",
+      "external_id": "ca-leg-event-10"
+    },
+    {
+      "official_openstates_person_id": "ocd-person/fx-ca-leg-2",
+      "event_date": "2026-02-24",
+      "city": "Los Angeles",
+      "state": "CA",
+      "format": "virtual",
+      "source_url": "https://leginfo.legislature.ca.gov/members/member-2/events/22",
+      "source": "ca-leginfo",
+      "external_id": "ca-leg-event-22"
+    }
+  ]
+}

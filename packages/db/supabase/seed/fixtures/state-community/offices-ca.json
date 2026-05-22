@@ -1,0 +1,24 @@
+{
+  "events": [
+    {
+      "official_openstates_person_id": "ocd-person/fx-off-ca-1",
+      "kind": "district",
+      "street_1": "1234 Main St",
+      "city": "San Jose",
+      "state": "CA",
+      "postal_code": "95113",
+      "phone": "(408) 555-0100",
+      "hours_text": "Mon-Fri 9am-5pm",
+      "source_url": "https://leginfo.ca.gov/member/1"
+    },
+    {
+      "official_openstates_person_id": "ocd-person/fx-off-ca-1",
+      "kind": "satellite",
+      "street_1": "5678 Oak Ave",
+      "city": "Gilroy",
+      "state": "CA",
+      "postal_code": "95020",
+      "source_url": "https://leginfo.ca.gov/member/1"
+    }
+  ]
+}

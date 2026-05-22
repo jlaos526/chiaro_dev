@@ -5,6 +5,9 @@ import type {
   StateFinanceSummaryRow,
   StateFinanceIndividualDonorRow,
   StateScorecardRatingWithOrg,
+  StateTownHallRow,
+  StateDistrictOfficeRow,
+  StateCommitteeHearingRow,
 } from './types.ts'
 
 const SELECT_WITH_DISTRICT =
@@ -231,4 +234,88 @@ export async function fetchOfficialLeadershipHistory(
     .order('start_date', { ascending: false })
   if (error) throw error
   return (data ?? []) as LeadershipHistoryRow[]
+}
+
+/**
+ * Past 12 months + upcoming, ordered by event_date desc.
+ * 12-month window is fixed in v1; operator-tunable via env later.
+ */
+export async function fetchOfficialStateTownHalls(
+  client: ChiaroClient,
+  officialId: string,
+): Promise<StateTownHallRow[]> {
+  const twelveMonthsAgo = new Date()
+  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12)
+  const cutoff = twelveMonthsAgo.toISOString().slice(0, 10)
+
+  const { data, error } = await client
+    .from('state_town_halls')
+    .select('*')
+    .eq('official_id', officialId)
+    .gte('event_date', cutoff)
+    .order('event_date', { ascending: false })
+  if (error) throw error
+  return (data ?? []) as StateTownHallRow[]
+}
+
+/**
+ * Custom priority order: district -> satellite -> capitol.
+ * Postgres text-asc would put capitol first (alphabetical), so use
+ * a JS-side sort instead.
+ */
+export async function fetchOfficialStateDistrictOffices(
+  client: ChiaroClient,
+  officialId: string,
+): Promise<StateDistrictOfficeRow[]> {
+  const { data, error } = await client
+    .from('state_district_offices')
+    .select('*')
+    .eq('official_id', officialId)
+  if (error) throw error
+  const priority: Record<string, number> = { district: 0, satellite: 1, capitol: 2 }
+  return ((data ?? []) as StateDistrictOfficeRow[]).sort((a, b) => {
+    return (priority[a.kind] ?? 99) - (priority[b.kind] ?? 99)
+  })
+}
+
+/**
+ * Two-step fetcher (PostgREST cannot filter on joined columns per slice 5G):
+ * 1. Find hearing_ids from state_committee_hearing_attendance where official_id matches
+ * 2. Optionally infer most-recent session from those hearings
+ * 3. Fetch hearings with .in('id', hearingIds) + session filter
+ */
+export async function fetchOfficialStateCommitteeHearings(
+  client: ChiaroClient,
+  officialId: string,
+  session?: string,
+): Promise<StateCommitteeHearingRow[]> {
+  const attRows = await client
+    .from('state_committee_hearing_attendance')
+    .select('hearing_id')
+    .eq('official_id', officialId)
+  if (attRows.error) throw attRows.error
+  const hearingIds = Array.from(new Set((attRows.data ?? []).map(r => r.hearing_id)))
+  if (hearingIds.length === 0) return []
+
+  let effectiveSession = session
+  if (!effectiveSession) {
+    const recent = await client
+      .from('state_committee_hearings')
+      .select('session')
+      .in('id', hearingIds)
+      .order('hearing_date', { ascending: false })
+      .limit(1)
+    if (recent.error) throw recent.error
+    effectiveSession = recent.data?.[0]?.session
+    if (!effectiveSession) return []
+  }
+
+  const { data, error } = await client
+    .from('state_committee_hearings')
+    .select('*')
+    .in('id', hearingIds)
+    .eq('session', effectiveSession)
+    .order('hearing_date', { ascending: false })
+  if (error) throw error
+  return (data ?? []) as StateCommitteeHearingRow[]
 }

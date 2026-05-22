@@ -362,3 +362,82 @@ describe('state_scorecard_* RLS + fetchOfficialStateScorecardRatings', () => {
     expect(aclu!.org.name).toBe('ACLU of California')
   })
 })
+
+describe('state_community_* RLS + 3 fetchers', () => {
+  let officialIdLocal: string
+  let hearingId: string
+  let townHallId: string
+  let officeId: string
+  let unauth: SupabaseClient<Database>
+
+  beforeAll(async () => {
+    // Ephemeral unauthenticated client with distinct storageKey so it doesn't
+    // clobber the signed-in `anon` client's auth state (slice 5G pattern).
+    unauth = createClient<Database>(URL, ANON, {
+      auth: { persistSession: false, storageKey: 'unauth-community-integration-test' },
+    })
+
+    const off = await svc.from('officials').select('id').eq('chamber', 'state_house').limit(1).single()
+    if (off.error) throw off.error
+    officialIdLocal = off.data!.id
+
+    const th = await svc.from('state_town_halls').insert({
+      official_id: officialIdLocal, event_date: '2026-01-15',
+      city: 'San Jose', state: 'CA', format: 'hybrid',
+      attendance_estimate: 100, source_url: 'https://x',
+      source: 'townhallproject', external_id: 'th-integ',
+    }).select('id').single()
+    if (th.error) throw th.error
+    townHallId = th.data!.id
+
+    const o = await svc.from('state_district_offices').insert({
+      official_id: officialIdLocal, kind: 'district',
+      street_1: '123 Main', city: 'San Jose', state: 'CA',
+      source_url: 'https://x',
+    }).select('id').single()
+    if (o.error) throw o.error
+    officeId = o.data!.id
+
+    const h = await svc.from('state_committee_hearings').insert({
+      openstates_committee_id: 'ocd-org/integ',
+      state: 'CA', session: '20252026', hearing_date: '2026-02-15',
+      source_url: 'https://x',
+    }).select('id').single()
+    if (h.error) throw h.error
+    hearingId = h.data!.id
+
+    await svc.from('state_committee_hearing_attendance').insert({
+      hearing_id: hearingId, official_id: officialIdLocal,
+    })
+  })
+
+  afterAll(async () => {
+    if (!svc) return
+    await svc.from('state_committee_hearing_attendance').delete().eq('hearing_id', hearingId)
+    await svc.from('state_committee_hearings').delete().eq('id', hearingId)
+    await svc.from('state_district_offices').delete().eq('id', officeId)
+    await svc.from('state_town_halls').delete().eq('id', townHallId)
+  })
+
+  it('anon SELECT denied (RLS empty array)', async () => {
+    const { data } = await unauth.from('state_town_halls').select('*').eq('id', townHallId)
+    expect(data ?? []).toHaveLength(0)
+  })
+
+  it('authd SELECT allowed for town_halls + offices + hearings', async () => {
+    const t = await anon.from('state_town_halls').select('*').eq('id', townHallId)
+    expect(t.data).toHaveLength(1)
+    const o = await anon.from('state_district_offices').select('*').eq('id', officeId)
+    expect(o.data).toHaveLength(1)
+    const h = await anon.from('state_committee_hearings').select('*').eq('id', hearingId)
+    expect(h.data).toHaveLength(1)
+  })
+
+  it('fetchOfficialStateCommitteeHearings joins via attendance M:N', async () => {
+    const { fetchOfficialStateCommitteeHearings } = await import('../src/queries.ts')
+    const rows = await fetchOfficialStateCommitteeHearings(anon, officialIdLocal)
+    expect(rows.length).toBeGreaterThanOrEqual(1)
+    const found = rows.find((r) => r.id === hearingId)
+    expect(found).toBeDefined()
+  })
+})

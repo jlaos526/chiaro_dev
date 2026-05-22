@@ -38,6 +38,10 @@ vi.mock('@chiaro/officials', async () => {
     useOfficialStateDonors:         () => ({ data: [], isLoading: false, isSuccess: true }),
     // NEW for slice 5G:
     useOfficialStateScorecardRatings: () => ({ data: [], isLoading: false, isSuccess: true }),
+    // NEW for slice 5H:
+    useOfficialStateTownHalls:         () => ({ data: [], isLoading: false, isSuccess: true }),
+    useOfficialStateDistrictOffices:   () => ({ data: [], isLoading: false, isSuccess: true }),
+    useOfficialStateCommitteeHearings: () => ({ data: [], isLoading: false, isSuccess: true }),
   }
 })
 
@@ -69,10 +73,17 @@ describe('StateOfficialDetailPage', () => {
     expect(getByText(/CA-15/)).toBeTruthy()
   })
 
-  it('renders real Service Record + Finance + Issue Positions cards + 2 remaining ComingSoonCards', () => {
+  it('renders real Service Record + Finance + Issue Positions + Community Presence cards + 1 remaining ComingSoonCard', () => {
     const { getAllByText } = render(<StateOfficialDetailPage official={mkState()} offices={[]} />, { wrapper: wrap })
     expect(getAllByText(/^(?:Service Record|Issue Positions|Community Presence|Finance|Ethics & Accountability)$/i))
       .toHaveLength(5)
+  })
+
+  it('renders StateCommunityPresenceCard (no longer a placeholder)', () => {
+    const { getByText } = render(<StateOfficialDetailPage official={mkState()} offices={[]} />, { wrapper: wrap })
+    // Real card renders its own empty-state copy; ComingSoonCard would render
+    // the CATEGORY_COPY string for 'Community Presence'.
+    expect(getByText(/No community-presence data available/i)).toBeTruthy()
   })
 
   it('renders StateIssuePositionsCard (no longer a placeholder)', () => {

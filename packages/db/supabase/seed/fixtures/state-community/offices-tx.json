@@ -1,0 +1,25 @@
+{
+  "events": [
+    {
+      "official_openstates_person_id": "ocd-person/fx-off-tx-1",
+      "kind": "capitol",
+      "street_1": "1100 Congress Ave",
+      "street_2": "Room E1.708",
+      "city": "Austin",
+      "state": "TX",
+      "postal_code": "78701",
+      "phone": "(512) 555-0103",
+      "hours_text": "Mon-Fri 8am-5pm",
+      "source_url": "https://capitol.texas.gov/Members/Member-1"
+    },
+    {
+      "official_openstates_person_id": "ocd-person/fx-off-tx-1",
+      "kind": "district",
+      "street_1": "9100 Marsh Ln",
+      "city": "Dallas",
+      "state": "TX",
+      "postal_code": "75220",
+      "source_url": "https://capitol.texas.gov/Members/Member-1"
+    }
+  ]
+}

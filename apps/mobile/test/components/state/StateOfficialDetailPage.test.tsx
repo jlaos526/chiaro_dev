@@ -37,6 +37,9 @@ jest.mock('@chiaro/officials', () => {
     useOfficialStateFinanceSummary: () => ({ data: null, isLoading: false, isSuccess: true }),
     useOfficialStateDonors: () => ({ data: [], isLoading: false, isSuccess: true }),
     useOfficialStateScorecardRatings: () => ({ data: [], isLoading: false, isSuccess: true }),
+    useOfficialStateTownHalls: () => ({ data: [], isLoading: false, isSuccess: true }),
+    useOfficialStateDistrictOffices: () => ({ data: [], isLoading: false, isSuccess: true }),
+    useOfficialStateCommitteeHearings: () => ({ data: [], isLoading: false, isSuccess: true }),
   }
 })
 
@@ -72,13 +75,15 @@ describe('mobile StateOfficialDetailPage', () => {
     expect(getByText(/CA-15/)).toBeTruthy()
   })
 
-  it('renders Service Record + Finance + Issue Positions + 2 ComingSoonCard placeholders', () => {
+  it('renders Service Record + Finance + Issue Positions + Community Presence + 1 ComingSoonCard placeholder', () => {
     const { getAllByText } = render(
       <StateOfficialDetailPage official={mkState()} offices={[]} />,
       { wrapper: wrap },
     )
     // 'Service Record' from <StateServiceRecordCard>; 'Finance' from <StateFinanceCard>;
-    // 'Issue Positions' from <StateIssuePositionsCard> (slice 5G); remaining 2 are placeholders.
+    // 'Issue Positions' from <StateIssuePositionsCard> (slice 5G);
+    // 'Community Presence' from <StateCommunityPresenceCard> (slice 5H);
+    // only 'Ethics & Accountability' is a placeholder.
     const titles = [
       'Service Record',
       'Finance',
@@ -89,6 +94,14 @@ describe('mobile StateOfficialDetailPage', () => {
     for (const t of titles) {
       expect(getAllByText(t).length).toBeGreaterThanOrEqual(1)
     }
+  })
+
+  it('renders Community Presence as real card (empty 3 sources → empty-state copy)', () => {
+    const { getByText } = render(
+      <StateOfficialDetailPage official={mkState()} offices={[]} />,
+      { wrapper: wrap },
+    )
+    expect(getByText(/No community-presence data available/i)).toBeTruthy()
   })
 
   it('renders Issue Positions as real card (empty ratings → empty-state copy)', () => {

@@ -5,14 +5,14 @@ import type { Database } from '@chiaro/db'
 import { StateServiceRecordCard } from './StateServiceRecordCard'
 import { StateFinanceCard } from './StateFinanceCard'
 import { StateIssuePositionsCard } from './StateIssuePositionsCard'
+import { StateCommunityPresenceCard } from './StateCommunityPresenceCard'
 
 type DistrictOffice = Database['public']['Tables']['district_offices']['Row']
 
-// 'Service Record', 'Finance', and 'Issue Positions' are real cards
-// backed by ingest data; the remaining 2 categories stay as ComingSoonCard
-// placeholders until a future slice.
+// 'Service Record', 'Finance', 'Issue Positions', and 'Community Presence'
+// are real cards backed by ingest data; the remaining category stays as a
+// ComingSoonCard placeholder until a future slice.
 const PLACEHOLDER_CATEGORIES: ComingSoonCategory[] = [
-  'Community Presence',
   'Ethics & Accountability',
 ]
 
@@ -97,11 +97,13 @@ export function StateOfficialDetailPage({
         </section>
       )}
 
-      {/* Category cascade — real Service Record + Finance + Issue Positions + 2 ComingSoonCard placeholders */}
+      {/* Category cascade — real Service Record + Finance + Issue Positions
+          + Community Presence + 1 remaining ComingSoonCard placeholder */}
       <section style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <StateServiceRecordCard official={official} />
         <StateFinanceCard official={official} />
         <StateIssuePositionsCard officialId={official.id} />
+        <StateCommunityPresenceCard officialId={official.id} />
         {PLACEHOLDER_CATEGORIES.map(cat => <ComingSoonCard key={cat} category={cat} />)}
       </section>
     </main>

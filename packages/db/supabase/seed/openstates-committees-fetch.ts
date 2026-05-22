@@ -124,7 +124,7 @@ export async function fetchOpenStatesCommittees(
     url.searchParams.set('jurisdiction', jurisdiction)
     url.searchParams.set('page', String(page))
     url.searchParams.set('per_page', String(PER_PAGE))
-    url.searchParams.set('include', 'memberships,sources')
+    url.searchParams.set('include', 'memberships,sources,meetings')
 
     let body: V3CommitteesResponse
     try {

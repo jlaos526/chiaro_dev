@@ -1,0 +1,29 @@
+{
+  "events": [
+    {
+      "openstates_committee_id": "ocd-org/fx-comm-ca-1",
+      "state": "CA",
+      "session": "20252026",
+      "hearing_date": "2026-03-15",
+      "location": "Capitol Room 4202",
+      "agenda_topic": "SB-91 (Mental Health Parity)",
+      "source_url": "https://v3.openstates.org/committees/ocd-org/fx-comm-ca-1",
+      "attendees_openstates_person_ids": [
+        "ocd-person/fx-h-ca-1",
+        "ocd-person/fx-h-ca-2"
+      ]
+    },
+    {
+      "openstates_committee_id": "ocd-org/fx-comm-ny-1",
+      "state": "NY",
+      "session": "2025",
+      "hearing_date": "2026-02-08",
+      "location": "Albany Senate Chamber",
+      "agenda_topic": "S.234",
+      "source_url": "https://v3.openstates.org/committees/ocd-org/fx-comm-ny-1",
+      "attendees_openstates_person_ids": [
+        "ocd-person/fx-h-ny-1"
+      ]
+    }
+  ]
+}

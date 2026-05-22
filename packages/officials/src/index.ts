@@ -10,6 +10,9 @@ export type {
   StateScorecardOrgRow,
   StateScorecardRatingRow,
   StateScorecardRatingWithOrg,
+  StateTownHallRow,
+  StateDistrictOfficeRow,
+  StateCommitteeHearingRow,
 } from './types.ts'
 
 export {
@@ -31,6 +34,8 @@ export {
   fetchOfficialDistrictOffices, fetchOfficialTownHalls, fetchOfficialStockTransactions,
   fetchOfficialLeadershipHistory,
   fetchOfficialStateScorecardRatings,
+  fetchOfficialStateTownHalls, fetchOfficialStateDistrictOffices,
+  fetchOfficialStateCommitteeHearings,
   type ScorecardRatingWithOrg, type OfficialFinance,
 } from './queries.ts'
 export {
@@ -39,6 +44,8 @@ export {
   useOfficialLeadershipHistory,
   useOfficialStateFinanceSummary, useOfficialStateDonors,
   useOfficialStateScorecardRatings,
+  useOfficialStateTownHalls, useOfficialStateDistrictOffices,
+  useOfficialStateCommitteeHearings,
 } from './hooks.ts'
 
 export { ChamberSchema } from './schemas.ts'

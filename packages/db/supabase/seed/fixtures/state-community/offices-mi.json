@@ -1,0 +1,14 @@
+{
+  "events": [
+    {
+      "official_openstates_person_id": "ocd-person/fx-off-mi-1",
+      "kind": "capitol",
+      "street_1": "124 N Capitol Ave",
+      "city": "Lansing",
+      "state": "MI",
+      "postal_code": "48933",
+      "phone": "(517) 555-0104",
+      "source_url": "https://www.legislature.mi.gov/Members/Member-1"
+    }
+  ]
+}

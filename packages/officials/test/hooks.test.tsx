@@ -9,6 +9,9 @@ import {
   useOfficialStateFinanceSummary,
   useOfficialStateDonors,
   useOfficialStateScorecardRatings,
+  useOfficialStateTownHalls,
+  useOfficialStateDistrictOffices,
+  useOfficialStateCommitteeHearings,
 } from '../src/hooks.ts'
 import * as queries from '../src/queries.ts'
 
@@ -148,5 +151,76 @@ describe('useOfficialStateScorecardRatings', () => {
     expect(result.current.data).toHaveLength(1)
     expect(result.current.data![0]!.org.slug).toBe('aclu')
     expect(Number(result.current.data![0]!.score)).toBe(82.5)
+  })
+})
+
+describe('useOfficialStateTownHalls', () => {
+  beforeEach(() => {
+    vi.spyOn(queries, 'fetchOfficialStateTownHalls').mockResolvedValue([
+      {
+        id: 'h1', official_id: 'oid', event_date: '2026-01-15',
+        city: 'San Jose', state: 'CA', format: 'hybrid',
+        attendance_estimate: 120, source_url: 'https://x',
+        source: 'townhallproject', external_id: 'thp-1',
+        ingested_at: '2025-01-01',
+      },
+    ] as never)
+  })
+  it('returns hooked rows', async () => {
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const { result } = renderHook(
+      () => useOfficialStateTownHalls({} as ChiaroClient, 'oid'),
+      { wrapper: wrapper(qc) },
+    )
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data).toHaveLength(1)
+    expect(result.current.data![0]!.format).toBe('hybrid')
+  })
+})
+
+describe('useOfficialStateDistrictOffices', () => {
+  beforeEach(() => {
+    vi.spyOn(queries, 'fetchOfficialStateDistrictOffices').mockResolvedValue([
+      {
+        id: 'o1', official_id: 'oid', kind: 'district',
+        street_1: '123 Main', street_2: null, city: 'San Jose', state: 'CA',
+        postal_code: '95113', phone: '(408) 555-0100', email: null,
+        hours_text: 'Mon-Fri 9-5', source_url: 'https://x',
+        ingested_at: '2025-01-01',
+      },
+    ] as never)
+  })
+  it('returns hooked rows', async () => {
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const { result } = renderHook(
+      () => useOfficialStateDistrictOffices({} as ChiaroClient, 'oid'),
+      { wrapper: wrapper(qc) },
+    )
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data).toHaveLength(1)
+    expect(result.current.data![0]!.kind).toBe('district')
+  })
+})
+
+describe('useOfficialStateCommitteeHearings', () => {
+  beforeEach(() => {
+    vi.spyOn(queries, 'fetchOfficialStateCommitteeHearings').mockResolvedValue([
+      {
+        id: 'hr1', openstates_committee_id: 'ocd-org/x', state: 'CA',
+        session: '20252026', hearing_date: '2026-03-01',
+        location: 'Capitol Room 1', agenda_topic: 'SB-91',
+        source_url: 'https://x', ingested_at: '2025-01-01',
+      },
+    ] as never)
+  })
+  it('returns hooked rows', async () => {
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const { result } = renderHook(
+      () => useOfficialStateCommitteeHearings({} as ChiaroClient, 'oid'),
+      { wrapper: wrapper(qc) },
+    )
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data).toHaveLength(1)
+    expect(result.current.data![0]!.agenda_topic).toBe('SB-91')
   })
 })

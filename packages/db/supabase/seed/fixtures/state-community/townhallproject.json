@@ -1,0 +1,36 @@
+{
+  "events": [
+    {
+      "official_openstates_person_id": "ocd-person/fx-thp-ca-1",
+      "event_date": "2026-03-15",
+      "city": "San Jose",
+      "state": "CA",
+      "format": "hybrid",
+      "attendance_estimate": 120,
+      "source_url": "https://thp.example/1",
+      "source": "townhallproject",
+      "external_id": "thp-1"
+    },
+    {
+      "official_openstates_person_id": "ocd-person/fx-thp-ca-2",
+      "event_date": "2026-03-22",
+      "city": "Oakland",
+      "state": "CA",
+      "format": "in_person",
+      "attendance_estimate": 75,
+      "source_url": "https://thp.example/2",
+      "source": "townhallproject",
+      "external_id": "thp-2"
+    },
+    {
+      "official_openstates_person_id": "ocd-person/fx-thp-ny-1",
+      "event_date": "2026-04-20",
+      "city": "Albany",
+      "state": "NY",
+      "format": "in_person",
+      "source_url": "https://thp.example/3",
+      "source": "townhallproject",
+      "external_id": "thp-3"
+    }
+  ]
+}

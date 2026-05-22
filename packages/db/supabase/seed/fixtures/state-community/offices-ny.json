@@ -1,0 +1,24 @@
+{
+  "events": [
+    {
+      "official_openstates_person_id": "ocd-person/fx-off-ny-1",
+      "kind": "district",
+      "street_1": "100 State St",
+      "city": "Albany",
+      "state": "NY",
+      "postal_code": "12207",
+      "phone": "(518) 555-0101",
+      "hours_text": "Mon-Fri 9am-5pm",
+      "source_url": "https://www.nysenate.gov/senators/member-1"
+    },
+    {
+      "official_openstates_person_id": "ocd-person/fx-off-ny-1",
+      "kind": "capitol",
+      "street_1": "Legislative Office Bldg, Room 902",
+      "city": "Albany",
+      "state": "NY",
+      "postal_code": "12247",
+      "source_url": "https://www.nysenate.gov/senators/member-1"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "events": [
+    {
+      "official_openstates_person_id": "ocd-person/fx-off-fl-1",
+      "kind": "district",
+      "street_1": "200 E Gaines St",
+      "city": "Tallahassee",
+      "state": "FL",
+      "postal_code": "32399",
+      "phone": "(850) 555-0102",
+      "source_url": "https://www.flsenate.gov/Senators/Member-1"
+    }
+  ]
+}

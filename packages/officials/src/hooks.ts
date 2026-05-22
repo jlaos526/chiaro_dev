@@ -9,11 +9,16 @@ import {
   fetchOfficialLeadershipHistory,
   fetchOfficialStateFinanceSummary, fetchOfficialStateDonors,
   fetchOfficialStateScorecardRatings,
+  fetchOfficialStateTownHalls, fetchOfficialStateDistrictOffices,
+  fetchOfficialStateCommitteeHearings,
 } from './queries.ts'
 import type {
   StateFinanceSummaryRow,
   StateFinanceIndividualDonorRow,
   StateScorecardRatingWithOrg,
+  StateTownHallRow,
+  StateDistrictOfficeRow,
+  StateCommitteeHearingRow,
 } from './types.ts'
 
 const FIVE_MIN = 5 * 60 * 1000
@@ -145,6 +150,46 @@ export function useOfficialStateScorecardRatings(
   return useQuery({
     queryKey: officialsKeys.stateScorecardRatings(officialId),
     queryFn: () => fetchOfficialStateScorecardRatings(client, officialId),
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
+    enabled: !!officialId,
+  })
+}
+
+export function useOfficialStateTownHalls(
+  client: ChiaroClient,
+  officialId: string,
+): UseQueryResult<StateTownHallRow[], Error> {
+  return useQuery({
+    queryKey: officialsKeys.stateTownHalls(officialId),
+    queryFn: () => fetchOfficialStateTownHalls(client, officialId),
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
+    enabled: !!officialId,
+  })
+}
+
+export function useOfficialStateDistrictOffices(
+  client: ChiaroClient,
+  officialId: string,
+): UseQueryResult<StateDistrictOfficeRow[], Error> {
+  return useQuery({
+    queryKey: officialsKeys.stateDistrictOffices(officialId),
+    queryFn: () => fetchOfficialStateDistrictOffices(client, officialId),
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
+    enabled: !!officialId,
+  })
+}
+
+export function useOfficialStateCommitteeHearings(
+  client: ChiaroClient,
+  officialId: string,
+  session?: string,
+): UseQueryResult<StateCommitteeHearingRow[], Error> {
+  return useQuery({
+    queryKey: officialsKeys.stateCommitteeHearings(officialId, session),
+    queryFn: () => fetchOfficialStateCommitteeHearings(client, officialId, session),
     staleTime: FIVE_MIN,
     gcTime: THIRTY_MIN,
     enabled: !!officialId,

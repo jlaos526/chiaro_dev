@@ -1,0 +1,15 @@
+{
+  "events": [
+    {
+      "official_openstates_person_id": "ocd-person/fx-fl-rep-1",
+      "event_date": "2026-04-02",
+      "city": "Tallahassee",
+      "state": "FL",
+      "format": "in_person",
+      "attendance_estimate": 40,
+      "source_url": "https://www.flsenate.gov/Senators/Member-1/events/2",
+      "source": "fl-doe",
+      "external_id": "fl-doe-event-2"
+    }
+  ]
+}
