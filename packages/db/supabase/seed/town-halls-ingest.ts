@@ -39,8 +39,8 @@ export async function ingestTownHalls(opts: {
       if (!officialId) continue
       await client.query(`
         insert into public.town_halls
-          (official_id, event_date, city, state, format, attendance_estimate, source_url)
-        values ($1,$2,$3,$4,$5,$6,$7)
+          (official_id, event_date, city, state, format, attendance_estimate, source_url, source)
+        values ($1,$2,$3,$4,$5,$6,$7,'legacy')
       `, [officialId, e.event_date, e.city ?? null, e.state ?? null, e.format, e.attendance_estimate ?? null, e.source_url])
       inserted++
     }

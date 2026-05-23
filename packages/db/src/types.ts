@@ -1685,10 +1685,12 @@ export type Database = {
           asset_name: string | null
           asset_ticker: string | null
           days_late: number | null
+          external_id: string | null
           filing_date: string
           id: string
           ingested_at: string
           official_id: string
+          source: string
           source_url: string
           transaction_date: string
           transaction_type: string | null
@@ -1699,10 +1701,12 @@ export type Database = {
           asset_name?: string | null
           asset_ticker?: string | null
           days_late?: number | null
+          external_id?: string | null
           filing_date: string
           id?: string
           ingested_at?: string
           official_id: string
+          source: string
           source_url: string
           transaction_date: string
           transaction_type?: string | null
@@ -1713,10 +1717,12 @@ export type Database = {
           asset_name?: string | null
           asset_ticker?: string | null
           days_late?: number | null
+          external_id?: string | null
           filing_date?: string
           id?: string
           ingested_at?: string
           official_id?: string
+          source?: string
           source_url?: string
           transaction_date?: string
           transaction_type?: string | null
@@ -1736,10 +1742,12 @@ export type Database = {
           attendance_estimate: number | null
           city: string | null
           event_date: string
+          external_id: string | null
           format: string | null
           id: string
           ingested_at: string
           official_id: string
+          source: string
           source_url: string
           state: string | null
         }
@@ -1747,10 +1755,12 @@ export type Database = {
           attendance_estimate?: number | null
           city?: string | null
           event_date: string
+          external_id?: string | null
           format?: string | null
           id?: string
           ingested_at?: string
           official_id: string
+          source: string
           source_url: string
           state?: string | null
         }
@@ -1758,10 +1768,12 @@ export type Database = {
           attendance_estimate?: number | null
           city?: string | null
           event_date?: string
+          external_id?: string | null
           format?: string | null
           id?: string
           ingested_at?: string
           official_id?: string
+          source?: string
           source_url?: string
           state?: string | null
         }

@@ -154,25 +154,25 @@ async function main(): Promise<void> {
 
     await client.query(`delete from public.town_halls where official_id = $1 and event_date >= '2025-01-03'`, [target.id])
     await client.query(
-      `insert into public.town_halls (official_id, event_date, city, state, format, attendance_estimate, source_url)
+      `insert into public.town_halls (official_id, event_date, city, state, format, attendance_estimate, source_url, source)
          values ($1, '2026-02-15', 'San Francisco', 'CA', 'in_person', 250,
-           'https://townhallproject.com/event/audit-fixture-1')`,
+           'https://townhallproject.com/event/audit-fixture-1', 'legacy')`,
       [target.id],
     )
 
     await client.query(`delete from public.stock_transactions where official_id = $1 and transaction_date >= '2025-01-03'`, [target.id])
     // on-time (15 days)
     await client.query(
-      `insert into public.stock_transactions (official_id, transaction_date, filing_date, asset_ticker, asset_name, transaction_type, amount_range_low, amount_range_high, source_url)
+      `insert into public.stock_transactions (official_id, transaction_date, filing_date, asset_ticker, asset_name, transaction_type, amount_range_low, amount_range_high, source_url, source)
          values ($1, '2026-01-10', '2026-01-25', 'NVDA', 'NVIDIA Corp', 'purchase', 15000, 50000,
-           'https://housestockwatcher.com/transaction/audit-1')`,
+           'https://housestockwatcher.com/transaction/audit-1', 'legacy')`,
       [target.id],
     )
     // late (73 days → days_late = 28)
     await client.query(
-      `insert into public.stock_transactions (official_id, transaction_date, filing_date, asset_ticker, asset_name, transaction_type, amount_range_low, amount_range_high, source_url)
+      `insert into public.stock_transactions (official_id, transaction_date, filing_date, asset_ticker, asset_name, transaction_type, amount_range_low, amount_range_high, source_url, source)
          values ($1, '2026-02-01', '2026-04-15', 'TSLA', 'Tesla Inc', 'sale', 100000, 250000,
-           'https://housestockwatcher.com/transaction/audit-2')`,
+           'https://housestockwatcher.com/transaction/audit-2', 'legacy')`,
       [target.id],
     )
 

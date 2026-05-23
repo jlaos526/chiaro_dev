@@ -1,0 +1,79 @@
+{
+  "data": [
+    {
+      "id": 200001,
+      "title": "Town Hall with Senator Elizabeth Warren",
+      "description": "Senator Warren community town hall.",
+      "event_type": "TOWN_HALL",
+      "is_virtual": false,
+      "event_url": "https://us02web.zoom.us/j/123456",
+      "location": {
+        "venue": "Boston Convention Center",
+        "address_lines": ["415 Summer St"],
+        "locality": "Boston",
+        "region": "MA",
+        "postal_code": "02210",
+        "country": "US"
+      },
+      "timeslots": [{ "id": 300001, "start_date": 1739491200, "end_date": 1739498400 }]
+    },
+    {
+      "id": 200002,
+      "title": "Representative Jim Jordan Town Hall",
+      "description": "Constituent town hall in Lima, OH.",
+      "event_type": "TOWN_HALL",
+      "is_virtual": false,
+      "event_url": "https://us02web.zoom.us/j/567890",
+      "location": {
+        "venue": "Lima Civic Center",
+        "locality": "Lima",
+        "region": "OH",
+        "country": "US"
+      },
+      "timeslots": [{ "id": 300002, "start_date": 1739577600, "end_date": 1739584800 }]
+    },
+    {
+      "id": 200003,
+      "title": "Town Hall with State Senator Mike Foote",
+      "description": "CO state senator town hall.",
+      "event_type": "TOWN_HALL",
+      "is_virtual": false,
+      "event_url": "https://www.mobilize.us/example/event/200003/",
+      "location": {
+        "venue": "Lafayette Library",
+        "locality": "Lafayette",
+        "region": "CO",
+        "country": "US"
+      },
+      "timeslots": [{ "id": 300003, "start_date": 1739664000, "end_date": 1739671200 }]
+    },
+    {
+      "id": 200004,
+      "title": "Congresswoman Maria Lopez Virtual Town Hall",
+      "description": "California virtual town hall with Congresswoman Lopez.",
+      "event_type": "TOWN_HALL",
+      "is_virtual": true,
+      "event_url": "https://us02web.zoom.us/j/678901",
+      "location": null,
+      "timeslots": [{ "id": 300004, "start_date": 1739750400, "end_date": 1739757600 }]
+    },
+    {
+      "id": 200005,
+      "title": "Community Town Hall in Brooklyn",
+      "description": "Town hall meeting.",
+      "event_type": "TOWN_HALL",
+      "is_virtual": false,
+      "event_url": "https://www.mobilize.us/example/event/200005/",
+      "location": {
+        "venue": "Brooklyn Public Library",
+        "locality": "Brooklyn",
+        "region": "NY",
+        "country": "US"
+      },
+      "timeslots": [{ "id": 300005, "start_date": 1739836800, "end_date": 1739844000 }]
+    }
+  ],
+  "count": 5,
+  "next": null,
+  "previous": null
+}

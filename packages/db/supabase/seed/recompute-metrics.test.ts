@@ -63,8 +63,8 @@ beforeEach(async () => {
 
   // 1 district office, 1 town hall, 1 stock disclosure (on-time → days_late = 0)
   await client.query("insert into public.district_offices (official_id, address, city, state, source_url) values ($1,'1 Main St','SF','CA','https://x/do')", [officialId])
-  await client.query("insert into public.town_halls (official_id, event_date, city, state, format, source_url) values ($1,'2026-02-15','SF','CA','in_person','https://x/th')", [officialId])
-  await client.query("insert into public.stock_transactions (official_id, transaction_date, filing_date, transaction_type, source_url) values ($1,'2026-01-10','2026-01-20','purchase','https://x/sk')", [officialId])
+  await client.query("insert into public.town_halls (official_id, event_date, city, state, format, source_url, source) values ($1,'2026-02-15','SF','CA','in_person','https://x/th','legacy')", [officialId])
+  await client.query("insert into public.stock_transactions (official_id, transaction_date, filing_date, transaction_type, source_url, source) values ($1,'2026-01-10','2026-01-20','purchase','https://x/sk','legacy')", [officialId])
 })
 
 afterEach(async () => {

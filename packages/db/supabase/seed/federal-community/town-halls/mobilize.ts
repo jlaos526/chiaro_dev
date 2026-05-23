@@ -1,17 +1,18 @@
 import type { Client } from 'pg'
-import type { StateCommunityAdapter, NormalizedTownHall } from '../shared.ts'
 import {
-  isStateLegislatorEvent,
-  extractLegislatorName,
-  inferChamberFromTitle,
-  deriveFormat,
+  isFederalLegislatorEvent,
+  extractFederalLegislatorName,
+  inferFederalChamber,
+  type FederalChamber,
 } from './mobilize-helpers.ts'
-import { resolveOfficialByName, type Chamber } from '../../shared/officials.ts'
+import { deriveFormat } from '../../shared/town-halls-helpers.ts'
+import { resolveOfficialByName } from '../../shared/officials.ts'
 
-const ALL_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY']
+const MOBILIZE_API_BASE = 'https://api.mobilize.us/v1/events'
+const PER_PAGE = 100
 
 // Full state-name → 2-letter code, used as fallback when event.location is null
-// (e.g., virtual events). Detection scans description for the first state name.
+// (e.g., virtual events). Mirrors slice 7 state mobilize adapter pattern.
 const STATE_NAME_TO_CODE: Record<string, string> = {
   'Alabama':'AL','Alaska':'AK','Arizona':'AZ','Arkansas':'AR','California':'CA',
   'Colorado':'CO','Connecticut':'CT','Delaware':'DE','Florida':'FL','Georgia':'GA',
@@ -32,9 +33,6 @@ function extractStateFromText(text: string): string | null {
   }
   return null
 }
-
-const MOBILIZE_API_BASE = 'https://api.mobilize.us/v1/events'
-const PER_PAGE = 100
 
 interface MobilizeEvent {
   id: number
@@ -61,21 +59,39 @@ interface MobilizeListResponse {
   previous: string | null
 }
 
+export interface FederalTownHallRow {
+  official_id: string
+  legislator_name: string
+  chamber: FederalChamber
+  event_date: string
+  city?: string
+  state: string
+  format?: 'in_person' | 'virtual' | 'phone' | 'hybrid'
+  source_url: string
+  source: 'mobilize'
+  external_id: string
+}
+
 /**
- * Parse a batch of MobilizeEvent[] into NormalizedTownHall[]. Pure function;
- * makes one client.query per event for name-resolution. Exported for tests.
+ * Parse Mobilize events into FederalTownHallRow[]. Pure function; one
+ * client.query per event for name → official_id resolution. Exported for tests.
+ *
+ * Returns only events that classify as FEDERAL and successfully resolve to
+ * an official via resolveOfficialByName. State-tier events (titles with
+ * "State Senator" / "State Rep" / "State Representative") are filtered out
+ * via FEDERAL_LEGISLATOR_RE's negative-lookbehind in the helpers module.
  */
-export async function parseMobilizeEvents(
+export async function parseFederalMobilizeEvents(
   events: MobilizeEvent[],
   client: Client,
-): Promise<NormalizedTownHall[]> {
-  const out: NormalizedTownHall[] = []
+): Promise<FederalTownHallRow[]> {
+  const out: FederalTownHallRow[] = []
   for (const event of events) {
     const description = event.description ?? ''
-    if (!isStateLegislatorEvent(event.title, description)) continue
+    if (!isFederalLegislatorEvent(event.title, description)) continue
 
-    const name = extractLegislatorName(event.title)
-      ?? extractLegislatorName(description)
+    const name = extractFederalLegislatorName(event.title)
+      ?? extractFederalLegislatorName(description)
     if (!name) continue
 
     // Prefer location.region (2-letter code). Fall back to scanning description
@@ -86,24 +102,22 @@ export async function parseMobilizeEvents(
     }
     if (!state || !/^[A-Z]{2}$/.test(state)) continue
 
-    const chamber = inferChamberFromTitle(event.title) ?? inferChamberFromTitle(description)
+    const chamber = inferFederalChamber(event.title) ?? inferFederalChamber(description)
     if (!chamber) continue
 
-    // Resolve openstates_person_id via shared helper.
     const officialId = await resolveOfficialByName(client, {
-      full_name: name,
-      state,
-      chamber,
+      full_name: name, state, chamber,
     })
     if (!officialId) continue
 
-    // Pick the earliest upcoming or most-recent past timeslot.
     const startTs = event.timeslots[0]?.start_date
     if (!startTs) continue
     const eventDate = new Date(startTs * 1000).toISOString().slice(0, 10)
 
     out.push({
+      official_id: officialId,
       legislator_name: name,
+      chamber,
       event_date: eventDate,
       city: event.location?.locality,
       state,
@@ -121,14 +135,14 @@ export async function parseMobilizeEvents(
 }
 
 /**
- * Fetches paginated Mobilize API + parses to NormalizedTownHall[].
- * Returns [] on any network/parse error (matches slice 5xx stub fallback pattern).
+ * Fetch + paginate Mobilize API; parse to FederalTownHallRow[].
+ * Fails-empty on network errors (matches slice 7 stub fallback pattern).
  */
-async function fetchAndNormalize(client: Client, _state?: string): Promise<NormalizedTownHall[]> {
-  const out: NormalizedTownHall[] = []
+export async function fetchAndNormalizeFederal(client: Client): Promise<FederalTownHallRow[]> {
+  const out: FederalTownHallRow[] = []
   let url: string | null = `${MOBILIZE_API_BASE}?event_types=town_hall&per_page=${PER_PAGE}`
   let pageCount = 0
-  const MAX_PAGES = 50  // hard cap to avoid runaway pagination
+  const MAX_PAGES = 50
 
   while (url && pageCount < MAX_PAGES) {
     pageCount += 1
@@ -140,21 +154,9 @@ async function fetchAndNormalize(client: Client, _state?: string): Promise<Norma
     } catch {
       break
     }
-    const parsed = await parseMobilizeEvents(body.data ?? [], client)
+    const parsed = await parseFederalMobilizeEvents(body.data ?? [], client)
     out.push(...parsed)
     url = body.next ?? null
   }
   return out
-}
-
-export const mobilize: StateCommunityAdapter = {
-  slug: 'mobilize',
-  component: 'halls',
-  covered_states: ALL_STATES,
-
-  async fetchEvents(opts) {
-    const fetcher = (opts as never as { fetcher?: () => Promise<NormalizedTownHall[]> }).fetcher
-    if (fetcher) return fetcher()
-    return fetchAndNormalize(opts.client, opts.state)
-  },
 }

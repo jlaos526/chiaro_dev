@@ -1,3 +1,5 @@
+export { deriveFormat } from '../../shared/town-halls-helpers.ts'
+
 export const STATE_LEGISLATOR_RE =
   /\b(State Senator|State Rep\.?|State Representative|Assemblymember|Assemblyman|Assemblywoman|Delegate)\b/i
 
@@ -29,20 +31,3 @@ export function inferChamberFromTitle(title: string): StateChamber | null {
   return null
 }
 
-interface MobilizeEventForFormat {
-  is_virtual: boolean
-  event_url: string | null
-  location: { venue?: string } | null
-}
-
-const VIRTUAL_URL_RE = /zoom\.us|meet\.google|teams\.microsoft/i
-
-export function deriveFormat(event: MobilizeEventForFormat): 'in_person' | 'virtual' | 'phone' | 'hybrid' {
-  if (event.is_virtual === true) return 'virtual'
-  const eventUrl = event.event_url ?? ''
-  const hasVirtualLink = VIRTUAL_URL_RE.test(eventUrl)
-  const hasPhysicalLocation = !!event.location?.venue
-  if (hasVirtualLink && hasPhysicalLocation) return 'hybrid'
-  if (hasVirtualLink) return 'virtual'
-  return 'in_person'
-}

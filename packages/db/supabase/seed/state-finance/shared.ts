@@ -1,5 +1,7 @@
 import type { Client } from 'pg'
 
+export { resolveOfficialByName, type Chamber } from '../shared/officials.ts'
+
 export type FinanceState = 'CA' | 'NY' | 'FL' | 'TX' | 'MI'
 
 export interface StateFinanceAdapter {
@@ -91,21 +93,3 @@ export async function upsertStateFinance(
   return summaryId
 }
 
-/**
- * Resolve a state legislator's officials.id by name + chamber + state,
- * returning null if unmatched. Adapters call this per filing; null
- * results go to stats.officialsUnmatched[].
- */
-export async function resolveOfficialByName(
-  client: Client,
-  opts: { full_name: string; state: FinanceState; chamber: 'state_house' | 'state_senate' | 'state_legislature' },
-): Promise<string | null> {
-  const res = await client.query<{ id: string }>(
-    `select id from public.officials
-     where lower(full_name) = lower($1) and state = $2 and chamber = $3
-       and in_office = true
-     limit 1`,
-    [opts.full_name, opts.state, opts.chamber],
-  )
-  return res.rows[0]?.id ?? null
-}

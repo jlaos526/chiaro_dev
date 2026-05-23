@@ -40,8 +40,8 @@ export async function ingestStockDisclosures(opts: {
       await client.query(`
         insert into public.stock_transactions
           (official_id, transaction_date, filing_date, asset_ticker, asset_name,
-           transaction_type, amount_range_low, amount_range_high, source_url)
-        values ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+           transaction_type, amount_range_low, amount_range_high, source_url, source)
+        values ($1,$2,$3,$4,$5,$6,$7,$8,$9,'legacy')
       `, [officialId, d.transaction_date, d.filing_date, d.asset_ticker ?? null,
           d.asset_name ?? null, d.transaction_type, d.amount_range_low ?? null,
           d.amount_range_high ?? null, d.source_url])
