@@ -8,6 +8,7 @@ export { OfficialAvatar, type OfficialAvatarProps } from './OfficialAvatar.tsx'
 export { OfficialMeta, type OfficialMetaProps } from './OfficialMeta.tsx'
 
 // cards/* atoms (Task 5)
+export { CardSubsection, type CardSubsectionProps } from './cards/CardSubsection.tsx'
 export { ComingSoonCard, type ComingSoonCardProps, type ComingSoonCategory } from './cards/ComingSoonCard.tsx'
 export { ComplianceIcon, type ComplianceIconProps } from './cards/ComplianceIcon.tsx'
 export { DistrictBadge, type DistrictBadgeProps } from './cards/DistrictBadge.tsx'

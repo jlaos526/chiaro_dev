@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import type { ReactNode } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import {
   useOfficialMetrics,
   useOfficialStockTransactions,
 } from '@chiaro/officials'
 import { COLORS } from '@chiaro/ui-tokens'
+import { CardSubsection } from '../cards/CardSubsection.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { FederalStockTransactionsList } from './FederalStockTransactionsList.tsx'
 
@@ -82,36 +82,13 @@ export function FederalEthicsAccountabilityCard({
         </View>
       )}
 
-      <Subsection
+      <CardSubsection
         label={`Stock trades (${stockCount})`}
         open={openStock}
         onToggle={() => setOpenStock(v => !v)}
       >
         <FederalStockTransactionsList rows={stock.data ?? []} />
-      </Subsection>
-    </View>
-  )
-}
-
-function Subsection({
-  label,
-  open,
-  onToggle,
-  children,
-}: {
-  label: string
-  open: boolean
-  onToggle: () => void
-  children: ReactNode
-}): React.JSX.Element {
-  return (
-    <View style={styles.subsection}>
-      <Pressable onPress={onToggle}>
-        <Text style={styles.subsectionLabel}>
-          {open ? '▾' : '▸'} {label}
-        </Text>
-      </Pressable>
-      {open ? <View>{children}</View> : null}
+      </CardSubsection>
     </View>
   )
 }
@@ -141,17 +118,5 @@ const styles = StyleSheet.create({
     color: COLORS.neutral.textMuted,
     marginTop: 4,
     textAlign: 'center',
-  },
-  subsection: {
-    borderTopWidth: 1,
-    borderTopColor: COLORS.neutral.border,
-    paddingTop: 8,
-    marginTop: 8,
-  },
-  subsectionLabel: {
-    color: COLORS.brand.text,
-    fontSize: 14,
-    fontWeight: '500',
-    paddingVertical: 6,
   },
 })

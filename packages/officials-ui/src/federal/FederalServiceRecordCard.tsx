@@ -1,13 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import type { ReactNode } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import {
   useOfficialLeadershipHistory,
   useOfficialMetrics,
 } from '@chiaro/officials'
 import { COLORS } from '@chiaro/ui-tokens'
+import { CardSubsection } from '../cards/CardSubsection.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { FederalKPIList } from './FederalKPIList.tsx'
 import { FederalLeadershipList } from './FederalLeadershipList.tsx'
@@ -74,36 +74,13 @@ export function FederalServiceRecordCard({
       />
 
       {/* Collapsible Leadership subsection */}
-      <Subsection
+      <CardSubsection
         label={`Leadership history (${leadCount ?? '—'})`}
         open={openLeadership}
         onToggle={() => setOpenLeadership(v => !v)}
       >
         <FederalLeadershipList rows={leadership.data ?? []} />
-      </Subsection>
-    </View>
-  )
-}
-
-function Subsection({
-  label,
-  open,
-  onToggle,
-  children,
-}: {
-  label: string
-  open: boolean
-  onToggle: () => void
-  children: ReactNode
-}): React.JSX.Element {
-  return (
-    <View style={styles.subsection}>
-      <Pressable onPress={onToggle}>
-        <Text style={styles.subsectionLabel}>
-          {open ? '▾' : '▸'} {label}
-        </Text>
-      </Pressable>
-      {open ? <View>{children}</View> : null}
+      </CardSubsection>
     </View>
   )
 }
@@ -125,16 +102,4 @@ const styles = StyleSheet.create({
   },
   muted: { color: COLORS.neutral.textMuted, fontSize: 13 },
   summary: { fontSize: 13, color: COLORS.neutral.textMuted, marginBottom: 12 },
-  subsection: {
-    borderTopWidth: 1,
-    borderTopColor: COLORS.neutral.border,
-    paddingTop: 8,
-    marginTop: 8,
-  },
-  subsectionLabel: {
-    color: COLORS.brand.text,
-    fontSize: 14,
-    fontWeight: '500',
-    paddingVertical: 6,
-  },
 })

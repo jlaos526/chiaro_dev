@@ -1,0 +1,58 @@
+import type { ReactNode } from 'react'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { COLORS } from '@chiaro/ui-tokens'
+
+export interface CardSubsectionProps {
+  label: string
+  open: boolean
+  onToggle: () => void
+  children: ReactNode
+}
+
+/**
+ * Collapsible card-section with a ▸/▾ triangle toggle.
+ *
+ * Extracted (slice 10 cleanup) from 8 identical inline `Subsection` helpers
+ * across federal + state card files. Wires the a11y attributes that were
+ * lost during the slice-10 port (Task 6 & 7 review):
+ *   - accessibilityRole="button"
+ *   - accessibilityState={{ expanded: open }}  (ARIA aria-expanded)
+ *   - accessibilityLabel="<Expand|Collapse> <label>"
+ */
+export function CardSubsection({
+  label,
+  open,
+  onToggle,
+  children,
+}: CardSubsectionProps): React.JSX.Element {
+  return (
+    <View style={styles.subsection}>
+      <Pressable
+        onPress={onToggle}
+        accessibilityRole="button"
+        accessibilityLabel={`${open ? 'Collapse' : 'Expand'} ${label}`}
+        accessibilityState={{ expanded: open }}
+      >
+        <Text style={styles.subsectionLabel}>
+          {open ? '▾' : '▸'} {label}
+        </Text>
+      </Pressable>
+      {open ? <View>{children}</View> : null}
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  subsection: {
+    borderTopWidth: 1,
+    borderTopColor: COLORS.neutral.border,
+    paddingTop: 8,
+    marginTop: 8,
+  },
+  subsectionLabel: {
+    color: COLORS.brand.text,
+    fontSize: 14,
+    fontWeight: '500',
+    paddingVertical: 6,
+  },
+})

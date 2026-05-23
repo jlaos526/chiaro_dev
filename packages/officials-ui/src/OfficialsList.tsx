@@ -1,5 +1,6 @@
 import { Pressable, Text, View } from 'react-native'
 import { useMyOfficials, type OfficialWithDistrict, type Party } from '@chiaro/officials'
+import { COLORS } from '@chiaro/ui-tokens'
 import { OfficialAvatar } from './OfficialAvatar.tsx'
 import { PartyBadge } from './PartyBadge.tsx'
 import { OfficialMeta } from './OfficialMeta.tsx'
@@ -57,7 +58,7 @@ export function OfficialsList({ onSelect, onCalibrate }: OfficialsListProps): Re
   if (!data || data.length === 0) {
     return (
       <Pressable onPress={onCalibrate} accessibilityRole="link">
-        <Text style={{ color: '#3b6ed1' }}>Calibrate your address to see your delegation.</Text>
+        <Text style={{ color: COLORS.brand.primary }}>Calibrate your address to see your delegation.</Text>
       </Pressable>
     )
   }

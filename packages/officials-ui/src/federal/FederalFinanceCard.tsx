@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import type { ReactNode } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import { useOfficialFinance } from '@chiaro/officials'
 import { COLORS } from '@chiaro/ui-tokens'
+import { CardSubsection } from '../cards/CardSubsection.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { FederalDonorsList } from './FederalDonorsList.tsx'
 import { FederalPACsList } from './FederalPACsList.tsx'
@@ -68,44 +68,21 @@ export function FederalFinanceCard({
         {`${pacCount} PAC${pacCount === 1 ? '' : 's'}`}
       </Text>
 
-      <Subsection
+      <CardSubsection
         label={`Top individual donors (${donorCount})`}
         open={openDonors}
         onToggle={() => setOpenDonors(v => !v)}
       >
         <FederalDonorsList finance={f} />
-      </Subsection>
+      </CardSubsection>
 
-      <Subsection
+      <CardSubsection
         label={`Top PACs (${pacCount})`}
         open={openPACs}
         onToggle={() => setOpenPACs(v => !v)}
       >
         <FederalPACsList finance={f} />
-      </Subsection>
-    </View>
-  )
-}
-
-function Subsection({
-  label,
-  open,
-  onToggle,
-  children,
-}: {
-  label: string
-  open: boolean
-  onToggle: () => void
-  children: ReactNode
-}): React.JSX.Element {
-  return (
-    <View style={styles.subsection}>
-      <Pressable onPress={onToggle}>
-        <Text style={styles.subsectionLabel}>
-          {open ? '▾' : '▸'} {label}
-        </Text>
-      </Pressable>
-      {open ? <View>{children}</View> : null}
+      </CardSubsection>
     </View>
   )
 }
@@ -127,16 +104,4 @@ const styles = StyleSheet.create({
   },
   muted: { color: COLORS.neutral.textMuted, fontSize: 13 },
   summary: { fontSize: 13, color: COLORS.neutral.textMuted, marginBottom: 12 },
-  subsection: {
-    borderTopWidth: 1,
-    borderTopColor: COLORS.neutral.border,
-    paddingTop: 8,
-    marginTop: 8,
-  },
-  subsectionLabel: {
-    color: COLORS.brand.text,
-    fontSize: 14,
-    fontWeight: '500',
-    paddingVertical: 6,
-  },
 })

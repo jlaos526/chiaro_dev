@@ -2,30 +2,18 @@ import { Pressable, Text, View } from 'react-native'
 import {
   groupOfficialsByLevel,
   selectTopAlignmentChips,
+  STATE_NAMES,
   useMyOfficials,
   useOfficialMetrics,
   useOfficialScorecardRatings,
   type OfficialWithDistrict,
 } from '@chiaro/officials'
+import { COLORS } from '@chiaro/ui-tokens'
 import { AlignmentChip } from './cards/AlignmentChip.tsx'
 import { DistrictBadge } from './cards/DistrictBadge.tsx'
 import { OfficialAvatar } from './OfficialAvatar.tsx'
 import { StateOfficialsCardSection } from './state/StateOfficialsCardSection.tsx'
 import { useChiaroClient } from './client-context.tsx'
-
-const STATE_NAMES: Record<string, string> = {
-  AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California',
-  CO: 'Colorado', CT: 'Connecticut', DE: 'Delaware', FL: 'Florida', GA: 'Georgia',
-  HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois', IN: 'Indiana', IA: 'Iowa',
-  KS: 'Kansas', KY: 'Kentucky', LA: 'Louisiana', ME: 'Maine', MD: 'Maryland',
-  MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota', MS: 'Mississippi', MO: 'Missouri',
-  MT: 'Montana', NE: 'Nebraska', NV: 'Nevada', NH: 'New Hampshire', NJ: 'New Jersey',
-  NM: 'New Mexico', NY: 'New York', NC: 'North Carolina', ND: 'North Dakota', OH: 'Ohio',
-  OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania', RI: 'Rhode Island', SC: 'South Carolina',
-  SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah', VT: 'Vermont',
-  VA: 'Virginia', WA: 'Washington', WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming',
-  DC: 'District of Columbia',
-}
 
 function parseDistrict(code: string | null | undefined): { districtNumber: number | null; atLarge: boolean } {
   if (!code) return { districtNumber: null, atLarge: false }
@@ -80,9 +68,9 @@ function OfficialRow({
       style={{
         padding: 12,
         borderWidth: 1,
-        borderColor: '#d8d4c9',
+        borderColor: COLORS.neutral.border,
         borderRadius: 6,
-        backgroundColor: '#fff',
+        backgroundColor: COLORS.neutral.background,
         marginBottom: 8,
       }}
     >
@@ -92,7 +80,7 @@ function OfficialRow({
         </Pressable>
         <View style={{ flex: 1 }}>
           <Pressable onPress={handlePress}>
-            <Text style={{ fontWeight: '600', fontSize: 15, color: '#1a1714' }}>{o.full_name}</Text>
+            <Text style={{ fontWeight: '600', fontSize: 15, color: COLORS.brand.text }}>{o.full_name}</Text>
           </Pressable>
           <DistrictBadge
             chamber={o.chamber as 'federal_house' | 'federal_senate'}
@@ -101,7 +89,7 @@ function OfficialRow({
             districtNumber={o.chamber === 'federal_house' ? districtNumber : null}
             atLarge={o.chamber === 'federal_house' && atLarge}
           />
-          <Text style={{ fontSize: 11, color: '#3a352b', marginTop: 2 }}>
+          <Text style={{ fontSize: 11, color: COLORS.neutral.mute, marginTop: 2 }}>
             {currentRole} · {o.chamber === 'federal_house' ? 'House' : 'Senate'}
             {tenure != null && tenure > 0 ? ` · ${tenure} yr` : ''}
           </Text>
@@ -136,7 +124,7 @@ export function OfficialsCard({
   if (!data || data.length === 0) {
     return (
       <Pressable onPress={onCalibrate} accessibilityRole="link">
-        <Text style={{ color: '#3b6ed1' }}>Calibrate your address to see your delegation.</Text>
+        <Text style={{ color: COLORS.brand.primary }}>Calibrate your address to see your delegation.</Text>
       </Pressable>
     )
   }
@@ -146,9 +134,9 @@ export function OfficialsCard({
   return (
     <View
       accessibilityLabel="Your officials"
-      style={{ padding: 16, backgroundColor: '#f7f5ef', borderRadius: 8 }}
+      style={{ padding: 16, backgroundColor: COLORS.neutral.surface, borderRadius: 8 }}
     >
-      <Text style={{ fontSize: 16, fontWeight: '700', color: '#1a1714', marginBottom: 10 }}>
+      <Text style={{ fontSize: 16, fontWeight: '700', color: COLORS.brand.text, marginBottom: 10 }}>
         Your officials
       </Text>
       {federal.length > 0 ? (
@@ -158,7 +146,7 @@ export function OfficialsCard({
               fontSize: 14,
               fontWeight: '700',
               textTransform: 'uppercase',
-              color: '#666',
+              color: COLORS.neutral.textMuted,
               marginBottom: 12,
             }}
           >
@@ -171,10 +159,10 @@ export function OfficialsCard({
       ) : null}
       <StateOfficialsCardSection
         officials={state}
-        onSelect={(target) => onSelect(target)}
+        onSelect={onSelect}
       />
       <Pressable onPress={onSeeAll} accessibilityRole="link">
-        <Text style={{ fontSize: 14, color: '#3b6ed1', marginTop: 10 }}>See all officials →</Text>
+        <Text style={{ fontSize: 14, color: COLORS.brand.primary, marginTop: 10 }}>See all officials →</Text>
       </Pressable>
     </View>
   )
