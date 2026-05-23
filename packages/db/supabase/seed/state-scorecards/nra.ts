@@ -1,9 +1,24 @@
+import type { Client } from 'pg'
 import type { StateScorecardAdapter, NormalizedStateRating } from './shared.ts'
+import {
+  STATE_2_TO_NAME,
+  inferChamberFromNraTable,
+  parseNraGradesHtml,
+} from './nra-helpers.ts'
+import type { Chamber } from '../shared/officials.ts'
 
-const US_STATE_NAMES: Record<string, string> = {
-  CA: 'California', NY: 'New York', FL: 'Florida', TX: 'Texas',
-  MI: 'Michigan',   WI: 'Wisconsin',
-}
+const ALL_STATES = Object.keys(STATE_2_TO_NAME)
+
+const FETCH_TIMEOUT_MS = 5000
+
+// Generated from STATE_2_TO_NAME so name_template covers all 50 states.
+// CA → 'California', NY → 'New York', NC → 'North Carolina', etc.
+const US_STATE_NAMES: Record<string, string> = Object.fromEntries(
+  Object.entries(STATE_2_TO_NAME).map(([code, slug]) => [
+    code,
+    slug.split('-').map(s => s[0]!.toUpperCase() + s.slice(1)).join(' '),
+  ])
+)
 
 /**
  * NRA-PVF grades use letters A-F. Adapter normalizes to numeric on the
@@ -32,6 +47,87 @@ export function numericToLetterGrade(score: number): string {
   return 'F'
 }
 
+/**
+ * Resolve full_name + state + chamber → openstates_person_id.
+ *
+ * The orchestrator (state-scorecards-ingest.ts) keys ratings off
+ * openstates_person_id (not officials.id), so the production fetcher
+ * resolves directly to that. Returns null if no match (including officials
+ * with NULL openstates_person_id — e.g. federal officials).
+ */
+async function resolveOpenstatesPersonId(
+  client: Pick<Client, 'query'>,
+  opts: { full_name: string; state: string; chamber: Chamber },
+): Promise<string | null> {
+  const res = await client.query<{ openstates_person_id: string | null }>(
+    `select openstates_person_id from public.officials
+     where lower(full_name) = lower($1) and state = $2 and chamber = $3
+       and in_office = true
+     limit 1`,
+    [opts.full_name, opts.state, opts.chamber],
+  )
+  const row = res.rows[0]
+  if (!row || !row.openstates_person_id) return null
+  return row.openstates_person_id
+}
+
+/**
+ * Production fetcher: GET nrapvf.org/grades/<state-name>/ for one state.
+ * Returns NormalizedStateRating[] for legislators successfully resolved
+ * to an openstates_person_id.
+ *
+ * Exported for tests + per-state surgical re-runs.
+ */
+export async function fetchNraRatingsForState(
+  state: string,
+  client: Pick<Client, 'query'>,
+  fetcher?: (state: string) => Promise<string>,
+): Promise<NormalizedStateRating[]> {
+  const stateName = STATE_2_TO_NAME[state]
+  if (!stateName) return []
+
+  const sourceUrl = `https://www.nrapvf.org/grades/${stateName}/`
+  let html: string
+  try {
+    if (fetcher) {
+      html = await fetcher(state)
+    } else {
+      const resp = await fetch(sourceUrl, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })
+      if (!resp.ok) return []
+      html = await resp.text()
+    }
+  } catch {
+    return []
+  }
+
+  const rows = parseNraGradesHtml(html)
+  const out: NormalizedStateRating[] = []
+
+  for (const row of rows) {
+    const chamber = inferChamberFromNraTable(row.chamberLabel)
+    if (!chamber) continue
+
+    const numeric = letterToNumeric(row.letterGrade)
+    if (numeric == null) continue   // skips AQ, blank, unknown
+
+    const openstatesPersonId = await resolveOpenstatesPersonId(client, {
+      full_name: row.name,
+      state,
+      chamber,
+    })
+    if (!openstatesPersonId) continue
+
+    out.push({
+      openstates_person_id: openstatesPersonId,
+      state,
+      score: numeric,
+      source_url: sourceUrl,
+    })
+  }
+
+  return out
+}
+
 export const nra: StateScorecardAdapter = {
   slug: 'nra',
   name_template: (s) => `NRA-PVF (${US_STATE_NAMES[s] ?? s})`,
@@ -41,11 +137,18 @@ export const nra: StateScorecardAdapter = {
   scoring_min: 0,
   scoring_max: 100,
   notes: 'NRA-PVF grades letters A-F (mapped to 0-100; A=100, F=20). UI reverse-maps for display.',
-  covered_states: ['CA', 'NY', 'FL', 'TX', 'MI', 'WI'],
+  covered_states: ALL_STATES,  // expanded from 6 → 50 in slice 9
 
   async fetchRatings(opts): Promise<NormalizedStateRating[]> {
     const fetcher = (opts as never as { fetcher?: () => Promise<NormalizedStateRating[]> }).fetcher
     if (fetcher) return fetcher()
-    return []
+    // Production path: fetch each state (or single state if opts.state set)
+    const targetStates = opts.state ? [opts.state] : ALL_STATES
+    const allRatings: NormalizedStateRating[] = []
+    for (const st of targetStates) {
+      const ratings = await fetchNraRatingsForState(st, opts.client)
+      allRatings.push(...ratings)
+    }
+    return allRatings
   },
 }
