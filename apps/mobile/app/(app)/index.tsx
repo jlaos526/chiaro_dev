@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Text, View } from 'react-native'
-import { Link } from 'expo-router'
+import { Link, useRouter } from 'expo-router'
 import { supabase } from '@/lib/supabase'
 import { getMyProfile } from '@chiaro/profile'
 import { DistrictPanel } from '@/components/DistrictPanel'
-import { OfficialsCard } from '@/components/OfficialsCard'
+import { OfficialsCard } from '@chiaro/officials-ui'
 
 type Profile = Awaited<ReturnType<typeof getMyProfile>>
 
 export default function Home() {
+  const router = useRouter()
   const [profile, setProfile] = useState<Profile>(null)
   const [loading, setLoading] = useState(true)
 
@@ -34,7 +35,17 @@ export default function Home() {
         <Link href="/(app)/profile/edit">Complete your profile</Link>
       )}
       <DistrictPanel />
-      <OfficialsCard />
+      <OfficialsCard
+        onSelect={({ officialId, subCascadeSlug }) =>
+          router.push(
+            subCascadeSlug
+              ? `/officials/${officialId}?cat=issue-positions&sub=${subCascadeSlug}`
+              : `/officials/${officialId}`,
+          )
+        }
+        onSeeAll={() => router.push('/officials')}
+        onCalibrate={() => router.push('/calibrate')}
+      />
       <Link href="/settings">Settings</Link>
     </View>
   )

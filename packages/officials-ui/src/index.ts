@@ -1,0 +1,188 @@
+// Public surface of @chiaro/officials-ui. Re-exported component-by-component
+// in subsequent tasks. See barrel additions in each task.
+export { ChiaroClientProvider, useChiaroClient, type ChiaroClientProviderProps } from './client-context.tsx'
+
+// Top-level leaf primitives (Task 5)
+export { PartyBadge, type PartyBadgeProps } from './PartyBadge.tsx'
+export { OfficialAvatar, type OfficialAvatarProps } from './OfficialAvatar.tsx'
+export { OfficialMeta, type OfficialMetaProps } from './OfficialMeta.tsx'
+
+// cards/* atoms (Task 5)
+export { ComingSoonCard, type ComingSoonCardProps, type ComingSoonCategory } from './cards/ComingSoonCard.tsx'
+export { ComplianceIcon, type ComplianceIconProps } from './cards/ComplianceIcon.tsx'
+export { DistrictBadge, type DistrictBadgeProps } from './cards/DistrictBadge.tsx'
+export { EvidenceExpand, type EvidenceExpandProps } from './cards/EvidenceExpand.tsx'
+export { MetricCardShell, type MetricCardShellProps } from './cards/MetricCardShell.tsx'
+export { PillChevron, type PillChevronProps } from './cards/PillChevron.tsx'
+
+// cards/AlignmentChip (Task 6 — accepts `onPress` callback so consumers wire
+// platform-specific router navigation)
+export { AlignmentChip, type AlignmentChipProps } from './cards/AlignmentChip.tsx'
+
+// bio/* atoms (Task 6)
+export { BioHeader, type BioHeaderProps } from './bio/BioHeader.tsx'
+export { BioPortrait, type BioPortraitProps } from './bio/BioPortrait.tsx'
+export { BioIdentityRow, type BioIdentityRowProps } from './bio/BioIdentityRow.tsx'
+export { BioServiceCard, type BioServiceCardProps } from './bio/BioServiceCard.tsx'
+export { BioContactLinks, type BioContactLinksProps } from './bio/BioContactLinks.tsx'
+export { BioAlignmentChipRow, type BioAlignmentChipRowProps } from './bio/BioAlignmentChipRow.tsx'
+
+// finance/* atoms (Task 6)
+export { FinanceSubSectionHeading, type FinanceSubSectionHeadingProps } from './finance/FinanceSubSectionHeading.tsx'
+export { FinanceSummaryStrip, type FinanceSummaryStripProps } from './finance/FinanceSummaryStrip.tsx'
+export {
+  TopAmountBreakdown,
+  type TopAmountBreakdownProps,
+  type TopAmountRow,
+  type TopAmountNoun,
+} from './finance/TopAmountBreakdown.tsx'
+
+// federal/* lists (Task 8) — pure-display components, all data passed via props
+export { FederalKPIList, type FederalKPIListProps } from './federal/FederalKPIList.tsx'
+export { FederalLeadershipList, type FederalLeadershipListProps } from './federal/FederalLeadershipList.tsx'
+export { FederalSponsoredBillsList, type FederalSponsoredBillsListProps } from './federal/FederalSponsoredBillsList.tsx'
+export { FederalCosponsoredBillsList, type FederalCosponsoredBillsListProps } from './federal/FederalCosponsoredBillsList.tsx'
+export {
+  FederalMissedVotesList,
+  type FederalMissedVotesListProps,
+  type MissedVoteEntry,
+} from './federal/FederalMissedVotesList.tsx'
+export { FederalDonorsList, type FederalDonorsListProps } from './federal/FederalDonorsList.tsx'
+export { FederalPACsList, type FederalPACsListProps } from './federal/FederalPACsList.tsx'
+export {
+  FederalScorecardRatingsList,
+  type FederalScorecardRatingsListProps,
+} from './federal/FederalScorecardRatingsList.tsx'
+export {
+  FederalDistrictOfficesList,
+  type FederalDistrictOfficesListProps,
+} from './federal/FederalDistrictOfficesList.tsx'
+export {
+  FederalTownHallsList,
+  type FederalTownHallsListProps,
+} from './federal/FederalTownHallsList.tsx'
+export {
+  FederalStockTransactionsList,
+  type FederalStockTransactionsListProps,
+} from './federal/FederalStockTransactionsList.tsx'
+
+// federal/* cards (Task 7) — composed wrappers that call hooks via
+// useChiaroClient() and render the federal lists above.
+export {
+  FederalServiceRecordCard,
+  type FederalServiceRecordCardProps,
+} from './federal/FederalServiceRecordCard.tsx'
+export {
+  FederalVotingBillsCard,
+  type FederalVotingBillsCardProps,
+} from './federal/FederalVotingBillsCard.tsx'
+export {
+  FederalFinanceCard,
+  type FederalFinanceCardProps,
+} from './federal/FederalFinanceCard.tsx'
+export {
+  FederalIssuePositionsCard,
+  type FederalIssuePositionsCardProps,
+} from './federal/FederalIssuePositionsCard.tsx'
+export {
+  FederalCommunityPresenceCard,
+  type FederalCommunityPresenceCardProps,
+} from './federal/FederalCommunityPresenceCard.tsx'
+export {
+  FederalEthicsAccountabilityCard,
+  type FederalEthicsAccountabilityCardProps,
+} from './federal/FederalEthicsAccountabilityCard.tsx'
+
+// state/* lists + evidence (Task 9) — pure-display props-based components
+// for the lists; StateIssueVotesEvidence is the only Evidence that calls a
+// hook via `useChiaroClient()` because subjects are derived inside.
+export {
+  StateBillsEvidence,
+  type StateBillsEvidenceProps,
+} from './state/StateBillsEvidence.tsx'
+export {
+  StateVotesEvidence,
+  type StateVotesEvidenceProps,
+} from './state/StateVotesEvidence.tsx'
+export {
+  StateDonorsEvidence,
+  type StateDonorsEvidenceProps,
+} from './state/StateDonorsEvidence.tsx'
+export {
+  StateIssueVotesEvidence,
+  type StateIssueVotesEvidenceProps,
+} from './state/StateIssueVotesEvidence.tsx'
+export {
+  StateCommitteeHearingsList,
+  type StateCommitteeHearingsListProps,
+} from './state/StateCommitteeHearingsList.tsx'
+export {
+  StateDistrictOfficesList,
+  type StateDistrictOfficesListProps,
+} from './state/StateDistrictOfficesList.tsx'
+export {
+  StateTownHallsList,
+  type StateTownHallsListProps,
+} from './state/StateTownHallsList.tsx'
+export {
+  StateEthicsComplaintsList,
+  type StateEthicsComplaintsListProps,
+} from './state/StateEthicsComplaintsList.tsx'
+export {
+  StateFinancialDisclosuresList,
+  type StateFinancialDisclosuresListProps,
+} from './state/StateFinancialDisclosuresList.tsx'
+export {
+  StateOfficialEventsList,
+  type StateOfficialEventsListProps,
+} from './state/StateOfficialEventsList.tsx'
+export {
+  StateStockTransactionsList,
+  type StateStockTransactionsListProps,
+} from './state/StateStockTransactionsList.tsx'
+
+// state/* cards (Task 10) — composed wrappers that call hooks via
+// useChiaroClient() and render the state lists/evidence above.
+export {
+  StateServiceRecordCard,
+  type StateServiceRecordCardProps,
+} from './state/StateServiceRecordCard.tsx'
+export {
+  StateFinanceCard,
+  type StateFinanceCardProps,
+} from './state/StateFinanceCard.tsx'
+export {
+  StateIssuePositionsCard,
+  type StateIssuePositionsCardProps,
+} from './state/StateIssuePositionsCard.tsx'
+export {
+  StateCommunityPresenceCard,
+  type StateCommunityPresenceCardProps,
+} from './state/StateCommunityPresenceCard.tsx'
+export {
+  StateConductCard,
+  type StateConductCardProps,
+} from './state/StateConductCard.tsx'
+export {
+  StateFinancialActivityCard,
+  type StateFinancialActivityCardProps,
+} from './state/StateFinancialActivityCard.tsx'
+export {
+  StateOfficialDetailPage,
+  type StateOfficialDetailPageProps,
+} from './state/StateOfficialDetailPage.tsx'
+
+// Nav components (Task 11) — callback-based, no router imports
+export {
+  OfficialsCard,
+  type OfficialsCardProps,
+  type OfficialsCardSelectTarget,
+} from './OfficialsCard.tsx'
+export {
+  OfficialsList,
+  type OfficialsListProps,
+} from './OfficialsList.tsx'
+export {
+  StateOfficialsCardSection,
+  type StateOfficialsCardSectionProps,
+} from './state/StateOfficialsCardSection.tsx'

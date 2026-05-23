@@ -1,17 +1,19 @@
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ScrollView, Text, View } from 'react-native'
-import { useLocalSearchParams, Redirect } from 'expo-router'
+import { useLocalSearchParams, Redirect, useRouter } from 'expo-router'
 import { useOfficial, useOfficialScorecardRatings, useOfficialLeadershipHistory, isStateLevel } from '@chiaro/officials'
 import { supabase } from '@/lib/supabase'
 import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
 import { firstElectedYear as deriveFirstElectedYear } from '@/lib/derivations/service-record'
-import { BioHeader } from '@/components/bio/BioHeader'
-import { FederalServiceRecordCard } from '@/components/federal/FederalServiceRecordCard'
-import { FederalFinanceCard } from '@/components/federal/FederalFinanceCard'
-import { FederalIssuePositionsCard } from '@/components/federal/FederalIssuePositionsCard'
-import { FederalCommunityPresenceCard } from '@/components/federal/FederalCommunityPresenceCard'
-import { FederalEthicsAccountabilityCard } from '@/components/federal/FederalEthicsAccountabilityCard'
-import { FederalVotingBillsCard } from '@/components/federal/FederalVotingBillsCard'
+import {
+  BioHeader,
+  FederalCommunityPresenceCard,
+  FederalEthicsAccountabilityCard,
+  FederalFinanceCard,
+  FederalIssuePositionsCard,
+  FederalServiceRecordCard,
+  FederalVotingBillsCard,
+} from '@chiaro/officials-ui'
 
 const CURRENT_CYCLE = '2024'
 const CURRENT_CONGRESS = '119'
@@ -37,6 +39,7 @@ function parseDistrictCode(chamber: string, code: string | null | undefined): { 
 }
 
 export default function OfficialDetailScreen() {
+  const router = useRouter()
   const { id } = useLocalSearchParams<{ id: string }>()
   const officialId = id ?? ''
   const officialQ = useOfficial(supabase, officialId)
@@ -79,6 +82,9 @@ export default function OfficialDetailScreen() {
           officialUrl={official.official_url}
           twitterHandle={official.twitter_handle}
           chips={chips}
+          onChipPress={(chip) =>
+            router.push(`/officials/${officialId}?cat=issue-positions&sub=${chip.subCascadeSlug}` as never)
+          }
         />
         {/* Federal officials redesign (slice 6) — 6 cards in vertical cascade */}
         <View style={{ gap: 12, paddingHorizontal: 16, paddingTop: 12 }}>

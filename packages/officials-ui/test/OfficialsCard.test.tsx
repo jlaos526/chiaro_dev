@@ -1,0 +1,155 @@
+import { render, fireEvent } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import type { ReactElement } from 'react'
+import type { ChiaroClient } from '@chiaro/supabase-client'
+import type { OfficialWithDistrict } from '@chiaro/officials'
+
+const useMyOfficialsMock = vi.fn()
+const useScorecardsMock = vi.fn()
+const useMetricsMock = vi.fn()
+
+vi.mock('@chiaro/officials', async () => {
+  const actual = await vi.importActual<object>('@chiaro/officials')
+  return {
+    ...actual,
+    useMyOfficials: (...args: unknown[]) => useMyOfficialsMock(...args),
+    useOfficialScorecardRatings: (...args: unknown[]) => useScorecardsMock(...args),
+    useOfficialMetrics: (...args: unknown[]) => useMetricsMock(...args),
+  }
+})
+
+import { ChiaroClientProvider } from '../src/client-context.tsx'
+import { OfficialsCard } from '../src/OfficialsCard.tsx'
+
+const mockClient = { from: () => {} } as unknown as ChiaroClient
+
+function wrap(ui: ReactElement) {
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  return render(
+    <ChiaroClientProvider client={mockClient}>
+      <QueryClientProvider client={qc}>{ui}</QueryClientProvider>
+    </ChiaroClientProvider>,
+  )
+}
+
+afterEach(() => {
+  useMyOfficialsMock.mockReset()
+  useScorecardsMock.mockReset()
+  useMetricsMock.mockReset()
+})
+
+function mkOfficial(
+  chamber: OfficialWithDistrict['chamber'],
+  fullName: string,
+  id = 'oid-' + fullName,
+): OfficialWithDistrict {
+  return {
+    id, full_name: fullName, first_name: fullName, last_name: '',
+    bioguide_id: id, openstates_person_id: null,
+    chamber, party: 'D', state: 'CA',
+    district_id: 'did', district_code: 'CA-12', title: null,
+    senate_class: chamber === 'federal_senate' ? 1 : null,
+    in_office: true, source_version: 'x',
+    opensecrets_id: null, fec_candidate_id: null,
+    portrait_url: null,
+    district: { id: 'did', tier: chamber, state: 'CA', code: 'CA-12', name: 'CA-12' },
+  } as unknown as OfficialWithDistrict
+}
+
+describe('OfficialsCard', () => {
+  it('shows loading state', () => {
+    useMyOfficialsMock.mockReturnValue({ data: null, isLoading: true, error: null })
+    useScorecardsMock.mockReturnValue({ data: [] })
+    useMetricsMock.mockReturnValue({ data: null })
+    const { getByText } = wrap(
+      <OfficialsCard onSelect={vi.fn()} onSeeAll={vi.fn()} onCalibrate={vi.fn()} />,
+    )
+    expect(getByText(/Loading/i)).toBeTruthy()
+  })
+
+  it('shows calibrate prompt when no officials and invokes onCalibrate', () => {
+    useMyOfficialsMock.mockReturnValue({ data: [], isLoading: false, error: null })
+    useScorecardsMock.mockReturnValue({ data: [] })
+    useMetricsMock.mockReturnValue({ data: null })
+    const onCalibrate = vi.fn()
+    const { getByText } = wrap(
+      <OfficialsCard onSelect={vi.fn()} onSeeAll={vi.fn()} onCalibrate={onCalibrate} />,
+    )
+    fireEvent.click(getByText(/Calibrate your address/i))
+    expect(onCalibrate).toHaveBeenCalledTimes(1)
+  })
+
+  it('renders federal officials and fires onSelect when row tapped', () => {
+    useMyOfficialsMock.mockReturnValue({
+      data: [mkOfficial('federal_house', 'Pelosi', 'oid-pelosi')],
+      isLoading: false,
+      error: null,
+    })
+    useScorecardsMock.mockReturnValue({ data: [] })
+    useMetricsMock.mockReturnValue({ data: null })
+    const onSelect = vi.fn()
+    const { getByText } = wrap(
+      <OfficialsCard onSelect={onSelect} onSeeAll={vi.fn()} onCalibrate={vi.fn()} />,
+    )
+    fireEvent.click(getByText('Pelosi'))
+    expect(onSelect).toHaveBeenCalledWith({ officialId: 'oid-pelosi' })
+  })
+
+  it('renders state officials section + fires onSelect for state row', () => {
+    useMyOfficialsMock.mockReturnValue({
+      data: [mkOfficial('state_house', 'Asm Doe', 'oid-asm')],
+      isLoading: false,
+      error: null,
+    })
+    useScorecardsMock.mockReturnValue({ data: [] })
+    useMetricsMock.mockReturnValue({ data: null })
+    const onSelect = vi.fn()
+    const { getByText } = wrap(
+      <OfficialsCard onSelect={onSelect} onSeeAll={vi.fn()} onCalibrate={vi.fn()} />,
+    )
+    fireEvent.click(getByText('Asm Doe'))
+    expect(onSelect).toHaveBeenCalledWith({ officialId: 'oid-asm' })
+  })
+
+  it('fires onSeeAll when See all tapped', () => {
+    useMyOfficialsMock.mockReturnValue({
+      data: [mkOfficial('federal_house', 'Pelosi')],
+      isLoading: false,
+      error: null,
+    })
+    useScorecardsMock.mockReturnValue({ data: [] })
+    useMetricsMock.mockReturnValue({ data: null })
+    const onSeeAll = vi.fn()
+    const { getByText } = wrap(
+      <OfficialsCard onSelect={vi.fn()} onSeeAll={onSeeAll} onCalibrate={vi.fn()} />,
+    )
+    fireEvent.click(getByText(/See all officials/i))
+    expect(onSeeAll).toHaveBeenCalledTimes(1)
+  })
+
+  it('fires onSelect with subCascadeSlug when alignment chip is pressed', () => {
+    useMyOfficialsMock.mockReturnValue({
+      data: [mkOfficial('federal_house', 'Pelosi', 'oid-pelosi')],
+      isLoading: false,
+      error: null,
+    })
+    useScorecardsMock.mockReturnValue({
+      data: [
+        {
+          id: 'r1', scorecard_id: 's1', official_id: 'oid-pelosi',
+          congress: '119', score: 95,
+          source_url: 'https://example.org', ingested_at: '2026-01-01',
+          org: { issue_area: 'environment', scoring_max: 100 },
+        },
+      ],
+    })
+    useMetricsMock.mockReturnValue({ data: null })
+    const onSelect = vi.fn()
+    const { getByRole } = wrap(
+      <OfficialsCard onSelect={onSelect} onSeeAll={vi.fn()} onCalibrate={vi.fn()} />,
+    )
+    fireEvent.click(getByRole('link', { name: /View Environment positions/i }))
+    expect(onSelect).toHaveBeenCalledWith({ officialId: 'oid-pelosi', subCascadeSlug: 'environment' })
+  })
+})

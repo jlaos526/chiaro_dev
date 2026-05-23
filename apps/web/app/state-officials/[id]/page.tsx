@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { fetchOfficial, fetchOfficialDistrictOffices, isStateLevel } from '@chiaro/officials'
+import { StateOfficialDetailPage } from '@chiaro/officials-ui'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { StateOfficialDetailPage } from '@/components/state/StateOfficialDetailPage'
 
 interface Params { id: string }
 

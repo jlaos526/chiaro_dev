@@ -57,3 +57,6 @@ export {
 } from './hooks.ts'
 
 export { ChamberSchema } from './schemas.ts'
+
+export type { AlignmentChipRow, OfficialsByLevel } from './derivations.ts'
+export { selectTopAlignmentChips, groupOfficialsByLevel } from './derivations.ts'

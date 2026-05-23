@@ -1,12 +1,14 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { BioHeader } from '@/components/bio/BioHeader'
-import { FederalServiceRecordCard } from '@/components/federal/FederalServiceRecordCard'
-import { FederalFinanceCard } from '@/components/federal/FederalFinanceCard'
-import { FederalIssuePositionsCard } from '@/components/federal/FederalIssuePositionsCard'
-import { FederalCommunityPresenceCard } from '@/components/federal/FederalCommunityPresenceCard'
-import { FederalEthicsAccountabilityCard } from '@/components/federal/FederalEthicsAccountabilityCard'
-import { FederalVotingBillsCard } from '@/components/federal/FederalVotingBillsCard'
+import {
+  FederalCommunityPresenceCard,
+  FederalEthicsAccountabilityCard,
+  FederalFinanceCard,
+  FederalIssuePositionsCard,
+  FederalServiceRecordCard,
+  FederalVotingBillsCard,
+} from '@chiaro/officials-ui'
+import { BioHeaderClient } from './BioHeaderClient'
 import { firstElectedYear as deriveFirstElectedYear } from '@/lib/derivations/service-record'
 import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
 import { isStateLevel } from '@chiaro/officials'
@@ -129,7 +131,7 @@ export default async function OfficialPage(
 
   return (
     <main>
-      <BioHeader officialId={official.id} {...bioProps} chips={chips} />
+      <BioHeaderClient officialId={official.id} {...bioProps} chips={chips} />
       {/* Federal officials redesign (slice 6) — 6 cards in vertical cascade */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <FederalServiceRecordCard

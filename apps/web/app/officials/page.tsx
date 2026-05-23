@@ -1,6 +1,6 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { OfficialsList } from '@/components/OfficialsList'
+import { OfficialsListClient } from './OfficialsListClient'
 
 export default async function OfficialsPage(): Promise<React.JSX.Element> {
   const supabase = await createSupabaseServerClient()
@@ -9,7 +9,7 @@ export default async function OfficialsPage(): Promise<React.JSX.Element> {
   return (
     <main>
       <h1>Your officials</h1>
-      <OfficialsList />
+      <OfficialsListClient />
     </main>
   )
 }

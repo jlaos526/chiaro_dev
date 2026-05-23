@@ -2,8 +2,10 @@
 
 import * as React from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ChiaroClientProvider } from '@chiaro/officials-ui'
+import { createSupabaseBrowserClient } from './supabase/client'
 
-function makeClient() {
+function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
@@ -15,15 +17,21 @@ function makeClient() {
   })
 }
 
-let browserClient: QueryClient | undefined
+let browserQueryClient: QueryClient | undefined
 
-function getClient() {
-  if (typeof window === 'undefined') return makeClient()
-  if (!browserClient) browserClient = makeClient()
-  return browserClient
+function getQueryClient() {
+  if (typeof window === 'undefined') return makeQueryClient()
+  if (!browserQueryClient) browserQueryClient = makeQueryClient()
+  return browserQueryClient
 }
 
+const chiaroClient = createSupabaseBrowserClient()
+
 export function QueryProvider({ children }: { children: React.ReactNode }) {
-  const [client] = React.useState(getClient)
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>
+  const [qc] = React.useState(getQueryClient)
+  return (
+    <ChiaroClientProvider client={chiaroClient}>
+      <QueryClientProvider client={qc}>{children}</QueryClientProvider>
+    </ChiaroClientProvider>
+  )
 }

@@ -2,8 +2,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { Text } from 'react-native'
 import { useLocalSearchParams, Redirect } from 'expo-router'
 import { useOfficial, useOfficialDistrictOffices, isStateLevel } from '@chiaro/officials'
+import { StateOfficialDetailPage } from '@chiaro/officials-ui'
 import { supabase } from '@/lib/supabase'
-import { StateOfficialDetailPage } from '@/components/state/StateOfficialDetailPage'
 
 export default function StateOfficialDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()

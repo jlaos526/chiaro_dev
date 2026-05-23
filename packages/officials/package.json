@@ -12,6 +12,7 @@
   "dependencies": {
     "@chiaro/db": "workspace:*",
     "@chiaro/supabase-client": "workspace:*",
+    "@chiaro/ui-tokens": "workspace:*",
     "@supabase/supabase-js": "^2.105.0",
     "zod": "^3.23.0"
   },
