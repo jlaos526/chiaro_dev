@@ -1,13 +1,23 @@
 import type { StateCommunityAdapter, NormalizedTownHall } from '../shared.ts'
 
+/**
+ * @deprecated 2026-05-24 (slice 13, per slice 12 discovery audit)
+ *
+ * FL does not publish an aggregated member town-hall feed. flsenate.gov
+ * calendar shows institutional sessions only; the House lacks even a
+ * calendar UI.
+ *
+ * Mobilize.us (slice 7 nationwide adapter) covers FL state-legislator
+ * town halls.
+ *
+ * See docs/superpowers/audits/2026-05-24-stub-adapter-discovery.md
+ * + Gotcha #21 in CLAUDE.md.
+ */
 export const flDoeTownHalls: StateCommunityAdapter = {
   slug: 'fl-doe',
   component: 'halls',
-  covered_states: ['FL'],
-  async fetchEvents(opts) {
-    const fetcher = (opts as never as { fetcher?: () => Promise<NormalizedTownHall[]> }).fetcher
-    if (fetcher) return fetcher()
-    // Production stub: operator wires flsenate.gov / myfloridahouse.gov member events.
+  covered_states: [],
+  async fetchEvents(): Promise<NormalizedTownHall[]> {
     return []
   },
 }

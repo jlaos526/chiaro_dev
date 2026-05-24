@@ -1,33 +1,21 @@
 import { describe, expect, it } from 'vitest'
-import { readFile } from 'node:fs/promises'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { txTecDisclosures } from './tx-tec.ts'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const FIXTURE = join(__dirname, '..', '..', 'fixtures', 'state-ethics', 'disclosures-tx.json')
-
-describe('tx-tec disclosures adapter', () => {
-  it('happy path: fetcher injection returns fixture events', async () => {
-    const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
-    const events = await txTecDisclosures.fetchEvents({
-      client: {} as never, fetcher: async () => fixture.events,
-    } as never)
-    expect(events.length).toBe(fixture.events.length)
+describe('txTecDisclosures adapter — DEPRECATED (slice 13)', () => {
+  it('covered_states is empty after deprecation', () => {
+    expect(txTecDisclosures.covered_states).toEqual([])
   })
 
-  it('production stub returns empty array', async () => {
-    const events = await txTecDisclosures.fetchEvents({ client: {} as never } as never)
-    expect(events).toEqual([])
+  it('fetchEvents returns [] regardless of opts', async () => {
+    const result = await txTecDisclosures.fetchEvents({} as never)
+    expect(result).toEqual([])
   })
 
-  it('reports correct slug + component', () => {
+  it('slug preserved for orchestrator dispatch continuity', () => {
     expect(txTecDisclosures.slug).toBe('tx-tec')
-    expect(txTecDisclosures.component).toBe('disclosures')
   })
 
-  it('covered_states valid', () => {
-    expect(txTecDisclosures.covered_states.length).toBeGreaterThan(0)
-    for (const s of txTecDisclosures.covered_states) expect(s).toMatch(/^[A-Z]{2}$/)
+  it('component is disclosures', () => {
+    expect(txTecDisclosures.component).toBe('disclosures')
   })
 })

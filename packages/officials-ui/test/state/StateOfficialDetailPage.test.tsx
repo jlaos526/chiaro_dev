@@ -22,7 +22,6 @@ vi.mock('@chiaro/officials', async () => {
     useOfficialStateCommitteeHearings: list,
     useOfficialStateEthicsComplaints: list,
     useOfficialStateOfficialEvents: list,
-    useOfficialStateStockTransactions: list,
     useOfficialStateFinancialDisclosures: list,
   }
 })

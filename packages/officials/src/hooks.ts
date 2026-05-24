@@ -11,7 +11,6 @@ import {
   fetchOfficialStateScorecardRatings,
   fetchOfficialStateTownHalls, fetchOfficialStateDistrictOffices,
   fetchOfficialStateCommitteeHearings,
-  fetchOfficialStateStockTransactions,
   fetchOfficialStateFinancialDisclosures,
   fetchOfficialStateEthicsComplaints,
   fetchOfficialStateOfficialEvents,
@@ -23,7 +22,6 @@ import type {
   StateTownHallRow,
   StateDistrictOfficeRow,
   StateCommitteeHearingRow,
-  StateStockTransactionRow,
   StateFinancialDisclosureRow,
   StateEthicsComplaintRow,
   StateOfficialEventRow,
@@ -198,19 +196,6 @@ export function useOfficialStateCommitteeHearings(
   return useQuery({
     queryKey: officialsKeys.stateCommitteeHearings(officialId, session),
     queryFn: () => fetchOfficialStateCommitteeHearings(client, officialId, session),
-    staleTime: FIVE_MIN,
-    gcTime: THIRTY_MIN,
-    enabled: !!officialId,
-  })
-}
-
-export function useOfficialStateStockTransactions(
-  client: ChiaroClient,
-  officialId: string,
-): UseQueryResult<StateStockTransactionRow[], Error> {
-  return useQuery({
-    queryKey: officialsKeys.stateStockTransactions(officialId),
-    queryFn: () => fetchOfficialStateStockTransactions(client, officialId),
     staleTime: FIVE_MIN,
     gcTime: THIRTY_MIN,
     enabled: !!officialId,

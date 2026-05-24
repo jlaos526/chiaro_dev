@@ -137,10 +137,6 @@ export {
   StateOfficialEventsList,
   type StateOfficialEventsListProps,
 } from './state/StateOfficialEventsList.tsx'
-export {
-  StateStockTransactionsList,
-  type StateStockTransactionsListProps,
-} from './state/StateStockTransactionsList.tsx'
 
 // state/* cards (Task 10) — composed wrappers that call hooks via
 // useChiaroClient() and render the state lists/evidence above.

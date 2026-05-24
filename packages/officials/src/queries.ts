@@ -8,7 +8,6 @@ import type {
   StateTownHallRow,
   StateDistrictOfficeRow,
   StateCommitteeHearingRow,
-  StateStockTransactionRow,
   StateFinancialDisclosureRow,
   StateEthicsComplaintRow,
   StateOfficialEventRow,
@@ -322,20 +321,6 @@ export async function fetchOfficialStateCommitteeHearings(
     .order('hearing_date', { ascending: false })
   if (error) throw error
   return (data ?? []) as StateCommitteeHearingRow[]
-}
-
-export async function fetchOfficialStateStockTransactions(
-  client: ChiaroClient,
-  officialId: string,
-): Promise<StateStockTransactionRow[]> {
-  const { data, error } = await client
-    .from('state_stock_transactions')
-    .select('*')
-    .eq('official_id', officialId)
-    .order('transaction_date', { ascending: false })
-    .limit(50)
-  if (error) throw error
-  return (data ?? []) as StateStockTransactionRow[]
 }
 
 export async function fetchOfficialStateFinancialDisclosures(

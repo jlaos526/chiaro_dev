@@ -442,9 +442,8 @@ describe('state_community_* RLS + 3 fetchers', () => {
   })
 })
 
-describe('state_ethics_* RLS + 4 fetchers', () => {
+describe('state_ethics_* RLS + 3 fetchers', () => {
   let officialIdLocal: string
-  let stockId: string
   let discId: string
   let complaintId: string
   let eventId: string
@@ -453,14 +452,6 @@ describe('state_ethics_* RLS + 4 fetchers', () => {
     const off = await svc.from('officials').select('id').eq('chamber', 'state_house').limit(1).single()
     if (off.error) throw off.error
     officialIdLocal = off.data!.id
-
-    const s = await svc.from('state_stock_transactions').insert({
-      official_id: officialIdLocal, transaction_date: '2026-01-01',
-      filing_date: '2026-01-15', transaction_type: 'purchase',
-      state: 'CA', source_url: 'https://x', source: 'integ', external_id: 'integ-stk',
-    }).select('id').single()
-    if (s.error) throw s.error
-    stockId = s.data!.id
 
     const d = await svc.from('state_financial_disclosures').insert({
       official_id: officialIdLocal, filing_year: 2025,
@@ -488,15 +479,12 @@ describe('state_ethics_* RLS + 4 fetchers', () => {
   })
 
   afterAll(async () => {
-    await svc.from('state_stock_transactions')    .delete().eq('id', stockId)
     await svc.from('state_financial_disclosures') .delete().eq('id', discId)
     await svc.from('state_ethics_complaints')     .delete().eq('id', complaintId)
     await svc.from('state_official_events')       .delete().eq('id', eventId)
   })
 
-  it('authd SELECT allowed on all 4 tables', async () => {
-    const s = await anon.from('state_stock_transactions').select('*').eq('id', stockId)
-    expect(s.data).toHaveLength(1)
+  it('authd SELECT allowed on all 3 tables', async () => {
     const d = await anon.from('state_financial_disclosures').select('*').eq('id', discId)
     expect(d.data).toHaveLength(1)
     const c = await anon.from('state_ethics_complaints').select('*').eq('id', complaintId)
@@ -511,15 +499,8 @@ describe('state_ethics_* RLS + 4 fetchers', () => {
       process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!,
       { auth: { persistSession: false, storageKey: 'unauth-5i-integ' } },
     )
-    const { data } = await unauth.from('state_stock_transactions').select('*').eq('id', stockId)
+    const { data } = await unauth.from('state_financial_disclosures').select('*').eq('id', discId)
     expect(data ?? []).toHaveLength(0)
-  })
-
-  it('fetchOfficialStateStockTransactions retrieves rows', async () => {
-    const { fetchOfficialStateStockTransactions } = await import('../src/queries.ts')
-    const rows = await fetchOfficialStateStockTransactions(anon as never, officialIdLocal)
-    expect(rows.length).toBeGreaterThanOrEqual(1)
-    expect(rows.find(r => r.id === stockId)).toBeDefined()
   })
 
   it('fetchOfficialStateEthicsComplaints retrieves rows', async () => {

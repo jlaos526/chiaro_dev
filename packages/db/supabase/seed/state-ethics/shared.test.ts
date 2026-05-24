@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { Client } from 'pg'
 import {
-  upsertStockTransaction,
   upsertFinancialDisclosure,
   upsertEthicsComplaint,
   upsertOfficialEvent,
@@ -33,52 +32,12 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  await client.query('delete from public.state_stock_transactions    where official_id = $1', [officialId])
   await client.query('delete from public.state_financial_disclosures where official_id = $1', [officialId])
   await client.query('delete from public.state_ethics_complaints     where official_id = $1', [officialId])
   await client.query('delete from public.state_official_events       where official_id = $1', [officialId])
   await client.query("delete from public.officials where source_version = 'FX-ses'")
   await client.query("delete from public.districts where source_version = 'FX-ses'")
   await client.end()
-})
-
-describe('upsertStockTransaction', () => {
-  it('inserts row for known official', async () => {
-    const ok = await upsertStockTransaction(client, {
-      official_openstates_person_id: 'ocd-person/fx-ses',
-      transaction_date: '2026-01-01', filing_date: '2026-01-15',
-      transaction_type: 'purchase', state: 'CA',
-      source_url: 'https://x', source: 'ca-fppc', external_id: 'stk-1',
-    })
-    expect(ok).toBe(true)
-  })
-  it('returns false for unknown official', async () => {
-    const ok = await upsertStockTransaction(client, {
-      official_openstates_person_id: 'ocd-person/UNKNOWN',
-      transaction_date: '2026-01-01', filing_date: '2026-01-15',
-      transaction_type: 'purchase', state: 'CA',
-      source_url: 'https://x', source: 'ca-fppc',
-    })
-    expect(ok).toBe(false)
-  })
-  it('idempotent on (source, external_id)', async () => {
-    await upsertStockTransaction(client, {
-      official_openstates_person_id: 'ocd-person/fx-ses',
-      transaction_date: '2026-01-01', filing_date: '2026-01-15',
-      transaction_type: 'purchase', state: 'CA',
-      source_url: 'https://x', source: 'ca-fppc', external_id: 'stk-2',
-    })
-    await upsertStockTransaction(client, {
-      official_openstates_person_id: 'ocd-person/fx-ses',
-      transaction_date: '2026-01-01', filing_date: '2026-01-15',
-      transaction_type: 'sale', state: 'CA',
-      source_url: 'https://y', source: 'ca-fppc', external_id: 'stk-2',
-    })
-    const r = await client.query<{ c: number; type: string }>(
-      "select count(*)::int as c, max(transaction_type) as type from public.state_stock_transactions where external_id = 'stk-2'")
-    expect(r.rows[0]!.c).toBe(1)
-    expect(r.rows[0]!.type).toBe('sale')
-  })
 })
 
 describe('upsertFinancialDisclosure', () => {

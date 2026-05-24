@@ -1,21 +1,6 @@
 import type { Client } from 'pg'
 
-export type EthicsComponent = 'stock' | 'disclosures' | 'complaints' | 'events'
-
-export interface NormalizedStockTransaction {
-  official_openstates_person_id: string
-  transaction_date: string
-  filing_date: string
-  asset_ticker?: string
-  asset_name?: string
-  transaction_type: 'purchase' | 'sale' | 'exchange'
-  amount_range_low?: number
-  amount_range_high?: number
-  state: string
-  source_url: string
-  source: string
-  external_id?: string
-}
+export type EthicsComponent = 'disclosures' | 'complaints' | 'events'
 
 export interface NormalizedFinancialDisclosure {
   official_openstates_person_id: string
@@ -65,7 +50,7 @@ export interface StateEthicsAdapter {
     state?: string
     fetcher?: () => Promise<unknown[]>
   }): Promise<Array<
-    NormalizedStockTransaction | NormalizedFinancialDisclosure |
+    NormalizedFinancialDisclosure |
     NormalizedEthicsComplaint | NormalizedOfficialEvent
   >>
 }
@@ -89,37 +74,6 @@ async function resolveOfficial(
     [openstates_person_id],
   )
   return r.rowCount === 0 ? null : r.rows[0]!.id
-}
-
-export async function upsertStockTransaction(
-  client: Client, t: NormalizedStockTransaction,
-): Promise<boolean> {
-  const officialId = await resolveOfficial(client, t.official_openstates_person_id)
-  if (!officialId) return false
-  await client.query(`
-    insert into public.state_stock_transactions (
-      official_id, transaction_date, filing_date, asset_ticker, asset_name,
-      transaction_type, amount_range_low, amount_range_high,
-      state, source_url, source, external_id
-    ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-    on conflict (source, external_id) where external_id is not null
-    do update set
-      transaction_date = excluded.transaction_date,
-      filing_date      = excluded.filing_date,
-      asset_ticker     = excluded.asset_ticker,
-      asset_name       = excluded.asset_name,
-      transaction_type = excluded.transaction_type,
-      amount_range_low = excluded.amount_range_low,
-      amount_range_high= excluded.amount_range_high,
-      source_url       = excluded.source_url,
-      ingested_at      = now()
-  `, [
-    officialId, t.transaction_date, t.filing_date, t.asset_ticker ?? null,
-    t.asset_name ?? null, t.transaction_type,
-    t.amount_range_low ?? null, t.amount_range_high ?? null,
-    t.state, t.source_url, t.source, t.external_id ?? null,
-  ])
-  return true
 }
 
 export async function upsertFinancialDisclosure(

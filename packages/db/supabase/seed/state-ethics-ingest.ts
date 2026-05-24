@@ -1,17 +1,15 @@
 import { Client } from 'pg'
 import {
   type EthicsComponent, type StateEthicsAdapter, type StateEthicsStats,
-  upsertStockTransaction, upsertFinancialDisclosure,
+  upsertFinancialDisclosure,
   upsertEthicsComplaint, upsertOfficialEvent,
-  type NormalizedStockTransaction, type NormalizedFinancialDisclosure,
+  type NormalizedFinancialDisclosure,
   type NormalizedEthicsComplaint, type NormalizedOfficialEvent,
 } from './state-ethics/shared.ts'
 import { openstatesEndReason } from './state-ethics/events/openstates-end-reason.ts'
 import { ballotpediaRecalls }  from './state-ethics/events/ballotpedia-recalls.ts'
 import { caFppcEvents, nyJcopeEvents, flCoeEvents, txTecEvents, miBoardEvents }
   from './state-ethics/events/index.ts'
-import { caFppcStock, nyJcopeStock, flCoeStock, txTecStock, miBoardStock }
-  from './state-ethics/stock/index.ts'
 import { caFppcDisclosures, nyJcopeDisclosures, flCoeDisclosures, txTecDisclosures, miBoardDisclosures }
   from './state-ethics/disclosures/index.ts'
 import { caFppcComplaints, nyJcopeComplaints, flCoeComplaints, txTecComplaints, miBoardComplaints }
@@ -21,8 +19,6 @@ const DB_URL = process.env.SUPABASE_DB_URL
   ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 
 const ADAPTERS_DEFAULT: StateEthicsAdapter[] = [
-  // stock
-  caFppcStock, nyJcopeStock, flCoeStock, txTecStock, miBoardStock,
   // disclosures
   caFppcDisclosures, nyJcopeDisclosures, flCoeDisclosures, txTecDisclosures, miBoardDisclosures,
   // complaints
@@ -77,9 +73,7 @@ export async function ingestStateEthics(
         const events = await adapter.fetchEvents({ client, state: opts.state })
         for (const event of events) {
           let ok = false
-          if (adapter.component === 'stock') {
-            ok = await upsertStockTransaction(client, event as NormalizedStockTransaction)
-          } else if (adapter.component === 'disclosures') {
+          if (adapter.component === 'disclosures') {
             ok = await upsertFinancialDisclosure(client, event as NormalizedFinancialDisclosure)
           } else if (adapter.component === 'complaints') {
             ok = await upsertEthicsComplaint(client, event as NormalizedEthicsComplaint)

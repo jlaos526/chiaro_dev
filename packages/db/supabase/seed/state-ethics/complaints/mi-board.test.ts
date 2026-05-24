@@ -1,33 +1,21 @@
 import { describe, expect, it } from 'vitest'
-import { readFile } from 'node:fs/promises'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { miBoardComplaints } from './mi-board.ts'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const FIXTURE = join(__dirname, '..', '..', 'fixtures', 'state-ethics', 'complaints-mi.json')
-
-describe('mi-board complaints adapter', () => {
-  it('happy path: fetcher injection returns fixture events', async () => {
-    const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
-    const events = await miBoardComplaints.fetchEvents({
-      client: {} as never, fetcher: async () => fixture.events,
-    } as never)
-    expect(events.length).toBe(fixture.events.length)
+describe('miBoardComplaints adapter — DEPRECATED (slice 13)', () => {
+  it('covered_states is empty after deprecation', () => {
+    expect(miBoardComplaints.covered_states).toEqual([])
   })
 
-  it('production stub returns empty array', async () => {
-    const events = await miBoardComplaints.fetchEvents({ client: {} as never } as never)
-    expect(events).toEqual([])
+  it('fetchEvents returns [] regardless of opts', async () => {
+    const result = await miBoardComplaints.fetchEvents({} as never)
+    expect(result).toEqual([])
   })
 
-  it('reports correct slug + component', () => {
+  it('slug preserved for orchestrator dispatch continuity', () => {
     expect(miBoardComplaints.slug).toBe('mi-board')
-    expect(miBoardComplaints.component).toBe('complaints')
   })
 
-  it('covered_states valid', () => {
-    expect(miBoardComplaints.covered_states.length).toBeGreaterThan(0)
-    for (const s of miBoardComplaints.covered_states) expect(s).toMatch(/^[A-Z]{2}$/)
+  it('component is complaints', () => {
+    expect(miBoardComplaints.component).toBe('complaints')
   })
 })

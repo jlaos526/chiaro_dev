@@ -22,8 +22,6 @@ export const officialsKeys = {
     ['officials', 'stateDistrictOffices', officialId] as const,
   stateCommitteeHearings: (officialId: string, session?: string) =>
     ['officials', 'stateCommitteeHearings', officialId, session ?? 'latest'] as const,
-  stateStockTransactions: (officialId: string) =>
-    ['officials', 'stateStockTransactions', officialId] as const,
   stateFinancialDisclosures: (officialId: string) =>
     ['officials', 'stateFinancialDisclosures', officialId] as const,
   stateEthicsComplaints: (officialId: string) =>

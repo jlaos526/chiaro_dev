@@ -30,9 +30,6 @@ export type StateDistrictOfficeRow =
 export type StateCommitteeHearingRow =
   Database['public']['Tables']['state_committee_hearings']['Row']
 
-export type StateStockTransactionRow =
-  Database['public']['Tables']['state_stock_transactions']['Row']
-
 export type StateFinancialDisclosureRow =
   Database['public']['Tables']['state_financial_disclosures']['Row']
 

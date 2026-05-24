@@ -1477,68 +1477,6 @@ export type Database = {
           },
         ]
       }
-      state_stock_transactions: {
-        Row: {
-          amount_range_high: number | null
-          amount_range_low: number | null
-          asset_name: string | null
-          asset_ticker: string | null
-          days_late: number | null
-          external_id: string | null
-          filing_date: string
-          id: string
-          ingested_at: string
-          official_id: string
-          source: string
-          source_url: string
-          state: string
-          transaction_date: string
-          transaction_type: string | null
-        }
-        Insert: {
-          amount_range_high?: number | null
-          amount_range_low?: number | null
-          asset_name?: string | null
-          asset_ticker?: string | null
-          days_late?: number | null
-          external_id?: string | null
-          filing_date: string
-          id?: string
-          ingested_at?: string
-          official_id: string
-          source: string
-          source_url: string
-          state: string
-          transaction_date: string
-          transaction_type?: string | null
-        }
-        Update: {
-          amount_range_high?: number | null
-          amount_range_low?: number | null
-          asset_name?: string | null
-          asset_ticker?: string | null
-          days_late?: number | null
-          external_id?: string | null
-          filing_date?: string
-          id?: string
-          ingested_at?: string
-          official_id?: string
-          source?: string
-          source_url?: string
-          state?: string
-          transaction_date?: string
-          transaction_type?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "state_stock_transactions_official_id_fkey"
-            columns: ["official_id"]
-            isOneToOne: false
-            referencedRelation: "officials"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       state_town_halls: {
         Row: {
           attendance_estimate: number | null

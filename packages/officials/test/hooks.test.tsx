@@ -12,7 +12,6 @@ import {
   useOfficialStateTownHalls,
   useOfficialStateDistrictOffices,
   useOfficialStateCommitteeHearings,
-  useOfficialStateStockTransactions,
   useOfficialStateFinancialDisclosures,
   useOfficialStateEthicsComplaints,
   useOfficialStateOfficialEvents,
@@ -226,31 +225,6 @@ describe('useOfficialStateCommitteeHearings', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(result.current.data).toHaveLength(1)
     expect(result.current.data![0]!.agenda_topic).toBe('SB-91')
-  })
-})
-
-describe('useOfficialStateStockTransactions', () => {
-  beforeEach(() => {
-    vi.spyOn(queries, 'fetchOfficialStateStockTransactions').mockResolvedValue([
-      {
-        id: 'stk1', official_id: 'oid', transaction_date: '2026-01-15',
-        filing_date: '2026-02-15', days_late: 1, asset_ticker: 'AAPL',
-        asset_name: 'Apple Inc.', transaction_type: 'purchase',
-        amount_range_low: 1000, amount_range_high: 10000, state: 'CA',
-        source_url: 'https://x', source: 'ca-fppc', external_id: 'stk-1',
-        ingested_at: '2026-01-01',
-      },
-    ] as never)
-  })
-  it('returns hooked rows', async () => {
-    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-    const { result } = renderHook(
-      () => useOfficialStateStockTransactions({} as ChiaroClient, 'oid'),
-      { wrapper: wrapper(qc) },
-    )
-    await waitFor(() => expect(result.current.isSuccess).toBe(true))
-    expect(result.current.data).toHaveLength(1)
-    expect(result.current.data![0]!.transaction_type).toBe('purchase')
   })
 })
 

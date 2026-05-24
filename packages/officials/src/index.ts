@@ -13,7 +13,6 @@ export type {
   StateTownHallRow,
   StateDistrictOfficeRow,
   StateCommitteeHearingRow,
-  StateStockTransactionRow,
   StateFinancialDisclosureRow,
   StateEthicsComplaintRow,
   StateOfficialEventRow,
@@ -40,7 +39,7 @@ export {
   fetchOfficialStateScorecardRatings,
   fetchOfficialStateTownHalls, fetchOfficialStateDistrictOffices,
   fetchOfficialStateCommitteeHearings,
-  fetchOfficialStateStockTransactions, fetchOfficialStateFinancialDisclosures,
+  fetchOfficialStateFinancialDisclosures,
   fetchOfficialStateEthicsComplaints, fetchOfficialStateOfficialEvents,
   type ScorecardRatingWithOrg, type OfficialFinance,
 } from './queries.ts'
@@ -52,7 +51,7 @@ export {
   useOfficialStateScorecardRatings,
   useOfficialStateTownHalls, useOfficialStateDistrictOffices,
   useOfficialStateCommitteeHearings,
-  useOfficialStateStockTransactions, useOfficialStateFinancialDisclosures,
+  useOfficialStateFinancialDisclosures,
   useOfficialStateEthicsComplaints, useOfficialStateOfficialEvents,
 } from './hooks.ts'
 
