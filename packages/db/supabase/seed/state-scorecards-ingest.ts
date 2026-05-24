@@ -6,7 +6,7 @@ import {
   upsertStateScorecardRating,
 } from './state-scorecards/shared.ts'
 import { aclu } from './state-scorecards/aclu.ts'
-import { lcv } from './state-scorecards/lcv.ts'
+import { lcv } from './state-scorecards/lcv/index.ts'
 import { nra } from './state-scorecards/nra.ts'
 import { plannedParenthood } from './state-scorecards/planned-parenthood.ts'
 import { afp } from './state-scorecards/afp.ts'
