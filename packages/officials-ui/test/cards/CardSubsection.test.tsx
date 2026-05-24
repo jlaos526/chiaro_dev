@@ -82,4 +82,30 @@ describe('CardSubsection', () => {
     )
     expect(screen.getByText(/▾ Leadership/)).toBeTruthy()
   })
+
+  it('Pressable reports aria-expanded reflecting open prop', () => {
+    // RNW 0.19 does not translate accessibilityState={{ expanded }} to the
+    // aria-expanded DOM attribute (it only reads from the explicit
+    // aria-expanded prop or the deprecated accessibilityExpanded singleton).
+    // CardSubsection sets aria-expanded={open} directly alongside
+    // accessibilityState; this test asserts the DOM attribute flips.
+    const onToggle = vi.fn()
+    const { container, rerender } = render(
+      <CardSubsection label="Leadership" open={false} onToggle={onToggle}>
+        <Text>row 1</Text>
+      </CardSubsection>,
+    )
+    const button = container.querySelector('[role="button"][aria-expanded]')
+    expect(button).not.toBeNull()
+    expect(button?.getAttribute('aria-expanded')).toBe('false')
+
+    rerender(
+      <CardSubsection label="Leadership" open={true} onToggle={onToggle}>
+        <Text>row 1</Text>
+      </CardSubsection>,
+    )
+    expect(
+      container.querySelector('[role="button"]')?.getAttribute('aria-expanded'),
+    ).toBe('true')
+  })
 })

@@ -97,6 +97,9 @@ export function TopAmountBreakdown({
         <Pressable
           onPress={() => setExpanded(v => !v)}
           accessibilityRole="button"
+          accessibilityState={{ expanded }}
+          aria-expanded={expanded}
+          accessibilityLabel={`${expanded ? 'Collapse' : 'Expand'} top ${noun.plural}`}
           style={{
             marginTop: 12,
             backgroundColor: '#fff',

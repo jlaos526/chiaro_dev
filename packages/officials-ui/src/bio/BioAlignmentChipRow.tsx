@@ -8,11 +8,17 @@ export interface BioAlignmentChipRowProps {
    * Consumers wire platform-specific router navigation here. When omitted,
    * chips render inert (no nav). */
   onChipPress?: (chip: AlignmentChipRow) => void
+  /** Optional URL builder for chip href (web a11y restoration).
+   * On web with this prop set, each chip renders as a real <a href> via
+   * the smart-anchor pattern (middle-click + prefetch + status-bar URL
+   * preview). Native ignores. */
+  chipHref?: (chip: AlignmentChipRow) => string
 }
 
 export function BioAlignmentChipRow({
   chips,
   onChipPress,
+  chipHref,
 }: BioAlignmentChipRowProps): React.JSX.Element | null {
   if (chips.length === 0) return null
   return (
@@ -22,6 +28,7 @@ export function BioAlignmentChipRow({
           key={c.issueArea}
           label={c.displayLabel}
           tier={c.tier}
+          {...(chipHref ? { href: chipHref(c) } : {})}
           {...(onChipPress ? { onPress: () => onChipPress(c) } : {})}
         />
       ))}

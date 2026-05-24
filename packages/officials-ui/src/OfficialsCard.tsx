@@ -39,14 +39,18 @@ export interface OfficialsCardProps {
   onSeeAll: () => void
   /** Invoked when the calibrate prompt (shown when user has no officials) is tapped. */
   onCalibrate: () => void
+  /** Optional URL builder for chip href (web a11y restoration; native ignored). */
+  chipHref?: (target: { officialId: string; subCascadeSlug: string }) => string
 }
 
 function OfficialRow({
   o,
   onSelect,
+  chipHref,
 }: {
   o: OfficialWithDistrict
   onSelect: (target: OfficialsCardSelectTarget) => void
+  chipHref?: (target: { officialId: string; subCascadeSlug: string }) => string
 }): React.JSX.Element {
   const client = useChiaroClient()
   const scorecards = useOfficialScorecardRatings(client, o.id)
@@ -100,6 +104,7 @@ function OfficialRow({
                   key={c.issueArea}
                   label={c.displayLabel}
                   tier={c.tier}
+                  {...(chipHref ? { href: chipHref({ officialId: o.id, subCascadeSlug: c.subCascadeSlug }) } : {})}
                   onPress={() => onSelect({ officialId: o.id, subCascadeSlug: c.subCascadeSlug })}
                 />
               ))}
@@ -115,6 +120,7 @@ export function OfficialsCard({
   onSelect,
   onSeeAll,
   onCalibrate,
+  chipHref,
 }: OfficialsCardProps): React.JSX.Element {
   const client = useChiaroClient()
   const { data, isLoading, error } = useMyOfficials(client)
@@ -153,7 +159,12 @@ export function OfficialsCard({
             Federal
           </Text>
           {federal.map(o => (
-            <OfficialRow key={o.id} o={o} onSelect={onSelect} />
+            <OfficialRow
+              key={o.id}
+              o={o}
+              onSelect={onSelect}
+              {...(chipHref ? { chipHref } : {})}
+            />
           ))}
         </View>
       ) : null}

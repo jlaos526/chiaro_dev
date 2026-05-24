@@ -32,6 +32,7 @@ export function CardSubsection({
         accessibilityRole="button"
         accessibilityLabel={`${open ? 'Collapse' : 'Expand'} ${label}`}
         accessibilityState={{ expanded: open }}
+        aria-expanded={open}
       >
         <Text style={styles.subsectionLabel}>
           {open ? '▾' : '▸'} {label}

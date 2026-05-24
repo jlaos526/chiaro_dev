@@ -65,4 +65,21 @@ describe('TopAmountBreakdown', () => {
     const bg = outer?.getAttribute('style') ?? ''
     expect(bg).toMatch(/linear-gradient\(180deg, #f4faf6 0%, #fff 100%\)/)
   })
+
+  it('toggle button reports aria-expanded reflecting state', () => {
+    const { container } = render(<TopAmountBreakdown rows={TEN} noun={NOUN_INDUSTRY} />)
+    const toggle = container.querySelector('[role="button"][aria-expanded]')
+    expect(toggle).not.toBeNull()
+    expect(toggle?.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(toggle!)
+    expect(toggle?.getAttribute('aria-expanded')).toBe('true')
+  })
+
+  it('toggle button has accessibilityLabel describing the action target', () => {
+    const { container } = render(<TopAmountBreakdown rows={TEN} noun={NOUN_INDUSTRY} />)
+    const toggle = container.querySelector('[role="button"]')
+    expect(toggle?.getAttribute('aria-label')).toBe('Expand top industries')
+    fireEvent.click(toggle!)
+    expect(toggle?.getAttribute('aria-label')).toBe('Collapse top industries')
+  })
 })

@@ -17,6 +17,9 @@ export function OfficialsCardClient(): React.JSX.Element {
             : `/officials/${officialId}`,
         )
       }
+      chipHref={({ officialId, subCascadeSlug }) =>
+        `/officials/${officialId}#issue-positions:${subCascadeSlug}`
+      }
       onSeeAll={() => router.push('/officials')}
       onCalibrate={() => router.push('/calibrate')}
     />

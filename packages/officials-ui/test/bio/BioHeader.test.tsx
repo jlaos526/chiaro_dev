@@ -98,4 +98,20 @@ describe('BioHeader', () => {
     expect(screen.queryByText('pelosi.house.gov')).toBeNull()
     expect(screen.queryByText('@SpeakerPelosi')).toBeNull()
   })
+
+  it('outer container has aria-label "<name> bio" for landmark navigation', () => {
+    const { container } = render(<BioHeader {...PELOSI} />)
+    const labeled = container.querySelector('[aria-label="Nancy Pelosi bio"]')
+    expect(labeled).not.toBeNull()
+  })
+
+  it('forwards chipHref builder to AlignmentChip via BioAlignmentChipRow (web smart-anchor)', () => {
+    const chipHref = (chip: AlignmentChipRow) => `/officials/X#issue-positions:${chip.subCascadeSlug}`
+    const { container } = render(
+      <BioHeader {...PELOSI} chips={SAMPLE_CHIPS} chipHref={chipHref} />
+    )
+    const anchors = container.querySelectorAll('a[href^="/officials/X#issue-positions:"]')
+    expect(anchors.length).toBe(SAMPLE_CHIPS.length)
+    expect(anchors[0]?.getAttribute('href')).toBe('/officials/X#issue-positions:environment')
+  })
 })

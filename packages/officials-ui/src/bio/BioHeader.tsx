@@ -25,11 +25,16 @@ export interface BioHeaderProps {
   /** Optional per-chip press handler. When omitted, alignment chips render
    * inert (no nav). Consumers wire router navigation here. */
   onChipPress?: (chip: AlignmentChipRow) => void
+  /** Optional URL builder for chip href (web a11y restoration; native ignored). */
+  chipHref?: (chip: AlignmentChipRow) => string
 }
 
 export function BioHeader(p: BioHeaderProps): React.JSX.Element {
   return (
-    <View style={{ paddingVertical: 24, paddingHorizontal: 16, alignItems: 'center', gap: 12 }}>
+    <View
+      accessibilityLabel={`${p.fullName} bio`}
+      style={{ paddingVertical: 24, paddingHorizontal: 16, alignItems: 'center', gap: 12 }}
+    >
       <BioPortrait fullName={p.fullName} portraitUrl={p.portraitUrl} size={72} />
       <Text style={{ fontSize: 24, fontWeight: '700', color: '#1a1714' }}>{p.fullName}</Text>
       <BioIdentityRow
@@ -40,7 +45,11 @@ export function BioHeader(p: BioHeaderProps): React.JSX.Element {
         districtNumber={p.districtNumber}
         atLarge={p.atLarge}
       />
-      <BioAlignmentChipRow chips={p.chips} {...(p.onChipPress ? { onChipPress: p.onChipPress } : {})} />
+      <BioAlignmentChipRow
+        chips={p.chips}
+        {...(p.onChipPress ? { onChipPress: p.onChipPress } : {})}
+        {...(p.chipHref ? { chipHref: p.chipHref } : {})}
+      />
       <BioServiceCard role={p.role} firstElectedYear={p.firstElectedYear} />
       <BioContactLinks officialUrl={p.officialUrl} twitterHandle={p.twitterHandle} />
     </View>
