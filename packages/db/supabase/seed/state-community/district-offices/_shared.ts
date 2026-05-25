@@ -1,5 +1,6 @@
 import type { Client } from 'pg'
 import type { NormalizedDistrictOffice } from '../shared.ts'
+import type { SkipReason } from '../../shared/instrumentation.ts'
 
 /**
  * Fetch-timeout for per-member detail-page HTTP requests in the
@@ -34,6 +35,13 @@ export interface PerMemberOfficesOpts {
   chamber: 'state_house' | 'state_senate'
   state: string
   /**
+   * Adapter slug for skip-reason attribution (slice 22). Each caller
+   * passes its own canonical slug (e.g. 'mi-legislature', 'fl-doe').
+   * Used as `reason.adapter` on every onSkip emission so a
+   * SkipCollector can group skips per adapter.
+   */
+  adapter: string
+  /**
    * Build the per-member detail-page URL from the legislator row.
    * Return null to skip this legislator (e.g. missing district_id,
    * malformed name, no derivable URL).
@@ -54,6 +62,12 @@ export interface PerMemberOfficesOpts {
    * native fetch + 1-req/sec throttle (skipped when fetcher injected).
    */
   fetcher?: (url: string) => Promise<string>
+  /**
+   * Optional skip-reason collector (slice 22). When passed, called at
+   * each silent-continue site with a SkipReason record. When omitted,
+   * silent-skip behavior is preserved (back-compat).
+   */
+  onSkip?: (reason: SkipReason) => void
 }
 
 /**
@@ -100,18 +114,46 @@ export async function fetchPerMemberOffices(
       district_id: legislator.district_id ?? null,
     }
     const url = opts.deriveUrl(normalized)
-    if (!url) continue
+    if (!url) {
+      opts.onSkip?.({
+        adapter: opts.adapter,
+        stage: 'derive_url',
+        legislator: legislator.full_name,
+        reason: 'deriveUrl returned null (e.g. missing district_id or unparseable name)',
+      })
+      continue
+    }
 
     let html: string
     try {
       html = opts.fetcher
         ? await opts.fetcher(url)
         : await (await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })).text()
-    } catch {
+    } catch (e) {
+      opts.onSkip?.({
+        adapter: opts.adapter,
+        stage: 'fetch',
+        legislator: legislator.full_name,
+        reason: 'fetch threw',
+        detail: e instanceof Error ? e.message : String(e),
+      })
       continue
     }
 
     const parsed = opts.parseDetailHtml(html)
+    const hadCapitol = Boolean(parsed.capitol_office)
+    const hadDistrict = Boolean(parsed.district_office)
+    if (!hadCapitol && !hadDistrict) {
+      opts.onSkip?.({
+        adapter: opts.adapter,
+        stage: 'parse',
+        legislator: legislator.full_name,
+        reason: 'parseDetailHtml returned no addresses',
+      })
+      // No continue — each capitol/district half evaluates independently
+      // below (both are absent here so neither will emit a row), but we
+      // still want to fall through to the throttle gate.
+    }
 
     if (parsed.capitol_office) {
       const row = emitOfficeRow(parsed.capitol_office, {
@@ -119,7 +161,16 @@ export async function fetchPerMemberOffices(
         kind: 'capitol',
         source_url: url,
       })
-      if (row) out.push(row)
+      if (row) {
+        out.push(row)
+      } else {
+        opts.onSkip?.({
+          adapter: opts.adapter,
+          stage: 'parse',
+          legislator: legislator.full_name,
+          reason: 'parseAddressText returned null for capitol office',
+        })
+      }
     }
     if (parsed.district_office) {
       const row = emitOfficeRow(parsed.district_office, {
@@ -127,7 +178,16 @@ export async function fetchPerMemberOffices(
         kind: 'district',
         source_url: url,
       })
-      if (row) out.push(row)
+      if (row) {
+        out.push(row)
+      } else {
+        opts.onSkip?.({
+          adapter: opts.adapter,
+          stage: 'parse',
+          legislator: legislator.full_name,
+          reason: 'parseAddressText returned null for district office',
+        })
+      }
     }
 
     // Audit M5: skip throttle after last iteration (saves ~1s/run).

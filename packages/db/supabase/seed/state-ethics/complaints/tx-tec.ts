@@ -19,7 +19,9 @@ export const txTecComplaints: StateEthicsAdapter<NormalizedEthicsComplaint> = {
   covered_states: ['TX'],
   async fetchEvents(opts): Promise<NormalizedEthicsComplaint[]> {
     if (opts.fetcher) return opts.fetcher()
-    const { complaints } = await fetchSwornComplaintOrders(opts.client, {})
+    const { complaints } = await fetchSwornComplaintOrders(opts.client, {
+      ...(opts.onSkip ? { onSkip: opts.onSkip } : {}),
+    })
     return complaints
   },
 }

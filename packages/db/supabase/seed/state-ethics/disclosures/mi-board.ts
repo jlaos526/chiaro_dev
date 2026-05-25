@@ -58,20 +58,51 @@ export const miBoardDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosur
     for (let i = 0; i < totalRows; i += 1) {
       const legislator = rows[i]!
       const url = deriveMiPfdUrl({ full_name: legislator.full_name }, year)
-      if (!url) continue
+      if (!url) {
+        opts.onSkip?.({
+          adapter: 'mi-board',
+          stage: 'derive_url',
+          legislator: legislator.full_name,
+          reason: 'deriveMiPfdUrl returned empty (single-name legislator)',
+        })
+        continue
+      }
 
       let buffer: Buffer
       try {
         buffer = await fetchPdf(url)
-      } catch {
+      } catch (e) {
+        opts.onSkip?.({
+          adapter: 'mi-board',
+          stage: 'fetch',
+          legislator: legislator.full_name,
+          reason: 'fetchPdf threw',
+          detail: e instanceof Error ? e.message : String(e),
+        })
         continue
       }
 
       const text = await extractPdfText(buffer)
-      if (!text) continue
+      if (!text) {
+        opts.onSkip?.({
+          adapter: 'mi-board',
+          stage: 'extract',
+          legislator: legislator.full_name,
+          reason: 'extractPdfText returned empty',
+        })
+        continue
+      }
 
       const lineItems = parseMiPfdText(text)
-      if (lineItems.length === 0) continue
+      if (lineItems.length === 0) {
+        opts.onSkip?.({
+          adapter: 'mi-board',
+          stage: 'parse',
+          legislator: legislator.full_name,
+          reason: 'parseMiPfdText returned no items',
+        })
+        continue
+      }
 
       // Re-derive normalized lastname-firstname for external_id (matches URL derivation)
       const normalized = legislator.full_name

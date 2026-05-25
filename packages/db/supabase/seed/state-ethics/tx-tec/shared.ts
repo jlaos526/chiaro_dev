@@ -3,6 +3,7 @@ import type { Client } from 'pg'
 import type { NormalizedEthicsComplaint, NormalizedOfficialEvent } from '../shared.ts'
 import { resolveOpenstatesPersonId } from '../../shared/officials.ts'
 import { fetchPdf, extractPdfText } from '../../shared/pdf.ts'
+import type { SkipReason } from '../../shared/instrumentation.ts'
 import { parseTxTecOrderText } from './pdf-helpers.ts'
 
 const SOURCE_URL = 'https://www.ethics.state.tx.us/enforcement/sworn_complaints/orders/search/'
@@ -123,6 +124,7 @@ export async function fetchSwornComplaintOrders(
   opts: {
     fetcher?: (url: string) => Promise<string>
     maxPdfsPerRun?: number
+    onSkip?: (reason: SkipReason) => void
   },
 ): Promise<TxTecOrdersResult> {
   let html: string
@@ -150,7 +152,15 @@ export async function fetchSwornComplaintOrders(
   const rowsToEnrich: RowToEnrich[] = []
 
   for (const row of parsedRows) {
-    if (!isTexasLegislatorRow(row)) continue
+    if (!isTexasLegislatorRow(row)) {
+      opts.onSkip?.({
+        adapter: 'tx-tec',
+        stage: 'filter',
+        legislator: row.respondent,
+        reason: `agency "${row.agency}" not a TX state legislator`,
+      })
+      continue
+    }
 
     const chamber: 'state_house' | 'state_senate' =
       /House/i.test(row.agency) ? 'state_house' : 'state_senate'
@@ -161,7 +171,15 @@ export async function fetchSwornComplaintOrders(
       chamber,
     })
     if (!openstates_person_id) {
+      // DUAL-WRITE: existing errors[] consumers stay (back-compat for
+      // slice 16/20 callers); new onSkip channel called in addition.
       errors.push(`unresolved: ${row.respondent} (${chamber})`)
+      opts.onSkip?.({
+        adapter: 'tx-tec',
+        stage: 'resolve',
+        legislator: row.respondent,
+        reason: `unmatched in officials (${chamber})`,
+      })
       continue
     }
 
@@ -209,12 +227,25 @@ export async function fetchSwornComplaintOrders(
     let buffer: Buffer
     try {
       buffer = await fetchPdf(enrich.source_pdf_url)
-    } catch {
+    } catch (e) {
+      opts.onSkip?.({
+        adapter: 'tx-tec',
+        stage: 'fetch',
+        reason: 'fetchPdf threw (per-case order PDF)',
+        detail: e instanceof Error ? e.message : String(e),
+      })
       continue
     }
 
     const text = await extractPdfText(buffer)
-    if (!text) continue
+    if (!text) {
+      opts.onSkip?.({
+        adapter: 'tx-tec',
+        stage: 'extract',
+        reason: 'extractPdfText returned empty (per-case PDF)',
+      })
+      continue
+    }
 
     const parsed = parseTxTecOrderText(text)
     if (parsed.violation_summary) {

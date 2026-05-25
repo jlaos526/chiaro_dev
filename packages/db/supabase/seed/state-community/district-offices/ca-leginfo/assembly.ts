@@ -2,6 +2,7 @@ import * as cheerio from 'cheerio'
 import type { Client } from 'pg'
 import type { NormalizedDistrictOffice } from '../../shared.ts'
 import { fetchPerMemberOffices, type ParsedMemberDetail } from '../_shared.ts'
+import type { SkipReason } from '../../../shared/instrumentation.ts'
 
 export type ParsedCaAssemblymember = ParsedMemberDetail
 
@@ -59,11 +60,15 @@ export function parseCaAssemblymemberDetailHtml(html: string): ParsedCaAssemblym
  */
 export async function fetchCaAssemblyOffices(
   client: Pick<Client, 'query'>,
-  opts: { fetcher?: (url: string) => Promise<string> },
+  opts: {
+    fetcher?: (url: string) => Promise<string>
+    onSkip?: (reason: SkipReason) => void
+  },
 ): Promise<NormalizedDistrictOffice[]> {
   return fetchPerMemberOffices(client, {
     chamber: 'state_house',
     state: 'CA',
+    adapter: 'ca-leginfo',
     deriveUrl: (l) => {
       if (!l.district_id) return null
       const m = l.district_id.match(/^CA-(\d+)$/)
@@ -74,5 +79,6 @@ export async function fetchCaAssemblyOffices(
     },
     parseDetailHtml: parseCaAssemblymemberDetailHtml,
     ...(opts.fetcher ? { fetcher: opts.fetcher } : {}),
+    ...(opts.onSkip ? { onSkip: opts.onSkip } : {}),
   })
 }

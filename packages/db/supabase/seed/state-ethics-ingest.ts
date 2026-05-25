@@ -6,6 +6,11 @@ import {
   type NormalizedFinancialDisclosure,
   type NormalizedEthicsComplaint, type NormalizedOfficialEvent,
 } from './state-ethics/shared.ts'
+import {
+  createSkipCollector,
+  formatSkipSummary,
+  type SkipSummary,
+} from './shared/instrumentation.ts'
 import { openstatesEndReason } from './state-ethics/events/openstates-end-reason.ts'
 import { ballotpediaRecalls }  from './state-ethics/events/ballotpedia-recalls.ts'
 import { caFppcEvents, nyJcopeEvents, flCoeEvents, txTecEvents, miBoardEvents }
@@ -34,6 +39,10 @@ export interface IngestStateEthicsOpts {
   skipOnError?: boolean
   adapters?: StateEthicsAdapter[]
   client?: Client
+  /** When true, collect skip reasons via shared collector + populate stats.skipSummary. */
+  instrument?: boolean
+  /** When true, skip the UPSERT loop (dry-run). Pair with instrument=true. */
+  noApply?: boolean
 }
 
 export interface IngestStateEthicsStats {
@@ -42,6 +51,8 @@ export interface IngestStateEthicsStats {
   totalRowsUpserted: number
   totalOfficialsUnmatched: number
   byAdapter: StateEthicsStats[]
+  /** Populated when opts.instrument === true. Aggregated skip telemetry. */
+  skipSummary?: SkipSummary
 }
 
 export async function ingestStateEthics(
@@ -60,6 +71,9 @@ export async function ingestStateEthics(
   const ownsClient = !opts.client
   if (ownsClient) await client.connect()
 
+  const collector = opts.instrument ? createSkipCollector() : null
+  const onSkip = collector?.onSkip
+
   const byAdapter: StateEthicsStats[] = []
   try {
     for (const adapter of adapters) {
@@ -70,8 +84,17 @@ export async function ingestStateEthics(
         errors: [],
       }
       try {
-        const events = await adapter.fetchEvents({ client, ...(opts.state !== undefined ? { state: opts.state } : {}) })
+        const events = await adapter.fetchEvents({
+          client,
+          ...(opts.state !== undefined ? { state: opts.state } : {}),
+          ...(onSkip ? { onSkip } : {}),
+        })
         for (const event of events) {
+          if (opts.noApply) {
+            // Dry-run: skip DB writes; count would-upsert rows for visibility.
+            adapterStats.rowsUpserted += 1
+            continue
+          }
           let ok = false
           if (adapter.component === 'disclosures') {
             ok = await upsertFinancialDisclosure(client, event as NormalizedFinancialDisclosure)
@@ -105,6 +128,7 @@ export async function ingestStateEthics(
     totalRowsUpserted:        byAdapter.reduce((a, s) => a + s.rowsUpserted, 0),
     totalOfficialsUnmatched:  byAdapter.reduce((a, s) => a + s.officialsUnmatched.length, 0),
     byAdapter,
+    ...(collector ? { skipSummary: collector.summary() } : {}),
   }
 }
 
@@ -112,22 +136,34 @@ if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
   const componentArg = process.argv.find(a => a.startsWith('--component='))
   const stateArg     = process.argv.find(a => a.startsWith('--state='))
   const skipOnError  = process.argv.includes('--skip-on-error')
+  const instrument   = process.argv.includes('--instrument')
+  const noApply      = process.argv.includes('--no-apply')
 
   const component = componentArg
     ? componentArg.split('=')[1] as EthicsComponent | 'all'
     : 'all'
   const state = stateArg ? stateArg.split('=')[1] : undefined
 
-  ingestStateEthics({ component, ...(state !== undefined ? { state } : {}), skipOnError })
+  ingestStateEthics({
+    component,
+    ...(state !== undefined ? { state } : {}),
+    skipOnError,
+    instrument,
+    noApply,
+  })
     .then(stats => {
       console.log(`State ethics ingest summary:`)
       console.log(`  adapters attempted:        ${stats.adaptersAttempted}`)
       console.log(`  adapters ok:               ${stats.adaptersOk}`)
-      console.log(`  total rows upserted:       ${stats.totalRowsUpserted}`)
+      console.log(`  total rows upserted:       ${stats.totalRowsUpserted}${noApply ? ' (dry-run; no DB writes)' : ''}`)
       console.log(`  total officials unmatched: ${stats.totalOfficialsUnmatched}`)
       for (const s of stats.byAdapter) {
         const tag = s.errors.length > 0 ? `errors=${s.errors.length}` : 'ok'
         console.log(`  ${s.component}:${s.adapter_slug}: ${s.rowsUpserted} rows / ${tag}`)
+      }
+      if (stats.skipSummary) {
+        console.log('')
+        console.log(formatSkipSummary(stats.skipSummary))
       }
       process.exit(stats.adaptersOk === stats.adaptersAttempted ? 0 : 1)
     })

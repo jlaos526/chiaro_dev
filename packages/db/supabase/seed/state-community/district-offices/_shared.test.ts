@@ -5,6 +5,7 @@ import {
   emitOfficeRow,
   type ParsedMemberDetail,
 } from './_shared.ts'
+import type { SkipReason } from '../../shared/instrumentation.ts'
 
 describe('parseAddressText', () => {
   // Existing slice 15 + 16 behavior covered indirectly via per-parser tests;
@@ -64,6 +65,7 @@ describe('fetchPerMemberOffices', () => {
     await fetchPerMemberOffices(client as never, {
       chamber: 'state_senate',
       state: 'MI',
+      adapter: 'test-slug',
       deriveUrl: () => 'https://example.com',
       parseDetailHtml: () => ({}),
       fetcher: async () => '',
@@ -87,6 +89,7 @@ describe('fetchPerMemberOffices', () => {
     const rows = await fetchPerMemberOffices(client as never, {
       chamber: 'state_senate',
       state: 'MI',
+      adapter: 'test-slug',
       deriveUrl: (l) => `https://example.com/${l.full_name}`,
       parseDetailHtml: () => fixture,
       fetcher: async () => 'html',
@@ -110,6 +113,7 @@ describe('fetchPerMemberOffices', () => {
     const rows = await fetchPerMemberOffices(client as never, {
       chamber: 'state_senate',
       state: 'MI',
+      adapter: 'test-slug',
       deriveUrl: (l) => l.district_id ? `https://example.com/${l.full_name}` : null,
       parseDetailHtml: () => fixture,
       fetcher: async () => 'html',
@@ -131,6 +135,7 @@ describe('fetchPerMemberOffices', () => {
     const rows = await fetchPerMemberOffices(client as never, {
       chamber: 'state_senate',
       state: 'MI',
+      adapter: 'test-slug',
       deriveUrl: (l) => `https://example.com/${l.full_name}`,
       parseDetailHtml: () => fixture,
       fetcher: async () => {
@@ -157,6 +162,7 @@ describe('fetchPerMemberOffices', () => {
     const rows = await fetchPerMemberOffices(client as never, {
       chamber: 'state_senate',
       state: 'MI',
+      adapter: 'test-slug',
       deriveUrl: (l) => `https://example.com/${l.full_name}`,
       parseDetailHtml: () => fixture,
       fetcher: async () => 'html',
@@ -178,6 +184,7 @@ describe('fetchPerMemberOffices', () => {
     const rows = await fetchPerMemberOffices(client as never, {
       chamber: 'state_senate',
       state: 'MI',
+      adapter: 'test-slug',
       deriveUrl: (l) => `https://example.com/${l.full_name}`,
       parseDetailHtml: () => ({ capitol_office: '100 Capitol St, Lansing, MI 48909' }),
       fetcher: async () => 'html',
@@ -198,6 +205,7 @@ describe('fetchPerMemberOffices', () => {
     const rows = await fetchPerMemberOffices(client as never, {
       chamber: 'state_senate',
       state: 'MI',
+      adapter: 'test-slug',
       deriveUrl: (l) => `https://example.com/${l.full_name}`,
       parseDetailHtml: () => ({ capitol_office: 'garbage', district_office: 'also garbage' }),
       fetcher: async () => 'html',
@@ -219,6 +227,7 @@ describe('fetchPerMemberOffices', () => {
     const rows = await fetchPerMemberOffices(client as never, {
       chamber: 'state_senate',
       state: 'MI',
+      adapter: 'test-slug',
       deriveUrl: (l) => {
         // l.district_id should be null (coerced from undefined)
         expect(l.district_id).toBeNull()
@@ -237,6 +246,7 @@ describe('fetchPerMemberOffices', () => {
     const rows = await fetchPerMemberOffices(client as never, {
       chamber: 'state_house',
       state: 'CA',
+      adapter: 'test-slug',
       deriveUrl: () => 'https://example.com',
       parseDetailHtml: () => fixture,
       fetcher: async () => 'html',
@@ -256,10 +266,198 @@ describe('fetchPerMemberOffices', () => {
     const rows = await fetchPerMemberOffices(client as never, {
       chamber: 'state_senate',
       state: 'MI',
+      adapter: 'test-slug',
       deriveUrl: () => 'https://senate.michigan.gov/senators/jane-doe/',
       parseDetailHtml: () => fixture,
       fetcher: async () => 'html',
     })
     expect(rows.every(r => r.source_url === 'https://senate.michigan.gov/senators/jane-doe/')).toBe(true)
+  })
+})
+
+describe('fetchPerMemberOffices onSkip instrumentation', () => {
+  it('calls onSkip with derive_url stage when deriveUrl returns null', async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{
+          openstates_person_id: 'ocd-1',
+          full_name: 'Single Token',
+          district_id: null,
+        }],
+        rowCount: 1,
+      }),
+    }
+    const skips: SkipReason[] = []
+    await fetchPerMemberOffices(client as never, {
+      chamber: 'state_senate',
+      state: 'TX',
+      adapter: 'test-slug',
+      deriveUrl: (l) => l.district_id ? `https://x/${l.full_name}` : null,
+      parseDetailHtml: () => ({}),
+      fetcher: async () => '',
+      onSkip: (r) => { skips.push(r) },
+    })
+    expect(skips).toHaveLength(1)
+    expect(skips[0]).toMatchObject({
+      adapter: 'test-slug',
+      stage: 'derive_url',
+      legislator: 'Single Token',
+    })
+  })
+
+  it('calls onSkip with fetch stage when fetcher rejects', async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-1', full_name: 'Jane Doe', district_id: 'CA-1' }],
+        rowCount: 1,
+      }),
+    }
+    const skips: SkipReason[] = []
+    await fetchPerMemberOffices(client as never, {
+      chamber: 'state_senate',
+      state: 'CA',
+      adapter: 'test-slug',
+      deriveUrl: () => 'https://example.com',
+      parseDetailHtml: () => ({}),
+      fetcher: async () => { throw new Error('network') },
+      onSkip: (r) => { skips.push(r) },
+    })
+    expect(skips).toHaveLength(1)
+    expect(skips[0]).toMatchObject({
+      adapter: 'test-slug',
+      stage: 'fetch',
+      legislator: 'Jane Doe',
+    })
+    expect(skips[0]!.detail).toMatch(/network/)
+  })
+
+  it('calls onSkip with parse stage when parseDetailHtml returns no addresses', async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-1', full_name: 'Jane Doe', district_id: 'CA-1' }],
+        rowCount: 1,
+      }),
+    }
+    const skips: SkipReason[] = []
+    await fetchPerMemberOffices(client as never, {
+      chamber: 'state_senate',
+      state: 'CA',
+      adapter: 'test-slug',
+      deriveUrl: () => 'https://example.com',
+      parseDetailHtml: () => ({}),  // returns no addresses
+      fetcher: async () => 'fixture',
+      onSkip: (r) => { skips.push(r) },
+    })
+    expect(skips.length).toBeGreaterThanOrEqual(1)
+    expect(skips.find(s => s.stage === 'parse')).toBeDefined()
+  })
+
+  it('calls onSkip with parse stage when emitOfficeRow returns null for capitol', async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-1', full_name: 'Jane Doe', district_id: 'CA-1' }],
+        rowCount: 1,
+      }),
+    }
+    const skips: SkipReason[] = []
+    await fetchPerMemberOffices(client as never, {
+      chamber: 'state_senate',
+      state: 'CA',
+      adapter: 'test-slug',
+      deriveUrl: () => 'https://example.com',
+      parseDetailHtml: () => ({ capitol_office: 'garbage no commas' }),
+      fetcher: async () => 'fixture',
+      onSkip: (r) => { skips.push(r) },
+    })
+    expect(skips).toHaveLength(1)
+    expect(skips[0]).toMatchObject({
+      adapter: 'test-slug',
+      stage: 'parse',
+      legislator: 'Jane Doe',
+    })
+    expect(skips[0]!.reason).toMatch(/capitol/)
+  })
+
+  it('calls onSkip independently for capitol + district parse failures', async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-1', full_name: 'Jane Doe', district_id: 'CA-1' }],
+        rowCount: 1,
+      }),
+    }
+    const skips: SkipReason[] = []
+    await fetchPerMemberOffices(client as never, {
+      chamber: 'state_senate',
+      state: 'CA',
+      adapter: 'test-slug',
+      deriveUrl: () => 'https://example.com',
+      parseDetailHtml: () => ({ capitol_office: 'garbage', district_office: 'also garbage' }),
+      fetcher: async () => 'fixture',
+      onSkip: (r) => { skips.push(r) },
+    })
+    // Each half independently emits a parse skip (no continue between)
+    expect(skips).toHaveLength(2)
+    expect(skips.filter(s => s.stage === 'parse').length).toBe(2)
+    expect(skips.some(s => s.reason.includes('capitol'))).toBe(true)
+    expect(skips.some(s => s.reason.includes('district'))).toBe(true)
+  })
+
+  it('does NOT call onSkip when row emits successfully', async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-1', full_name: 'Jane Doe', district_id: 'CA-1' }],
+        rowCount: 1,
+      }),
+    }
+    const skips: SkipReason[] = []
+    await fetchPerMemberOffices(client as never, {
+      chamber: 'state_senate',
+      state: 'CA',
+      adapter: 'test-slug',
+      deriveUrl: () => 'https://example.com',
+      parseDetailHtml: () => ({ capitol_office: '123 Main St, Sacramento, CA 95814' }),
+      fetcher: async () => 'fixture',
+      onSkip: (r) => { skips.push(r) },
+    })
+    expect(skips).toEqual([])
+  })
+
+  it('omitting onSkip preserves silent-skip behavior (back-compat)', async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-1', full_name: 'Single', district_id: null }],
+        rowCount: 1,
+      }),
+    }
+    const result = await fetchPerMemberOffices(client as never, {
+      chamber: 'state_senate',
+      state: 'CA',
+      adapter: 'test-slug',
+      deriveUrl: (l) => l.district_id ? `https://x/${l.full_name}` : null,
+      parseDetailHtml: () => ({}),
+      fetcher: async () => '',
+    })
+    expect(result).toEqual([])  // no rows emitted; no throw despite no onSkip
+  })
+
+  it('attaches adapter slug to all skip reasons', async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-1', full_name: 'Jane Doe', district_id: 'CA-1' }],
+        rowCount: 1,
+      }),
+    }
+    const skips: SkipReason[] = []
+    await fetchPerMemberOffices(client as never, {
+      chamber: 'state_senate',
+      state: 'CA',
+      adapter: 'mi-legislature',  // intentionally wrong-state-for-adapter; just verifying attribution
+      deriveUrl: () => null,
+      parseDetailHtml: () => ({}),
+      fetcher: async () => '',
+      onSkip: (r) => { skips.push(r) },
+    })
+    expect(skips.length).toBeGreaterThan(0)
+    expect(skips.every(s => s.adapter === 'mi-legislature')).toBe(true)
   })
 })

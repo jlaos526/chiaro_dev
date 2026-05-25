@@ -1,4 +1,5 @@
 import type { Client } from 'pg'
+import type { SkipReason } from '../shared/instrumentation.ts'
 
 export type CommunityComponent = 'halls' | 'offices' | 'hearings'
 
@@ -54,6 +55,12 @@ export interface StateCommunityAdapter<E extends StateCommunityEvent = StateComm
     state?: string
     session?: string
     fetcher?: () => Promise<E[]>
+    /**
+     * Optional skip-reason collector (slice 22). When passed, the
+     * adapter calls onSkip() at each silent-continue site with a
+     * SkipReason record. Used by orchestrator --instrument runs.
+     */
+    onSkip?: (reason: SkipReason) => void
   }): Promise<E[]>
 }
 

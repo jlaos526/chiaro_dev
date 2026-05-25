@@ -14,7 +14,9 @@ export const txTecEvents: StateEthicsAdapter<NormalizedOfficialEvent> = {
   covered_states: ['TX'],
   async fetchEvents(opts): Promise<NormalizedOfficialEvent[]> {
     if (opts.fetcher) return opts.fetcher()
-    const { events } = await fetchSwornComplaintOrders(opts.client, {})
+    const { events } = await fetchSwornComplaintOrders(opts.client, {
+      ...(opts.onSkip ? { onSkip: opts.onSkip } : {}),
+    })
     return events
   },
 }

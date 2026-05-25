@@ -2,6 +2,7 @@ import * as cheerio from 'cheerio'
 import type { Client } from 'pg'
 import type { NormalizedDistrictOffice } from '../../shared.ts'
 import { fetchPerMemberOffices } from '../_shared.ts'
+import type { SkipReason } from '../../../shared/instrumentation.ts'
 
 const SENATOR_CONTACT_URL = (slug: string) =>
   `https://www.nysenate.gov/senators/${slug}/contact`
@@ -88,11 +89,15 @@ export function parseNySenatorContactHtml(html: string): ParsedSenatorContact {
  */
 export async function fetchSenateOffices(
   client: Pick<Client, 'query'>,
-  opts: { fetcher?: (url: string) => Promise<string> },
+  opts: {
+    fetcher?: (url: string) => Promise<string>
+    onSkip?: (reason: SkipReason) => void
+  },
 ): Promise<NormalizedDistrictOffice[]> {
   return fetchPerMemberOffices(client, {
     chamber: 'state_senate',
     state: 'NY',
+    adapter: 'ny-senate',
     deriveUrl: (l) => SENATOR_CONTACT_URL(deriveSenatorSlug(l.full_name)),
     parseDetailHtml: (html) => {
       const parsed = parseNySenatorContactHtml(html)
@@ -103,5 +108,6 @@ export async function fetchSenateOffices(
       }
     },
     ...(opts.fetcher ? { fetcher: opts.fetcher } : {}),
+    ...(opts.onSkip ? { onSkip: opts.onSkip } : {}),
   })
 }

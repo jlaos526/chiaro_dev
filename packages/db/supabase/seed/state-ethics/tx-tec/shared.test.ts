@@ -15,6 +15,7 @@ import {
 } from './shared.ts'
 import { fetchPdf, extractPdfText } from '../../shared/pdf.ts'
 import { stubFetchBlocked } from '../../test-utils/stub-fetch.ts'
+import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const mockedFetchPdf = vi.mocked(fetchPdf)
 const mockedExtractPdfText = vi.mocked(extractPdfText)
@@ -288,5 +289,122 @@ Test violation.
     expect(result.complaints).toEqual([])
     expect(result.events).toEqual([])
     fetchSpy.mockRestore()
+  })
+})
+
+describe('tx-tec slice 22 onSkip instrumentation', () => {
+  beforeEach(() => {
+    mockedFetchPdf.mockReset()
+    mockedExtractPdfText.mockReset()
+  })
+
+  it('calls onSkip with filter stage for non-legislator agency row', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockImplementation((_sql: string, params: unknown[]) => {
+        const name = String(params[0]).toLowerCase()
+        if (name.includes('unknown')) return Promise.resolve({ rows: [], rowCount: 0 })
+        return Promise.resolve({ rows: [{ openstates_person_id: 'ocd-x' }], rowCount: 1 })
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    mockedExtractPdfText.mockResolvedValue('VIOLATION:\nFoo.\n')
+    const skips: SkipReason[] = []
+    await fetchSwornComplaintOrders(client as never, {
+      fetcher: async () => html,
+      onSkip: (r) => { skips.push(r) },
+    })
+
+    // Dr. Sarah Miller is Texas Comptroller (not legislator) → filter skip
+    const filterSkip = skips.find(s => s.stage === 'filter' && s.legislator === 'Dr. Sarah Miller')
+    expect(filterSkip).toBeDefined()
+    expect(filterSkip).toMatchObject({
+      adapter: 'tx-tec',
+      stage: 'filter',
+      legislator: 'Dr. Sarah Miller',
+    })
+    expect(filterSkip!.reason).toMatch(/Comptroller/i)
+  })
+
+  it('dual-writes: existing errors[] AND onSkip for unresolved legislator (back-compat)', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockImplementation((_sql: string, params: unknown[]) => {
+        const name = String(params[0]).toLowerCase()
+        if (name.includes('unknown')) return Promise.resolve({ rows: [], rowCount: 0 })
+        return Promise.resolve({ rows: [{ openstates_person_id: 'ocd-x' }], rowCount: 1 })
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    mockedExtractPdfText.mockResolvedValue('VIOLATION:\nFoo.\n')
+    const skips: SkipReason[] = []
+    const result = await fetchSwornComplaintOrders(client as never, {
+      fetcher: async () => html,
+      onSkip: (r) => { skips.push(r) },
+    })
+
+    // Existing slice 16/20 contract: errors[] still contains the unresolved entry
+    expect(result.errors.some(e => e.includes('Unknown Stranger'))).toBe(true)
+
+    // Slice 22 contract: onSkip ALSO called for the same unresolved case
+    const resolveSkip = skips.find(s => s.stage === 'resolve' && s.legislator === 'Unknown Stranger')
+    expect(resolveSkip).toBeDefined()
+    expect(resolveSkip).toMatchObject({
+      adapter: 'tx-tec',
+      stage: 'resolve',
+      legislator: 'Unknown Stranger',
+    })
+    expect(resolveSkip!.reason).toMatch(/unmatched/i)
+  })
+
+  it('calls onSkip with fetch stage when per-case PDF fetchPdf rejects', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockImplementation((_sql: string, params: unknown[]) => {
+        const name = String(params[0]).toLowerCase()
+        if (name.includes('unknown')) return Promise.resolve({ rows: [], rowCount: 0 })
+        return Promise.resolve({ rows: [{ openstates_person_id: 'ocd-x' }], rowCount: 1 })
+      }),
+    }
+    mockedFetchPdf.mockRejectedValue(new Error('PDF unavailable'))
+    const skips: SkipReason[] = []
+    await fetchSwornComplaintOrders(client as never, {
+      fetcher: async () => html,
+      onSkip: (r) => { skips.push(r) },
+    })
+
+    // 6 resolved legislator rows → 6 fetchPdf attempts → 6 fetch skips
+    const fetchSkips = skips.filter(s => s.stage === 'fetch')
+    expect(fetchSkips.length).toBe(6)
+    expect(fetchSkips[0]).toMatchObject({
+      adapter: 'tx-tec',
+      stage: 'fetch',
+    })
+    expect(fetchSkips[0]!.detail).toMatch(/PDF unavailable/)
+  })
+
+  it('calls onSkip with extract stage when extractPdfText returns empty', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockImplementation((_sql: string, params: unknown[]) => {
+        const name = String(params[0]).toLowerCase()
+        if (name.includes('unknown')) return Promise.resolve({ rows: [], rowCount: 0 })
+        return Promise.resolve({ rows: [{ openstates_person_id: 'ocd-x' }], rowCount: 1 })
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    mockedExtractPdfText.mockResolvedValue('')
+    const skips: SkipReason[] = []
+    await fetchSwornComplaintOrders(client as never, {
+      fetcher: async () => html,
+      onSkip: (r) => { skips.push(r) },
+    })
+
+    const extractSkips = skips.filter(s => s.stage === 'extract')
+    expect(extractSkips.length).toBe(6)
+    expect(extractSkips[0]).toMatchObject({
+      adapter: 'tx-tec',
+      stage: 'extract',
+    })
   })
 })

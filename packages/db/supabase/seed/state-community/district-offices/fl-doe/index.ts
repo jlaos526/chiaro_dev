@@ -19,9 +19,10 @@ export const flDoeOffices: StateCommunityAdapter<NormalizedDistrictOffice> = {
   async fetchEvents(opts): Promise<NormalizedDistrictOffice[]> {
     if (opts.fetcher) return opts.fetcher()
 
+    const subOpts = opts.onSkip ? { onSkip: opts.onSkip } : {}
     const [senate, house] = await Promise.all([
-      fetchFlSenateOffices(opts.client, {}),
-      fetchFlHouseOffices(opts.client, {}),
+      fetchFlSenateOffices(opts.client, subOpts),
+      fetchFlHouseOffices(opts.client, subOpts),
     ])
     return [...senate, ...house]
   },

@@ -157,14 +157,30 @@ export const nyJcopeDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosur
 
     for (const row of parsedRows) {
       const chamber = inferChamberFromOfficeText(row.office_text)
-      if (!chamber) continue
+      if (!chamber) {
+        opts.onSkip?.({
+          adapter: 'ny-jcope',
+          stage: 'filter',
+          legislator: row.full_name,
+          reason: `office text "${row.office_text}" did not match Assembly/Senate`,
+        })
+        continue
+      }
 
       const openstates_person_id = await resolveOpenstatesPersonId(client, {
         full_name: row.full_name,
         state: 'NY',
         chamber,
       })
-      if (!openstates_person_id) continue
+      if (!openstates_person_id) {
+        opts.onSkip?.({
+          adapter: 'ny-jcope',
+          stage: 'resolve',
+          legislator: row.full_name,
+          reason: 'unmatched in officials table',
+        })
+        continue
+      }
 
       out.push({
         official_openstates_person_id: openstates_person_id,
@@ -193,15 +209,38 @@ export const nyJcopeDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosur
       let buffer: Buffer
       try {
         buffer = await fetchPdf(row.source_url)
-      } catch {
+      } catch (e) {
+        opts.onSkip?.({
+          adapter: 'ny-jcope',
+          stage: 'fetch',
+          legislator: row.full_name,
+          reason: 'fetchPdf threw (per-filing PDF)',
+          detail: e instanceof Error ? e.message : String(e),
+        })
         continue
       }
 
       const text = await extractPdfText(buffer)
-      if (!text) continue
+      if (!text) {
+        opts.onSkip?.({
+          adapter: 'ny-jcope',
+          stage: 'extract',
+          legislator: row.full_name,
+          reason: 'extractPdfText returned empty (per-filing PDF)',
+        })
+        continue
+      }
 
       const lineItems = parseNyFdsText(text)
-      if (lineItems.length === 0) continue
+      if (lineItems.length === 0) {
+        opts.onSkip?.({
+          adapter: 'ny-jcope',
+          stage: 'parse',
+          legislator: row.full_name,
+          reason: 'parseNyFdsText returned 0 line items',
+        })
+        continue
+      }
 
       lineItems.forEach((item, idx) => {
         const lineNo = idx + 1

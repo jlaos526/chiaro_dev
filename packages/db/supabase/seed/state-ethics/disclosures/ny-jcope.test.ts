@@ -17,6 +17,7 @@ import {
 } from './ny-jcope.ts'
 import { fetchPdf, extractPdfText } from '../../shared/pdf.ts'
 import { stubFetchBlocked } from '../../test-utils/stub-fetch.ts'
+import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const mockedFetchPdf = vi.mocked(fetchPdf)
 const mockedExtractPdfText = vi.mocked(extractPdfText)
@@ -380,5 +381,179 @@ describe('ny-jcope slice 20 PDF line-item fill', () => {
     const result = await nyJcopeDisclosures.fetchEvents({ client: client as never } as never)
     expect(result).toEqual([])
     fetchSpy.mockRestore()
+  })
+})
+
+describe('ny-jcope slice 22 onSkip instrumentation', () => {
+  beforeEach(() => {
+    mockedFetchPdf.mockReset()
+    mockedExtractPdfText.mockReset()
+  })
+
+  it('calls onSkip with filter stage for non-legislator office text', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockImplementation((_sql: string, params: unknown[]) => {
+        const name = String(params[0]).toLowerCase()
+        if (name.includes('unknown')) return Promise.resolve({ rows: [], rowCount: 0 })
+        return Promise.resolve({ rows: [{ openstates_person_id: 'ocd-x' }], rowCount: 1 })
+      }),
+    }
+    // Stub PDF mocks so per-filing PDF pass doesn't generate extra skips.
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    mockedExtractPdfText.mockResolvedValue(
+      'Sources of Income\n1. Salary: $50,000 - $100,000',
+    )
+    const skips: SkipReason[] = []
+    let n = 0
+    await nyJcopeDisclosures.fetchEvents({
+      client: client as never,
+      pageFetcher: async () => {
+        n += 1
+        if (n === 1) return html
+        return '<div><table class="filings-table"><tbody></tbody></table></div>'
+      },
+      onSkip: (r: SkipReason) => { skips.push(r) },
+    } as never)
+
+    // Pat Mystery (Lieutenant Governor) → chamber null → filter skip
+    const filterSkip = skips.find(s => s.stage === 'filter' && s.legislator === 'Pat Mystery')
+    expect(filterSkip).toBeDefined()
+    expect(filterSkip).toMatchObject({
+      adapter: 'ny-jcope',
+      stage: 'filter',
+      legislator: 'Pat Mystery',
+    })
+    expect(filterSkip!.reason).toMatch(/Lieutenant Governor/i)
+  })
+
+  it('calls onSkip with resolve stage for unmatched legislator', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockImplementation((_sql: string, params: unknown[]) => {
+        const name = String(params[0]).toLowerCase()
+        if (name.includes('unknown')) return Promise.resolve({ rows: [], rowCount: 0 })
+        return Promise.resolve({ rows: [{ openstates_person_id: 'ocd-x' }], rowCount: 1 })
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    mockedExtractPdfText.mockResolvedValue(
+      'Sources of Income\n1. Salary: $50,000 - $100,000',
+    )
+    const skips: SkipReason[] = []
+    let n = 0
+    await nyJcopeDisclosures.fetchEvents({
+      client: client as never,
+      pageFetcher: async () => {
+        n += 1
+        if (n === 1) return html
+        return '<div><table class="filings-table"><tbody></tbody></table></div>'
+      },
+      onSkip: (r: SkipReason) => { skips.push(r) },
+    } as never)
+
+    // Unknown Stranger → resolveOpenstatesPersonId returns null → resolve skip
+    const resolveSkip = skips.find(s => s.stage === 'resolve' && s.legislator === 'Unknown Stranger')
+    expect(resolveSkip).toBeDefined()
+    expect(resolveSkip).toMatchObject({
+      adapter: 'ny-jcope',
+      stage: 'resolve',
+      legislator: 'Unknown Stranger',
+    })
+  })
+
+  it('calls onSkip with fetch stage for per-filing PDF fetch failure', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockImplementation((_sql: string, params: unknown[]) => {
+        const name = String(params[0]).toLowerCase()
+        if (name.includes('unknown')) return Promise.resolve({ rows: [], rowCount: 0 })
+        return Promise.resolve({ rows: [{ openstates_person_id: 'ocd-x' }], rowCount: 1 })
+      }),
+    }
+    mockedFetchPdf.mockRejectedValue(new Error('PDF gone'))
+    const skips: SkipReason[] = []
+    let n = 0
+    await nyJcopeDisclosures.fetchEvents({
+      client: client as never,
+      pageFetcher: async () => {
+        n += 1
+        if (n === 1) return html
+        return '<div><table class="filings-table"><tbody></tbody></table></div>'
+      },
+      onSkip: (r: SkipReason) => { skips.push(r) },
+    } as never)
+
+    // 4 resolvable filings, all fail fetchPdf → 4 fetch skips
+    const fetchSkips = skips.filter(s => s.stage === 'fetch')
+    expect(fetchSkips.length).toBe(4)
+    expect(fetchSkips[0]).toMatchObject({
+      adapter: 'ny-jcope',
+      stage: 'fetch',
+    })
+    expect(fetchSkips[0]!.detail).toMatch(/PDF gone/)
+  })
+
+  it('calls onSkip with extract stage when extractPdfText returns empty', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockImplementation((_sql: string, params: unknown[]) => {
+        const name = String(params[0]).toLowerCase()
+        if (name.includes('unknown')) return Promise.resolve({ rows: [], rowCount: 0 })
+        return Promise.resolve({ rows: [{ openstates_person_id: 'ocd-x' }], rowCount: 1 })
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    mockedExtractPdfText.mockResolvedValue('')
+    const skips: SkipReason[] = []
+    let n = 0
+    await nyJcopeDisclosures.fetchEvents({
+      client: client as never,
+      pageFetcher: async () => {
+        n += 1
+        if (n === 1) return html
+        return '<div><table class="filings-table"><tbody></tbody></table></div>'
+      },
+      onSkip: (r: SkipReason) => { skips.push(r) },
+    } as never)
+
+    const extractSkips = skips.filter(s => s.stage === 'extract')
+    expect(extractSkips.length).toBe(4)
+    expect(extractSkips[0]).toMatchObject({
+      adapter: 'ny-jcope',
+      stage: 'extract',
+    })
+  })
+
+  it('calls onSkip with parse stage when parseNyFdsText returns 0 line items', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockImplementation((_sql: string, params: unknown[]) => {
+        const name = String(params[0]).toLowerCase()
+        if (name.includes('unknown')) return Promise.resolve({ rows: [], rowCount: 0 })
+        return Promise.resolve({ rows: [{ openstates_person_id: 'ocd-x' }], rowCount: 1 })
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    // Text content that does NOT contain recognizable income line patterns.
+    mockedExtractPdfText.mockResolvedValue('no income data in this document')
+    const skips: SkipReason[] = []
+    let n = 0
+    await nyJcopeDisclosures.fetchEvents({
+      client: client as never,
+      pageFetcher: async () => {
+        n += 1
+        if (n === 1) return html
+        return '<div><table class="filings-table"><tbody></tbody></table></div>'
+      },
+      onSkip: (r: SkipReason) => { skips.push(r) },
+    } as never)
+
+    const parseSkips = skips.filter(s => s.stage === 'parse')
+    expect(parseSkips.length).toBe(4)
+    expect(parseSkips[0]).toMatchObject({
+      adapter: 'ny-jcope',
+      stage: 'parse',
+    })
   })
 })

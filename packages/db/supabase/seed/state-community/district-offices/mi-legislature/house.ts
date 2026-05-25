@@ -2,6 +2,7 @@ import * as cheerio from 'cheerio'
 import type { Client } from 'pg'
 import type { NormalizedDistrictOffice } from '../../shared.ts'
 import { fetchPerMemberOffices } from '../_shared.ts'
+import type { SkipReason } from '../../../shared/instrumentation.ts'
 
 export interface ParsedMiRepProfile {
   lansing_office?: string
@@ -54,11 +55,15 @@ export function parseMiRepProfileHtml(html: string): ParsedMiRepProfile {
 
 export async function fetchMiHouseOffices(
   client: Pick<Client, 'query'>,
-  opts: { fetcher?: (url: string) => Promise<string> },
+  opts: {
+    fetcher?: (url: string) => Promise<string>
+    onSkip?: (reason: SkipReason) => void
+  },
 ): Promise<NormalizedDistrictOffice[]> {
   return fetchPerMemberOffices(client, {
     chamber: 'state_house',
     state: 'MI',
+    adapter: 'mi-legislature',
     deriveUrl: (l) => deriveMiRepUrl(l.full_name),
     parseDetailHtml: (html) => {
       const parsed = parseMiRepProfileHtml(html)
@@ -69,5 +74,6 @@ export async function fetchMiHouseOffices(
       }
     },
     ...(opts.fetcher ? { fetcher: opts.fetcher } : {}),
+    ...(opts.onSkip ? { onSkip: opts.onSkip } : {}),
   })
 }

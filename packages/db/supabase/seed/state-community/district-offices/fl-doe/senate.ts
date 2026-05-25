@@ -2,6 +2,7 @@ import * as cheerio from 'cheerio'
 import type { Client } from 'pg'
 import type { NormalizedDistrictOffice } from '../../shared.ts'
 import { fetchPerMemberOffices, type ParsedMemberDetail } from '../_shared.ts'
+import type { SkipReason } from '../../../shared/instrumentation.ts'
 
 export type ParsedFlSenatorDetail = ParsedMemberDetail
 
@@ -51,11 +52,15 @@ export function parseFlSenatorDetailHtml(html: string): ParsedFlSenatorDetail {
 
 export async function fetchFlSenateOffices(
   client: Pick<Client, 'query'>,
-  opts: { fetcher?: (url: string) => Promise<string> },
+  opts: {
+    fetcher?: (url: string) => Promise<string>
+    onSkip?: (reason: SkipReason) => void
+  },
 ): Promise<NormalizedDistrictOffice[]> {
   return fetchPerMemberOffices(client, {
     chamber: 'state_senate',
     state: 'FL',
+    adapter: 'fl-doe',
     deriveUrl: (l) => {
       if (!l.district_id) return null
       const m = l.district_id.match(/^FL-(\d+)$/)
@@ -66,5 +71,6 @@ export async function fetchFlSenateOffices(
     },
     parseDetailHtml: parseFlSenatorDetailHtml,
     ...(opts.fetcher ? { fetcher: opts.fetcher } : {}),
+    ...(opts.onSkip ? { onSkip: opts.onSkip } : {}),
   })
 }

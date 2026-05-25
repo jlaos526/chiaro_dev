@@ -12,6 +12,7 @@ vi.mock('../../shared/pdf.ts', () => ({
 import { miBoardDisclosures } from './mi-board.ts'
 import { fetchPdf, extractPdfText } from '../../shared/pdf.ts'
 import { stubFetchBlocked } from '../../test-utils/stub-fetch.ts'
+import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const mockedFetchPdf = vi.mocked(fetchPdf)
 const mockedExtractPdfText = vi.mocked(extractPdfText)
@@ -162,5 +163,113 @@ describe('mi-board production-path PDF flow', () => {
       expect.stringMatching(/chamber\s+in\s+\('state_house'\s*,\s*'state_senate'\)/i),
       expect.arrayContaining(['MI']),
     )
+  })
+})
+
+describe('mi-board slice 22 onSkip instrumentation', () => {
+  it('calls onSkip with derive_url stage when full_name is single token', async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-1', full_name: 'Singleton' }],
+        rowCount: 1,
+      }),
+    }
+    const skips: SkipReason[] = []
+    await miBoardDisclosures.fetchEvents({
+      client: client as never,
+      onSkip: (r: SkipReason) => { skips.push(r) },
+    } as never)
+    expect(skips).toHaveLength(1)
+    expect(skips[0]).toMatchObject({
+      adapter: 'mi-board',
+      stage: 'derive_url',
+      legislator: 'Singleton',
+    })
+  })
+
+  it('calls onSkip with fetch stage when fetchPdf rejects', async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-1', full_name: 'Jane Doe' }],
+        rowCount: 1,
+      }),
+    }
+    mockedFetchPdf.mockRejectedValue(new Error('404 not found'))
+    const skips: SkipReason[] = []
+    await miBoardDisclosures.fetchEvents({
+      client: client as never,
+      onSkip: (r: SkipReason) => { skips.push(r) },
+    } as never)
+    expect(skips).toHaveLength(1)
+    expect(skips[0]).toMatchObject({
+      adapter: 'mi-board',
+      stage: 'fetch',
+      legislator: 'Jane Doe',
+    })
+    expect(skips[0]!.detail).toMatch(/404/)
+  })
+
+  it('calls onSkip with extract stage when extractPdfText returns empty', async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-1', full_name: 'Jane Doe' }],
+        rowCount: 1,
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    mockedExtractPdfText.mockResolvedValue('')
+    const skips: SkipReason[] = []
+    await miBoardDisclosures.fetchEvents({
+      client: client as never,
+      onSkip: (r: SkipReason) => { skips.push(r) },
+    } as never)
+    expect(skips).toHaveLength(1)
+    expect(skips[0]).toMatchObject({
+      adapter: 'mi-board',
+      stage: 'extract',
+      legislator: 'Jane Doe',
+    })
+  })
+
+  it('calls onSkip with parse stage when parseMiPfdText returns 0 items', async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-1', full_name: 'Jane Doe' }],
+        rowCount: 1,
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    // Text that contains no recognizable income line items.
+    mockedExtractPdfText.mockResolvedValue('No relevant content here.')
+    const skips: SkipReason[] = []
+    await miBoardDisclosures.fetchEvents({
+      client: client as never,
+      onSkip: (r: SkipReason) => { skips.push(r) },
+    } as never)
+    expect(skips).toHaveLength(1)
+    expect(skips[0]).toMatchObject({
+      adapter: 'mi-board',
+      stage: 'parse',
+      legislator: 'Jane Doe',
+    })
+  })
+
+  it('does NOT call onSkip when row emits successfully', async () => {
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-1', full_name: 'Jane Doe' }],
+        rowCount: 1,
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    mockedExtractPdfText.mockResolvedValue(
+      'Sources of Income\n1. Salary: $50,000 - $100,000',
+    )
+    const skips: SkipReason[] = []
+    await miBoardDisclosures.fetchEvents({
+      client: client as never,
+      onSkip: (r: SkipReason) => { skips.push(r) },
+    } as never)
+    expect(skips).toEqual([])
   })
 })

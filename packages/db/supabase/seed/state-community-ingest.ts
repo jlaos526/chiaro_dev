@@ -22,6 +22,11 @@ import { flDoeOffices }           from './state-community/district-offices/fl-do
 import { txCapitolOffices }       from './state-community/district-offices/tx-capitol.ts'
 import { miLegislatureOffices }   from './state-community/district-offices/mi-legislature/index.ts'
 import { openstatesV3Hearings }   from './state-community/committee-hearings/openstates-v3.ts'
+import {
+  createSkipCollector,
+  formatSkipSummary,
+  type SkipSummary,
+} from './shared/instrumentation.ts'
 
 const DB_URL = process.env.SUPABASE_DB_URL
   ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
@@ -45,6 +50,10 @@ export interface IngestStateCommunityOpts {
   skipOnError?: boolean
   adapters?: StateCommunityAdapter[]
   client?: Client
+  /** When true, collect skip reasons via shared collector + populate stats.skipSummary. */
+  instrument?: boolean
+  /** When true, skip the UPSERT loop (dry-run). Pair with instrument=true. */
+  noApply?: boolean
 }
 
 export interface IngestStateCommunityStats {
@@ -53,6 +62,8 @@ export interface IngestStateCommunityStats {
   totalRowsUpserted: number
   totalOfficialsUnmatched: number
   byAdapter: StateCommunityStats[]
+  /** Populated when opts.instrument === true. Aggregated skip telemetry. */
+  skipSummary?: SkipSummary
 }
 
 export async function ingestStateCommunity(
@@ -71,6 +82,9 @@ export async function ingestStateCommunity(
   const ownsClient = !opts.client
   if (ownsClient) await client.connect()
 
+  const collector = opts.instrument ? createSkipCollector() : null
+  const onSkip = collector?.onSkip
+
   const byAdapter: StateCommunityStats[] = []
   try {
     for (const adapter of adapters) {
@@ -87,8 +101,14 @@ export async function ingestStateCommunity(
           client,
           ...(opts.state !== undefined ? { state: opts.state } : {}),
           ...(opts.session !== undefined ? { session: opts.session } : {}),
+          ...(onSkip ? { onSkip } : {}),
         })
         for (const event of events) {
+          if (opts.noApply) {
+            // Dry-run: skip DB writes; count would-upsert rows for visibility.
+            adapterStats.rowsUpserted += 1
+            continue
+          }
           if (adapter.component === 'halls') {
             const ok = await upsertTownHall(client, event as NormalizedTownHall)
             if (ok) {
@@ -129,6 +149,7 @@ export async function ingestStateCommunity(
     totalRowsUpserted:        byAdapter.reduce((a, s) => a + s.rowsUpserted, 0),
     totalOfficialsUnmatched:  byAdapter.reduce((a, s) => a + s.officialsUnmatched.length, 0),
     byAdapter,
+    ...(collector ? { skipSummary: collector.summary() } : {}),
   }
 }
 
@@ -137,6 +158,8 @@ if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
   const stateArg     = process.argv.find(a => a.startsWith('--state='))
   const sessionArg   = process.argv.find(a => a.startsWith('--session='))
   const skipOnError  = process.argv.includes('--skip-on-error')
+  const instrument   = process.argv.includes('--instrument')
+  const noApply      = process.argv.includes('--no-apply')
 
   const component = componentArg
     ? componentArg.split('=')[1] as CommunityComponent | 'all'
@@ -149,16 +172,22 @@ if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
     ...(state !== undefined ? { state } : {}),
     ...(session !== undefined ? { session } : {}),
     skipOnError,
+    instrument,
+    noApply,
   })
     .then(stats => {
       console.log(`State community ingest summary:`)
       console.log(`  adapters attempted:        ${stats.adaptersAttempted}`)
       console.log(`  adapters ok:               ${stats.adaptersOk}`)
-      console.log(`  total rows upserted:       ${stats.totalRowsUpserted}`)
+      console.log(`  total rows upserted:       ${stats.totalRowsUpserted}${noApply ? ' (dry-run; no DB writes)' : ''}`)
       console.log(`  total officials unmatched: ${stats.totalOfficialsUnmatched}`)
       for (const s of stats.byAdapter) {
         const tag = s.errors.length > 0 ? `errors=${s.errors.length}` : 'ok'
         console.log(`  ${s.component}:${s.adapter_slug}: ${s.rowsUpserted} rows / ${tag}`)
+      }
+      if (stats.skipSummary) {
+        console.log('')
+        console.log(formatSkipSummary(stats.skipSummary))
       }
       process.exit(stats.adaptersOk === stats.adaptersAttempted ? 0 : 1)
     })
