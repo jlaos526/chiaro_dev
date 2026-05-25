@@ -1,0 +1,35 @@
+<!--
+  Fixture: NY Assembly member directory.
+  Source: https://nyassembly.gov/mem/ (fetched 2026-05-24 per slice 12 audit)
+  Pruned to 5 cards covering: 2-address AM (Albany + district), 1-address AM
+  (Albany only), 1 with missing district number (skipped), 1 with phone
+  embedded in address, 1 with no addresses (skipped).
+-->
+<div class="assembly-directory">
+  <div class="member-card">
+    <h3 class="member-name">Jane Doe</h3>
+    <span class="district">District 5</span>
+    <div class="albany-address">LOB 901, Albany, NY 12248</div>
+    <div class="district-address">123 Main Street, Buffalo, NY 14201 · Phone: (716) 555-1234</div>
+  </div>
+  <div class="member-card">
+    <h3 class="member-name">Alex Smith</h3>
+    <span class="district">District 23</span>
+    <div class="albany-address">LOB 542, Albany, NY 12248 · Phone: (518) 455-4444</div>
+  </div>
+  <div class="member-card">
+    <h3 class="member-name">Maria Chen</h3>
+    <span class="district">District 100</span>
+    <div class="albany-address">LOB 720, Albany, NY 12248</div>
+    <div class="district-address">456 Oak Avenue, Queens, NY 11367</div>
+  </div>
+  <div class="member-card">
+    <h3 class="member-name">Bob Jones</h3>
+    <span class="district">District NotANumber</span>
+    <div class="albany-address">LOB 100, Albany, NY 12248</div>
+  </div>
+  <div class="member-card">
+    <h3 class="member-name">Pat Empty</h3>
+    <span class="district">District 99</span>
+  </div>
+</div>

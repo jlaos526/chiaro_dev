@@ -1,0 +1,51 @@
+<!--
+  Fixture: NY Senate events filtered to town halls.
+  Source: https://www.nysenate.gov/events?event-type=town_hall
+  (fetched 2026-05-24 per slice 12 audit; structure audit-derived)
+  Pruned to 5 cards covering: in-person + virtual + hybrid format,
+  one card with no location, one with malformed date (should skip).
+-->
+<div class="events-list">
+  <article class="event-card">
+    <a class="event-link" href="/events/jane-doe-district-coffee-2026-06">
+      <h3>District Coffee Hour with Senator Jane Doe</h3>
+    </a>
+    <p class="byline">Hosted by Senator Jane Doe</p>
+    <time datetime="2026-06-15">June 15, 2026 10:00 AM</time>
+    <p class="location">Albany Community Center, Albany, NY</p>
+    <p class="format">In-person</p>
+  </article>
+  <article class="event-card">
+    <a class="event-link" href="/events/alex-smith-virtual-town-hall-2026-06">
+      <h3>Virtual Town Hall with Senator Alex Smith</h3>
+    </a>
+    <p class="byline">Hosted by Senator Alex Smith</p>
+    <time datetime="2026-06-20">June 20, 2026 7:00 PM</time>
+    <p class="location">Online via Zoom</p>
+    <p class="format">Virtual</p>
+  </article>
+  <article class="event-card">
+    <a class="event-link" href="/events/maria-chen-hybrid-2026-07">
+      <h3>Hybrid Community Forum with Senator Maria Chen</h3>
+    </a>
+    <p class="byline">Hosted by Senator Maria Chen</p>
+    <time datetime="2026-07-05">July 5, 2026 2:00 PM</time>
+    <p class="location">Buffalo Public Library, Buffalo, NY</p>
+    <p class="format">Hybrid (in-person and virtual)</p>
+  </article>
+  <article class="event-card">
+    <a class="event-link" href="/events/bob-jones-no-location-2026-07">
+      <h3>Town Hall with Senator Bob Jones</h3>
+    </a>
+    <p class="byline">Hosted by Senator Bob Jones</p>
+    <time datetime="2026-07-10">July 10, 2026 6:30 PM</time>
+    <p class="format">In-person</p>
+  </article>
+  <article class="event-card">
+    <a class="event-link" href="/events/malformed-date">
+      <h3>Town Hall (malformed)</h3>
+    </a>
+    <p class="byline">Hosted by Senator Test Skip</p>
+    <p class="format">In-person</p>
+  </article>
+</div>

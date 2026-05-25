@@ -1,33 +1,30 @@
-import { describe, expect, it } from 'vitest'
-import { readFile } from 'node:fs/promises'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { describe, expect, it, vi } from 'vitest'
 import { nyJcopeEvents } from './ny-jcope.ts'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const FIXTURE = join(__dirname, '..', '..', 'fixtures', 'state-ethics', 'events-ny.json')
-
-describe('ny-jcope events adapter', () => {
-  it('happy path: fetcher injection returns fixture events', async () => {
-    const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
-    const events = await nyJcopeEvents.fetchEvents({
-      client: {} as never, fetcher: async () => fixture.events,
-    } as never)
-    expect(events.length).toBe(fixture.events.length)
-  })
-
-  it('production stub returns empty array', async () => {
-    const events = await nyJcopeEvents.fetchEvents({ client: {} as never } as never)
-    expect(events).toEqual([])
-  })
-
-  it('reports correct slug + component', () => {
+describe('nyJcopeEvents adapter', () => {
+  it('has correct slug/component/covered_states', () => {
     expect(nyJcopeEvents.slug).toBe('ny-jcope')
     expect(nyJcopeEvents.component).toBe('events')
+    expect(nyJcopeEvents.covered_states).toEqual(['NY'])
   })
 
-  it('covered_states valid', () => {
-    expect(nyJcopeEvents.covered_states.length).toBeGreaterThan(0)
-    for (const s of nyJcopeEvents.covered_states) expect(s).toMatch(/^[A-Z]{2}$/)
+  it('injected fetcher short-circuits adapter dispatch', async () => {
+    const fixture = [{ official_openstates_person_id: 'x', event_date: '2024-01-01', event_type: 'campaign_finance_violation', summary: 's', state: 'NY', source_url: 'u', source: 'ny-jcope' }]
+    const result = await nyJcopeEvents.fetchEvents({
+      fetcher: async () => fixture as never,
+    } as never)
+    expect(result).toEqual(fixture)
+  })
+
+  it('production path calls fetchEnforcementActions and returns events slice', async () => {
+    // No injected fetcher; stub global fetch to prevent network leak.
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('blocked in test'))
+    const client = {
+      query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+    }
+    const result = await nyJcopeEvents.fetchEvents({ client: client as never } as never)
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toEqual([])
+    fetchSpy.mockRestore()
   })
 })

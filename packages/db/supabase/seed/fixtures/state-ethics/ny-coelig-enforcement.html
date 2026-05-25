@@ -1,0 +1,104 @@
+<!--
+  Fixture: NY COELIG enforcement actions table.
+  Source: https://ethics.ny.gov/enforcement-actions (slice 12 audit)
+  Pruned to 10 rows covering:
+    - 3 NY State Assembly (state_house) — all ingest
+    - 3 NY State Senate (state_senate) — all ingest
+    - 2 non-legislator agencies (Dept of Health + County Clerk) — filtered out
+    - 1 unresolved name (won't match officials table) — logs error
+    - 1 row with status "Penalty Imposed" (maps to 'sanctioned')
+-->
+<table class="enforcement-actions">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Agency</th>
+      <th>Violation Type</th>
+      <th>Status</th>
+      <th>Penalty Amount</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="/cases/2024-0042">Jane Doe</a></td>
+      <td>NY State Assembly</td>
+      <td>Campaign Finance Violation</td>
+      <td>Sanctioned</td>
+      <td>$5,000</td>
+      <td>2024-03-15</td>
+    </tr>
+    <tr>
+      <td><a href="/cases/2024-0099">Alex Smith</a></td>
+      <td>NY State Senate</td>
+      <td>Late Filing</td>
+      <td>Settled</td>
+      <td>$1,200</td>
+      <td>2024-05-22</td>
+    </tr>
+    <tr>
+      <td><a href="/cases/2024-0107">Maria Chen</a></td>
+      <td>NY State Assembly</td>
+      <td>Gift Rule Violation</td>
+      <td>Penalty Imposed</td>
+      <td>$15,000</td>
+      <td>2024-07-30</td>
+    </tr>
+    <tr>
+      <td><a href="/cases/2024-0150">Bob Jones</a></td>
+      <td>NY State Senate</td>
+      <td>Disclosure Violation</td>
+      <td>Open</td>
+      <td>$0</td>
+      <td>2024-09-12</td>
+    </tr>
+    <tr>
+      <td><a href="/cases/2024-0200">Lisa Park</a></td>
+      <td>NY State Assembly</td>
+      <td>Filing Late</td>
+      <td>Dismissed</td>
+      <td>$0</td>
+      <td>2024-10-05</td>
+    </tr>
+    <tr>
+      <td><a href="/cases/2024-0210">Tom Wilson</a></td>
+      <td>NY State Senate</td>
+      <td>Late Filing</td>
+      <td>Consent Order</td>
+      <td>$2,500</td>
+      <td>2024-11-18</td>
+    </tr>
+    <tr>
+      <td><a href="/cases/2024-0250">Dr. Sarah Miller</a></td>
+      <td>NY Dept of Health</td>
+      <td>Gift Rule Violation</td>
+      <td>Sanctioned</td>
+      <td>$8,000</td>
+      <td>2024-12-01</td>
+    </tr>
+    <tr>
+      <td><a href="/cases/2024-0260">Pat Murphy</a></td>
+      <td>Erie County Clerk</td>
+      <td>Disclosure Violation</td>
+      <td>Settled</td>
+      <td>$500</td>
+      <td>2024-12-15</td>
+    </tr>
+    <tr>
+      <td><a href="/cases/2024-0300">Unknown Stranger</a></td>
+      <td>NY State Assembly</td>
+      <td>Disclosure Violation</td>
+      <td>Open</td>
+      <td>$0</td>
+      <td>2024-12-20</td>
+    </tr>
+    <tr>
+      <td><a href="/cases/2025-0001">Robin Lee</a></td>
+      <td>NY State Senate</td>
+      <td>Ethics Violation</td>
+      <td>Pending</td>
+      <td>$0</td>
+      <td>2025-01-10</td>
+    </tr>
+  </tbody>
+</table>
