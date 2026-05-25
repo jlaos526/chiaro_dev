@@ -18,7 +18,7 @@ import { txCapitolTownHalls }     from './state-community/town-halls/tx-capitol.
 import { miLegislatureTownHalls } from './state-community/town-halls/mi-legislature.ts'
 import { caLeginfoOffices }       from './state-community/district-offices/ca-leginfo/index.ts'
 import { nySenateOffices }        from './state-community/district-offices/ny-senate/index.ts'
-import { flDoeOffices }           from './state-community/district-offices/fl-doe.ts'
+import { flDoeOffices }           from './state-community/district-offices/fl-doe/index.ts'
 import { txCapitolOffices }       from './state-community/district-offices/tx-capitol.ts'
 import { miLegislatureOffices }   from './state-community/district-offices/mi-legislature/index.ts'
 import { openstatesV3Hearings }   from './state-community/committee-hearings/openstates-v3.ts'

@@ -1,0 +1,19 @@
+<!--
+  Fixture: FL House representative detail page.
+  Source: https://www.flhouse.gov/Sections/Representatives/details.aspx?MemberId={n}
+  Audit (2026-05-24): index page maps district to MemberId; detail page
+  has address(es). MemberId may NOT equal district number — verify at
+  scaffold time. Pruned to 1 rep with both Capitol + district.
+-->
+<div class="rep-detail">
+  <h1>Representative Jane Doe</h1>
+  <span class="district">District 14</span>
+  <section class="capitol-office">
+    <h2>Tallahassee Office</h2>
+    <p>1102 The Capitol, 402 South Monroe Street, Tallahassee, FL 32399 · Phone: (850) 717-5014</p>
+  </section>
+  <section class="district-office">
+    <h2>District Office</h2>
+    <p>100 Beach Drive NE, Suite 200, St. Petersburg, FL 33701 · Phone: (727) 555-1234</p>
+  </section>
+</div>

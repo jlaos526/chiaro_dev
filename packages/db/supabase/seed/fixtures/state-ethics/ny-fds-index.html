@@ -1,0 +1,65 @@
+<!--
+  Fixture: NY ethics.ny.gov financial-disclosure-statements-elected-officials index page.
+  Source: https://ethics.ny.gov/financial-disclosure-statements-elected-officials?year=2024
+  Audit (2026-05-24): 2,804 results with year filter, office-type filter, pagination,
+  per-record PDF Download links. Pruned to 6 rows covering:
+    - 2 NYS Assembly Members → state_house
+    - 2 NYS Senators → state_senate
+    - 1 row with unknown office (skipped)
+    - 1 row with unresolved legislator (logged to errors)
+  Last row has class "next-page" link to simulate pagination.
+-->
+<div class="fds-index">
+  <table class="filings-table">
+    <thead>
+      <tr><th>Name</th><th>Office</th><th>Year</th><th>Filed</th><th>PDF</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Jane Doe</td>
+        <td>NYS Assembly Member</td>
+        <td>2024</td>
+        <td>2024-05-15</td>
+        <td><a href="/files/fds/2024/AM-12345.pdf" data-filing-id="AM-12345">Download</a></td>
+      </tr>
+      <tr>
+        <td>Alex Smith</td>
+        <td>NYS Senator</td>
+        <td>2024</td>
+        <td>2024-05-20</td>
+        <td><a href="/files/fds/2024/SEN-67890.pdf" data-filing-id="SEN-67890">Download</a></td>
+      </tr>
+      <tr>
+        <td>Maria Chen</td>
+        <td>NYS Assembly Member</td>
+        <td>2024</td>
+        <td>2024-06-01</td>
+        <td><a href="/files/fds/2024/AM-23456.pdf" data-filing-id="AM-23456">Download</a></td>
+      </tr>
+      <tr>
+        <td>Bob Jones</td>
+        <td>NYS Senator</td>
+        <td>2024</td>
+        <td>2024-06-10</td>
+        <td><a href="/files/fds/2024/SEN-78901.pdf" data-filing-id="SEN-78901">Download</a></td>
+      </tr>
+      <tr>
+        <td>Pat Mystery</td>
+        <td>NYS Lieutenant Governor</td>
+        <td>2024</td>
+        <td>2024-07-01</td>
+        <td><a href="/files/fds/2024/LG-99999.pdf" data-filing-id="LG-99999">Download</a></td>
+      </tr>
+      <tr>
+        <td>Unknown Stranger</td>
+        <td>NYS Assembly Member</td>
+        <td>2024</td>
+        <td>2024-07-15</td>
+        <td><a href="/files/fds/2024/AM-88888.pdf" data-filing-id="AM-88888">Download</a></td>
+      </tr>
+    </tbody>
+  </table>
+  <nav class="pagination">
+    <a class="next-page" href="/financial-disclosure-statements-elected-officials?year=2024&page=2">Next page</a>
+  </nav>
+</div>
