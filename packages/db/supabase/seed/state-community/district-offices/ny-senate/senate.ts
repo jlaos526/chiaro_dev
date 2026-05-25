@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio'
 import type { Client } from 'pg'
 import type { NormalizedDistrictOffice } from '../../shared.ts'
-import { parseAddressText } from './assembly.ts'
+import { parseAddressText } from '../_shared.ts'
 
 const SENATOR_CONTACT_URL = (slug: string) =>
   `https://www.nysenate.gov/senators/${slug}/contact`

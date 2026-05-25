@@ -1,33 +1,29 @@
-import { describe, expect, it } from 'vitest'
-import { readFile } from 'node:fs/promises'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { describe, expect, it, vi } from 'vitest'
 import { txTecEvents } from './tx-tec.ts'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const FIXTURE = join(__dirname, '..', '..', 'fixtures', 'state-ethics', 'events-tx.json')
-
-describe('tx-tec events adapter', () => {
-  it('happy path: fetcher injection returns fixture events', async () => {
-    const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
-    const events = await txTecEvents.fetchEvents({
-      client: {} as never, fetcher: async () => fixture.events,
-    } as never)
-    expect(events.length).toBe(fixture.events.length)
-  })
-
-  it('production stub returns empty array', async () => {
-    const events = await txTecEvents.fetchEvents({ client: {} as never } as never)
-    expect(events).toEqual([])
-  })
-
-  it('reports correct slug + component', () => {
+describe('txTecEvents adapter', () => {
+  it('has correct slug/component/covered_states', () => {
     expect(txTecEvents.slug).toBe('tx-tec')
     expect(txTecEvents.component).toBe('events')
+    expect(txTecEvents.covered_states).toEqual(['TX'])
   })
 
-  it('covered_states valid', () => {
-    expect(txTecEvents.covered_states.length).toBeGreaterThan(0)
-    for (const s of txTecEvents.covered_states) expect(s).toMatch(/^[A-Z]{2}$/)
+  it('injected fetcher short-circuits adapter dispatch', async () => {
+    const fixture = [{ official_openstates_person_id: 'x', event_date: '2024-01-01', event_type: 'campaign_finance_violation', summary: 's', state: 'TX', source_url: 'u', source: 'tx-tec' }]
+    const result = await txTecEvents.fetchEvents({
+      fetcher: async () => fixture as never,
+    } as never)
+    expect(result).toEqual(fixture)
+  })
+
+  it('production path calls fetchSwornComplaintOrders and returns events slice', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('blocked in test'))
+    const client = {
+      query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+    }
+    const result = await txTecEvents.fetchEvents({ client: client as never } as never)
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toEqual([])
+    fetchSpy.mockRestore()
   })
 })

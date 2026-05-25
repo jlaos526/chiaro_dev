@@ -1,0 +1,35 @@
+<!--
+  Fixture: CA Senate roster page (slice 12 audit "best-in-class" find).
+  Source: https://www.senate.ca.gov/senators (fetched 2026-05-24 per audit)
+  Pruned to 5 senator cards covering: capitol + district office both
+  present, capitol-only, district-only, missing district number (skip),
+  malformed address (skip).
+-->
+<div class="senators-list">
+  <article class="senator-card">
+    <h3 class="senator-name">Senator Jane Doe</h3>
+    <span class="district-number">District 5</span>
+    <div class="capitol-office">1021 O Street, Suite 5101, Sacramento, CA 95814 · Phone: (916) 651-4005</div>
+    <div class="district-office">100 Main Street, Suite 200, Oakland, CA 94612 · Phone: (510) 555-1234</div>
+  </article>
+  <article class="senator-card">
+    <h3 class="senator-name">Senator Alex Smith</h3>
+    <span class="district-number">District 12</span>
+    <div class="capitol-office">1021 O Street, Suite 7110, Sacramento, CA 95814 · Phone: (916) 651-4012</div>
+  </article>
+  <article class="senator-card">
+    <h3 class="senator-name">Senator Maria Chen</h3>
+    <span class="district-number">District 23</span>
+    <div class="district-office">200 Oak Avenue, San Diego, CA 92101 · Phone: (619) 555-9999</div>
+  </article>
+  <article class="senator-card">
+    <h3 class="senator-name">Senator Bob Jones</h3>
+    <span class="district-number">District NaN</span>
+    <div class="capitol-office">1021 O Street, Suite 100, Sacramento, CA 95814</div>
+  </article>
+  <article class="senator-card">
+    <h3 class="senator-name">Senator Pat Skip</h3>
+    <span class="district-number">District 99</span>
+    <div class="capitol-office">malformed no commas</div>
+  </article>
+</div>

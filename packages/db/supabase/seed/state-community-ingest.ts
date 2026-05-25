@@ -16,11 +16,11 @@ import { nySenateTownHalls }      from './state-community/town-halls/ny-senate.t
 import { flDoeTownHalls }         from './state-community/town-halls/fl-doe.ts'
 import { txCapitolTownHalls }     from './state-community/town-halls/tx-capitol.ts'
 import { miLegislatureTownHalls } from './state-community/town-halls/mi-legislature.ts'
-import { caLeginfoOffices }       from './state-community/district-offices/ca-leginfo.ts'
+import { caLeginfoOffices }       from './state-community/district-offices/ca-leginfo/index.ts'
 import { nySenateOffices }        from './state-community/district-offices/ny-senate/index.ts'
 import { flDoeOffices }           from './state-community/district-offices/fl-doe.ts'
 import { txCapitolOffices }       from './state-community/district-offices/tx-capitol.ts'
-import { miLegislatureOffices }   from './state-community/district-offices/mi-legislature.ts'
+import { miLegislatureOffices }   from './state-community/district-offices/mi-legislature/index.ts'
 import { openstatesV3Hearings }   from './state-community/committee-hearings/openstates-v3.ts'
 
 const DB_URL = process.env.SUPABASE_DB_URL
