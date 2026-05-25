@@ -1,12 +1,23 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+vi.mock('../../shared/pdf.ts', () => ({
+  fetchPdf: vi.fn(),
+  extractPdfText: vi.fn(),
+}))
+
 import {
   parseTxTecOrdersHtml,
   isTexasLegislatorRow,
   fetchSwornComplaintOrders,
 } from './shared.ts'
+import { fetchPdf, extractPdfText } from '../../shared/pdf.ts'
+import { stubFetchBlocked } from '../../test-utils/stub-fetch.ts'
+
+const mockedFetchPdf = vi.mocked(fetchPdf)
+const mockedExtractPdfText = vi.mocked(extractPdfText)
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const FIXTURE = join(__dirname, '..', '..', 'fixtures', 'state-ethics', 'tx-tec-orders.html')
@@ -138,5 +149,144 @@ describe('fetchSwornComplaintOrders', () => {
     const result = await fetchSwornComplaintOrders(client as never, { fetcher: async () => html })
     expect(result.complaints[0]!.external_id).toBe('complaint-SC-202401-001')
     expect(result.events[0]!.external_id).toBe('event-SC-202401-001')
+  })
+})
+
+describe('tx-tec slice 20 PDF enrichment', () => {
+  beforeEach(() => {
+    mockedFetchPdf.mockReset()
+    mockedExtractPdfText.mockReset()
+  })
+
+  it('enriches summary + outcome from parsed PDF text', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-x' }],
+        rowCount: 1,
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    mockedExtractPdfText.mockResolvedValue(`
+VIOLATION:
+Failed to file annual personal financial statement.
+
+CIVIL PENALTY: $1,500
+
+DISPOSITION:
+Resolved by Agreed Order.
+`)
+
+    const result = await fetchSwornComplaintOrders(client as never, {
+      fetcher: async () => html,
+    })
+
+    // Pick the first legislator-row's complaint (Jane Doe per fixture)
+    const jane = result.complaints.find(c => c.external_id === 'complaint-SC-202401-001')!
+    expect(jane.summary).toMatch(/Failed to file annual/)
+    expect(jane.disposition).toMatch(/Resolved by Agreed Order/)
+
+    const janeEvent = result.events.find(e => e.external_id === 'event-SC-202401-001')!
+    expect(janeEvent.summary).toMatch(/Failed to file annual/)
+    expect(janeEvent.outcome).toMatch(/Resolved by Agreed Order/)
+  })
+
+  it('falls back to slice 16 generic summary when fetchPdf rejects', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-x' }],
+        rowCount: 1,
+      }),
+    }
+    mockedFetchPdf.mockRejectedValue(new Error('404'))
+
+    const result = await fetchSwornComplaintOrders(client as never, {
+      fetcher: async () => html,
+    })
+
+    const jane = result.complaints.find(c => c.external_id === 'complaint-SC-202401-001')!
+    expect(jane.summary).toMatch(/Sworn complaint order SC-202401-001/)  // slice 16 stub format
+  })
+
+  it('falls back to slice 16 generic summary when extractPdfText returns empty', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-x' }],
+        rowCount: 1,
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    mockedExtractPdfText.mockResolvedValue('')
+
+    const result = await fetchSwornComplaintOrders(client as never, {
+      fetcher: async () => html,
+    })
+
+    const jane = result.complaints.find(c => c.external_id === 'complaint-SC-202401-001')!
+    expect(jane.summary).toMatch(/Sworn complaint order/)
+  })
+
+  it('partial parse: only violation_summary present → summary enriched, disposition unchanged', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-x' }],
+        rowCount: 1,
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    mockedExtractPdfText.mockResolvedValue(`
+VIOLATION:
+Failed to register lobbyist.
+`)
+
+    const result = await fetchSwornComplaintOrders(client as never, {
+      fetcher: async () => html,
+    })
+
+    const jane = result.complaints.find(c => c.external_id === 'complaint-SC-202401-001')!
+    expect(jane.summary).toMatch(/Failed to register lobbyist/)
+    expect(jane.disposition).toMatch(/Agreed Order/)  // slice 16 fallback (from row.status)
+  })
+
+  it('respects maxPdfsPerRun cap (only first N rows enriched)', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-x' }],
+        rowCount: 1,
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    mockedExtractPdfText.mockResolvedValue(`
+VIOLATION:
+Test violation.
+`)
+
+    const result = await fetchSwornComplaintOrders(client as never, {
+      fetcher: async () => html,
+      maxPdfsPerRun: 2,
+    } as never)
+
+    // Fixture has 6 legislator rows (3 Assembly + 3 Senate per slice 16 fixture).
+    // First 2 get PDF-enriched; rest get slice 16 fallback summary.
+    expect(mockedFetchPdf).toHaveBeenCalledTimes(2)
+
+    // First 2 complaints have enriched summary
+    expect(result.complaints[0]?.summary).toMatch(/Test violation/)
+    expect(result.complaints[1]?.summary).toMatch(/Test violation/)
+    // Rest have slice 16 stub format
+    expect(result.complaints[2]?.summary).toMatch(/Sworn complaint order/)
+  })
+
+  it('production-path returns empty result when HTML fetch fails (slice 16 behavior preserved)', async () => {
+    const fetchSpy = stubFetchBlocked()
+    const client = { query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }) }
+    const result = await fetchSwornComplaintOrders(client as never, {})
+    expect(result.complaints).toEqual([])
+    expect(result.events).toEqual([])
+    fetchSpy.mockRestore()
   })
 })

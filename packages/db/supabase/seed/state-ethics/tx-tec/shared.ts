@@ -2,9 +2,13 @@ import * as cheerio from 'cheerio'
 import type { Client } from 'pg'
 import type { NormalizedEthicsComplaint, NormalizedOfficialEvent } from '../shared.ts'
 import { resolveOpenstatesPersonId } from '../../shared/officials.ts'
+import { fetchPdf, extractPdfText } from '../../shared/pdf.ts'
+import { parseTxTecOrderText } from './pdf-helpers.ts'
 
 const SOURCE_URL = 'https://www.ethics.state.tx.us/enforcement/sworn_complaints/orders/search/'
 const FETCH_TIMEOUT_MS = 5000
+const MAX_PDFS_PER_RUN_DEFAULT = 200
+const PDF_RATE_LIMIT_MS = 1000
 
 export interface TxTecOrdersResult {
   complaints: NormalizedEthicsComplaint[]
@@ -116,7 +120,10 @@ function mapStatus(text: string): NormalizedEthicsComplaint['status'] {
  */
 export async function fetchSwornComplaintOrders(
   client: Pick<Client, 'query'>,
-  opts: { fetcher?: (url: string) => Promise<string> },
+  opts: {
+    fetcher?: (url: string) => Promise<string>
+    maxPdfsPerRun?: number
+  },
 ): Promise<TxTecOrdersResult> {
   let html: string
   try {
@@ -131,6 +138,16 @@ export async function fetchSwornComplaintOrders(
   const complaints: NormalizedEthicsComplaint[] = []
   const events: NormalizedOfficialEvent[] = []
   const errors: string[] = []
+
+  // First pass: existing slice 16 HTML scrape + row emission (unchanged).
+  // Build a list of emitted rows alongside their source_pdf_url for the
+  // slice 20 PDF enrichment pass.
+  interface RowToEnrich {
+    source_pdf_url: string
+    complaintIdx: number
+    eventIdx: number
+  }
+  const rowsToEnrich: RowToEnrich[] = []
 
   for (const row of parsedRows) {
     if (!isTexasLegislatorRow(row)) continue
@@ -150,6 +167,7 @@ export async function fetchSwornComplaintOrders(
 
     const status = mapStatus(row.status)
 
+    const complaintIdx = complaints.length
     complaints.push({
       official_openstates_person_id: openstates_person_id,
       complaint_date: row.date_issued,
@@ -162,6 +180,7 @@ export async function fetchSwornComplaintOrders(
       external_id: `complaint-${row.order_number}`,
     })
 
+    const eventIdx = events.length
     events.push({
       official_openstates_person_id: openstates_person_id,
       event_date: row.date_issued,
@@ -173,6 +192,51 @@ export async function fetchSwornComplaintOrders(
       source: 'tx-tec',
       external_id: `event-${row.order_number}`,
     })
+
+    rowsToEnrich.push({ source_pdf_url: row.source_pdf_url, complaintIdx, eventIdx })
+  }
+
+  // Second pass: slice 20 PDF enrichment. For the first maxPdfsPerRun rows,
+  // fetch + parse the per-case order PDF and UPDATE the complaint + event
+  // summary/disposition/outcome fields in place.
+  const maxPdfsPerRun = opts.maxPdfsPerRun ?? MAX_PDFS_PER_RUN_DEFAULT
+  const pdfBudget = Math.min(maxPdfsPerRun, rowsToEnrich.length)
+  const testMode = Boolean(opts.fetcher)
+
+  for (let i = 0; i < pdfBudget; i += 1) {
+    const enrich = rowsToEnrich[i]!
+
+    let buffer: Buffer
+    try {
+      buffer = await fetchPdf(enrich.source_pdf_url)
+    } catch {
+      continue
+    }
+
+    const text = await extractPdfText(buffer)
+    if (!text) continue
+
+    const parsed = parseTxTecOrderText(text)
+    if (parsed.violation_summary) {
+      complaints[enrich.complaintIdx]!.summary = parsed.violation_summary
+      events[enrich.eventIdx]!.summary = parsed.violation_summary
+    }
+    if (parsed.outcome_text) {
+      complaints[enrich.complaintIdx]!.disposition = parsed.outcome_text
+      events[enrich.eventIdx]!.outcome = parsed.outcome_text
+    }
+    // penalty_amount is parsed but not currently a column on
+    // NormalizedEthicsComplaint or NormalizedOfficialEvent — store as
+    // suffix to summary if present.
+    if (parsed.penalty_amount !== undefined) {
+      const penaltyNote = ` (Civil penalty: $${parsed.penalty_amount.toLocaleString()})`
+      complaints[enrich.complaintIdx]!.summary += penaltyNote
+      events[enrich.eventIdx]!.summary += penaltyNote
+    }
+
+    if (!testMode && i < pdfBudget - 1) {
+      await new Promise(resolve => setTimeout(resolve, PDF_RATE_LIMIT_MS))
+    }
   }
 
   return { complaints, events, errors }

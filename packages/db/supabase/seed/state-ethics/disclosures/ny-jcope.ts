@@ -2,11 +2,15 @@ import * as cheerio from 'cheerio'
 import type { Client } from 'pg'
 import type { StateEthicsAdapter, NormalizedFinancialDisclosure } from '../shared.ts'
 import { resolveOpenstatesPersonId } from '../../shared/officials.ts'
+import { fetchPdf, extractPdfText } from '../../shared/pdf.ts'
+import { parseNyFdsText } from './ny-fds-helpers.ts'
 
 const SOURCE_URL = 'https://ethics.ny.gov/financial-disclosure-statements-elected-officials?year=2024'
 const FETCH_TIMEOUT_MS = 5000
 const MAX_PAGES_DEFAULT = 120
 const RATE_LIMIT_MS = 1000
+const MAX_PDFS_PER_RUN_DEFAULT = 200
+const PDF_RATE_LIMIT_MS = 1000
 const ORIGIN = 'https://ethics.ny.gov'
 
 export interface ParsedNyFdsRow {
@@ -141,6 +145,15 @@ export const nyJcopeDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosur
 
     const out: NormalizedFinancialDisclosure[] = []
     const client = (opts as { client: Client }).client
+    const maxPdfsPerRun = (opts as { maxPdfsPerRun?: number }).maxPdfsPerRun ?? MAX_PDFS_PER_RUN_DEFAULT
+
+    // First pass: resolve + emit placeholder rows (slice 17 behavior, unchanged).
+    // Collect rows that have a resolvable legislator for the slice 20 PDF pass.
+    interface ResolvedFiling {
+      row: ParsedNyFdsRow
+      openstates_person_id: string
+    }
+    const resolvedFilings: ResolvedFiling[] = []
 
     for (const row of parsedRows) {
       const chamber = inferChamberFromOfficeText(row.office_text)
@@ -165,6 +178,53 @@ export const nyJcopeDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosur
         source: 'ny-jcope',
         external_id: `filing-${row.filing_id}`,
       })
+
+      resolvedFilings.push({ row, openstates_person_id })
+    }
+
+    // Second pass: PDF fetch + parse + line-item emission for the first
+    // maxPdfsPerRun filings (slice 20 — operator caps batch size).
+    const pdfBudget = Math.min(maxPdfsPerRun, resolvedFilings.length)
+    const testMode = Boolean(pageFetcher)
+
+    for (let i = 0; i < pdfBudget; i += 1) {
+      const { row, openstates_person_id } = resolvedFilings[i]!
+
+      let buffer: Buffer
+      try {
+        buffer = await fetchPdf(row.source_url)
+      } catch {
+        continue
+      }
+
+      const text = await extractPdfText(buffer)
+      if (!text) continue
+
+      const lineItems = parseNyFdsText(text)
+      if (lineItems.length === 0) continue
+
+      lineItems.forEach((item, idx) => {
+        const lineNo = idx + 1
+        const lineRow: NormalizedFinancialDisclosure = {
+          official_openstates_person_id: openstates_person_id,
+          filing_year: row.filing_year,
+          filing_date: row.filing_date,
+          income_source: item.income_source,
+          income_kind: item.income_kind,
+          state: 'NY',
+          source_url: row.source_url,
+          source: 'ny-jcope',
+          external_id: `filing-${row.filing_id}-${lineNo}`,
+        }
+        if (item.amount_range_low !== undefined) lineRow.amount_range_low = item.amount_range_low
+        if (item.amount_range_high !== undefined) lineRow.amount_range_high = item.amount_range_high
+        out.push(lineRow)
+      })
+
+      // Audit M5 throttle guard — skip after last iteration. Skipped entirely in test mode.
+      if (!testMode && i < pdfBudget - 1) {
+        await new Promise(resolve => setTimeout(resolve, PDF_RATE_LIMIT_MS))
+      }
     }
 
     return out

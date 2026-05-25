@@ -1,14 +1,25 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+// Mock the shared/pdf module so slice 20 PDF parse path is testable.
+vi.mock('../../shared/pdf.ts', () => ({
+  fetchPdf: vi.fn(),
+  extractPdfText: vi.fn(),
+}))
+
 import {
   parseNyFdsIndexHtml,
   inferChamberFromOfficeText,
   nyJcopeDisclosures,
   fetchAllPages,
 } from './ny-jcope.ts'
+import { fetchPdf, extractPdfText } from '../../shared/pdf.ts'
 import { stubFetchBlocked } from '../../test-utils/stub-fetch.ts'
+
+const mockedFetchPdf = vi.mocked(fetchPdf)
+const mockedExtractPdfText = vi.mocked(extractPdfText)
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const FIXTURE = join(__dirname, '..', '..', 'fixtures', 'state-ethics', 'ny-fds-index.html')
@@ -197,5 +208,177 @@ describe('nyJcopeDisclosures adapter', () => {
     expect(result[0]!.income_source).toBeUndefined()
     expect(result[0]!.income_kind).toBeUndefined()
     expect(result[0]!.amount_range_low).toBeUndefined()
+  })
+})
+
+describe('ny-jcope slice 20 PDF line-item fill', () => {
+  beforeEach(() => {
+    mockedFetchPdf.mockReset()
+    mockedExtractPdfText.mockReset()
+  })
+
+  it('emits placeholder + N line-item rows per filing when PDF parses', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockImplementation((_sql: string, params: unknown[]) => {
+        const name = String(params[0]).toLowerCase()
+        if (name.includes('unknown')) return Promise.resolve({ rows: [], rowCount: 0 })
+        return Promise.resolve({
+          rows: [{ openstates_person_id: `ocd-${Math.random().toString(36).slice(2, 6)}` }],
+          rowCount: 1,
+        })
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    mockedExtractPdfText.mockResolvedValue(
+      'Sources of Income\n1. Salary, State of New York: $50,000 - $100,000\n2. Consulting fees: $10,000 - $25,000',
+    )
+
+    let n = 0
+    const result = await nyJcopeDisclosures.fetchEvents({
+      client: client as never,
+      pageFetcher: async () => {
+        n += 1
+        if (n === 1) return html
+        return '<div><table class="filings-table"><tbody></tbody></table></div>'
+      },
+    } as never) as Array<{ external_id?: string; income_kind?: string }>
+
+    // Fixture: 4 resolvable filings (LG chamber null + Unknown Stranger
+    // unresolved both skipped). Each resolved filing gets:
+    //   - 1 placeholder row (filing-{id}, no income fields)
+    //   - 2 line-item rows from mocked PDF text (filing-{id}-1 + filing-{id}-2)
+    // Total: 4 placeholders + 8 line items = 12 rows
+    expect(result).toHaveLength(12)
+
+    // Discriminate placeholder vs line-item by external_id segment count:
+    // placeholder = filing-{id} → 3 segments after split('-') (filing + id-parts);
+    // line-item = filing-{id}-{lineNo} → 4 segments.
+    // (Substring includes('-1') is unsafe — filing IDs contain digits.)
+    const placeholders = result.filter(r => /^filing-[A-Z]+-\d+$/.test(r.external_id ?? ''))
+    const lineItems = result.filter(r => /^filing-[A-Z]+-\d+-\d+$/.test(r.external_id ?? ''))
+    expect(placeholders).toHaveLength(4)
+    expect(lineItems).toHaveLength(8)
+    expect(lineItems[0]?.income_kind).toBe('salary')
+  })
+
+  it('emits only placeholder when fetchPdf rejects (silent skip)', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockImplementation((_sql: string, params: unknown[]) => {
+        const name = String(params[0]).toLowerCase()
+        if (name.includes('unknown')) return Promise.resolve({ rows: [], rowCount: 0 })
+        return Promise.resolve({ rows: [{ openstates_person_id: 'ocd-x' }], rowCount: 1 })
+      }),
+    }
+    mockedFetchPdf.mockRejectedValue(new Error('404'))
+    mockedExtractPdfText.mockResolvedValue('')  // never reached
+
+    let n = 0
+    const result = await nyJcopeDisclosures.fetchEvents({
+      client: client as never,
+      pageFetcher: async () => {
+        n += 1
+        if (n === 1) return html
+        return '<div><table class="filings-table"><tbody></tbody></table></div>'
+      },
+    } as never) as Array<{ external_id?: string }>
+
+    // 4 resolvable filings × 1 placeholder each, no line items
+    expect(result).toHaveLength(4)
+    expect(result.every(r => r.external_id?.match(/^filing-[A-Z]+-\d+$/))).toBe(true)
+  })
+
+  it('emits only placeholder when extractPdfText returns empty', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockImplementation((_sql: string, params: unknown[]) => {
+        const name = String(params[0]).toLowerCase()
+        if (name.includes('unknown')) return Promise.resolve({ rows: [], rowCount: 0 })
+        return Promise.resolve({ rows: [{ openstates_person_id: 'ocd-x' }], rowCount: 1 })
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    mockedExtractPdfText.mockResolvedValue('')
+
+    let n = 0
+    const result = await nyJcopeDisclosures.fetchEvents({
+      client: client as never,
+      pageFetcher: async () => {
+        n += 1
+        if (n === 1) return html
+        return '<div><table class="filings-table"><tbody></tbody></table></div>'
+      },
+    } as never)
+
+    // 4 placeholders, no line items
+    expect(result).toHaveLength(4)
+  })
+
+  it('respects maxPdfsPerRun cap (only first N filings get PDF parse)', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockImplementation((_sql: string, params: unknown[]) => {
+        const name = String(params[0]).toLowerCase()
+        if (name.includes('unknown')) return Promise.resolve({ rows: [], rowCount: 0 })
+        return Promise.resolve({ rows: [{ openstates_person_id: 'ocd-x' }], rowCount: 1 })
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    mockedExtractPdfText.mockResolvedValue(
+      'Sources of Income\n1. Salary: $50,000 - $100,000',
+    )
+
+    let n = 0
+    const result = await nyJcopeDisclosures.fetchEvents({
+      client: client as never,
+      pageFetcher: async () => {
+        n += 1
+        if (n === 1) return html
+        return '<div><table class="filings-table"><tbody></tbody></table></div>'
+      },
+      maxPdfsPerRun: 2,
+    } as never)
+
+    // 4 placeholders total + line items from only the FIRST 2 filings (1 line item each)
+    // = 4 + 2 = 6 rows
+    expect(result).toHaveLength(6)
+    expect(mockedFetchPdf).toHaveBeenCalledTimes(2)
+  })
+
+  it('line-item external_id format is filing-{id}-{lineNo}', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-x' }],
+        rowCount: 1,
+      }),
+    }
+    mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
+    mockedExtractPdfText.mockResolvedValue(
+      'Sources of Income\n1. Salary: $50,000 - $100,000',
+    )
+
+    let n = 0
+    const result = await nyJcopeDisclosures.fetchEvents({
+      client: client as never,
+      pageFetcher: async () => {
+        n += 1
+        if (n === 1) return html
+        return '<div><table class="filings-table"><tbody></tbody></table></div>'
+      },
+    } as never) as Array<{ external_id?: string }>
+
+    // First filing's line item has external_id = filing-AM-12345-1
+    const lineItem = result.find(r => r.external_id?.includes('-1') && r.external_id !== 'filing-AM-12345')
+    expect(lineItem?.external_id).toBe('filing-AM-12345-1')
+  })
+
+  it('production-path remains [] when network is blocked (slice 17 behavior preserved)', async () => {
+    const fetchSpy = stubFetchBlocked()
+    const client = { query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }) }
+    const result = await nyJcopeDisclosures.fetchEvents({ client: client as never } as never)
+    expect(result).toEqual([])
+    fetchSpy.mockRestore()
   })
 })
