@@ -238,7 +238,7 @@ if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
   const skipVotes = process.argv.includes('--skip-votes')
   const allowDeletionsArg = process.argv.find(a => a.startsWith('--allow-deletions='))
   const allowDeletions = allowDeletionsArg ? Number(allowDeletionsArg.split('=')[1]) : undefined
-  ingestStateBillsVotes({ skipBills, skipVotes, allowDeletions })
+  ingestStateBillsVotes({ skipBills, skipVotes, ...(allowDeletions !== undefined ? { allowDeletions } : {}) })
     .then(stats => {
       console.log('Ingest summary (state bills + votes):')
       console.log(`  bills upserted:    ${stats.billsUpserted}`)

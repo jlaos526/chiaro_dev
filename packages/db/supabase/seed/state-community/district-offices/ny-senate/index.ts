@@ -10,13 +10,12 @@ import { fetchSenateOffices } from './senate.ts'
  * Slug `ny-senate` matches the slice 5H stub naming despite covering BOTH
  * chambers — kept for back-compat with state_community_orgs row continuity.
  */
-export const nySenateOffices: StateCommunityAdapter = {
+export const nySenateOffices: StateCommunityAdapter<NormalizedDistrictOffice> = {
   slug: 'ny-senate',
   component: 'offices',
   covered_states: ['NY'],
   async fetchEvents(opts): Promise<NormalizedDistrictOffice[]> {
-    const injected = (opts as never as { fetcher?: () => Promise<NormalizedDistrictOffice[]> }).fetcher
-    if (injected) return injected()
+    if (opts.fetcher) return opts.fetcher()
 
     const [assembly, senate] = await Promise.all([
       fetchAssemblyOffices(opts.client, {}),

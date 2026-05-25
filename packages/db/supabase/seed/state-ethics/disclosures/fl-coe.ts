@@ -1,12 +1,11 @@
 import type { StateEthicsAdapter, NormalizedFinancialDisclosure } from '../shared.ts'
 
-export const flCoeDisclosures: StateEthicsAdapter = {
+export const flCoeDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosure> = {
   slug: 'fl-coe',
   component: 'disclosures',
   covered_states: ['FL'],
   async fetchEvents(opts) {
-    const fetcher = (opts as never as { fetcher?: () => Promise<NormalizedFinancialDisclosure[]> }).fetcher
-    if (fetcher) return fetcher()
+    if (opts.fetcher) return opts.fetcher()
     return []
   },
 }

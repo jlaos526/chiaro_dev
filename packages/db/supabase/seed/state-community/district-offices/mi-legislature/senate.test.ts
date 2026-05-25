@@ -22,6 +22,18 @@ describe('parseMiSenatorProfileHtml', () => {
     expect(parsed.lansing_office).toBeUndefined()
     expect(parsed.district_office).toBeUndefined()
   })
+
+  it('joins multi-paragraph section addresses with comma (Audit Bug 3 fix)', () => {
+    const html = `
+      <section class="lansing-office">
+        <p>Farnum Building, P.O. Box 30036</p>
+        <p>Lansing, MI 48909</p>
+        <p>Phone: (517) 373-7350</p>
+      </section>
+    `
+    const parsed = parseMiSenatorProfileHtml(html)
+    expect(parsed.lansing_office).toBe('Farnum Building, P.O. Box 30036, Lansing, MI 48909, Phone: (517) 373-7350')
+  })
 })
 
 describe('deriveMiSenatorUrl', () => {
@@ -35,6 +47,10 @@ describe('deriveMiSenatorUrl', () => {
 
   it('strips non-alphanumeric characters', () => {
     expect(deriveMiSenatorUrl("Pat O'Brien")).toBe('https://senate.michigan.gov/senators/pat-obrien/')
+  })
+
+  it('preserves accented characters as ASCII transliterations (Audit Bug 1 fix)', () => {
+    expect(deriveMiSenatorUrl('José Smith')).toBe('https://senate.michigan.gov/senators/jose-smith/')
   })
 })
 

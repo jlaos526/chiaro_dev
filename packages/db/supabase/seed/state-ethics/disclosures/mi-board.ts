@@ -1,12 +1,11 @@
 import type { StateEthicsAdapter, NormalizedFinancialDisclosure } from '../shared.ts'
 
-export const miBoardDisclosures: StateEthicsAdapter = {
+export const miBoardDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosure> = {
   slug: 'mi-board',
   component: 'disclosures',
   covered_states: ['MI'],
   async fetchEvents(opts) {
-    const fetcher = (opts as never as { fetcher?: () => Promise<NormalizedFinancialDisclosure[]> }).fetcher
-    if (fetcher) return fetcher()
+    if (opts.fetcher) return opts.fetcher()
     return []
   },
 }

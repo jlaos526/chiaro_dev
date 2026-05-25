@@ -62,7 +62,7 @@ describe('ingestStateScorecards', () => {
     const adapters = [
       mkAdapter({
         slug: 'a', covered_states: ['CA', 'NY'],
-        async fetchRatings(opts) { calls.push({ slug: 'a', state: opts.state }); return [] },
+        async fetchRatings(opts) { calls.push({ slug: 'a', ...(opts.state !== undefined ? { state: opts.state } : {}) }); return [] },
       }),
     ]
     await ingestStateScorecards({

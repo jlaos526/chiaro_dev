@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { miLegislatureOffices } from './index.ts'
+import { stubFetchBlocked } from '../../../test-utils/stub-fetch.ts'
 
 describe('miLegislatureOffices adapter', () => {
   it('has correct slug/component/covered_states', () => {
@@ -17,7 +18,7 @@ describe('miLegislatureOffices adapter', () => {
   })
 
   it('concatenates Senate + House fetch results in production path', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('blocked in test'))
+    const fetchSpy = stubFetchBlocked()
     const client = {
       query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
     }

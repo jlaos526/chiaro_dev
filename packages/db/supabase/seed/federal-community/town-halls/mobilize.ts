@@ -114,12 +114,13 @@ export async function parseFederalMobilizeEvents(
     if (!startTs) continue
     const eventDate = new Date(startTs * 1000).toISOString().slice(0, 10)
 
+    const city = event.location?.locality
     out.push({
       official_id: officialId,
       legislator_name: name,
       chamber,
       event_date: eventDate,
-      city: event.location?.locality,
+      ...(city !== undefined ? { city } : {}),
       state,
       format: deriveFormat({
         is_virtual: event.is_virtual,

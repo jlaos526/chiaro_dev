@@ -12,7 +12,7 @@ import type { StateEthicsAdapter, NormalizedFinancialDisclosure } from '../share
  * See docs/superpowers/audits/2026-05-24-stub-adapter-discovery.md
  * + Gotcha #21 in CLAUDE.md.
  */
-export const txTecDisclosures: StateEthicsAdapter = {
+export const txTecDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosure> = {
   slug: 'tx-tec',
   component: 'disclosures',
   covered_states: [],

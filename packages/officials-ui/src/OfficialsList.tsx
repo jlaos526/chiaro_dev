@@ -1,4 +1,5 @@
-import { Pressable, Text, View } from 'react-native'
+import { createElement } from 'react'
+import { Platform, Pressable, Text, View } from 'react-native'
 import { useMyOfficials, type OfficialWithDistrict, type Party } from '@chiaro/officials'
 import { COLORS } from '@chiaro/ui-tokens'
 import { OfficialAvatar } from './OfficialAvatar.tsx'
@@ -12,53 +13,133 @@ export interface OfficialsListProps {
   onSelect: (target: { officialId: string }) => void
   /** Invoked when the calibrate prompt (shown when user has no officials) is tapped. */
   onCalibrate: () => void
+  /** Optional URL builder for the per-row link href (web a11y restoration;
+   * native ignored). When provided, official rows render real `<a href>`
+   * on web with plain left-click intercepted to `onSelect`. */
+  getHref?: (target: { officialId: string }) => string
+  /** Optional URL for the calibrate prompt (web a11y restoration; native ignored). */
+  calibrateHref?: string
 }
 
 function Section({
   title,
   items,
   onSelect,
+  getHref,
 }: {
   title: string
   items: OfficialWithDistrict[]
   onSelect: (target: { officialId: string }) => void
+  getHref?: (target: { officialId: string }) => string
 }): React.JSX.Element | null {
   if (items.length === 0) return null
   return (
     <View accessibilityLabel={title} style={{ marginBottom: 24 }}>
       <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8 }}>{title}</Text>
       <View style={{ gap: 12 }}>
-        {items.map(o => (
-          <Pressable
-            key={o.id}
-            onPress={() => onSelect({ officialId: o.id })}
-            style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8 }}
-            accessibilityRole="link"
-            accessibilityLabel={`View ${o.full_name}`}
-          >
-            <OfficialAvatar fullName={o.full_name} portraitUrl={o.portrait_url} size={48} />
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontWeight: '600' }}>{o.full_name}</Text>
-              <PartyBadge party={o.party as Party} />
-              <OfficialMeta official={o} />
-            </View>
-          </Pressable>
-        ))}
+        {items.map(o => {
+          const handlePress = () => onSelect({ officialId: o.id })
+          const href = getHref?.({ officialId: o.id })
+
+          const inner = (
+            <>
+              <OfficialAvatar fullName={o.full_name} portraitUrl={o.portrait_url} size={48} />
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontWeight: '600' }}>{o.full_name}</Text>
+                <PartyBadge party={o.party as Party} />
+                <OfficialMeta official={o} />
+              </View>
+            </>
+          )
+
+          // Web smart-anchor case: real <a href> with intercepted plain left-click.
+          if (Platform.OS === 'web' && href) {
+            return createElement(
+              'a',
+              {
+                key: o.id,
+                href,
+                onClick: (e: MouseEvent) => {
+                  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return
+                  e.preventDefault()
+                  handlePress()
+                },
+                'aria-label': `View ${o.full_name}`,
+                style: {
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 12,
+                  paddingTop: 8,
+                  paddingBottom: 8,
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  cursor: 'pointer',
+                },
+              },
+              inner,
+            )
+          }
+
+          return (
+            <Pressable
+              key={o.id}
+              onPress={handlePress}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8 }}
+              accessibilityRole="link"
+              accessibilityLabel={`View ${o.full_name}`}
+            >
+              {inner}
+            </Pressable>
+          )
+        })}
       </View>
     </View>
   )
 }
 
-export function OfficialsList({ onSelect, onCalibrate }: OfficialsListProps): React.JSX.Element {
+export function OfficialsList({
+  onSelect,
+  onCalibrate,
+  getHref,
+  calibrateHref,
+}: OfficialsListProps): React.JSX.Element {
   const client = useChiaroClient()
   const { data, isLoading, error } = useMyOfficials(client)
 
   if (isLoading) return <Text>Loading…</Text>
   if (error) return <Text>Couldn&apos;t load officials.</Text>
   if (!data || data.length === 0) {
+    const calibrateContent = (
+      <Text style={{ color: COLORS.brand.primary }}>
+        Calibrate your address to see your delegation.
+      </Text>
+    )
+
+    // Web smart-anchor case for calibrate prompt.
+    if (Platform.OS === 'web' && calibrateHref) {
+      return createElement(
+        'a',
+        {
+          href: calibrateHref,
+          onClick: (e: MouseEvent) => {
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return
+            e.preventDefault()
+            onCalibrate()
+          },
+          style: {
+            textDecoration: 'none',
+            cursor: 'pointer',
+            display: 'inline-block',
+          },
+        },
+        calibrateContent,
+      )
+    }
+
     return (
       <Pressable onPress={onCalibrate} accessibilityRole="link">
-        <Text style={{ color: COLORS.brand.primary }}>Calibrate your address to see your delegation.</Text>
+        {calibrateContent}
       </Pressable>
     )
   }
@@ -68,8 +149,8 @@ export function OfficialsList({ onSelect, onCalibrate }: OfficialsListProps): Re
 
   return (
     <View>
-      <Section title="Senate" items={senate} onSelect={onSelect} />
-      <Section title="House" items={house} onSelect={onSelect} />
+      <Section title="Senate" items={senate} onSelect={onSelect} {...(getHref ? { getHref } : {})} />
+      <Section title="House" items={house} onSelect={onSelect} {...(getHref ? { getHref } : {})} />
     </View>
   )
 }

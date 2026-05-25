@@ -89,20 +89,20 @@ function normalize(raw: Record<string, unknown> | null): OpenStatesPerson | null
   if (!title) return null
 
   const offices = ((raw.offices as Array<Record<string, unknown>> | undefined) ?? []).map(o => ({
-    classification: typeof o.classification === 'string' ? o.classification : undefined,
-    address: typeof o.address === 'string' ? o.address : undefined,
-    voice: typeof o.voice === 'string' ? o.voice : undefined,
-    fax: typeof o.fax === 'string' ? o.fax : undefined,
+    ...(typeof o.classification === 'string' ? { classification: o.classification } : {}),
+    ...(typeof o.address === 'string' ? { address: o.address } : {}),
+    ...(typeof o.voice === 'string' ? { voice: o.voice } : {}),
+    ...(typeof o.fax === 'string' ? { fax: o.fax } : {}),
   }))
 
   return {
     id: raw.id,
     name: raw.name,
-    given_name: typeof raw.given_name === 'string' ? raw.given_name : undefined,
-    family_name: typeof raw.family_name === 'string' ? raw.family_name : undefined,
+    ...(typeof raw.given_name === 'string' ? { given_name: raw.given_name } : {}),
+    ...(typeof raw.family_name === 'string' ? { family_name: raw.family_name } : {}),
     party,
-    image: typeof raw.image === 'string' ? raw.image : undefined,
-    email: typeof raw.email === 'string' ? raw.email : undefined,
+    ...(typeof raw.image === 'string' ? { image: raw.image } : {}),
+    ...(typeof raw.email === 'string' ? { email: raw.email } : {}),
     role: { type: roleType, state, district, title },
     offices,
   }

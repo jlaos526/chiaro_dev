@@ -32,7 +32,7 @@ async function main(): Promise<void> {
       console.error('No auth.users found — sign up via /sign-up first.')
       process.exit(2)
     }
-    const user = u.rows[0]
+    const user = u.rows[0]!
     console.log(`Calibrating user ${user.email} (${user.id}) to SF home address.`)
 
     await client.query('BEGIN')

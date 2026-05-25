@@ -19,14 +19,13 @@ function cacheDir(): string {
  * from each committee's meetings[] array. v1 stub returns [] if cache
  * dir is empty.
  */
-export const openstatesV3Hearings: StateCommunityAdapter = {
+export const openstatesV3Hearings: StateCommunityAdapter<NormalizedCommitteeHearing> = {
   slug: 'openstates-v3',
   component: 'hearings',
   covered_states: ALL_STATES,
 
   async fetchEvents(opts) {
-    const fetcher = (opts as never as { fetcher?: () => Promise<NormalizedCommitteeHearing[]> }).fetcher
-    if (fetcher) return fetcher()
+    if (opts.fetcher) return opts.fetcher()
 
     const dir = cacheDir()
     const targetStates = opts.state ? [opts.state] : ALL_STATES
@@ -54,8 +53,8 @@ export const openstatesV3Hearings: StateCommunityAdapter = {
               state,
               session: opts.session ?? c.current_session?.identifier ?? '',
               hearing_date: m.date,
-              location: m.location,
-              agenda_topic: m.agenda_topic,
+              ...(m.location !== undefined ? { location: m.location } : {}),
+              ...(m.agenda_topic !== undefined ? { agenda_topic: m.agenda_topic } : {}),
               source_url: `https://v3.openstates.org/committees/${c.id}`,
               attendees_openstates_person_ids: (m.attendance ?? [])
                 .map(a => a.person?.id)

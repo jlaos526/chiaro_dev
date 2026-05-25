@@ -51,6 +51,50 @@ describe('TopAmountBreakdown', () => {
     expect(spy).toHaveBeenCalledWith('https://www.opensecrets.org/example')
   })
 
+  it('renders source-URL link as real <a href> on web (smart-anchor)', () => {
+    const { container } = render(
+      <TopAmountBreakdown
+        rows={TEN}
+        noun={NOUN_INDUSTRY}
+        sourceUrl="https://www.opensecrets.org/example"
+      />,
+    )
+    const anchor = container.querySelector('a[href="https://www.opensecrets.org/example"]')
+    expect(anchor).not.toBeNull()
+  })
+
+  it('plain left-click on source-URL anchor calls preventDefault + invokes openURL', () => {
+    const spy = vi.spyOn(Linking, 'openURL').mockResolvedValue(true)
+    const { container } = render(
+      <TopAmountBreakdown
+        rows={TEN}
+        noun={NOUN_INDUSTRY}
+        sourceUrl="https://www.opensecrets.org/example"
+      />,
+    )
+    const anchor = container.querySelector('a[href="https://www.opensecrets.org/example"]')!
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 })
+    const notPrevented = anchor.dispatchEvent(event)
+    expect(notPrevented).toBe(false)
+    expect(spy).toHaveBeenCalledWith('https://www.opensecrets.org/example')
+  })
+
+  it('cmd-click on source-URL anchor falls through to browser default', () => {
+    const spy = vi.spyOn(Linking, 'openURL').mockResolvedValue(true)
+    const { container } = render(
+      <TopAmountBreakdown
+        rows={TEN}
+        noun={NOUN_INDUSTRY}
+        sourceUrl="https://www.opensecrets.org/example"
+      />,
+    )
+    const anchor = container.querySelector('a[href="https://www.opensecrets.org/example"]')!
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, metaKey: true })
+    const notPrevented = anchor.dispatchEvent(event)
+    expect(notPrevented).toBe(true)
+    expect(spy).not.toHaveBeenCalled()
+  })
+
   it('renders percent next to dollar value', () => {
     render(<TopAmountBreakdown rows={[{ label: 'A', amount: 500 }, { label: 'B', amount: 500 }]} noun={NOUN_INDUSTRY} />)
     const pcts = screen.getAllByText(/50%/)

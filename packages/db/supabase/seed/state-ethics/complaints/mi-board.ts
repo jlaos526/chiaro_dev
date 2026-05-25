@@ -15,7 +15,7 @@ import type { StateEthicsAdapter, NormalizedEthicsComplaint } from '../shared.ts
  * See docs/superpowers/audits/2026-05-24-stub-adapter-discovery.md
  * + Gotcha #21 in CLAUDE.md.
  */
-export const miBoardComplaints: StateEthicsAdapter = {
+export const miBoardComplaints: StateEthicsAdapter<NormalizedEthicsComplaint> = {
   slug: 'mi-board',
   component: 'complaints',
   covered_states: [],

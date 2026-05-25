@@ -84,7 +84,9 @@ export async function ingestStateCommunity(
       }
       try {
         const events = await adapter.fetchEvents({
-          client, state: opts.state, session: opts.session,
+          client,
+          ...(opts.state !== undefined ? { state: opts.state } : {}),
+          ...(opts.session !== undefined ? { session: opts.session } : {}),
         })
         for (const event of events) {
           if (adapter.component === 'halls') {
@@ -142,7 +144,12 @@ if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
   const state   = stateArg ? stateArg.split('=')[1] : undefined
   const session = sessionArg ? sessionArg.split('=')[1] : undefined
 
-  ingestStateCommunity({ component, state, session, skipOnError })
+  ingestStateCommunity({
+    component,
+    ...(state !== undefined ? { state } : {}),
+    ...(session !== undefined ? { session } : {}),
+    skipOnError,
+  })
     .then(stats => {
       console.log(`State community ingest summary:`)
       console.log(`  adapters attempted:        ${stats.adaptersAttempted}`)

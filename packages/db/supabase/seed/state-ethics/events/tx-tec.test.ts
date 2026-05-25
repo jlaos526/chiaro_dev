@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { txTecEvents } from './tx-tec.ts'
+import { stubFetchBlocked } from '../../test-utils/stub-fetch.ts'
 
 describe('txTecEvents adapter', () => {
   it('has correct slug/component/covered_states', () => {
@@ -17,7 +18,7 @@ describe('txTecEvents adapter', () => {
   })
 
   it('production path calls fetchSwornComplaintOrders and returns events slice', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('blocked in test'))
+    const fetchSpy = stubFetchBlocked()
     const client = {
       query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
     }

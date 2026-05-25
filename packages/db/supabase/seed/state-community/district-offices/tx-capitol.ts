@@ -1,12 +1,11 @@
 import type { StateCommunityAdapter, NormalizedDistrictOffice } from '../shared.ts'
 
-export const txCapitolOffices: StateCommunityAdapter = {
+export const txCapitolOffices: StateCommunityAdapter<NormalizedDistrictOffice> = {
   slug: 'tx-capitol',
   component: 'offices',
   covered_states: ['TX'],
   async fetchEvents(opts) {
-    const fetcher = (opts as never as { fetcher?: () => Promise<NormalizedDistrictOffice[]> }).fetcher
-    if (fetcher) return fetcher()
+    if (opts.fetcher) return opts.fetcher()
     // Production stub: operator wires capitol.texas.gov member-profile scrape.
     return []
   },

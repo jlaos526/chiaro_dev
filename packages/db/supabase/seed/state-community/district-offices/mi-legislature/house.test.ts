@@ -22,6 +22,18 @@ describe('parseMiRepProfileHtml', () => {
     expect(parsed.lansing_office).toBeUndefined()
     expect(parsed.district_office).toBeUndefined()
   })
+
+  it('joins multi-paragraph section addresses with comma (Audit Bug 3 fix)', () => {
+    const html = `
+      <section class="lansing-office">
+        <p>House Office Building, P.O. Box 30014</p>
+        <p>Lansing, MI 48909</p>
+        <p>Phone: (517) 373-0001</p>
+      </section>
+    `
+    const parsed = parseMiRepProfileHtml(html)
+    expect(parsed.lansing_office).toBe('House Office Building, P.O. Box 30014, Lansing, MI 48909, Phone: (517) 373-0001')
+  })
 })
 
 describe('deriveMiRepUrl', () => {
@@ -31,6 +43,10 @@ describe('deriveMiRepUrl', () => {
 
   it('strips non-alphanumeric characters', () => {
     expect(deriveMiRepUrl("Pat O'Brien")).toBe('https://house.mi.gov/representative-pat-obrien')
+  })
+
+  it('preserves accented characters as ASCII transliterations (Audit Bug 1 fix)', () => {
+    expect(deriveMiRepUrl('José Smith')).toBe('https://house.mi.gov/representative-jose-smith')
   })
 })
 

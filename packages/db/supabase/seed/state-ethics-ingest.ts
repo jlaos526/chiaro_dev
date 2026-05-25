@@ -70,7 +70,7 @@ export async function ingestStateEthics(
         errors: [],
       }
       try {
-        const events = await adapter.fetchEvents({ client, state: opts.state })
+        const events = await adapter.fetchEvents({ client, ...(opts.state !== undefined ? { state: opts.state } : {}) })
         for (const event of events) {
           let ok = false
           if (adapter.component === 'disclosures') {
@@ -118,7 +118,7 @@ if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
     : 'all'
   const state = stateArg ? stateArg.split('=')[1] : undefined
 
-  ingestStateEthics({ component, state, skipOnError })
+  ingestStateEthics({ component, ...(state !== undefined ? { state } : {}), skipOnError })
     .then(stats => {
       console.log(`State ethics ingest summary:`)
       console.log(`  adapters attempted:        ${stats.adaptersAttempted}`)

@@ -17,8 +17,8 @@ export const CONGRESSIONAL_SALARY_SCHEDULE: Record<string, number> = {
 }
 
 export function lookupSalary(role: string | null | undefined): { amount: number; role: string } {
-  if (!role) return { amount: CONGRESSIONAL_SALARY_SCHEDULE.Member, role: 'Member' }
+  if (!role) return { amount: CONGRESSIONAL_SALARY_SCHEDULE.Member!, role: 'Member' }
   const exact = CONGRESSIONAL_SALARY_SCHEDULE[role]
   if (exact !== undefined) return { amount: exact, role }
-  return { amount: CONGRESSIONAL_SALARY_SCHEDULE.Member, role: 'Member' }
+  return { amount: CONGRESSIONAL_SALARY_SCHEDULE.Member!, role: 'Member' }
 }

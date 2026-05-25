@@ -8,6 +8,7 @@ import {
   nyJcopeDisclosures,
   fetchAllPages,
 } from './ny-jcope.ts'
+import { stubFetchBlocked } from '../../test-utils/stub-fetch.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const FIXTURE = join(__dirname, '..', '..', 'fixtures', 'state-ethics', 'ny-fds-index.html')
@@ -134,7 +135,7 @@ describe('nyJcopeDisclosures adapter', () => {
     let n = 0
     const result = await nyJcopeDisclosures.fetchEvents({
       client: client as never,
-      fetcher: async () => {
+      pageFetcher: async () => {
         n += 1
         if (n === 1) return html
         return '<div><table class="filings-table"><tbody></tbody></table></div>'
@@ -146,7 +147,7 @@ describe('nyJcopeDisclosures adapter', () => {
   })
 
   it('production-path fetch leak protected via vi.spyOn', async () => {
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('blocked in test'))
+    const fetchSpy = stubFetchBlocked()
     const client = {
       query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
     }
@@ -167,7 +168,7 @@ describe('nyJcopeDisclosures adapter', () => {
     let n = 0
     const result = await nyJcopeDisclosures.fetchEvents({
       client: client as never,
-      fetcher: async () => {
+      pageFetcher: async () => {
         n += 1
         if (n === 1) return html
         return '<div><table class="filings-table"><tbody></tbody></table></div>'
@@ -187,7 +188,7 @@ describe('nyJcopeDisclosures adapter', () => {
     let n = 0
     const result = await nyJcopeDisclosures.fetchEvents({
       client: client as never,
-      fetcher: async () => {
+      pageFetcher: async () => {
         n += 1
         if (n === 1) return html
         return '<div><table class="filings-table"><tbody></tbody></table></div>'

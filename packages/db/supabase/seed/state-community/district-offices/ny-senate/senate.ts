@@ -1,12 +1,10 @@
 import * as cheerio from 'cheerio'
 import type { Client } from 'pg'
 import type { NormalizedDistrictOffice } from '../../shared.ts'
-import { parseAddressText } from '../_shared.ts'
+import { fetchPerMemberOffices } from '../_shared.ts'
 
 const SENATOR_CONTACT_URL = (slug: string) =>
   `https://www.nysenate.gov/senators/${slug}/contact`
-const FETCH_TIMEOUT_MS = 5000
-const RATE_LIMIT_MS = 1000
 
 export interface ParsedSenatorContact {
   albany_office?: string
@@ -25,6 +23,7 @@ export interface ParsedSenatorContact {
 export function deriveSenatorSlug(full_name: string): string {
   return full_name
     .toLowerCase()
+    .normalize('NFD').replace(/\p{Diacritic}/gu, '')
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
 }
@@ -34,7 +33,9 @@ export function deriveSenatorSlug(full_name: string): string {
  *
  * Audit: HTML shape is loose — <h2>/<h3> headings labeled "Albany Office"
  * and "District Office" with <br>-separated text underneath. Use cheerio
- * heading-walk to extract each block's text.
+ * heading-walk to extract each block's text. The <br>-aware extraction
+ * (slice 15) is the distinguishing trait vs the slice 16/17 cheerio
+ * <p>-walk parsers; keep it intact here.
  */
 export function parseNySenatorContactHtml(html: string): ParsedSenatorContact {
   const $ = cheerio.load(html)
@@ -80,73 +81,27 @@ export function parseNySenatorContactHtml(html: string): ParsedSenatorContact {
 /**
  * Fetch + parse all NY senators' contact pages.
  *
- * Queries `officials` table for NY state-senate legislators, derives a
- * slug from each `full_name`, fetches the contact page with a 1-req/sec
- * courtesy throttle (skipped in test mode when opts.fetcher is provided).
- * Per-senator fetch failures are silently skipped (no log surface in v1).
+ * Per-senator URL slug derived from full_name; collapses through the
+ * shared fetchPerMemberOffices loop. The slice 15 <br>-aware
+ * parseNySenatorContactHtml is preserved as the parseDetailHtml
+ * callback (re-mapping `albany_office` → canonical `capitol_office`).
  */
 export async function fetchSenateOffices(
   client: Pick<Client, 'query'>,
   opts: { fetcher?: (url: string) => Promise<string> },
 ): Promise<NormalizedDistrictOffice[]> {
-  const res = await client.query<{ openstates_person_id: string; full_name: string }>(
-    `select openstates_person_id, full_name from public.officials
-     where chamber = 'state_senate' and state = 'NY' and in_office = true`,
-  )
-
-  const out: NormalizedDistrictOffice[] = []
-
-  for (const senator of res.rows) {
-    const slug = deriveSenatorSlug(senator.full_name)
-    const url = SENATOR_CONTACT_URL(slug)
-
-    let html: string
-    try {
-      html = opts.fetcher
-        ? await opts.fetcher(url)
-        : await (await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })).text()
-    } catch {
-      continue
-    }
-
-    const parsed = parseNySenatorContactHtml(html)
-
-    if (parsed.albany_office) {
-      const parts = parseAddressText(parsed.albany_office)
-      if (parts) {
-        out.push({
-          official_openstates_person_id: senator.openstates_person_id,
-          kind: 'capitol',
-          street_1: parts.street_1,
-          city: parts.city,
-          state: parts.state,
-          ...(parts.postal_code ? { postal_code: parts.postal_code } : {}),
-          ...(parts.phone ? { phone: parts.phone } : {}),
-          source_url: url,
-        })
+  return fetchPerMemberOffices(client, {
+    chamber: 'state_senate',
+    state: 'NY',
+    deriveUrl: (l) => SENATOR_CONTACT_URL(deriveSenatorSlug(l.full_name)),
+    parseDetailHtml: (html) => {
+      const parsed = parseNySenatorContactHtml(html)
+      // Remap NY-local key (albany_office) → canonical (capitol_office).
+      return {
+        ...(parsed.albany_office ? { capitol_office: parsed.albany_office } : {}),
+        ...(parsed.district_office ? { district_office: parsed.district_office } : {}),
       }
-    }
-    if (parsed.district_office) {
-      const parts = parseAddressText(parsed.district_office)
-      if (parts) {
-        out.push({
-          official_openstates_person_id: senator.openstates_person_id,
-          kind: 'district',
-          street_1: parts.street_1,
-          city: parts.city,
-          state: parts.state,
-          ...(parts.postal_code ? { postal_code: parts.postal_code } : {}),
-          ...(parts.phone ? { phone: parts.phone } : {}),
-          source_url: url,
-        })
-      }
-    }
-
-    if (!opts.fetcher) {
-      // Production-path courtesy throttle (skipped in tests where fetcher is injected).
-      await new Promise(resolve => setTimeout(resolve, RATE_LIMIT_MS))
-    }
-  }
-
-  return out
+    },
+    ...(opts.fetcher ? { fetcher: opts.fetcher } : {}),
+  })
 }

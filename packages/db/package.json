@@ -9,7 +9,7 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.seed.json",
     "test": "vitest run",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",

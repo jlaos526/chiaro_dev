@@ -113,7 +113,7 @@ async function main(): Promise<void> {
          returning id`,
       [target.id],
     )
-    const fsId = fs.rows[0].id
+    const fsId = fs.rows[0]!.id
 
     await client.query(`delete from public.finance_industry_top where finance_summary_id = $1`, [fsId])
     for (const [rank, industry, amount] of [
@@ -193,7 +193,7 @@ async function main(): Promise<void> {
          on conflict (congress, bill_type, number) do update set title = excluded.title
          returning id`,
     )
-    const b1Id = b1.rows[0].id
+    const b1Id = b1.rows[0]!.id
     await client.query(`delete from public.bill_subjects where bill_id = $1`, [b1Id])
     await client.query(`insert into public.bill_subjects (bill_id, subject) values ($1, $2)`, [b1Id, 'Environmental protection'])
     await client.query(`insert into public.bill_subjects (bill_id, subject) values ($1, $2)`, [b1Id, 'Air quality'])
@@ -210,7 +210,7 @@ async function main(): Promise<void> {
          on conflict (congress, bill_type, number) do update set title = excluded.title
          returning id`,
     )
-    const b2Id = b2.rows[0].id
+    const b2Id = b2.rows[0]!.id
     await client.query(`delete from public.bill_subjects where bill_id = $1`, [b2Id])
     await client.query(`insert into public.bill_subjects (bill_id, subject) values ($1, $2)`, [b2Id, 'Civil rights and liberties, minority issues'])
     await client.query(`delete from public.bill_sponsors where bill_id = $1`, [b2Id])
@@ -236,9 +236,9 @@ async function main(): Promise<void> {
          returning id`,
       [target.chamber, b2Id],
     )
-    await client.query(`delete from public.vote_positions where vote_id in ($1, $2) and official_id = $3`, [v1.rows[0].id, v2.rows[0].id, target.id])
-    await client.query(`insert into public.vote_positions (vote_id, official_id, position) values ($1, $2, 'yes')`, [v1.rows[0].id, target.id])
-    await client.query(`insert into public.vote_positions (vote_id, official_id, position) values ($1, $2, 'not_voting')`, [v2.rows[0].id, target.id])
+    await client.query(`delete from public.vote_positions where vote_id in ($1, $2) and official_id = $3`, [v1.rows[0]!.id, v2.rows[0]!.id, target.id])
+    await client.query(`insert into public.vote_positions (vote_id, official_id, position) values ($1, $2, 'yes')`, [v1.rows[0]!.id, target.id])
+    await client.query(`insert into public.vote_positions (vote_id, official_id, position) values ($1, $2, 'not_voting')`, [v2.rows[0]!.id, target.id])
     console.log(`  ✓ 2 bills + sponsors + subjects + 2 votes (1 attended, 1 missed)`)
 
     // 6. OFFICIAL_METRICS — populate the scalar rollup

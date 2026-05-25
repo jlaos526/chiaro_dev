@@ -53,10 +53,10 @@ export async function ingestScorecards(opts?: { congress?: string; fixturesDir?:
         const fixturePath = opts?.fixturesDir
           ? `${opts.fixturesDir}/${a.slug}-${congress}.csv`
           : undefined
-        const ratings = await a.fetchRatings(congress, { fixturePath })
+        const ratings = await a.fetchRatings(congress, fixturePath !== undefined ? { fixturePath } : {})
         const orgRes = await client.query<{ id: string }>(
           'select id from public.scorecard_orgs where slug = $1', [a.slug])
-        const scorecardId = orgRes.rows[0].id
+        const scorecardId = orgRes.rows[0]!.id
 
         let count = 0
         for (const r of ratings) {

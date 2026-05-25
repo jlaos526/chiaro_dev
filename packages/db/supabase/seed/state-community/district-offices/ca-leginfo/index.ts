@@ -12,13 +12,12 @@ import { fetchCaAssemblyOffices } from './assembly.ts'
  * leginfo.legislature.ca.gov). Kept for back-compat with
  * state_community_orgs row continuity.
  */
-export const caLeginfoOffices: StateCommunityAdapter = {
+export const caLeginfoOffices: StateCommunityAdapter<NormalizedDistrictOffice> = {
   slug: 'ca-leginfo',
   component: 'offices',
   covered_states: ['CA'],
   async fetchEvents(opts): Promise<NormalizedDistrictOffice[]> {
-    const injected = (opts as never as { fetcher?: () => Promise<NormalizedDistrictOffice[]> }).fetcher
-    if (injected) return injected()
+    if (opts.fetcher) return opts.fetcher()
 
     const [senate, assembly] = await Promise.all([
       fetchCaSenateOffices(opts.client, {}),

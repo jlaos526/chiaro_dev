@@ -1,4 +1,5 @@
-import { Pressable, Text, View } from 'react-native'
+import { createElement } from 'react'
+import { Platform, Pressable, Text, View } from 'react-native'
 import {
   groupOfficialsByLevel,
   selectTopAlignmentChips,
@@ -41,16 +42,26 @@ export interface OfficialsCardProps {
   onCalibrate: () => void
   /** Optional URL builder for chip href (web a11y restoration; native ignored). */
   chipHref?: (target: { officialId: string; subCascadeSlug: string }) => string
+  /** Optional URL builder for the row link href (web a11y restoration;
+   * native ignored). When provided, the official name renders as real
+   * `<a href>` on web with plain left-click intercepted to `onSelect`. */
+  rowHref?: (target: { officialId: string }) => string
+  /** Optional URL for the "See all officials" link (web a11y restoration; native ignored). */
+  seeAllHref?: string
+  /** Optional URL for the calibrate prompt (web a11y restoration; native ignored). */
+  calibrateHref?: string
 }
 
 function OfficialRow({
   o,
   onSelect,
   chipHref,
+  rowHref,
 }: {
   o: OfficialWithDistrict
   onSelect: (target: OfficialsCardSelectTarget) => void
   chipHref?: (target: { officialId: string; subCascadeSlug: string }) => string
+  rowHref?: (target: { officialId: string }) => string
 }): React.JSX.Element {
   const client = useChiaroClient()
   const scorecards = useOfficialScorecardRatings(client, o.id)
@@ -66,6 +77,40 @@ function OfficialRow({
 
   const { districtNumber, atLarge } = parseDistrict(o.district?.code ?? null)
   const handlePress = () => onSelect({ officialId: o.id })
+  const href = rowHref?.({ officialId: o.id })
+
+  const nameElement = (
+    <Text style={{ fontWeight: '600', fontSize: 15, color: COLORS.brand.text }}>{o.full_name}</Text>
+  )
+
+  let nameLink: React.JSX.Element
+  if (Platform.OS === 'web' && href) {
+    nameLink = createElement(
+      'a',
+      {
+        href,
+        onClick: (e: MouseEvent) => {
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return
+          e.preventDefault()
+          handlePress()
+        },
+        'aria-label': `View ${o.full_name}`,
+        style: {
+          textDecoration: 'none',
+          color: 'inherit',
+          cursor: 'pointer',
+          display: 'inline-block',
+        },
+      },
+      nameElement,
+    )
+  } else {
+    nameLink = (
+      <Pressable onPress={handlePress}>
+        {nameElement}
+      </Pressable>
+    )
+  }
 
   return (
     <View
@@ -83,9 +128,7 @@ function OfficialRow({
           <OfficialAvatar fullName={o.full_name} portraitUrl={o.portrait_url} size={44} />
         </Pressable>
         <View style={{ flex: 1 }}>
-          <Pressable onPress={handlePress}>
-            <Text style={{ fontWeight: '600', fontSize: 15, color: COLORS.brand.text }}>{o.full_name}</Text>
-          </Pressable>
+          {nameLink}
           <DistrictBadge
             chamber={o.chamber as 'federal_house' | 'federal_senate'}
             stateName={stateName}
@@ -121,6 +164,9 @@ export function OfficialsCard({
   onSeeAll,
   onCalibrate,
   chipHref,
+  rowHref,
+  seeAllHref,
+  calibrateHref,
 }: OfficialsCardProps): React.JSX.Element {
   const client = useChiaroClient()
   const { data, isLoading, error } = useMyOfficials(client)
@@ -128,14 +174,73 @@ export function OfficialsCard({
   if (isLoading) return <Text>Loading officials…</Text>
   if (error) return <Text>Couldn&apos;t load officials.</Text>
   if (!data || data.length === 0) {
+    const calibrateContent = (
+      <Text style={{ color: COLORS.brand.primary }}>
+        Calibrate your address to see your delegation.
+      </Text>
+    )
+
+    if (Platform.OS === 'web' && calibrateHref) {
+      return createElement(
+        'a',
+        {
+          href: calibrateHref,
+          onClick: (e: MouseEvent) => {
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return
+            e.preventDefault()
+            onCalibrate()
+          },
+          style: {
+            textDecoration: 'none',
+            cursor: 'pointer',
+            display: 'inline-block',
+          },
+        },
+        calibrateContent,
+      )
+    }
+
     return (
       <Pressable onPress={onCalibrate} accessibilityRole="link">
-        <Text style={{ color: COLORS.brand.primary }}>Calibrate your address to see your delegation.</Text>
+        {calibrateContent}
       </Pressable>
     )
   }
 
   const { federal, state } = groupOfficialsByLevel(data)
+
+  const seeAllText = (
+    <Text style={{ fontSize: 14, color: COLORS.brand.primary, marginTop: 10 }}>
+      See all officials →
+    </Text>
+  )
+
+  let seeAllElement: React.JSX.Element
+  if (Platform.OS === 'web' && seeAllHref) {
+    seeAllElement = createElement(
+      'a',
+      {
+        href: seeAllHref,
+        onClick: (e: MouseEvent) => {
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return
+          e.preventDefault()
+          onSeeAll()
+        },
+        style: {
+          textDecoration: 'none',
+          cursor: 'pointer',
+          display: 'inline-block',
+        },
+      },
+      seeAllText,
+    )
+  } else {
+    seeAllElement = (
+      <Pressable onPress={onSeeAll} accessibilityRole="link">
+        {seeAllText}
+      </Pressable>
+    )
+  }
 
   return (
     <View
@@ -164,6 +269,7 @@ export function OfficialsCard({
               o={o}
               onSelect={onSelect}
               {...(chipHref ? { chipHref } : {})}
+              {...(rowHref ? { rowHref } : {})}
             />
           ))}
         </View>
@@ -172,9 +278,7 @@ export function OfficialsCard({
         officials={state}
         onSelect={onSelect}
       />
-      <Pressable onPress={onSeeAll} accessibilityRole="link">
-        <Text style={{ fontSize: 14, color: COLORS.brand.primary, marginTop: 10 }}>See all officials →</Text>
-      </Pressable>
+      {seeAllElement}
     </View>
   )
 }

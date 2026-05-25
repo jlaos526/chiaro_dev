@@ -38,6 +38,10 @@ describe('deriveSenatorSlug', () => {
   it('strips non-alphanumeric characters', () => {
     expect(deriveSenatorSlug("Mary O'Brien-Smith")).toBe('mary-obrien-smith')
   })
+
+  it('preserves accented characters as ASCII transliterations (Audit Bug 1 fix)', () => {
+    expect(deriveSenatorSlug('José Smith')).toBe('jose-smith')
+  })
 })
 
 describe('fetchSenateOffices', () => {

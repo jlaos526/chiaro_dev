@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { nyJcopeComplaints } from './ny-jcope.ts'
+import { stubFetchBlocked } from '../../test-utils/stub-fetch.ts'
 
 describe('nyJcopeComplaints adapter', () => {
   it('has correct slug/component/covered_states', () => {
@@ -20,7 +21,7 @@ describe('nyJcopeComplaints adapter', () => {
     // No injected fetcher; stub global fetch to prevent network leak.
     // The helper catches the rejection and returns { complaints: [], events: [], errors: [...] }
     // → adapter returns [].
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('blocked in test'))
+    const fetchSpy = stubFetchBlocked()
     const client = {
       query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
     }

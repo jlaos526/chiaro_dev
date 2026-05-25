@@ -13,7 +13,7 @@ import type { StateCommunityAdapter, NormalizedTownHall } from '../shared.ts'
  * See docs/superpowers/audits/2026-05-24-stub-adapter-discovery.md
  * + Gotcha #21 in CLAUDE.md.
  */
-export const flDoeTownHalls: StateCommunityAdapter = {
+export const flDoeTownHalls: StateCommunityAdapter<NormalizedTownHall> = {
   slug: 'fl-doe',
   component: 'halls',
   covered_states: [],

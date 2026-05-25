@@ -47,14 +47,13 @@ interface OpenStatesPerson {
  *     (slice 5C format) → extracts `CA` via JURISDICTION_RE
  *   - Plain 2-letter: `CA` → passes through unchanged
  */
-export const openstatesEndReason: StateEthicsAdapter = {
+export const openstatesEndReason: StateEthicsAdapter<NormalizedOfficialEvent> = {
   slug: 'openstates-end-reason',
   component: 'events',
   covered_states: ALL_STATES,
 
   async fetchEvents(opts) {
-    const fetcher = (opts as never as { fetcher?: () => Promise<NormalizedOfficialEvent[]> }).fetcher
-    if (fetcher) return fetcher()
+    if (opts.fetcher) return opts.fetcher()
 
     const dir = peopleCacheDir()
     if (!existsSync(dir)) return []

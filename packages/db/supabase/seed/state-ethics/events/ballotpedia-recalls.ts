@@ -149,13 +149,12 @@ export async function fetchBallotpediaRecallEvents(
   return { events, errors }
 }
 
-export const ballotpediaRecalls: StateEthicsAdapter = {
+export const ballotpediaRecalls: StateEthicsAdapter<NormalizedOfficialEvent> = {
   slug: 'ballotpedia',
   component: 'events',
   covered_states: ALL_STATES,
   async fetchEvents(opts) {
-    const fetcher = (opts as never as { fetcher?: () => Promise<NormalizedOfficialEvent[]> }).fetcher
-    if (fetcher) return fetcher()
+    if (opts.fetcher) return opts.fetcher()
     // Production path
     const result = await fetchBallotpediaRecallEvents(opts.client)
     return result.events

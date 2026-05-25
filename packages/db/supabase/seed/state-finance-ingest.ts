@@ -94,7 +94,7 @@ if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
   const cycle = cycleArg.split('=')[1]!
   const state = stateArg ? (stateArg.split('=')[1]! as FinanceState) : undefined
 
-  ingestStateFinance({ cycle, state, skipOnError })
+  ingestStateFinance({ cycle, ...(state !== undefined ? { state } : {}), skipOnError })
     .then(stats => {
       console.log(`State finance ingest summary (cycle ${stats.cycle}):`)
       console.log(`  states attempted:        ${stats.statesAttempted}`)

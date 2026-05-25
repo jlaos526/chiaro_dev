@@ -102,10 +102,11 @@ export async function parseMobilizeEvents(
     if (!startTs) continue
     const eventDate = new Date(startTs * 1000).toISOString().slice(0, 10)
 
+    const city = event.location?.locality
     out.push({
       legislator_name: name,
       event_date: eventDate,
-      city: event.location?.locality,
+      ...(city !== undefined ? { city } : {}),
       state,
       format: deriveFormat({
         is_virtual: event.is_virtual,
@@ -147,14 +148,13 @@ async function fetchAndNormalize(client: Client, _state?: string): Promise<Norma
   return out
 }
 
-export const mobilize: StateCommunityAdapter = {
+export const mobilize: StateCommunityAdapter<NormalizedTownHall> = {
   slug: 'mobilize',
   component: 'halls',
   covered_states: ALL_STATES,
 
   async fetchEvents(opts) {
-    const fetcher = (opts as never as { fetcher?: () => Promise<NormalizedTownHall[]> }).fetcher
-    if (fetcher) return fetcher()
+    if (opts.fetcher) return opts.fetcher()
     return fetchAndNormalize(opts.client, opts.state)
   },
 }

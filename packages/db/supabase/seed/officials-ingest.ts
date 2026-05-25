@@ -150,7 +150,7 @@ export async function ingestOfficials(args: IngestArgs): Promise<IngestStats> {
       insert into public.officials_ingest_runs (congress, source, status, flags)
       values ($1,$2,'in_progress',$3) returning id
     `, [congress, OFFICIALS_SOURCE, flags])
-    runId = openRes.rows[0].id
+    runId = openRes.rows[0]!.id
     stats.runId = runId
 
     // Step 2: fetch both chambers in parallel
@@ -196,13 +196,13 @@ export async function ingestOfficials(args: IngestArgs): Promise<IngestStats> {
       select count(*)::text as count from public.officials
         where in_office = true and bioguide_id != all($1::text[])
     `, [ingestedBioguideIds])
-    const toDeactivate = Number(toDeactRes.rows[0].count)
+    const toDeactivate = Number(toDeactRes.rows[0]!.count)
 
     // Step 8: threshold guard (Improvement 3)
     const activeRes = await client.query<{ count: string }>(`
       select count(*)::text as count from public.officials where in_office = true
     `)
-    const active = Number(activeRes.rows[0].count)
+    const active = Number(activeRes.rows[0]!.count)
     const threshold = Math.max(
       DEACTIVATE_THRESHOLD_ABS,
       Math.ceil(active * DEACTIVATE_THRESHOLD_PCT),
@@ -298,7 +298,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     ? Number(allowFlag.split('=')[1])
     : undefined
 
-  ingestOfficials({ apiKey, allowDeactivations })
+  ingestOfficials({ apiKey, ...(allowDeactivations !== undefined ? { allowDeactivations } : {}) })
     .then((stats) => {
       console.log(JSON.stringify(stats, null, 2))
       process.exit(0)

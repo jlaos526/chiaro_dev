@@ -55,9 +55,9 @@ describe('ingestScorecards', () => {
 
     expect(Object.keys(stats)).toHaveLength(ADAPTERS.length)
     for (const slug of ADAPTERS.map(a => a.slug)) {
-      expect(stats[slug].error).toBeUndefined()
+      expect(stats[slug]!.error).toBeUndefined()
       // Each fixture has 3 rows, only P000197 is a known official, so each adapter inserts 1.
-      expect(stats[slug].ratings).toBe(1)
+      expect(stats[slug]!.ratings).toBe(1)
     }
 
     const orgs = await client.query("select slug from public.scorecard_orgs order by slug")
@@ -81,8 +81,8 @@ describe('ingestScorecards', () => {
   it('isolates per-adapter failures (bad fixture path)', async () => {
     const stats = await ingestScorecards({ fixturesDir: '/nonexistent/path' })
     for (const slug of ADAPTERS.map(a => a.slug)) {
-      expect(stats[slug].error).toBeDefined()
-      expect(stats[slug].ratings).toBe(0)
+      expect(stats[slug]!.error).toBeDefined()
+      expect(stats[slug]!.ratings).toBe(0)
     }
   })
 })

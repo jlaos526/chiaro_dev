@@ -68,7 +68,7 @@ export async function ingestStateScorecards(
           ? [opts.state]
           : adapter.covered_states
         const ratings = await adapter.fetchRatings({
-          client, session: opts.session, state: opts.state,
+          client, session: opts.session, ...(opts.state !== undefined ? { state: opts.state } : {}),
         })
         // Upsert per-state org rows for each state in scope.
         const orgIdByState = new Map<string, string>()
@@ -129,7 +129,12 @@ if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
   const state = stateArg ? stateArg.split('=')[1]! : undefined
   const org = orgArg ? orgArg.split('=')[1]! : undefined
 
-  ingestStateScorecards({ session, state, org, skipOnError })
+  ingestStateScorecards({
+    session,
+    ...(state !== undefined ? { state } : {}),
+    ...(org !== undefined ? { org } : {}),
+    skipOnError,
+  })
     .then(stats => {
       console.log(`State scorecards ingest summary (session ${stats.session}):`)
       console.log(`  adapters attempted:       ${stats.adaptersAttempted}`)

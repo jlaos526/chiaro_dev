@@ -22,6 +22,18 @@ describe('parseFlRepDetailHtml', () => {
     expect(parsed.capitol_office).toBeUndefined()
     expect(parsed.district_office).toBeUndefined()
   })
+
+  it('joins multi-paragraph section addresses with comma (Audit Bug 3 fix)', () => {
+    const html = `
+      <section class="capitol-office">
+        <p>1102 The Capitol, 402 South Monroe Street</p>
+        <p>Tallahassee, FL 32399</p>
+        <p>Phone: (850) 717-5014</p>
+      </section>
+    `
+    const parsed = parseFlRepDetailHtml(html)
+    expect(parsed.capitol_office).toBe('1102 The Capitol, 402 South Monroe Street, Tallahassee, FL 32399, Phone: (850) 717-5014')
+  })
 })
 
 describe('deriveFlRepUrl', () => {

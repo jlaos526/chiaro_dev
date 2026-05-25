@@ -12,13 +12,12 @@ import { fetchFlHouseOffices } from './house.ts'
  * source URLs being flsenate.gov + flhouse.gov, not floridadoe.gov).
  * Kept for back-compat with state_community_orgs row continuity.
  */
-export const flDoeOffices: StateCommunityAdapter = {
+export const flDoeOffices: StateCommunityAdapter<NormalizedDistrictOffice> = {
   slug: 'fl-doe',
   component: 'offices',
   covered_states: ['FL'],
   async fetchEvents(opts): Promise<NormalizedDistrictOffice[]> {
-    const injected = (opts as never as { fetcher?: () => Promise<NormalizedDistrictOffice[]> }).fetcher
-    if (injected) return injected()
+    if (opts.fetcher) return opts.fetcher()
 
     const [senate, house] = await Promise.all([
       fetchFlSenateOffices(opts.client, {}),

@@ -10,13 +10,12 @@ import { fetchMiHouseOffices } from './house.ts'
  * Slug `mi-legislature` is the slice 5H stub legacy name. Kept
  * for back-compat with state_community_orgs row continuity.
  */
-export const miLegislatureOffices: StateCommunityAdapter = {
+export const miLegislatureOffices: StateCommunityAdapter<NormalizedDistrictOffice> = {
   slug: 'mi-legislature',
   component: 'offices',
   covered_states: ['MI'],
   async fetchEvents(opts): Promise<NormalizedDistrictOffice[]> {
-    const injected = (opts as never as { fetcher?: () => Promise<NormalizedDistrictOffice[]> }).fetcher
-    if (injected) return injected()
+    if (opts.fetcher) return opts.fetcher()
 
     const [senate, house] = await Promise.all([
       fetchMiSenateOffices(opts.client, {}),

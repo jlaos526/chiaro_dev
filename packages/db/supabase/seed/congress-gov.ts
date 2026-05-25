@@ -69,7 +69,7 @@ function chamberApiToken(chamber: Chamber): 'house' | 'senate' {
 }
 
 function buildPortraitUrl(bioguideId: string): string {
-  const firstLetter = bioguideId[0].toUpperCase()
+  const firstLetter = bioguideId[0]!.toUpperCase()
   return `https://bioguide.congress.gov/bioguide/photo/${firstLetter}/${bioguideId}.jpg`
 }
 
@@ -125,10 +125,10 @@ function deriveSenateClass(allTerms: DetailTerm[]): 1 | 2 | 3 | null {
   // previous term's endYear equals next term's startYear (or is one less in
   // the off-by-one edge cases the API sometimes ships).
   const reversed = [...senateTerms].reverse()
-  const contiguous: DetailTerm[] = [reversed[0]]
+  const contiguous: DetailTerm[] = [reversed[0]!]
   for (let i = 1; i < reversed.length; i++) {
-    const prev = contiguous[contiguous.length - 1]
-    const cand = reversed[i]
+    const prev = contiguous[contiguous.length - 1]!
+    const cand = reversed[i]!
     const prevStart = prev.startYear!
     const candEnd = cand.endYear
     // Contiguous if cand's endYear matches prev's startYear (or is adjacent).

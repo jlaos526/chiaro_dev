@@ -54,7 +54,7 @@ export async function ingestFinance(args: FinanceIngestArgs): Promise<FinanceIng
         const fixturePath = args.fixturesDir
           ? `${args.fixturesDir}/opensecrets-summary-${o.opensecrets_id}.json`
           : undefined
-        const snap: FinanceSnapshot = await fetcher(o.opensecrets_id, cycle, args.apiKey, { fixturePath })
+        const snap: FinanceSnapshot = await fetcher(o.opensecrets_id, cycle, args.apiKey, fixturePath !== undefined ? { fixturePath } : {})
 
         await client.query('BEGIN')
 
@@ -75,7 +75,7 @@ export async function ingestFinance(args: FinanceIngestArgs): Promise<FinanceIng
           returning id
         `, [o.id, cycle, o.opensecrets_id, snap.total_raised, snap.total_disbursed,
             snap.small_donor_pct, snap.in_state_pct, snap.out_of_state_pct, snap.source_url])
-        const summaryId = ins.rows[0].id
+        const summaryId = ins.rows[0]!.id
         stats.summariesUpserted++
 
         await client.query('delete from public.finance_industry_top where finance_summary_id = $1', [summaryId])

@@ -45,7 +45,12 @@ describe('openstatesEndReason adapter', () => {
     })
 
     it('parses .yml files and emits resignation events with state extracted from OCD jurisdiction', async () => {
-      const events = await openstatesEndReason.fetchEvents({ client: {} as never } as never)
+      const events = await openstatesEndReason.fetchEvents({ client: {} as never } as never) as Array<{
+        state: string
+        event_date: string
+        event_type: string
+        outcome?: string
+      }>
       expect(events.length).toBe(2)
       const ca = events.find(e => e.state === 'CA')
       const ny = events.find(e => e.state === 'NY')

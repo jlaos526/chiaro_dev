@@ -80,16 +80,20 @@ function extractCityFromLocation(text: string): string | undefined {
   return candidates[candidates.length - 1]
 }
 
-export const nySenateTownHalls: StateCommunityAdapter = {
+export const nySenateTownHalls: StateCommunityAdapter<NormalizedTownHall> = {
   slug: 'ny-senate',
   component: 'halls',
   covered_states: ['NY'],
   async fetchEvents(opts): Promise<NormalizedTownHall[]> {
-    const injected = (opts as never as { fetcher?: () => Promise<string> }).fetcher
+    // Adapter-level fixture injection (returns pre-resolved rows)
+    if (opts.fetcher) return opts.fetcher()
+
+    // Page-level fetcher injection (returns HTML for parser tests)
+    const pageFetcher = (opts as { pageFetcher?: () => Promise<string> }).pageFetcher
     let html: string
     try {
-      html = injected
-        ? await injected()
+      html = pageFetcher
+        ? await pageFetcher()
         : await (await fetch(SOURCE_URL, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })).text()
     } catch {
       return []
@@ -106,6 +110,7 @@ export const nySenateTownHalls: StateCommunityAdapter = {
       })
       if (!openstates_person_id) continue
 
+      const externalId = p.detail_url.split('/').pop()
       const row: NormalizedTownHall = {
         official_openstates_person_id: openstates_person_id,
         event_date: p.event_date,
@@ -113,7 +118,7 @@ export const nySenateTownHalls: StateCommunityAdapter = {
         format: p.format,
         source_url: p.detail_url,
         source: 'ny-senate',
-        external_id: p.detail_url.split('/').pop() ?? undefined,
+        ...(externalId !== undefined && externalId !== '' ? { external_id: externalId } : {}),
       }
       if (p.city) row.city = p.city
       out.push(row)

@@ -47,7 +47,7 @@ describe('ingestStateCommunity', () => {
   it('--state filter passes state through to adapter and filters covered_states', async () => {
     const calls: Array<{ slug: string; state?: string }> = []
     const adapters = [
-      mkAdapter({ slug: 'a', covered_states: ['CA'], async fetchEvents(o) { calls.push({ slug: 'a', state: o.state }); return [] } }),
+      mkAdapter({ slug: 'a', covered_states: ['CA'], async fetchEvents(o) { calls.push({ slug: 'a', ...(o.state !== undefined ? { state: o.state } : {}) }); return [] } }),
       mkAdapter({ slug: 'b', covered_states: ['NY'], async fetchEvents() { calls.push({ slug: 'b' }); return [] } }),
     ]
     await ingestStateCommunity({ client, state: 'CA', adapters })

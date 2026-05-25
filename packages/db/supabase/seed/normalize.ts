@@ -55,7 +55,7 @@ function mapParty(partyName: string): Party {
 }
 
 function buildPortraitUrl(bioguideId: string): string {
-  const firstLetter = bioguideId[0].toUpperCase()
+  const firstLetter = bioguideId[0]!.toUpperCase()
   return `https://bioguide.congress.gov/bioguide/photo/${firstLetter}/${bioguideId}.jpg`
 }
 

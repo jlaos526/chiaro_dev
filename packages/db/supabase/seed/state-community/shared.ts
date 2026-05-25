@@ -40,7 +40,12 @@ export interface NormalizedCommitteeHearing {
   attendees_openstates_person_ids: string[]
 }
 
-export interface StateCommunityAdapter {
+export type StateCommunityEvent =
+  | NormalizedTownHall
+  | NormalizedDistrictOffice
+  | NormalizedCommitteeHearing
+
+export interface StateCommunityAdapter<E extends StateCommunityEvent = StateCommunityEvent> {
   slug: string
   component: CommunityComponent
   covered_states: string[]
@@ -48,8 +53,8 @@ export interface StateCommunityAdapter {
     client: Client
     state?: string
     session?: string
-    fetcher?: () => Promise<unknown[]>
-  }): Promise<Array<NormalizedTownHall | NormalizedDistrictOffice | NormalizedCommitteeHearing>>
+    fetcher?: () => Promise<E[]>
+  }): Promise<E[]>
 }
 
 export interface StateCommunityStats {

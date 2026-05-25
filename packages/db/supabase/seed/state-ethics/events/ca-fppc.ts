@@ -1,12 +1,11 @@
 import type { StateEthicsAdapter, NormalizedOfficialEvent } from '../shared.ts'
 
-export const caFppcEvents: StateEthicsAdapter = {
+export const caFppcEvents: StateEthicsAdapter<NormalizedOfficialEvent> = {
   slug: 'ca-fppc',
   component: 'events',
   covered_states: ['CA'],
   async fetchEvents(opts) {
-    const fetcher = (opts as never as { fetcher?: () => Promise<NormalizedOfficialEvent[]> }).fetcher
-    if (fetcher) return fetcher()
+    if (opts.fetcher) return opts.fetcher()
     return []
   },
 }

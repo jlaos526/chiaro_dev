@@ -13,13 +13,12 @@ import { fetchSwornComplaintOrders } from '../tx-tec/shared.ts'
  * ethics.state.tx.us/data/enforcement/sworn_complaints/<year>/<id>.pdf
  * deferred to a future PDF-parsing slice.
  */
-export const txTecComplaints: StateEthicsAdapter = {
+export const txTecComplaints: StateEthicsAdapter<NormalizedEthicsComplaint> = {
   slug: 'tx-tec',
   component: 'complaints',
   covered_states: ['TX'],
   async fetchEvents(opts): Promise<NormalizedEthicsComplaint[]> {
-    const injected = (opts as never as { fetcher?: () => Promise<NormalizedEthicsComplaint[]> }).fetcher
-    if (injected) return injected()
+    if (opts.fetcher) return opts.fetcher()
     const { complaints } = await fetchSwornComplaintOrders(opts.client, {})
     return complaints
   },

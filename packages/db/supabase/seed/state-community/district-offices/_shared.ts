@@ -1,3 +1,172 @@
+import type { Client } from 'pg'
+import type { NormalizedDistrictOffice } from '../shared.ts'
+
+/**
+ * Fetch-timeout for per-member detail-page HTTP requests in the
+ * production path. 5s aligns with slice 15/16/17 per-parser constants
+ * that were hoisted in slice 18 Task 5 (audit M4).
+ */
+export const FETCH_TIMEOUT_MS = 5000
+
+/**
+ * Per-member courtesy throttle between detail-page fetches. 1 req/sec
+ * matches the friendly-scrape convention established in slice 15.
+ * Skipped (a) in test mode when `opts.fetcher` is injected and
+ * (b) after the last iteration of the loop (audit M5 fix; saves
+ * ~1s per orchestrator run).
+ */
+export const RATE_LIMIT_MS = 1000
+
+/**
+ * Common shape returned by `parseDetailHtml` callbacks. Captures the
+ * two address blocks that every per-chamber detail page exposes
+ * (capitol-office + district-office), as raw multi-paragraph-joined
+ * strings ready for `parseAddressText`. Some chambers carry their own
+ * heading labels ("Lansing Office" in MI, "Albany Office" in NY) — the
+ * per-chamber parser re-maps to this canonical pair.
+ */
+export interface ParsedMemberDetail {
+  capitol_office?: string
+  district_office?: string
+}
+
+export interface PerMemberOfficesOpts {
+  chamber: 'state_house' | 'state_senate'
+  state: string
+  /**
+   * Build the per-member detail-page URL from the legislator row.
+   * Return null to skip this legislator (e.g. missing district_id,
+   * malformed name, no derivable URL).
+   */
+  deriveUrl: (legislator: {
+    full_name: string
+    district_id: string | null
+    openstates_person_id: string
+  }) => string | null
+  /**
+   * Parse a single detail page into capitol + district address blocks.
+   * Implementations should use the multi-paragraph join pattern
+   * (audit Bug 3 fix) — `.first()` selectors silently drop data.
+   */
+  parseDetailHtml: (html: string) => ParsedMemberDetail
+  /**
+   * Optional page fetcher for test injection. Production path uses
+   * native fetch + 1-req/sec throttle (skipped when fetcher injected).
+   */
+  fetcher?: (url: string) => Promise<string>
+}
+
+/**
+ * Generic per-member offices fetch loop. Shared by 5 per-chamber
+ * parsers (slice 16 ca-leginfo/assembly + mi-legislature/{senate,house},
+ * slice 17 fl-doe/{senate,house}) plus slice 15 ny-senate/senate via
+ * a re-mapping parseDetailHtml callback.
+ *
+ * Queries `officials` for the (chamber, state) cohort, derives each
+ * legislator's profile URL via the caller-supplied deriveUrl callback,
+ * fetches with 1-req/sec courtesy throttle (skipped when opts.fetcher
+ * is injected), parses via the caller-supplied parseDetailHtml, and
+ * emits NormalizedDistrictOffice rows via emitOfficeRow.
+ *
+ * Throttle skipped after the last iteration (audit M5 fix; saves
+ * ~1s per run for the last legislator in each chamber cohort).
+ *
+ * Replaces ~240 lines of duplicated per-chamber boilerplate.
+ */
+export async function fetchPerMemberOffices(
+  client: Pick<Client, 'query'>,
+  opts: PerMemberOfficesOpts,
+): Promise<NormalizedDistrictOffice[]> {
+  const res = await client.query<{
+    openstates_person_id: string
+    full_name: string
+    district_id: string | null
+  }>(
+    `select openstates_person_id, full_name, district_id from public.officials
+     where chamber = $1 and state = $2 and in_office = true`,
+    [opts.chamber, opts.state],
+  )
+
+  const out: NormalizedDistrictOffice[] = []
+  const rows = res.rows
+  const totalRows = rows.length
+
+  for (let i = 0; i < totalRows; i += 1) {
+    const legislator = rows[i]!
+    // Tolerate mock rows that omit district_id by coercing undefined → null.
+    const normalized = {
+      full_name: legislator.full_name,
+      openstates_person_id: legislator.openstates_person_id,
+      district_id: legislator.district_id ?? null,
+    }
+    const url = opts.deriveUrl(normalized)
+    if (!url) continue
+
+    let html: string
+    try {
+      html = opts.fetcher
+        ? await opts.fetcher(url)
+        : await (await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })).text()
+    } catch {
+      continue
+    }
+
+    const parsed = opts.parseDetailHtml(html)
+
+    if (parsed.capitol_office) {
+      const row = emitOfficeRow(parsed.capitol_office, {
+        openstates_person_id: legislator.openstates_person_id,
+        kind: 'capitol',
+        source_url: url,
+      })
+      if (row) out.push(row)
+    }
+    if (parsed.district_office) {
+      const row = emitOfficeRow(parsed.district_office, {
+        openstates_person_id: legislator.openstates_person_id,
+        kind: 'district',
+        source_url: url,
+      })
+      if (row) out.push(row)
+    }
+
+    // Audit M5: skip throttle after last iteration (saves ~1s/run).
+    if (!opts.fetcher && i < totalRows - 1) {
+      await new Promise(resolve => setTimeout(resolve, RATE_LIMIT_MS))
+    }
+  }
+
+  return out
+}
+
+/**
+ * Build a NormalizedDistrictOffice row from a raw address string via
+ * parseAddressText. Returns null if the address can't be parsed
+ * (missing street_1, city, or state).
+ */
+export function emitOfficeRow(
+  raw: string,
+  opts: {
+    openstates_person_id: string
+    kind: 'capitol' | 'district'
+    source_url: string
+  },
+): NormalizedDistrictOffice | null {
+  const parts = parseAddressText(raw)
+  if (!parts) return null
+  const row: NormalizedDistrictOffice = {
+    official_openstates_person_id: opts.openstates_person_id,
+    kind: opts.kind,
+    street_1: parts.street_1,
+    city: parts.city,
+    state: parts.state,
+    source_url: opts.source_url,
+  }
+  if (parts.postal_code) row.postal_code = parts.postal_code
+  if (parts.phone) row.phone = parts.phone
+  return row
+}
+
 /**
  * Best-effort regex parser for a raw US legislator-office address string.
  *

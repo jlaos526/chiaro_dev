@@ -11,7 +11,7 @@ afterEach(async () => { await client.end() })
 
 function mkAdapter(overrides: Partial<StateEthicsAdapter>): StateEthicsAdapter {
   return {
-    slug: 'test', component: 'stock', covered_states: ['CA'],
+    slug: 'test', component: 'disclosures', covered_states: ['CA'],
     async fetchEvents() { return [] }, ...overrides,
   }
 }
@@ -19,7 +19,7 @@ function mkAdapter(overrides: Partial<StateEthicsAdapter>): StateEthicsAdapter {
 describe('ingestStateEthics', () => {
   it('happy path: runs all adapters', async () => {
     const adapters = [
-      mkAdapter({ slug: 'a', component: 'stock' }),
+      mkAdapter({ slug: 'a', component: 'disclosures' }),
       mkAdapter({ slug: 'b', component: 'complaints' }),
     ]
     const stats = await ingestStateEthics({ client, adapters })
@@ -30,17 +30,17 @@ describe('ingestStateEthics', () => {
   it('--component filter restricts', async () => {
     const calls: string[] = []
     const adapters = [
-      mkAdapter({ slug: 'a', component: 'stock',     async fetchEvents() { calls.push('a'); return [] } }),
-      mkAdapter({ slug: 'b', component: 'complaints', async fetchEvents() { calls.push('b'); return [] } }),
+      mkAdapter({ slug: 'a', component: 'disclosures', async fetchEvents() { calls.push('a'); return [] } }),
+      mkAdapter({ slug: 'b', component: 'complaints',  async fetchEvents() { calls.push('b'); return [] } }),
     ]
-    await ingestStateEthics({ client, component: 'stock', adapters })
+    await ingestStateEthics({ client, component: 'disclosures', adapters })
     expect(calls).toEqual(['a'])
   })
 
   it('--state filter passes state + filters covered_states', async () => {
     const calls: Array<{ slug: string; state?: string }> = []
     const adapters = [
-      mkAdapter({ slug: 'a', covered_states: ['CA'], async fetchEvents(o) { calls.push({ slug: 'a', state: o.state }); return [] } }),
+      mkAdapter({ slug: 'a', covered_states: ['CA'], async fetchEvents(o) { calls.push({ slug: 'a', ...(o.state !== undefined ? { state: o.state } : {}) }); return [] } }),
       mkAdapter({ slug: 'b', covered_states: ['NY'], async fetchEvents() { calls.push({ slug: 'b' }); return [] } }),
     ]
     await ingestStateEthics({ client, state: 'CA', adapters })
@@ -65,15 +65,14 @@ describe('ingestStateEthics', () => {
     await expect(ingestStateEthics({ client, adapters })).rejects.toThrow(/boom/)
   })
 
-  it('--component=all runs all 4 components', async () => {
+  it('--component=all runs all 3 components', async () => {
     const calls: string[] = []
     const adapters = [
-      mkAdapter({ slug: 'a', component: 'stock',        async fetchEvents() { calls.push('a'); return [] } }),
-      mkAdapter({ slug: 'b', component: 'disclosures',  async fetchEvents() { calls.push('b'); return [] } }),
-      mkAdapter({ slug: 'c', component: 'complaints',   async fetchEvents() { calls.push('c'); return [] } }),
-      mkAdapter({ slug: 'd', component: 'events',       async fetchEvents() { calls.push('d'); return [] } }),
+      mkAdapter({ slug: 'a', component: 'disclosures', async fetchEvents() { calls.push('a'); return [] } }),
+      mkAdapter({ slug: 'b', component: 'complaints',  async fetchEvents() { calls.push('b'); return [] } }),
+      mkAdapter({ slug: 'c', component: 'events',      async fetchEvents() { calls.push('c'); return [] } }),
     ]
     await ingestStateEthics({ client, component: 'all', adapters })
-    expect(calls).toEqual(['a', 'b', 'c', 'd'])
+    expect(calls).toEqual(['a', 'b', 'c'])
   })
 })

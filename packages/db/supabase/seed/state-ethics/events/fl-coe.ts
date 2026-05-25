@@ -1,12 +1,11 @@
 import type { StateEthicsAdapter, NormalizedOfficialEvent } from '../shared.ts'
 
-export const flCoeEvents: StateEthicsAdapter = {
+export const flCoeEvents: StateEthicsAdapter<NormalizedOfficialEvent> = {
   slug: 'fl-coe',
   component: 'events',
   covered_states: ['FL'],
   async fetchEvents(opts) {
-    const fetcher = (opts as never as { fetcher?: () => Promise<NormalizedOfficialEvent[]> }).fetcher
-    if (fetcher) return fetcher()
+    if (opts.fetcher) return opts.fetcher()
     return []
   },
 }

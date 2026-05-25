@@ -9,13 +9,12 @@ import { fetchEnforcementActions } from '../ny-coelig/shared.ts'
  * slice 9 Ballotpedia nationwide; this adapter emits only
  * event_type='campaign_finance_violation'.
  */
-export const nyJcopeEvents: StateEthicsAdapter = {
+export const nyJcopeEvents: StateEthicsAdapter<NormalizedOfficialEvent> = {
   slug: 'ny-jcope',
   component: 'events',
   covered_states: ['NY'],
   async fetchEvents(opts): Promise<NormalizedOfficialEvent[]> {
-    const injected = (opts as never as { fetcher?: () => Promise<NormalizedOfficialEvent[]> }).fetcher
-    if (injected) return injected()
+    if (opts.fetcher) return opts.fetcher()
     const { events } = await fetchEnforcementActions(opts.client, {})
     return events
   },

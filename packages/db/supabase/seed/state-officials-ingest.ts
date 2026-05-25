@@ -228,7 +228,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === `file://${process.argv
   const allowDeactivations = allowDeactArg
     ? Number(allowDeactArg.split('=')[1])
     : undefined
-  ingestStateOfficials({ allowDeactivations })
+  ingestStateOfficials(allowDeactivations !== undefined ? { allowDeactivations } : {})
     .then(stats => {
       console.log('Ingest summary (state officials):')
       console.log(`  officials upserted: ${stats.officialsUpserted}`)

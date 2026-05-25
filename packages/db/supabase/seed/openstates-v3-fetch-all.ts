@@ -67,7 +67,8 @@ export async function fetchOpenStatesV3All(opts: FetchAllOpts = {}): Promise<Fet
   const runFetch: RunFetchFn = opts.runFetch ?? ((state, session) =>
     fetchOpenStatesV3({
       state, session, cacheDir,
-      apiKey: opts.apiKey, force: opts.force,
+      ...(opts.apiKey !== undefined ? { apiKey: opts.apiKey } : {}),
+      ...(opts.force !== undefined ? { force: opts.force } : {}),
     })
   )
 

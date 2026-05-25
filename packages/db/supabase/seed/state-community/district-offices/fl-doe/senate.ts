@@ -1,15 +1,9 @@
 import * as cheerio from 'cheerio'
 import type { Client } from 'pg'
 import type { NormalizedDistrictOffice } from '../../shared.ts'
-import { parseAddressText } from '../_shared.ts'
+import { fetchPerMemberOffices, type ParsedMemberDetail } from '../_shared.ts'
 
-const FETCH_TIMEOUT_MS = 5000
-const RATE_LIMIT_MS = 1000
-
-export interface ParsedFlSenatorDetail {
-  capitol_office?: string
-  district_office?: string
-}
+export type ParsedFlSenatorDetail = ParsedMemberDetail
 
 /**
  * Derive FL Senator detail-page URL from district number.
@@ -19,6 +13,20 @@ export interface ParsedFlSenatorDetail {
  */
 export function deriveFlSenatorUrl(district_number: number): string {
   return `https://www.flsenate.gov/Senators/s${district_number}`
+}
+
+/**
+ * Extract all <p> text children of a section, joining with ", ".
+ * Replaces `.first()` pattern that silently drops multi-paragraph
+ * addresses (audit Bug 3 fix).
+ */
+function joinParagraphs($: cheerio.CheerioAPI, selector: string): string | undefined {
+  const paras: string[] = []
+  $(selector).each((_, p) => {
+    const t = $(p).text().trim().replace(/\s+/g, ' ')
+    if (t) paras.push(t)
+  })
+  return paras.length > 0 ? paras.join(', ') : undefined
 }
 
 /**
@@ -32,10 +40,10 @@ export function parseFlSenatorDetailHtml(html: string): ParsedFlSenatorDetail {
   const $ = cheerio.load(html)
   const out: ParsedFlSenatorDetail = {}
 
-  const capitolText = $('section.capitol-office p').first().text().trim().replace(/\s+/g, ' ')
+  const capitolText = joinParagraphs($, 'section.capitol-office p')
   if (capitolText) out.capitol_office = capitolText
 
-  const districtText = $('section.district-office p').first().text().trim().replace(/\s+/g, ' ')
+  const districtText = joinParagraphs($, 'section.district-office p')
   if (districtText) out.district_office = districtText
 
   return out
@@ -45,68 +53,18 @@ export async function fetchFlSenateOffices(
   client: Pick<Client, 'query'>,
   opts: { fetcher?: (url: string) => Promise<string> },
 ): Promise<NormalizedDistrictOffice[]> {
-  const res = await client.query<{ openstates_person_id: string; full_name: string; district_id: string | null }>(
-    `select openstates_person_id, full_name, district_id from public.officials
-     where chamber = 'state_senate' and state = 'FL' and in_office = true`,
-  )
-
-  const out: NormalizedDistrictOffice[] = []
-
-  for (const senator of res.rows) {
-    if (!senator.district_id) continue
-    const districtMatch = senator.district_id.match(/^FL-(\d+)$/)
-    if (!districtMatch) continue
-    const district_number = Number.parseInt(districtMatch[1]!, 10)
-    if (!Number.isFinite(district_number)) continue
-
-    const url = deriveFlSenatorUrl(district_number)
-
-    let html: string
-    try {
-      html = opts.fetcher
-        ? await opts.fetcher(url)
-        : await (await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })).text()
-    } catch {
-      continue
-    }
-
-    const parsed = parseFlSenatorDetailHtml(html)
-
-    if (parsed.capitol_office) {
-      const parts = parseAddressText(parsed.capitol_office)
-      if (parts) {
-        out.push({
-          official_openstates_person_id: senator.openstates_person_id,
-          kind: 'capitol',
-          street_1: parts.street_1,
-          city: parts.city,
-          state: parts.state,
-          ...(parts.postal_code ? { postal_code: parts.postal_code } : {}),
-          ...(parts.phone ? { phone: parts.phone } : {}),
-          source_url: url,
-        })
-      }
-    }
-    if (parsed.district_office) {
-      const parts = parseAddressText(parsed.district_office)
-      if (parts) {
-        out.push({
-          official_openstates_person_id: senator.openstates_person_id,
-          kind: 'district',
-          street_1: parts.street_1,
-          city: parts.city,
-          state: parts.state,
-          ...(parts.postal_code ? { postal_code: parts.postal_code } : {}),
-          ...(parts.phone ? { phone: parts.phone } : {}),
-          source_url: url,
-        })
-      }
-    }
-
-    if (!opts.fetcher) {
-      await new Promise(resolve => setTimeout(resolve, RATE_LIMIT_MS))
-    }
-  }
-
-  return out
+  return fetchPerMemberOffices(client, {
+    chamber: 'state_senate',
+    state: 'FL',
+    deriveUrl: (l) => {
+      if (!l.district_id) return null
+      const m = l.district_id.match(/^FL-(\d+)$/)
+      if (!m) return null
+      const n = Number.parseInt(m[1]!, 10)
+      if (!Number.isFinite(n)) return null
+      return deriveFlSenatorUrl(n)
+    },
+    parseDetailHtml: parseFlSenatorDetailHtml,
+    ...(opts.fetcher ? { fetcher: opts.fetcher } : {}),
+  })
 }

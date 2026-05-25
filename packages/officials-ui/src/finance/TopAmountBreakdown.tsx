@@ -123,14 +123,38 @@ export function TopAmountBreakdown({
         </Pressable>
       ) : null}
       {sourceUrl ? (
-        <Pressable
-          accessibilityRole="link"
-          onPress={() => Linking.openURL(sourceUrl).catch(() => {})}
-        >
-          <Text style={{ marginTop: 12, fontSize: 12, color: '#3b6ed1', textDecorationLine: 'underline' }}>
-            → full breakdown on OpenSecrets
-          </Text>
-        </Pressable>
+        Platform.OS === 'web' ? (
+          createElement(
+            'a',
+            {
+              href: sourceUrl,
+              onClick: (e: MouseEvent) => {
+                // Honor modifier-key + middle-click → browser default (new tab etc.).
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return
+                e.preventDefault()
+                Linking.openURL(sourceUrl).catch(() => {})
+              },
+              style: {
+                marginTop: 12,
+                fontSize: 12,
+                color: '#3b6ed1',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                display: 'inline-block',
+              },
+            },
+            '→ full breakdown on OpenSecrets',
+          )
+        ) : (
+          <Pressable
+            accessibilityRole="link"
+            onPress={() => Linking.openURL(sourceUrl).catch(() => {})}
+          >
+            <Text style={{ marginTop: 12, fontSize: 12, color: '#3b6ed1', textDecorationLine: 'underline' }}>
+              → full breakdown on OpenSecrets
+            </Text>
+          </Pressable>
+        )
       ) : null}
     </View>
   )

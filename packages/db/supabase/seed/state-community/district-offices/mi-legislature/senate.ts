@@ -1,10 +1,7 @@
 import * as cheerio from 'cheerio'
 import type { Client } from 'pg'
 import type { NormalizedDistrictOffice } from '../../shared.ts'
-import { parseAddressText } from '../_shared.ts'
-
-const FETCH_TIMEOUT_MS = 5000
-const RATE_LIMIT_MS = 1000
+import { fetchPerMemberOffices } from '../_shared.ts'
 
 export interface ParsedMiSenatorProfile {
   lansing_office?: string
@@ -21,9 +18,24 @@ export interface ParsedMiSenatorProfile {
 export function deriveMiSenatorUrl(full_name: string): string {
   const slug = full_name
     .toLowerCase()
+    .normalize('NFD').replace(/\p{Diacritic}/gu, '')
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
   return `https://senate.michigan.gov/senators/${slug}/`
+}
+
+/**
+ * Extract all <p> text children of a section, joining with ", ".
+ * Replaces `.first()` pattern that silently drops multi-paragraph
+ * addresses (audit Bug 3 fix).
+ */
+function joinParagraphs($: cheerio.CheerioAPI, selector: string): string | undefined {
+  const paras: string[] = []
+  $(selector).each((_, p) => {
+    const t = $(p).text().trim().replace(/\s+/g, ' ')
+    if (t) paras.push(t)
+  })
+  return paras.length > 0 ? paras.join(', ') : undefined
 }
 
 /**
@@ -36,10 +48,10 @@ export function parseMiSenatorProfileHtml(html: string): ParsedMiSenatorProfile 
   const $ = cheerio.load(html)
   const out: ParsedMiSenatorProfile = {}
 
-  const lansingText = $('section.lansing-office p').first().text().trim().replace(/\s+/g, ' ')
+  const lansingText = joinParagraphs($, 'section.lansing-office p')
   if (lansingText) out.lansing_office = lansingText
 
-  const districtText = $('section.district-office p').first().text().trim().replace(/\s+/g, ' ')
+  const districtText = joinParagraphs($, 'section.district-office p')
   if (districtText) out.district_office = districtText
 
   return out
@@ -49,62 +61,18 @@ export async function fetchMiSenateOffices(
   client: Pick<Client, 'query'>,
   opts: { fetcher?: (url: string) => Promise<string> },
 ): Promise<NormalizedDistrictOffice[]> {
-  const res = await client.query<{ openstates_person_id: string; full_name: string }>(
-    `select openstates_person_id, full_name from public.officials
-     where chamber = 'state_senate' and state = 'MI' and in_office = true`,
-  )
-
-  const out: NormalizedDistrictOffice[] = []
-
-  for (const senator of res.rows) {
-    const url = deriveMiSenatorUrl(senator.full_name)
-
-    let html: string
-    try {
-      html = opts.fetcher
-        ? await opts.fetcher(url)
-        : await (await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })).text()
-    } catch {
-      continue
-    }
-
-    const parsed = parseMiSenatorProfileHtml(html)
-
-    if (parsed.lansing_office) {
-      const parts = parseAddressText(parsed.lansing_office)
-      if (parts) {
-        out.push({
-          official_openstates_person_id: senator.openstates_person_id,
-          kind: 'capitol',
-          street_1: parts.street_1,
-          city: parts.city,
-          state: parts.state,
-          ...(parts.postal_code ? { postal_code: parts.postal_code } : {}),
-          ...(parts.phone ? { phone: parts.phone } : {}),
-          source_url: url,
-        })
+  return fetchPerMemberOffices(client, {
+    chamber: 'state_senate',
+    state: 'MI',
+    deriveUrl: (l) => deriveMiSenatorUrl(l.full_name),
+    parseDetailHtml: (html) => {
+      const parsed = parseMiSenatorProfileHtml(html)
+      // Remap MI-local key (lansing_office) → canonical (capitol_office).
+      return {
+        ...(parsed.lansing_office ? { capitol_office: parsed.lansing_office } : {}),
+        ...(parsed.district_office ? { district_office: parsed.district_office } : {}),
       }
-    }
-    if (parsed.district_office) {
-      const parts = parseAddressText(parsed.district_office)
-      if (parts) {
-        out.push({
-          official_openstates_person_id: senator.openstates_person_id,
-          kind: 'district',
-          street_1: parts.street_1,
-          city: parts.city,
-          state: parts.state,
-          ...(parts.postal_code ? { postal_code: parts.postal_code } : {}),
-          ...(parts.phone ? { phone: parts.phone } : {}),
-          source_url: url,
-        })
-      }
-    }
-
-    if (!opts.fetcher) {
-      await new Promise(resolve => setTimeout(resolve, RATE_LIMIT_MS))
-    }
-  }
-
-  return out
+    },
+    ...(opts.fetcher ? { fetcher: opts.fetcher } : {}),
+  })
 }

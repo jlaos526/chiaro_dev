@@ -22,6 +22,18 @@ describe('parseCaAssemblymemberDetailHtml', () => {
     expect(parsed.capitol_office).toBeUndefined()
     expect(parsed.district_office).toBeUndefined()
   })
+
+  it('joins multi-paragraph section addresses with comma (Audit Bug 3 fix)', () => {
+    const html = `
+      <section class="capitol-office">
+        <p>1021 O Street, Suite 5350</p>
+        <p>Sacramento, CA 95814</p>
+        <p>Phone: (916) 319-2014</p>
+      </section>
+    `
+    const parsed = parseCaAssemblymemberDetailHtml(html)
+    expect(parsed.capitol_office).toBe('1021 O Street, Suite 5350, Sacramento, CA 95814, Phone: (916) 319-2014')
+  })
 })
 
 describe('deriveAmDistrictUrl', () => {

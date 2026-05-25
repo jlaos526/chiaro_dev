@@ -5,7 +5,7 @@ import { resolveOpenstatesPersonId } from '../../shared/officials.ts'
 
 const SOURCE_URL = 'https://ethics.ny.gov/financial-disclosure-statements-elected-officials?year=2024'
 const FETCH_TIMEOUT_MS = 5000
-const MAX_PAGES_DEFAULT = 50
+const MAX_PAGES_DEFAULT = 120
 const RATE_LIMIT_MS = 1000
 const ORIGIN = 'https://ethics.ny.gov'
 
@@ -84,8 +84,9 @@ export function inferChamberFromOfficeText(text: string): 'state_house' | 'state
  * Walk pagination starting from `startUrl`, fetching each page until either
  * the next-page link is absent OR the page cap is reached.
  *
- * Default cap = 50 pages (audit-derived sensible bound for 2,804 records
- * at ~25/page). Operator can override via opts.maxPages.
+ * Default cap = 120 pages (audit-derived sensible bound for 2,804
+ * records at ~25/page → ~113 pages for full current cycle, plus
+ * ~5% buffer). Operator can override via opts.maxPages.
  */
 export async function fetchAllPages(
   startUrl: string,
@@ -111,25 +112,19 @@ export async function fetchAllPages(
   return allRows
 }
 
-export const nyJcopeDisclosures: StateEthicsAdapter = {
+export const nyJcopeDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosure> = {
   slug: 'ny-jcope',
   component: 'disclosures',
   covered_states: ['NY'],
   async fetchEvents(opts): Promise<NormalizedFinancialDisclosure[]> {
-    // The injected `fetcher` is overloaded across two distinct signatures:
-    //   1. `() => Promise<NormalizedFinancialDisclosure[]>` — fixture-injection
-    //      for adapter-level tests; short-circuits production logic.
-    //   2. `(url: string) => Promise<string>` — page-level injection for
-    //      parser-level tests; flows through to fetchAllPages.
-    // We discriminate by `client` presence: fixture-injection tests omit
-    // `client` (they're testing the short-circuit, not DB resolution);
-    // page-level tests always supply a `client` because the post-fetch
-    // loop calls resolveOpenstatesPersonId on it.
-    const hasClient = !!(opts as { client?: Client }).client
-    const injectedFetcher = (opts as never as { fetcher?: () => Promise<NormalizedFinancialDisclosure[]> }).fetcher
-    if (injectedFetcher && !hasClient) return injectedFetcher()
+    // Adapter-level fixture injection (returns pre-resolved rows). Typed
+    // via the generic StateEthicsAdapter<NormalizedFinancialDisclosure>.
+    if (opts.fetcher) return opts.fetcher()
 
-    const pageFetcher = (opts as never as { fetcher?: (url: string) => Promise<string> }).fetcher
+    // Page-level fetcher injection (returns HTML for parser tests). Distinct
+    // from the typed `fetcher?` adapter-level injection — kept under a
+    // separate opts key with explicit typing (no `as never` cast).
+    const pageFetcher = (opts as { pageFetcher?: (url: string) => Promise<string> }).pageFetcher
     const fetcher: (url: string) => Promise<string> = pageFetcher
       ?? (async (url: string) => {
         const res = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })

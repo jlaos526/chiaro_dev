@@ -80,7 +80,7 @@ describe('nySenateTownHalls adapter', () => {
     }
     const rows = await nySenateTownHalls.fetchEvents({
       client: client as never,
-      fetcher: async () => html,
+      pageFetcher: async () => html,
     } as never)
     // 4 parseable cards × 1 senator each = 4 rows
     expect(rows).toHaveLength(4)
@@ -101,7 +101,7 @@ describe('nySenateTownHalls adapter', () => {
     }
     const rows = await nySenateTownHalls.fetchEvents({
       client: client as never,
-      fetcher: async () => html,
+      pageFetcher: async () => html,
     } as never)
     expect(rows).toEqual([])
   })

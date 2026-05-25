@@ -22,6 +22,18 @@ describe('parseFlSenatorDetailHtml', () => {
     expect(parsed.capitol_office).toBeUndefined()
     expect(parsed.district_office).toBeUndefined()
   })
+
+  it('joins multi-paragraph section addresses with comma (Audit Bug 3 fix)', () => {
+    const html = `
+      <section class="capitol-office">
+        <p>404 South Monroe Street, Suite 318</p>
+        <p>Tallahassee, FL 32399</p>
+        <p>Phone: (850) 487-5014</p>
+      </section>
+    `
+    const parsed = parseFlSenatorDetailHtml(html)
+    expect(parsed.capitol_office).toBe('404 South Monroe Street, Suite 318, Tallahassee, FL 32399, Phone: (850) 487-5014')
+  })
 })
 
 describe('deriveFlSenatorUrl', () => {

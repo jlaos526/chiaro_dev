@@ -41,18 +41,20 @@ export interface NormalizedOfficialEvent {
   external_id?: string
 }
 
-export interface StateEthicsAdapter {
+export type StateEthicsEvent =
+  | NormalizedFinancialDisclosure
+  | NormalizedEthicsComplaint
+  | NormalizedOfficialEvent
+
+export interface StateEthicsAdapter<E extends StateEthicsEvent = StateEthicsEvent> {
   slug: string
   component: EthicsComponent
   covered_states: string[]
   fetchEvents(opts: {
     client: Client
     state?: string
-    fetcher?: () => Promise<unknown[]>
-  }): Promise<Array<
-    NormalizedFinancialDisclosure |
-    NormalizedEthicsComplaint | NormalizedOfficialEvent
-  >>
+    fetcher?: () => Promise<E[]>
+  }): Promise<E[]>
 }
 
 export interface StateEthicsStats {

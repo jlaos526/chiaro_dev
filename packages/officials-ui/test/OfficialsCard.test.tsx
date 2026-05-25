@@ -153,3 +153,159 @@ describe('OfficialsCard', () => {
     expect(onSelect).toHaveBeenCalledWith({ officialId: 'oid-pelosi', subCascadeSlug: 'environment' })
   })
 })
+
+describe('OfficialsCard — smart-anchor (row link)', () => {
+  it('renders official name as real <a href> on web when rowHref provided', () => {
+    useMyOfficialsMock.mockReturnValue({
+      data: [mkOfficial('federal_house', 'Pelosi', 'oid-pelosi')],
+      isLoading: false,
+      error: null,
+    })
+    useScorecardsMock.mockReturnValue({ data: [] })
+    useMetricsMock.mockReturnValue({ data: null })
+    const { container } = wrap(
+      <OfficialsCard
+        onSelect={vi.fn()}
+        onSeeAll={vi.fn()}
+        onCalibrate={vi.fn()}
+        rowHref={({ officialId }) => `/officials/${officialId}`}
+      />,
+    )
+    const anchor = container.querySelector('a[href="/officials/oid-pelosi"]')
+    expect(anchor).not.toBeNull()
+  })
+
+  it('plain left-click on row name anchor calls preventDefault + invokes onSelect', () => {
+    useMyOfficialsMock.mockReturnValue({
+      data: [mkOfficial('federal_house', 'Pelosi', 'oid-pelosi')],
+      isLoading: false,
+      error: null,
+    })
+    useScorecardsMock.mockReturnValue({ data: [] })
+    useMetricsMock.mockReturnValue({ data: null })
+    const onSelect = vi.fn()
+    const { container } = wrap(
+      <OfficialsCard
+        onSelect={onSelect}
+        onSeeAll={vi.fn()}
+        onCalibrate={vi.fn()}
+        rowHref={({ officialId }) => `/officials/${officialId}`}
+      />,
+    )
+    const anchor = container.querySelector('a[href="/officials/oid-pelosi"]')!
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 })
+    const notPrevented = anchor.dispatchEvent(event)
+    expect(notPrevented).toBe(false)
+    expect(onSelect).toHaveBeenCalledWith({ officialId: 'oid-pelosi' })
+  })
+
+  it('middle-click on row name anchor falls through to browser default', () => {
+    useMyOfficialsMock.mockReturnValue({
+      data: [mkOfficial('federal_house', 'Pelosi', 'oid-pelosi')],
+      isLoading: false,
+      error: null,
+    })
+    useScorecardsMock.mockReturnValue({ data: [] })
+    useMetricsMock.mockReturnValue({ data: null })
+    const onSelect = vi.fn()
+    const { container } = wrap(
+      <OfficialsCard
+        onSelect={onSelect}
+        onSeeAll={vi.fn()}
+        onCalibrate={vi.fn()}
+        rowHref={({ officialId }) => `/officials/${officialId}`}
+      />,
+    )
+    const anchor = container.querySelector('a[href="/officials/oid-pelosi"]')!
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 1 })
+    const notPrevented = anchor.dispatchEvent(event)
+    expect(notPrevented).toBe(true)
+    expect(onSelect).not.toHaveBeenCalled()
+  })
+})
+
+describe('OfficialsCard — smart-anchor (See all + calibrate links)', () => {
+  it('renders "See all officials" as real <a href> on web when seeAllHref provided', () => {
+    useMyOfficialsMock.mockReturnValue({
+      data: [mkOfficial('federal_house', 'Pelosi')],
+      isLoading: false,
+      error: null,
+    })
+    useScorecardsMock.mockReturnValue({ data: [] })
+    useMetricsMock.mockReturnValue({ data: null })
+    const { container } = wrap(
+      <OfficialsCard
+        onSelect={vi.fn()}
+        onSeeAll={vi.fn()}
+        onCalibrate={vi.fn()}
+        seeAllHref="/officials"
+      />,
+    )
+    const anchor = container.querySelector('a[href="/officials"]')
+    expect(anchor).not.toBeNull()
+  })
+
+  it('plain left-click on "See all" anchor calls preventDefault + invokes onSeeAll', () => {
+    useMyOfficialsMock.mockReturnValue({
+      data: [mkOfficial('federal_house', 'Pelosi')],
+      isLoading: false,
+      error: null,
+    })
+    useScorecardsMock.mockReturnValue({ data: [] })
+    useMetricsMock.mockReturnValue({ data: null })
+    const onSeeAll = vi.fn()
+    const { container } = wrap(
+      <OfficialsCard
+        onSelect={vi.fn()}
+        onSeeAll={onSeeAll}
+        onCalibrate={vi.fn()}
+        seeAllHref="/officials"
+      />,
+    )
+    const anchor = container.querySelector('a[href="/officials"]')!
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 })
+    const notPrevented = anchor.dispatchEvent(event)
+    expect(notPrevented).toBe(false)
+    expect(onSeeAll).toHaveBeenCalledTimes(1)
+  })
+
+  it('ctrl-click on "See all" anchor falls through to browser default', () => {
+    useMyOfficialsMock.mockReturnValue({
+      data: [mkOfficial('federal_house', 'Pelosi')],
+      isLoading: false,
+      error: null,
+    })
+    useScorecardsMock.mockReturnValue({ data: [] })
+    useMetricsMock.mockReturnValue({ data: null })
+    const onSeeAll = vi.fn()
+    const { container } = wrap(
+      <OfficialsCard
+        onSelect={vi.fn()}
+        onSeeAll={onSeeAll}
+        onCalibrate={vi.fn()}
+        seeAllHref="/officials"
+      />,
+    )
+    const anchor = container.querySelector('a[href="/officials"]')!
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, ctrlKey: true })
+    const notPrevented = anchor.dispatchEvent(event)
+    expect(notPrevented).toBe(true)
+    expect(onSeeAll).not.toHaveBeenCalled()
+  })
+
+  it('renders calibrate prompt as real <a href> on web when calibrateHref provided', () => {
+    useMyOfficialsMock.mockReturnValue({ data: [], isLoading: false, error: null })
+    useScorecardsMock.mockReturnValue({ data: [] })
+    useMetricsMock.mockReturnValue({ data: null })
+    const { container } = wrap(
+      <OfficialsCard
+        onSelect={vi.fn()}
+        onSeeAll={vi.fn()}
+        onCalibrate={vi.fn()}
+        calibrateHref="/calibrate"
+      />,
+    )
+    const anchor = container.querySelector('a[href="/calibrate"]')
+    expect(anchor).not.toBeNull()
+  })
+})

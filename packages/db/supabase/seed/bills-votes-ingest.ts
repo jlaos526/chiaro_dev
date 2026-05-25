@@ -60,7 +60,7 @@ export async function ingestBillsAndVotes(args: IngestArgs): Promise<IngestStats
     const officialByBioguide = new Map(offRes.rows.map(r => [r.bioguide_id, r.id]))
 
     // 2. Fetch + upsert bills (and their subjects + sponsors)
-    const bills = await billsF(congress, args.apiKey, { since: args.since })
+    const bills = await billsF(congress, args.apiKey, args.since ? { since: args.since } : {})
     const billIdByKey = new Map<string, string>()  // `${type}-${number}` → bill UUID
 
     for (const b of bills) {
@@ -80,7 +80,7 @@ export async function ingestBillsAndVotes(args: IngestArgs): Promise<IngestStats
         returning id
       `, [b.congress, b.bill_type, b.number, b.title, b.short_title, b.policy_area,
           b.status, b.introduced_date, b.latest_action, b.source_url, b.congress_gov_url])
-      const billId = ins.rows[0].id
+      const billId = ins.rows[0]!.id
       billIdByKey.set(`${b.bill_type}-${b.number}`, billId)
       stats.billsIngested++
 
@@ -125,7 +125,7 @@ export async function ingestBillsAndVotes(args: IngestArgs): Promise<IngestStats
           source_url = excluded.source_url
         returning id
       `, [v.congress, v.chamber, v.session, v.roll_call, v.vote_date, v.question, v.result, billId, v.source_url])
-      const voteId = ins.rows[0].id
+      const voteId = ins.rows[0]!.id
       stats.votesIngested++
 
       await client.query('delete from public.vote_positions where vote_id = $1', [voteId])

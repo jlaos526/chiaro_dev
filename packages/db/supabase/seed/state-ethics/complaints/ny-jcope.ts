@@ -10,13 +10,12 @@ import { fetchEnforcementActions } from '../ny-coelig/shared.ts'
  * uses the current `ethics.ny.gov` domain via the shared
  * fetchEnforcementActions helper.
  */
-export const nyJcopeComplaints: StateEthicsAdapter = {
+export const nyJcopeComplaints: StateEthicsAdapter<NormalizedEthicsComplaint> = {
   slug: 'ny-jcope',
   component: 'complaints',
   covered_states: ['NY'],
   async fetchEvents(opts): Promise<NormalizedEthicsComplaint[]> {
-    const injected = (opts as never as { fetcher?: () => Promise<NormalizedEthicsComplaint[]> }).fetcher
-    if (injected) return injected()
+    if (opts.fetcher) return opts.fetcher()
     const { complaints } = await fetchEnforcementActions(opts.client, {})
     return complaints
   },
