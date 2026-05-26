@@ -42,6 +42,20 @@ jobs:
         run: pnpm --filter @chiaro/db db:seed-tiger
         env:
           SUPABASE_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+      - name: Verify state-leg district format
+        # Slice 27 audit Section 5: CI never asserted producer/consumer
+        # alignment between TIGER-side district codes and state-leg-config's
+        # consumer expectations. Diagnostic exits non-zero if any state_senate
+        # or state_house code drifts from the canonical ${STATE}-S{S,H}-${num}
+        # format. Runs against districts only — does not require
+        # state-officials-ingest to have populated officials first.
+        # `seed:state-officials` itself is skipped in CI because its pre-flight
+        # thresholds (lower>=4500, upper+legislature>=1800) exceed what the
+        # 6-file bundled fixtures dir can satisfy. Wiring a fixture-mode flag
+        # is deferred to a follow-up slice.
+        run: pnpm --filter @chiaro/db diagnose:state-leg-district-format
+        env:
+          SUPABASE_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
       - name: Run pgTAP suite
         run: pnpm db:test
       - name: Smoke officials ingest (against fixtures)

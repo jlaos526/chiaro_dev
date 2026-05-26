@@ -40,36 +40,35 @@ export function isStateChamberSupported(
   return chamber === 'upper' || chamber === 'lower'
 }
 
+function chamberPrefix(chamber: OpenStatesOrgClassification): 'SS' | 'SH' {
+  // 'upper' + 'legislature' (NE unicameral) → SS; 'lower' → SH
+  // Mirrors state-officials-ingest.ts:94-97 tier mapping.
+  return chamber === 'lower' ? 'SH' : 'SS'
+}
+
 export function normalizeStateLegDistrictCode(
   state: string,
   chamber: OpenStatesOrgClassification,
   rawDistrict: string,
 ): string | null {
   if (!isStateChamberSupported(state, chamber)) return null
+  const prefix = chamberPrefix(chamber)
 
-  // At-large case (rare for state houses; WY uses it).
-  if (rawDistrict.toLowerCase() === 'at-large') return `${state}-AL`
+  if (rawDistrict.toLowerCase() === 'at-large') return `${state}-${prefix}-AL`
 
-  if (STATES_KNOWN_UNNORMALIZABLE.has(state)) {
-    // NH and similar — log + skip handled by caller.
-    return null
-  }
+  if (STATES_KNOWN_UNNORMALIZABLE.has(state)) return null
 
   if (STATES_MULTIMEMBER_LETTER_SUFFIX.has(state)) {
-    // MD: '1A' / '1B' / '1C' all map to district '01'.
     const numericPart = rawDistrict.match(/^\d+/)?.[0]
     if (!numericPart) return null
-    return `${state}-${numericPart.padStart(2, '0')}`
+    return `${state}-${prefix}-${numericPart.replace(/^0+/, '') || '0'}`
   }
 
   if (STATES_LETTER_ONLY_DISTRICTS.has(state)) {
-    // AK: 'A', 'B', etc.
     if (!/^[A-Z]+$/.test(rawDistrict)) return null
-    return `${state}-${rawDistrict}`
+    return `${state}-${prefix}-${rawDistrict}`
   }
 
-  // Default: numeric district, zero-pad to at least 2 digits.
   if (!/^\d+$/.test(rawDistrict)) return null
-  const padded = rawDistrict.padStart(2, '0')
-  return `${state}-${padded}`
+  return `${state}-${prefix}-${rawDistrict.replace(/^0+/, '') || '0'}`
 }

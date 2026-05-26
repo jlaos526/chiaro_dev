@@ -14,7 +14,7 @@
 // Run via `pnpm seed:state-officials`. CLI accepts --allow-deactivations=N.
 
 import { Client } from 'pg'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { join, dirname } from 'node:path'
 import { loadOpenStatesYamlDir } from './openstates-yaml-loader.ts'
 import { normalizeStateLegDistrictCode } from './state-leg-config.ts'
@@ -223,7 +223,7 @@ export async function ingestStateOfficials(
 }
 
 // CLI entry point
-if (process.argv[1] && fileURLToPath(import.meta.url) === `file://${process.argv[1].replace(/\\/g, '/')}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const allowDeactArg = process.argv.find(a => a.startsWith('--allow-deactivations='))
   const allowDeactivations = allowDeactArg
     ? Number(allowDeactArg.split('=')[1])

@@ -16,16 +16,16 @@ beforeEach(async () => {
   await client.query(`
     insert into public.districts (tier, state, code, name, geometry, source_version)
     values
-      ('state_house',       'CA', 'CA-15', 'CA AD 15',
+      ('state_house',       'CA', 'CA-SH-15', 'CA AD 15',
         st_geogfromtext('MULTIPOLYGON(((-120 35,-119 35,-119 36,-120 36,-120 35)))'), 'FX-stateleg'),
-      ('state_senate',      'CA', 'CA-08', 'CA SD 8',
+      ('state_senate',      'CA', 'CA-SS-8', 'CA SD 8',
         st_geogfromtext('MULTIPOLYGON(((-120 35,-119 35,-119 36,-120 36,-120 35)))'), 'FX-stateleg'),
       -- NE is unicameral; district_tier enum only includes state_senate (TIGER
       -- seeds NE there). The orchestrator's tier fallback handles role.type
       -- 'legislature' → state_senate lookup. See state-officials-ingest.ts.
-      ('state_senate', 'NE', 'NE-23', 'NE District 23',
+      ('state_senate', 'NE', 'NE-SS-23', 'NE District 23',
         st_geogfromtext('MULTIPOLYGON(((-100 40,-99 40,-99 41,-100 41,-100 40)))'), 'FX-stateleg'),
-      ('state_house',       'MD', 'MD-01', 'MD HD 01',
+      ('state_house',       'MD', 'MD-SH-1', 'MD HD 01',
         st_geogfromtext('MULTIPOLYGON(((-77 39,-76 39,-76 40,-77 40,-77 39)))'), 'FX-stateleg')
     on conflict (tier, code) do nothing
   `)

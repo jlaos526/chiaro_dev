@@ -47,7 +47,8 @@ export const TIGER_SOURCES: TigerSource[] = [
       })),
     extract: (props, stateFipsHint) => {
       const stateFp = stateFipsHint ?? String(props.STATEFP)
-      const sldu = String(props.SLDUST).replace(/^0+/, '') || '0'
+      const slduRaw = String(props.SLDUST)
+      const sldu = slduRaw === '00' ? 'AL' : (slduRaw.replace(/^0+/, '') || '0')
       const state = fipsToState.get(stateFp)
       if (!state) return null
       const code = `${state}-SS-${sldu}`
@@ -65,7 +66,8 @@ export const TIGER_SOURCES: TigerSource[] = [
       })),
     extract: (props, stateFipsHint) => {
       const stateFp = stateFipsHint ?? String(props.STATEFP)
-      const sldl = String(props.SLDLST).replace(/^0+/, '') || '0'
+      const sldlRaw = String(props.SLDLST)
+      const sldl = sldlRaw === '00' ? 'AL' : (sldlRaw.replace(/^0+/, '') || '0')
       const state = fipsToState.get(stateFp)
       if (!state) return null
       const code = `${state}-SH-${sldl}`
