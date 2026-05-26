@@ -172,4 +172,14 @@ describe('ingestStateOfficials', () => {
     )
     expect(rows.rows[0].c).toBe(0)
   })
+
+  it('fixture-mode behavior path: bundled fixture dir runs cleanly with min counts = 0', async () => {
+    const stats = await ingestStateOfficials({
+      fixturesDir: FIXTURE_DIR,
+      minStateHouseCount: 0,
+      minStateSenateCount: 0,
+    })
+    expect(stats.errors).toEqual([])
+    expect(stats.officialsUpserted).toBeGreaterThan(0)
+  })
 })

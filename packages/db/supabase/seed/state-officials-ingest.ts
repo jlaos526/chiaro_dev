@@ -222,13 +222,27 @@ export async function ingestStateOfficials(
   return stats
 }
 
-// CLI entry point
+/**
+ * CLI entry point.
+ *
+ * Supported flags:
+ * - `--allow-deactivations=N` — acknowledge an expected mass deactivation
+ *   (slice 3 pattern). N must exactly match the unexpected-deactivation count.
+ * - `--fixture-mode` — bypass pre-flight thresholds (minStateHouseCount +
+ *   minStateSenateCount set to 0). For CI / smoke runs against the bundled
+ *   `seed/fixtures/openstates-people/` dir (6 YAML files; far below the
+ *   production thresholds 4500/1800). Production runs MUST NOT use this flag.
+ */
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const allowDeactArg = process.argv.find(a => a.startsWith('--allow-deactivations='))
   const allowDeactivations = allowDeactArg
     ? Number(allowDeactArg.split('=')[1])
     : undefined
-  ingestStateOfficials(allowDeactivations !== undefined ? { allowDeactivations } : {})
+  const fixtureMode = process.argv.includes('--fixture-mode')
+  ingestStateOfficials({
+    ...(allowDeactivations !== undefined ? { allowDeactivations } : {}),
+    ...(fixtureMode ? { minStateHouseCount: 0, minStateSenateCount: 0 } : {}),
+  })
     .then(stats => {
       console.log('Ingest summary (state officials):')
       console.log(`  officials upserted: ${stats.officialsUpserted}`)
