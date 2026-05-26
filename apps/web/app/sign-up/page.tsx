@@ -1,46 +1,39 @@
 'use client'
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
+import { AuthScreen, AuthPageChrome } from '@chiaro/officials-ui'
 
 export default function SignUpPage(): React.JSX.Element {
   const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+  async function handleSubmit({ email, password }: { email: string; password: string }) {
     const supabase = createSupabaseBrowserClient()
     const { data, error } = await supabase.auth.signUp({ email, password })
-    if (error) {
-      setError(error.message)
-      setLoading(false)
-      return
-    }
+    if (error) throw new Error(error.message)
     if (!data.session) {
-      // Email confirmation required (production); placeholder UI
-      setError('Check your email to confirm your account.')
-      setLoading(false)
-      return
+      // Email confirmation required (production); surface via thrown error so AuthForm displays it.
+      throw new Error('Check your email to confirm your account.')
     }
     router.push('/')
     router.refresh()
   }
 
+  function goToSignIn() {
+    router.push('/sign-in')
+  }
+
   return (
-    <main>
-      <h1>Sign up</h1>
-      <form onSubmit={handleSubmit}>
-        <label>Email <input type="email" value={email} onChange={e => setEmail(e.target.value)} required /></label>
-        <label>Password <input type="password" minLength={8} value={password} onChange={e => setPassword(e.target.value)} required /></label>
-        {error && <p role="alert">{error}</p>}
-        <button type="submit" disabled={loading}>{loading ? 'Signing up…' : 'Sign up'}</button>
-      </form>
-      <p>Have an account? <a href="/sign-in">Sign in</a></p>
-    </main>
+    <>
+      <AuthPageChrome
+        rightCrossLink={{ mode: 'sign-in', href: '/sign-in', onPress: goToSignIn }}
+      />
+      <AuthScreen
+        mode="sign-up"
+        onSubmit={handleSubmit}
+        onCrossLinkPress={goToSignIn}
+        crossLinkHref="/sign-in"
+        showBranding={false}
+      />
+    </>
   )
 }

@@ -195,3 +195,11 @@ export {
   StateOfficialsCardSection,
   type StateOfficialsCardSectionProps,
 } from './state/StateOfficialsCardSection.tsx'
+
+// auth/* primitives (slice 31) — leaf components for the auth screens
+export { AuthWordmark, type AuthWordmarkProps } from './auth/AuthWordmark.tsx'
+export { AuthCrossLink, type AuthCrossLinkProps } from './auth/AuthCrossLink.tsx'
+export { AuthInput, type AuthInputProps } from './auth/AuthInput.tsx'
+export { AuthForm, type AuthFormProps } from './auth/AuthForm.tsx'
+export { AuthScreen, type AuthScreenProps } from './auth/AuthScreen.tsx'
+export { AuthPageChrome, type AuthPageChromeProps } from './auth/AuthPageChrome.tsx'

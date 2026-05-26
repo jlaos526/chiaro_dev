@@ -1,31 +1,22 @@
-import { useState } from 'react'
-import { Button, Text, TextInput, View } from 'react-native'
-import { Link } from 'expo-router'
+import { useRouter } from 'expo-router'
+import { AuthScreen } from '@chiaro/officials-ui'
 import { supabase } from '@/lib/supabase'
 
 export default function SignIn() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
-  async function onSubmit() {
-    setLoading(true)
-    setError(null)
+  async function handleSubmit({ email, password }: { email: string; password: string }) {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) setError(error.message)
-    setLoading(false)
+    if (error) throw new Error(error.message)
+    // expo-router auth guard at root layout handles post-auth redirect
   }
 
   return (
-    <View style={{ padding: 24, gap: 12 }}>
-      <Text>Email</Text>
-      <TextInput value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
-      <Text>Password</Text>
-      <TextInput value={password} onChangeText={setPassword} secureTextEntry />
-      {error && <Text style={{ color: 'red' }}>{error}</Text>}
-      <Button title={loading ? 'Signing in…' : 'Sign in'} onPress={onSubmit} disabled={loading} />
-      <Link href="/(auth)/sign-up">No account? Sign up</Link>
-    </View>
+    <AuthScreen
+      mode="sign-in"
+      onSubmit={handleSubmit}
+      onCrossLinkPress={() => router.push('/(auth)/sign-up')}
+      showBranding
+    />
   )
 }
