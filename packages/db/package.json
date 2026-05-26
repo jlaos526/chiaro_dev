@@ -43,6 +43,7 @@
     "db:seed-town-halls": "tsx supabase/seed/town-halls-ingest.ts",
     "db:seed-stock-watcher": "tsx supabase/seed/stock-watcher-ingest.ts",
     "db:recompute-metrics": "tsx supabase/seed/recompute-metrics.ts",
+    "diagnose:state-leg-district-format": "tsx supabase/seed/diagnostics/state-leg-district-format-check.ts",
     "functions:serve": "supabase functions serve --env-file ../../.env.local"
   },
   "dependencies": {
