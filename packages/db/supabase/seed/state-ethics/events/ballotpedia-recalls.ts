@@ -89,7 +89,6 @@ export async function fetchBallotpediaRecallEvents(
   try {
     indexHtml = await fetcher(INDEX_URL)
   } catch (err) {
-    errors.push(`Index fetch failed: ${(err as Error).message}`)
     onSkip?.({
       adapter: 'ballotpedia-recalls',
       stage: 'fetch',
@@ -107,7 +106,6 @@ export async function fetchBallotpediaRecallEvents(
     try {
       yearHtml = await fetcher(link.url)
     } catch (err) {
-      errors.push(`Year ${link.year} fetch failed: ${(err as Error).message}`)
       onSkip?.({
         adapter: 'ballotpedia-recalls',
         stage: 'fetch',
@@ -120,7 +118,6 @@ export async function fetchBallotpediaRecallEvents(
     for (const row of rows) {
       const state = STATE_NAME_TO_2[normalizeStateName(row.stateName)]
       if (!state) {
-        errors.push(`Unknown state name: ${row.stateName}`)
         onSkip?.({
           adapter: 'ballotpedia-recalls',
           stage: 'parse',
@@ -131,7 +128,6 @@ export async function fetchBallotpediaRecallEvents(
       }
       const legi = parseLegislatorName(row.legislatorRaw)
       if (!legi) {
-        errors.push(`Unparseable legislator (likely federal): ${row.legislatorRaw}`)
         onSkip?.({
           adapter: 'ballotpedia-recalls',
           stage: 'parse',
@@ -142,7 +138,6 @@ export async function fetchBallotpediaRecallEvents(
       }
       const eventType = mapOutcomeToEventType(row.status)
       if (!eventType) {
-        errors.push(`Unknown status: ${row.status} (${row.legislatorRaw})`)
         onSkip?.({
           adapter: 'ballotpedia-recalls',
           stage: 'parse',
@@ -153,7 +148,6 @@ export async function fetchBallotpediaRecallEvents(
       }
       const eventDate = extractDate(row.dateText)
       if (!eventDate) {
-        errors.push(`Unparseable date: ${row.dateText} (${row.legislatorRaw})`)
         onSkip?.({
           adapter: 'ballotpedia-recalls',
           stage: 'parse',
@@ -168,7 +162,6 @@ export async function fetchBallotpediaRecallEvents(
         chamber: legi.chamber,
       })
       if (!openstatesPersonId) {
-        errors.push(`Unresolved: ${legi.name} (${state}, ${legi.chamber})`)
         onSkip?.({
           adapter: 'ballotpedia-recalls',
           stage: 'resolve',

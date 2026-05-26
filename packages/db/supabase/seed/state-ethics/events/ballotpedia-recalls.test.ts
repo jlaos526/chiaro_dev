@@ -57,12 +57,12 @@ describe('fetchBallotpediaRecallEvents — production path', () => {
       if (url === 'https://ballotpedia.org/State_legislative_recall_efforts,_2024') return year2024Html
       return '<html><body><table></table></body></html>'  // empty per-year fixture
     }
-    const result = await fetchBallotpediaRecallEvents(client, fetcher)
+    const skips: SkipReason[] = []
+    const result = await fetchBallotpediaRecallEvents(client, fetcher, (r) => { skips.push(r) })
     // 5 fixture rows: CA Petition failed → failed; TX Recalled → succeeded;
     // NY Retained → failed; FL Active → attempt; MD weird → null (skip + log).
     expect(result.events.length).toBe(4)
-    expect(result.errors.length).toBe(1)
-    expect(result.errors[0]).toMatch(/Unknown status/)
+    expect(skips.some(s => s.stage === 'parse' && /unknown status/i.test(s.reason))).toBe(true)
   })
 
   it('outcome → event_type mapping matches fixture statuses', async () => {
@@ -105,19 +105,26 @@ describe('fetchBallotpediaRecallEvents — production path', () => {
       if (url === 'https://ballotpedia.org/State_legislative_recall_efforts,_2024') return year2024Html
       return '<html><body><table></table></body></html>'
     }
-    const { events, errors } = await fetchBallotpediaRecallEvents(client, fetcher)
+    const skips: SkipReason[] = []
+    const { events } = await fetchBallotpediaRecallEvents(client, fetcher, (r) => { skips.push(r) })
     expect(events.length).toBe(0)
-    // 4 well-formed rows unresolved + 1 unknown-status row = 5 errors
-    expect(errors.length).toBeGreaterThanOrEqual(4)
+    // 4 well-formed rows unresolved + 1 unknown-status row = 5 skips
+    expect(skips.length).toBeGreaterThanOrEqual(4)
+    expect(skips.filter(s => s.stage === 'resolve').length).toBeGreaterThanOrEqual(4)
   })
 
-  it('returns empty + errors-with-msg when index fetch throws', async () => {
+  it('returns empty + emits fetch-stage skip when index fetch throws', async () => {
     const client = mkClient('oid-mock') as never
-    const result = await fetchBallotpediaRecallEvents(client, async () => {
-      throw new Error('network down')
-    })
+    const skips: SkipReason[] = []
+    const result = await fetchBallotpediaRecallEvents(
+      client,
+      async () => { throw new Error('network down') },
+      (r) => { skips.push(r) },
+    )
     expect(result.events).toEqual([])
-    expect(result.errors[0]).toMatch(/Index fetch failed/)
+    expect(skips).toHaveLength(1)
+    expect(skips[0]).toMatchObject({ adapter: 'ballotpedia-recalls', stage: 'fetch' })
+    expect(skips[0]!.detail).toMatch(/network down/)
   })
 })
 
