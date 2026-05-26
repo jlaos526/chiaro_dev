@@ -33,6 +33,7 @@ export function ComingSoonCard({ category }: ComingSoonCardProps): React.JSX.Ele
     >
       <Text
         accessibilityRole="header"
+        accessibilityLevel={3}
         style={{ fontSize: 14, fontWeight: '600', color: COLORS.brand.text }}
       >
         {category}

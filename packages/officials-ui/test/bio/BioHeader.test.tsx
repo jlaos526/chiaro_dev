@@ -105,6 +105,13 @@ describe('BioHeader', () => {
     expect(labeled).not.toBeNull()
   })
 
+  it('renders <section> landmark on web (slice 25)', () => {
+    const { container } = render(<BioHeader {...PELOSI} />)
+    const section = container.querySelector('section')
+    expect(section).not.toBeNull()
+    expect(section?.getAttribute('aria-label')).toBe('Nancy Pelosi bio')
+  })
+
   it('forwards chipHref builder to AlignmentChip via BioAlignmentChipRow (web smart-anchor)', () => {
     const chipHref = (chip: AlignmentChipRow) => `/officials/X#issue-positions:${chip.subCascadeSlug}`
     const { container } = render(

@@ -1,5 +1,9 @@
 // Public surface of @chiaro/officials-ui. Re-exported component-by-component
 // in subsequent tasks. See barrel additions in each task.
+
+// Side-effect import: cross-package module augmentation for react-native AccessibilityProps.
+import './types/react-native-augment.ts'
+
 export { ChiaroClientProvider, useChiaroClient, type ChiaroClientProviderProps } from './client-context.tsx'
 
 // Top-level leaf primitives (Task 5)

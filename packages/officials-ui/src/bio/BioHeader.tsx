@@ -1,4 +1,5 @@
-import { Text, View } from 'react-native'
+import { createElement } from 'react'
+import { Platform, Text, View } from 'react-native'
 import type { AlignmentChipRow } from '@chiaro/officials'
 import { BioPortrait } from './BioPortrait.tsx'
 import { BioIdentityRow } from './BioIdentityRow.tsx'
@@ -30,11 +31,8 @@ export interface BioHeaderProps {
 }
 
 export function BioHeader(p: BioHeaderProps): React.JSX.Element {
-  return (
-    <View
-      accessibilityLabel={`${p.fullName} bio`}
-      style={{ paddingVertical: 24, paddingHorizontal: 16, alignItems: 'center', gap: 12 }}
-    >
+  const innerContent = (
+    <>
       <BioPortrait fullName={p.fullName} portraitUrl={p.portraitUrl} size={72} />
       <Text style={{ fontSize: 24, fontWeight: '700', color: '#1a1714' }}>{p.fullName}</Text>
       <BioIdentityRow
@@ -52,6 +50,41 @@ export function BioHeader(p: BioHeaderProps): React.JSX.Element {
       />
       <BioServiceCard role={p.role} firstElectedYear={p.firstElectedYear} />
       <BioContactLinks officialUrl={p.officialUrl} twitterHandle={p.twitterHandle} />
+    </>
+  )
+
+  // Slice 25: on web, render real <section aria-label="..."> for landmark-role a11y.
+  // Slice 14 used outer <View> + accessibilityLabel which translated to
+  // <div aria-label="..."> — no landmark role, screen readers couldn't navigate
+  // by region. createElement escape hatch restores the landmark.
+  // Native side keeps the original <View> path (no DOM; native a11y uses
+  // accessibilityLabel directly).
+  if (Platform.OS === 'web') {
+    return createElement(
+      'section',
+      {
+        'aria-label': `${p.fullName} bio`,
+        style: {
+          paddingTop: 24,
+          paddingBottom: 24,
+          paddingLeft: 16,
+          paddingRight: 16,
+          alignItems: 'center',
+          gap: 12,
+          display: 'flex',
+          flexDirection: 'column',
+        },
+      },
+      innerContent,
+    )
+  }
+
+  return (
+    <View
+      accessibilityLabel={`${p.fullName} bio`}
+      style={{ paddingVertical: 24, paddingHorizontal: 16, alignItems: 'center', gap: 12 }}
+    >
+      {innerContent}
     </View>
   )
 }

@@ -31,4 +31,13 @@ describe('ComingSoonCard', () => {
       expect(getByText(c)).toBeTruthy()
     }
   })
+
+  it('renders heading with role="heading" + aria-level="3" (slice 25)', () => {
+    const { container } = render(<ComingSoonCard category="Service Record" />)
+    // RNW translates accessibilityRole="header" + accessibilityLevel={3}
+    // to <div role="heading" aria-level="3">.
+    const heading = container.querySelector('[role="heading"]')
+    expect(heading).not.toBeNull()
+    expect(heading?.getAttribute('aria-level')).toBe('3')
+  })
 })
