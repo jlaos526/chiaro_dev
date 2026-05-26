@@ -1,4 +1,5 @@
 import { Client } from 'pg'
+import { isCliEntry } from './shared/cli.ts'
 import type { StateEnrichAdapter, EnrichStats } from './state-bills/shared.ts'
 import { enrichCalifornia } from './state-bills/enrich-ca.ts'
 import { enrichNewYork    } from './state-bills/enrich-ny.ts'
@@ -62,7 +63,7 @@ export async function ingestStateBillsEnrich(
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
+if (isCliEntry(import.meta.url)) {
   const sessionArg = process.argv.find(a => a.startsWith('--session='))
   const session = sessionArg ? sessionArg.split('=')[1]! : new Date().getFullYear().toString()
   ingestStateBillsEnrich({ session })

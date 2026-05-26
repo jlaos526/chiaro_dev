@@ -154,6 +154,21 @@ jobs:
       - uses: supabase/setup-cli@v2
         with:
           version: latest
+      - name: Verify no legacy CLI guard patterns
+        # Slice 30 task 3: fast-fail if either of the 2 known-bad CLI guard
+        # patterns reappear in seed/. Catches future regressions cheaply
+        # before vitest spins up. Canonical fix is isCliEntry() from
+        # packages/db/supabase/seed/shared/cli.ts.
+        run: |
+          set -e
+          if grep -rn 'file://\${process\.argv\[1\]' packages/db/supabase/seed/ --exclude=cli.ts; then
+            echo "::error::Found broken 2-slash file:// CLI guard. Use isCliEntry() from shared/cli.ts."
+            exit 1
+          fi
+          if grep -rn 'fileURLToPath(import.meta.url) === process.argv\[1\]' packages/db/supabase/seed/ --exclude=cli.ts; then
+            echo "::error::Found legacy fileURLToPath CLI guard. Use isCliEntry() from shared/cli.ts."
+            exit 1
+          fi
       - run: pnpm install --frozen-lockfile
       - name: Cache turbo
         uses: actions/cache@v5

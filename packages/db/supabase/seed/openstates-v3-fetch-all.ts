@@ -1,5 +1,6 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { isCliEntry } from './shared/cli.ts'
 import { fetchOpenStatesV3, type FetchOpenStatesV3Stats } from './openstates-v3-fetch.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -110,7 +111,7 @@ export async function fetchOpenStatesV3All(opts: FetchAllOpts = {}): Promise<Fet
   return stats
 }
 
-if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
+if (isCliEntry(import.meta.url)) {
   const yearArg        = process.argv.find(a => a.startsWith('--year='))
   const skipOnError    = process.argv.includes('--skip-on-error')
   const force          = process.argv.includes('--force')

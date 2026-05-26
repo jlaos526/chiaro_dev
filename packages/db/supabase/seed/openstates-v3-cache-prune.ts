@@ -1,12 +1,13 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { isCliEntry } from './shared/cli.ts'
 import { pruneStaleCache } from './openstates-v3-fetch.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DEFAULT_CACHE_DIR = join(__dirname, '.cache', 'openstates')
 const DEFAULT_TTL_DAYS = 7
 
-if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
+if (isCliEntry(import.meta.url)) {
   const cacheDirArg = process.argv.find(a => a.startsWith('--cache-dir='))
   const ttlArg      = process.argv.find(a => a.startsWith('--ttl-days='))
   const cacheDir    = cacheDirArg ? cacheDirArg.split('=')[1]! : DEFAULT_CACHE_DIR

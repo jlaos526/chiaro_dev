@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 import { Client } from 'pg'
-import { fileURLToPath } from 'node:url'
+import { isCliEntry } from './shared/cli.ts'
 
 const DB_URL = process.env.SUPABASE_DB_URL
   ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
@@ -62,7 +62,7 @@ async function defaultFetcher(): Promise<TownHallEvent[]> {
   throw new Error('Town Hall Project live fetcher not implemented for slice 4; use injected fetcher.')
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (isCliEntry(import.meta.url)) {
   ingestTownHalls({})
     .then(s => { console.log(JSON.stringify(s, null, 2)); process.exit(0) })
     .catch(e => { console.error(e); process.exit(2) })

@@ -1,4 +1,5 @@
 import { Client } from 'pg'
+import { isCliEntry } from './shared/cli.ts'
 import {
   fetchAndNormalizeFederal,
   type FederalTownHallRow,
@@ -70,7 +71,7 @@ export async function ingestFederalTownHallsMobilize(
 }
 
 // CLI entrypoint
-if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
+if (isCliEntry(import.meta.url)) {
   const skipOnError = process.argv.includes('--skip-on-error')
   ingestFederalTownHallsMobilize({ skipOnError })
     .then(stats => {

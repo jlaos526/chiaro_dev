@@ -11,7 +11,7 @@
 // test) can observe the failure.
 
 import { Client } from 'pg'
-import { fileURLToPath } from 'node:url'
+import { isCliEntry } from './shared/cli.ts'
 import { fetchBills } from './congress-gov-bills.ts'
 import { fetchVotes } from './congress-gov-votes.ts'
 
@@ -153,7 +153,7 @@ export async function ingestBillsAndVotes(args: IngestArgs): Promise<IngestStats
 }
 
 // CLI guard: only runs when this file is executed directly via `tsx`.
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (isCliEntry(import.meta.url)) {
   const apiKey = process.env.CONGRESS_GOV_API_KEY
   if (!apiKey) {
     console.error('CONGRESS_GOV_API_KEY required')

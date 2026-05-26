@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 import { Client } from 'pg'
-import { fileURLToPath } from 'node:url'
+import { isCliEntry } from './shared/cli.ts'
 import { lookupSalary, CONGRESSIONAL_SALARY_SOURCE } from './congressional-salary-schedule.ts'
 import { fetchCandidateAddress } from './openfec-adapter.ts'
 
@@ -120,7 +120,7 @@ export async function ingestSalaryAndResidency(args: IngestArgs) {
   return { ...stats, salary_source_url: CONGRESSIONAL_SALARY_SOURCE }
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (isCliEntry(import.meta.url)) {
   ingestSalaryAndResidency({})
     .then(s => { console.log(JSON.stringify(s, null, 2)); process.exit(0) })
     .catch(e => { console.error(e); process.exit(2) })

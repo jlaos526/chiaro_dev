@@ -1,4 +1,5 @@
 import { Client } from 'pg'
+import { isCliEntry } from './shared/cli.ts'
 import {
   type CommunityComponent,
   type StateCommunityAdapter,
@@ -153,7 +154,7 @@ export async function ingestStateCommunity(
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
+if (isCliEntry(import.meta.url)) {
   const componentArg = process.argv.find(a => a.startsWith('--component='))
   const stateArg     = process.argv.find(a => a.startsWith('--state='))
   const sessionArg   = process.argv.find(a => a.startsWith('--session='))

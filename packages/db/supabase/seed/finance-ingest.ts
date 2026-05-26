@@ -5,7 +5,7 @@
 // Idempotent: re-running is safe (per-summary delete-then-insert for all children).
 
 import { Client } from 'pg'
-import { fileURLToPath } from 'node:url'
+import { isCliEntry } from './shared/cli.ts'
 import { fetchFinanceSnapshot, type FinanceSnapshot } from './opensecrets-adapter.ts'
 
 const DB_URL = process.env.SUPABASE_DB_URL
@@ -135,7 +135,7 @@ export async function ingestFinance(args: FinanceIngestArgs): Promise<FinanceIng
   return stats
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (isCliEntry(import.meta.url)) {
   const apiKey = process.env.OPENSECRETS_API_KEY
   if (!apiKey) { console.error('OPENSECRETS_API_KEY required'); process.exit(1) }
   ingestFinance({ apiKey })

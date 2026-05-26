@@ -1,4 +1,5 @@
 import { Client } from 'pg'
+import { isCliEntry } from './shared/cli.ts'
 
 const DB_URL = process.env.SUPABASE_DB_URL
   ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
@@ -194,7 +195,7 @@ export async function recomputeStateMetrics(
   return { officialsProcessed }
 }
 
-if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
+if (isCliEntry(import.meta.url)) {
   const sessionArg = process.argv.find(a => a.startsWith('--session='))
   const session = sessionArg ? sessionArg.split('=')[1]! : new Date().getFullYear().toString()
   recomputeStateMetrics({ session })

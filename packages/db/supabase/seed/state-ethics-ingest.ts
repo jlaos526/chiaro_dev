@@ -1,4 +1,5 @@
 import { Client } from 'pg'
+import { isCliEntry } from './shared/cli.ts'
 import {
   type EthicsComponent, type StateEthicsAdapter, type StateEthicsStats,
   upsertFinancialDisclosure,
@@ -132,7 +133,7 @@ export async function ingestStateEthics(
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
+if (isCliEntry(import.meta.url)) {
   const componentArg = process.argv.find(a => a.startsWith('--component='))
   const stateArg     = process.argv.find(a => a.startsWith('--state='))
   const skipOnError  = process.argv.includes('--skip-on-error')

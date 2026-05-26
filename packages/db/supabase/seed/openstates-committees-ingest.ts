@@ -2,6 +2,7 @@ import { Client } from 'pg'
 import { readdir, readFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { isCliEntry } from './shared/cli.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DB_URL = process.env.SUPABASE_DB_URL
@@ -182,7 +183,7 @@ export async function ingestStateCommittees(
   return stats
 }
 
-if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
+if (isCliEntry(import.meta.url)) {
   ingestStateCommittees({})
     .then(stats => {
       console.log('OpenStates committees ingest summary:')

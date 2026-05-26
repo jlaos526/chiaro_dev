@@ -14,8 +14,9 @@
 // Run via `pnpm seed:state-officials`. CLI accepts --allow-deactivations=N.
 
 import { Client } from 'pg'
-import { fileURLToPath, pathToFileURL } from 'node:url'
+import { fileURLToPath } from 'node:url'
 import { join, dirname } from 'node:path'
+import { isCliEntry } from './shared/cli.ts'
 import { loadOpenStatesYamlDir } from './openstates-yaml-loader.ts'
 import { normalizeStateLegDistrictCode } from './state-leg-config.ts'
 
@@ -233,7 +234,7 @@ export async function ingestStateOfficials(
  *   `seed/fixtures/openstates-people/` dir (6 YAML files; far below the
  *   production thresholds 4500/1800). Production runs MUST NOT use this flag.
  */
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (isCliEntry(import.meta.url)) {
   const allowDeactArg = process.argv.find(a => a.startsWith('--allow-deactivations='))
   const allowDeactivations = allowDeactArg
     ? Number(allowDeactArg.split('=')[1])

@@ -2,6 +2,7 @@ import { fetch } from 'undici'
 import { mkdir, readdir, stat, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { isCliEntry } from './shared/cli.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -181,7 +182,7 @@ export async function pruneStaleCommitteesCache(
   return removed
 }
 
-if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
+if (isCliEntry(import.meta.url)) {
   const stateArg = process.argv.find(a => a.startsWith('--state='))
   const force    = process.argv.includes('--force')
   if (!stateArg) {

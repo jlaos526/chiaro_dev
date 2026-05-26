@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 import { Client } from 'pg'
-import { fileURLToPath } from 'node:url'
+import { isCliEntry } from './shared/cli.ts'
 import { createSkipCollector, formatSkipSummary } from './shared/instrumentation.ts'
 import { PTR_ADAPTERS } from './federal-disclosures/ptr/index.ts'
 import type { PtrAdapter, NormalizedPtr } from './federal-disclosures/shared/types.ts'
@@ -240,7 +240,7 @@ function parseArgs(argv: readonly string[]): ParsedCli {
 }
 
 // CLI entrypoint
-if (process.argv[1] && import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}`) {
+if (isCliEntry(import.meta.url)) {
   let cli: ParsedCli
   try {
     cli = parseArgs(process.argv.slice(2))

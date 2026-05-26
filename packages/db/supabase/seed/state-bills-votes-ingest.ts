@@ -1,6 +1,7 @@
 import { Client } from 'pg'
 import { fileURLToPath } from 'node:url'
 import { join, dirname } from 'node:path'
+import { isCliEntry } from './shared/cli.ts'
 import {
   loadOpenStatesBillsDir,
   loadOpenStatesVotesDir,
@@ -233,7 +234,7 @@ function normalizeVoteOption(raw: string): 'yes' | 'no' | 'abstain' | 'not_votin
   return null
 }
 
-if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
+if (isCliEntry(import.meta.url)) {
   const skipBills = process.argv.includes('--skip-bills')
   const skipVotes = process.argv.includes('--skip-votes')
   const allowDeletionsArg = process.argv.find(a => a.startsWith('--allow-deletions='))

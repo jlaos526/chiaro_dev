@@ -1,4 +1,5 @@
 import { Client } from 'pg'
+import { isCliEntry } from './shared/cli.ts'
 import {
   type StateScorecardAdapter,
   type StateScorecardStats,
@@ -116,7 +117,7 @@ export async function ingestStateScorecards(
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]!.replace(/\\/g, '/')}`) {
+if (isCliEntry(import.meta.url)) {
   const sessionArg = process.argv.find(a => a.startsWith('--session='))
   const stateArg   = process.argv.find(a => a.startsWith('--state='))
   const orgArg     = process.argv.find(a => a.startsWith('--org='))

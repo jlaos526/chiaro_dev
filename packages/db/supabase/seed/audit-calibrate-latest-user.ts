@@ -10,7 +10,7 @@
 // service role (RLS is revoked from authenticated for these tables).
 
 import { Client } from 'pg'
-import { fileURLToPath } from 'node:url'
+import { isCliEntry } from './shared/cli.ts'
 
 const DB_URL = process.env.SUPABASE_DB_URL
   ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
@@ -86,7 +86,7 @@ async function main(): Promise<void> {
   }
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (isCliEntry(import.meta.url)) {
   main()
     .then(() => process.exit(0))
     .catch((e) => { console.error(e); process.exit(1) })

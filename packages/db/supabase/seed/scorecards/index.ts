@@ -3,7 +3,7 @@
 // is logged in the per-adapter `stats` entry but does not abort the run.
 // Task 20 ships 5 progressive/centrist adapters; Task 21 will append 5 more.
 import { Client } from 'pg'
-import { fileURLToPath } from 'node:url'
+import { isCliEntry } from '../shared/cli.ts'
 import { lcv } from './lcv.ts'
 import { sierraClub } from './sierra-club.ts'
 import { aclu } from './aclu.ts'
@@ -84,7 +84,7 @@ export async function ingestScorecards(opts?: { congress?: string; fixturesDir?:
   return stats
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (isCliEntry(import.meta.url)) {
   ingestScorecards({ fixturesDir: 'packages/db/supabase/seed/fixtures/scorecards' })
     .then(s => { console.log(JSON.stringify(s, null, 2)); process.exit(0) })
     .catch(e => { console.error(e); process.exit(2) })

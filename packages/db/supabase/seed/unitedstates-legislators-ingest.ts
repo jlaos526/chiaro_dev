@@ -5,7 +5,7 @@
 //   - district_offices rows
 
 import { Client } from 'pg'
-import { fileURLToPath } from 'node:url'
+import { isCliEntry } from './shared/cli.ts'
 import { parse as parseYAML } from 'yaml'
 
 const DB_URL = process.env.SUPABASE_DB_URL
@@ -136,7 +136,7 @@ export async function ingestLegislators(args: IngestArgs = {}): Promise<{
   return { updatedOfficials, leadershipRows, officeRows }
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+if (isCliEntry(import.meta.url)) {
   ingestLegislators()
     .then((stats) => {
       console.log(JSON.stringify(stats, null, 2))
