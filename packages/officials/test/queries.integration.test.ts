@@ -1,7 +1,10 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@chiaro/db'
-import { fetchMyOfficials, fetchOfficial } from '../src/queries.ts'
+import {
+  fetchMyOfficials, fetchOfficial,
+  fetchOfficialHoldings, fetchOfficialDisclosureOther,
+} from '../src/queries.ts'
 
 const URL  = process.env.SUPABASE_URL ?? 'http://127.0.0.1:54321'
 const ANON = process.env.SUPABASE_ANON_KEY
@@ -45,6 +48,10 @@ beforeAll(async () => {
   // constraint on bioguide_id and rolls back all three rows silently —
   // user_districts insert succeeds, but the JOIN in fetchMyOfficials returns
   // zero rows. See ROOT CAUSE in commit message.
+  // federal_holdings + federal_disclosure_other FK officials with ON DELETE
+  // RESTRICT — must drop these rows by source='integ' before officials.
+  await svc.from('federal_holdings').delete().eq('source', 'integ')
+  await svc.from('federal_disclosure_other').delete().eq('source', 'integ')
   await svc.from('officials').delete().in('bioguide_id', ['P000197', 'F000062', 'P000145'])
   // Same defensive pre-clean for the state official keyed by openstates_person_id.
   await svc.from('officials').delete().eq('openstates_person_id', 'ocd-person/00000000-0000-0000-0000-000000000001-int')
@@ -208,6 +215,9 @@ afterAll(async () => {
   }
   await svc.from('state_votes').delete().eq('openstates_vote_id', 'ocd-vote/0000-int')
   await svc.from('state_bills').delete().eq('openstates_bill_id', 'ocd-bill/0000-int')
+  // FK RESTRICT — must precede officials delete (slice 26).
+  await svc.from('federal_holdings').delete().eq('source', 'integ')
+  await svc.from('federal_disclosure_other').delete().eq('source', 'integ')
   await svc.from('officials').delete().in('bioguide_id', ['P000197', 'F000062', 'P000145'])
   // State official keyed by openstates_person_id (no bioguide_id on state rows).
   await svc.from('officials').delete().eq('openstates_person_id', 'ocd-person/00000000-0000-0000-0000-000000000001-int')
@@ -513,5 +523,87 @@ describe('state_ethics_* RLS + 3 fetchers', () => {
     const { fetchOfficialStateOfficialEvents } = await import('../src/queries.ts')
     const rows = await fetchOfficialStateOfficialEvents(anon as never, officialIdLocal)
     expect(rows.find(r => r.id === eventId)).toBeDefined()
+  })
+})
+
+describe('fetchOfficialHoldings — slice 26 federal_holdings ordering', () => {
+  let pelosiId: string
+
+  beforeAll(async () => {
+    const off = await svc.from('officials').select('id').eq('bioguide_id', 'P000197').single()
+    if (off.error) throw off.error
+    pelosiId = off.data!.id
+
+    // 3 rows mixing filing_year + value_max so we can verify the dual-order.
+    // Expected order (filing_year DESC, value_max DESC NULLS LAST):
+    //   1) 2024, value_max=500_000   (h-2024-large)
+    //   2) 2024, value_max=null      (h-2024-null)
+    //   3) 2023, value_max=100_000   (h-2023)
+    const r = await svc.from('federal_holdings').insert([
+      { official_id: pelosiId, filing_year: 2023, source: 'integ', external_id: 'h-2023',
+        source_url: 'https://x', asset_name: 'Apple', value_min: 50000, value_max: 100000 },
+      { official_id: pelosiId, filing_year: 2024, source: 'integ', external_id: 'h-2024-large',
+        source_url: 'https://x', asset_name: 'Tesla', value_min: 250000, value_max: 500000 },
+      { official_id: pelosiId, filing_year: 2024, source: 'integ', external_id: 'h-2024-null',
+        source_url: 'https://x', asset_name: 'Misc', value_min: null, value_max: null },
+    ])
+    if (r.error) throw r.error
+  })
+
+  afterAll(async () => {
+    if (!svc) return
+    await svc.from('federal_holdings').delete()
+      .eq('source', 'integ')
+      .in('external_id', ['h-2023', 'h-2024-large', 'h-2024-null'])
+  })
+
+  it('orders by filing_year DESC then value_max DESC nullsFirst:false', async () => {
+    const rows = await fetchOfficialHoldings(anon, pelosiId)
+    const integRows = rows.filter(r => r.source === 'integ')
+    expect(integRows).toHaveLength(3)
+    expect(integRows[0]!.external_id).toBe('h-2024-large')
+    expect(integRows[1]!.external_id).toBe('h-2024-null')
+    expect(integRows[2]!.external_id).toBe('h-2023')
+  })
+})
+
+describe('fetchOfficialDisclosureOther — slice 26 federal_disclosure_other ordering', () => {
+  let pelosiId: string
+
+  beforeAll(async () => {
+    const off = await svc.from('officials').select('id').eq('bioguide_id', 'P000197').single()
+    if (off.error) throw off.error
+    pelosiId = off.data!.id
+
+    // 3 rows mixing filing_year + category so we can verify the dual-order.
+    // Expected order (filing_year DESC, category ASC):
+    //   1) 2024, category='gift'    (do-2024-gift)
+    //   2) 2024, category='travel'  (do-2024-travel)
+    //   3) 2023, category='gift'    (do-2023-gift)
+    const r = await svc.from('federal_disclosure_other').insert([
+      { official_id: pelosiId, filing_year: 2023, source: 'integ', external_id: 'do-2023-gift',
+        source_url: 'https://x', category: 'gift', description: 'Old gift' },
+      { official_id: pelosiId, filing_year: 2024, source: 'integ', external_id: 'do-2024-travel',
+        source_url: 'https://x', category: 'travel', description: 'Conference trip' },
+      { official_id: pelosiId, filing_year: 2024, source: 'integ', external_id: 'do-2024-gift',
+        source_url: 'https://x', category: 'gift', description: 'New gift' },
+    ])
+    if (r.error) throw r.error
+  })
+
+  afterAll(async () => {
+    if (!svc) return
+    await svc.from('federal_disclosure_other').delete()
+      .eq('source', 'integ')
+      .in('external_id', ['do-2023-gift', 'do-2024-travel', 'do-2024-gift'])
+  })
+
+  it('orders by filing_year DESC then category ASC', async () => {
+    const rows = await fetchOfficialDisclosureOther(anon, pelosiId)
+    const integRows = rows.filter(r => r.source === 'integ')
+    expect(integRows).toHaveLength(3)
+    expect(integRows[0]!.external_id).toBe('do-2024-gift')
+    expect(integRows[1]!.external_id).toBe('do-2024-travel')
+    expect(integRows[2]!.external_id).toBe('do-2023-gift')
   })
 })

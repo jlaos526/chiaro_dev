@@ -16,6 +16,8 @@ export type {
   StateFinancialDisclosureRow,
   StateEthicsComplaintRow,
   StateOfficialEventRow,
+  FederalHolding,
+  FederalDisclosureOther,
 } from './types.ts'
 
 export {
@@ -41,6 +43,7 @@ export {
   fetchOfficialStateCommitteeHearings,
   fetchOfficialStateFinancialDisclosures,
   fetchOfficialStateEthicsComplaints, fetchOfficialStateOfficialEvents,
+  fetchOfficialHoldings, fetchOfficialDisclosureOther,
   type ScorecardRatingWithOrg, type OfficialFinance,
 } from './queries.ts'
 export {
@@ -53,6 +56,7 @@ export {
   useOfficialStateCommitteeHearings,
   useOfficialStateFinancialDisclosures,
   useOfficialStateEthicsComplaints, useOfficialStateOfficialEvents,
+  useOfficialHoldings, useOfficialDisclosureOther,
 } from './hooks.ts'
 
 export { ChamberSchema } from './schemas.ts'

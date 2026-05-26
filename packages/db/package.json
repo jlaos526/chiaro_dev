@@ -33,6 +33,8 @@
     "seed:state-community": "tsx supabase/seed/state-community-ingest.ts",
     "seed:state-ethics": "tsx supabase/seed/state-ethics-ingest.ts",
     "seed:federal-town-halls-mobilize": "tsx supabase/seed/federal-community-mobilize-ingest.ts",
+    "seed:federal-ptrs": "tsx supabase/seed/federal-ptrs-ingest.ts",
+    "seed:federal-fds": "tsx supabase/seed/federal-fds-ingest.ts",
     "db:seed-unitedstates": "tsx supabase/seed/unitedstates-legislators-ingest.ts",
     "db:seed-bills-votes": "tsx supabase/seed/bills-votes-ingest.ts",
     "db:seed-scorecards": "tsx supabase/seed/scorecards/index.ts",

@@ -2,6 +2,9 @@ import type { Database } from '@chiaro/db'
 
 export type OfficialRow = Database['public']['Tables']['officials']['Row']
 
+export type FederalHolding         = Database['public']['Tables']['federal_holdings']['Row']
+export type FederalDisclosureOther = Database['public']['Tables']['federal_disclosure_other']['Row']
+
 export type StateFinanceSummaryRow =
   Database['public']['Tables']['state_finance_summaries']['Row']
 

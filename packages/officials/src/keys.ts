@@ -31,5 +31,7 @@ export const officialsKeys = {
   districtOffices:   (id: string) => [...officialsKeys.all, 'district-offices', id] as const,
   townHalls:         (id: string, congress: string) => [...officialsKeys.all, 'town-halls', id, congress] as const,
   stockTransactions: (id: string) => [...officialsKeys.all, 'stock-transactions', id] as const,
+  holdings:          (id: string) => [...officialsKeys.all, 'holdings', id] as const,
+  disclosureOther:   (id: string) => [...officialsKeys.all, 'disclosure-other', id] as const,
   leadershipHistory: (id: string) => [...officialsKeys.all, 'leadership-history', id] as const,
 } as const

@@ -5,11 +5,15 @@ import { StyleSheet, Text, View } from 'react-native'
 import {
   useOfficialMetrics,
   useOfficialStockTransactions,
+  useOfficialHoldings,
+  useOfficialDisclosureOther,
 } from '@chiaro/officials'
 import { COLORS } from '@chiaro/ui-tokens'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { FederalStockTransactionsList } from './FederalStockTransactionsList.tsx'
+import { FederalHoldingsList } from './FederalHoldingsList.tsx'
+import { FederalDisclosureOtherList } from './FederalDisclosureOtherList.tsx'
 
 export interface FederalEthicsAccountabilityCardProps {
   officialId: string
@@ -28,10 +32,14 @@ export function FederalEthicsAccountabilityCard({
   const client = useChiaroClient()
   const metrics = useOfficialMetrics(client, officialId)
   const stock = useOfficialStockTransactions(client, officialId)
+  const holdings = useOfficialHoldings(client, officialId)
+  const other = useOfficialDisclosureOther(client, officialId)
 
   const [openStock, setOpenStock] = useState(false)
+  const [openHoldings, setOpenHoldings] = useState(false)
+  const [openOther, setOpenOther] = useState(false)
 
-  if (metrics.isLoading || stock.isLoading) {
+  if (metrics.isLoading || stock.isLoading || holdings.isLoading || other.isLoading) {
     return (
       <View style={styles.card}>
         <Text style={styles.title}>Ethics & Accountability</Text>
@@ -44,7 +52,10 @@ export function FederalEthicsAccountabilityCard({
   const compliancePct = m?.stock_act_compliance_pct ?? null
   const stockCount = stock.data?.length ?? 0
   const lateCount = stock.data?.filter(t => (t.days_late ?? 0) > 0).length ?? 0
-  const allEmpty = stockCount === 0 && compliancePct == null
+  const holdingsCount = holdings.data?.length ?? 0
+  const otherCount = other.data?.length ?? 0
+  const allEmpty =
+    stockCount === 0 && compliancePct == null && holdingsCount === 0 && otherCount === 0
 
   if (allEmpty) {
     return (
@@ -88,6 +99,22 @@ export function FederalEthicsAccountabilityCard({
         onToggle={() => setOpenStock(v => !v)}
       >
         <FederalStockTransactionsList rows={stock.data ?? []} />
+      </CardSubsection>
+
+      <CardSubsection
+        label={`Holdings (${holdingsCount})`}
+        open={openHoldings}
+        onToggle={() => setOpenHoldings(v => !v)}
+      >
+        <FederalHoldingsList rows={holdings.data ?? []} />
+      </CardSubsection>
+
+      <CardSubsection
+        label={`Other Disclosures (${otherCount})`}
+        open={openOther}
+        onToggle={() => setOpenOther(v => !v)}
+      >
+        <FederalDisclosureOtherList rows={other.data ?? []} />
       </CardSubsection>
     </View>
   )

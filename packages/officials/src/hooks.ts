@@ -14,6 +14,8 @@ import {
   fetchOfficialStateFinancialDisclosures,
   fetchOfficialStateEthicsComplaints,
   fetchOfficialStateOfficialEvents,
+  fetchOfficialHoldings,
+  fetchOfficialDisclosureOther,
 } from './queries.ts'
 import type {
   StateFinanceSummaryRow,
@@ -104,6 +106,28 @@ export function useOfficialStockTransactions(
   return useQuery({
     queryKey: officialsKeys.stockTransactions(officialId),
     queryFn: () => fetchOfficialStockTransactions(client, officialId),
+    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    enabled: opts?.enabled !== false && !!officialId,
+  })
+}
+
+export function useOfficialHoldings(
+  client: ChiaroClient, officialId: string, opts?: { enabled?: boolean },
+) {
+  return useQuery({
+    queryKey: officialsKeys.holdings(officialId),
+    queryFn: () => fetchOfficialHoldings(client, officialId),
+    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    enabled: opts?.enabled !== false && !!officialId,
+  })
+}
+
+export function useOfficialDisclosureOther(
+  client: ChiaroClient, officialId: string, opts?: { enabled?: boolean },
+) {
+  return useQuery({
+    queryKey: officialsKeys.disclosureOther(officialId),
+    queryFn: () => fetchOfficialDisclosureOther(client, officialId),
     staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
     enabled: opts?.enabled !== false && !!officialId,
   })

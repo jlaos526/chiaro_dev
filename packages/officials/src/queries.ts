@@ -11,6 +11,8 @@ import type {
   StateFinancialDisclosureRow,
   StateEthicsComplaintRow,
   StateOfficialEventRow,
+  FederalHolding,
+  FederalDisclosureOther,
 } from './types.ts'
 
 const SELECT_WITH_DISTRICT =
@@ -361,4 +363,30 @@ export async function fetchOfficialStateOfficialEvents(
     .order('event_date', { ascending: false })
   if (error) throw error
   return (data ?? []) as StateOfficialEventRow[]
+}
+
+export async function fetchOfficialHoldings(
+  client: ChiaroClient, officialId: string,
+): Promise<FederalHolding[]> {
+  const { data, error } = await client
+    .from('federal_holdings')
+    .select('*')
+    .eq('official_id', officialId)
+    .order('filing_year', { ascending: false })
+    .order('value_max',   { ascending: false, nullsFirst: false })
+  if (error) throw error
+  return data ?? []
+}
+
+export async function fetchOfficialDisclosureOther(
+  client: ChiaroClient, officialId: string,
+): Promise<FederalDisclosureOther[]> {
+  const { data, error } = await client
+    .from('federal_disclosure_other')
+    .select('*')
+    .eq('official_id', officialId)
+    .order('filing_year', { ascending: false })
+    .order('category',    { ascending: true })
+  if (error) throw error
+  return data ?? []
 }

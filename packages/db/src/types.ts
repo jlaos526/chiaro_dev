@@ -7,31 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       bill_sponsors: {
@@ -211,6 +186,124 @@ export type Database = {
           tier?: Database["public"]["Enums"]["district_tier"]
         }
         Relationships: []
+      }
+      federal_disclosure_other: {
+        Row: {
+          category: string
+          description: string | null
+          external_id: string | null
+          filing_year: number
+          id: string
+          ingested_at: string
+          official_id: string
+          source: string
+          source_party: string | null
+          source_url: string
+          value_max: number | null
+          value_min: number | null
+          value_text: string | null
+        }
+        Insert: {
+          category: string
+          description?: string | null
+          external_id?: string | null
+          filing_year: number
+          id?: string
+          ingested_at?: string
+          official_id: string
+          source: string
+          source_party?: string | null
+          source_url: string
+          value_max?: number | null
+          value_min?: number | null
+          value_text?: string | null
+        }
+        Update: {
+          category?: string
+          description?: string | null
+          external_id?: string | null
+          filing_year?: number
+          id?: string
+          ingested_at?: string
+          official_id?: string
+          source?: string
+          source_party?: string | null
+          source_url?: string
+          value_max?: number | null
+          value_min?: number | null
+          value_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "federal_disclosure_other_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      federal_holdings: {
+        Row: {
+          asset_name: string | null
+          asset_ticker: string | null
+          asset_type: string | null
+          external_id: string | null
+          filing_year: number
+          id: string
+          income_max: number | null
+          income_min: number | null
+          income_type: string | null
+          ingested_at: string
+          official_id: string
+          source: string
+          source_url: string
+          value_max: number | null
+          value_min: number | null
+        }
+        Insert: {
+          asset_name?: string | null
+          asset_ticker?: string | null
+          asset_type?: string | null
+          external_id?: string | null
+          filing_year: number
+          id?: string
+          income_max?: number | null
+          income_min?: number | null
+          income_type?: string | null
+          ingested_at?: string
+          official_id: string
+          source: string
+          source_url: string
+          value_max?: number | null
+          value_min?: number | null
+        }
+        Update: {
+          asset_name?: string | null
+          asset_ticker?: string | null
+          asset_type?: string | null
+          external_id?: string | null
+          filing_year?: number
+          id?: string
+          income_max?: number | null
+          income_min?: number | null
+          income_type?: string | null
+          ingested_at?: string
+          official_id?: string
+          source?: string
+          source_url?: string
+          value_max?: number | null
+          value_min?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "federal_holdings_official_id_fkey"
+            columns: ["official_id"]
+            isOneToOne: false
+            referencedRelation: "officials"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       finance_individual_donors: {
         Row: {
@@ -3037,9 +3130,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       bill_status: [

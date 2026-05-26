@@ -70,6 +70,14 @@ export {
   FederalStockTransactionsList,
   type FederalStockTransactionsListProps,
 } from './federal/FederalStockTransactionsList.tsx'
+export {
+  FederalHoldingsList,
+  type FederalHoldingsListProps,
+} from './federal/FederalHoldingsList.tsx'
+export {
+  FederalDisclosureOtherList,
+  type FederalDisclosureOtherListProps,
+} from './federal/FederalDisclosureOtherList.tsx'
 
 // federal/* cards (Task 7) — composed wrappers that call hooks via
 // useChiaroClient() and render the federal lists above.
