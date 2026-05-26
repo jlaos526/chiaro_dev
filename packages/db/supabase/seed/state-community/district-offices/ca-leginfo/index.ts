@@ -19,13 +19,12 @@ export const caLeginfoOffices: StateCommunityAdapter<NormalizedDistrictOffice> =
   async fetchEvents(opts): Promise<NormalizedDistrictOffice[]> {
     if (opts.fetcher) return opts.fetcher()
 
-    // Senate uses a single-page roster (no per-member loop) and does not
-    // accept onSkip today; only the per-member assembly sub-fetcher
-    // propagates slice 22 instrumentation.
-    const assemblyOpts = opts.onSkip ? { onSkip: opts.onSkip } : {}
+    // Both sub-fetchers honor opts.onSkip (slice 22 for assembly,
+    // slice 23 Task 1 for senate). Propagate when provided.
+    const subOpts = opts.onSkip ? { onSkip: opts.onSkip } : {}
     const [senate, assembly] = await Promise.all([
-      fetchCaSenateOffices(opts.client, {}),
-      fetchCaAssemblyOffices(opts.client, assemblyOpts),
+      fetchCaSenateOffices(opts.client, subOpts),
+      fetchCaAssemblyOffices(opts.client, subOpts),
     ])
     return [...senate, ...assembly]
   },

@@ -2,6 +2,7 @@ import * as cheerio from 'cheerio'
 import type { Client } from 'pg'
 import type { NormalizedStateRating } from '../shared.ts'
 import type { Chamber } from '../../shared/officials.ts'
+import type { SkipReason } from '../../shared/instrumentation.ts'
 import { BROWSER_USER_AGENT, resolveOpenstatesPersonId } from './helpers.ts'
 
 const FETCH_TIMEOUT_MS = 5000
@@ -62,46 +63,121 @@ export function parseColoradoLcvHtml(
  */
 export async function fetchColoradoRatings(
   client: Pick<Client, 'query'>,
-  opts: { session: string; fetcher?: (url: string) => Promise<string> },
+  opts: {
+    session: string
+    fetcher?: (url: string) => Promise<string>
+    onSkip?: (reason: SkipReason) => void
+  },
 ): Promise<NormalizedStateRating[]> {
   const year = opts.session
   const houseUrl = `https://conservationco.org/scorecards/${year}-scorecard/${year}-house/`
   const senateUrl = `https://conservationco.org/scorecards/${year}-scorecard/${year}-senate/`
 
-  const fetchOne = async (url: string): Promise<string | null> => {
+  const fetchOne = async (url: string, chamberLabel: string): Promise<string | null> => {
     try {
       if (opts.fetcher) return await opts.fetcher(url)
       const resp = await fetch(url, {
         signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         headers: { 'User-Agent': BROWSER_USER_AGENT },
       })
-      if (!resp.ok) return null
+      if (!resp.ok) {
+        opts.onSkip?.({
+          adapter: 'lcv',
+          stage: 'fetch',
+          reason: `roster fetch returned non-2xx (CO ${chamberLabel})`,
+          detail: `HTTP ${resp.status}`,
+        })
+        return null
+      }
       return await resp.text()
-    } catch {
+    } catch (e) {
+      opts.onSkip?.({
+        adapter: 'lcv',
+        stage: 'fetch',
+        reason: `roster fetch threw (CO ${chamberLabel})`,
+        detail: e instanceof Error ? e.message : String(e),
+      })
       return null
     }
   }
 
   const out: NormalizedStateRating[] = []
 
-  for (const [url, chamber] of [
-    [houseUrl, 'state_house' as Chamber],
-    [senateUrl, 'state_senate' as Chamber],
+  for (const [url, chamber, chamberLabel] of [
+    [houseUrl, 'state_house' as Chamber, 'house'],
+    [senateUrl, 'state_senate' as Chamber, 'senate'],
   ] as const) {
-    const html = await fetchOne(url)
+    const html = await fetchOne(url, chamberLabel)
     if (html == null) continue
-    const rows = parseColoradoLcvHtml(html, chamber)
-    for (const row of rows) {
-      const openstatesPersonId = await resolveOpenstatesPersonId(client, {
-        full_name: row.full_name,
-        state: 'CO',
-        chamber: row.chamber,
+
+    // Inline parse so we can surface per-row score-parse skips. Mirrors
+    // parseColoradoLcvHtml shape but emits skips for the filtered rows.
+    const $ = cheerio.load(html)
+    const rowCells: { full_name: string; partyDistrict: string; scoreText: string }[] = []
+    $('table.scorecard-table tbody tr').each((_, trEl) => {
+      const cells = $(trEl).find('td')
+      if (cells.length < 4) return
+      rowCells.push({
+        full_name: $(cells[0]).text().trim(),
+        partyDistrict: $(cells[1]).text().trim(),
+        scoreText: $(cells[2]).text().trim(),
       })
-      if (!openstatesPersonId) continue
+    })
+
+    for (const cell of rowCells) {
+      const { full_name, partyDistrict, scoreText } = cell
+
+      if (!full_name) continue
+      if (!scoreText || scoreText === 'N/A') {
+        opts.onSkip?.({
+          adapter: 'lcv',
+          stage: 'parse',
+          legislator: full_name,
+          reason: `missing or N/A score (CO ${chamberLabel})`,
+        })
+        continue
+      }
+
+      const score_numeric = Number.parseInt(scoreText.replace(/%/g, ''), 10)
+      if (!Number.isFinite(score_numeric)) {
+        opts.onSkip?.({
+          adapter: 'lcv',
+          stage: 'parse',
+          legislator: full_name,
+          reason: `score parse failed (CO ${chamberLabel}): "${scoreText}"`,
+        })
+        continue
+      }
+
+      const m = partyDistrict.match(PARTY_DISTRICT_RE)
+      if (!m) {
+        opts.onSkip?.({
+          adapter: 'lcv',
+          stage: 'parse',
+          legislator: full_name,
+          reason: `party-district parse failed (CO ${chamberLabel}): "${partyDistrict}"`,
+        })
+        continue
+      }
+
+      const openstatesPersonId = await resolveOpenstatesPersonId(client, {
+        full_name,
+        state: 'CO',
+        chamber,
+      })
+      if (!openstatesPersonId) {
+        opts.onSkip?.({
+          adapter: 'lcv',
+          stage: 'resolve',
+          legislator: full_name,
+          reason: `unmatched in officials table (CO, ${chamber})`,
+        })
+        continue
+      }
       out.push({
         openstates_person_id: openstatesPersonId,
         state: 'CO',
-        score: row.score_numeric,
+        score: score_numeric,
         source_url: url,
       })
     }

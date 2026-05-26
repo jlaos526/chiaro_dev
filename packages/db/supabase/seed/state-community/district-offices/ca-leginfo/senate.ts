@@ -3,6 +3,7 @@ import type { Client } from 'pg'
 import type { NormalizedDistrictOffice } from '../../shared.ts'
 import { parseAddressText } from '../_shared.ts'
 import { resolveOpenstatesPersonId } from '../../../shared/officials.ts'
+import type { SkipReason } from '../../../shared/instrumentation.ts'
 
 const SOURCE_URL = 'https://www.senate.ca.gov/senators'
 const FETCH_TIMEOUT_MS = 5000
@@ -56,14 +57,23 @@ export function parseCaSenateRosterHtml(html: string): ParsedCaSenator[] {
 
 export async function fetchCaSenateOffices(
   client: Pick<Client, 'query'>,
-  opts: { fetcher?: () => Promise<string> },
+  opts: {
+    fetcher?: () => Promise<string>
+    onSkip?: (reason: SkipReason) => void
+  },
 ): Promise<NormalizedDistrictOffice[]> {
   let html: string
   try {
     html = opts.fetcher
       ? await opts.fetcher()
       : await (await fetch(SOURCE_URL, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })).text()
-  } catch {
+  } catch (e) {
+    opts.onSkip?.({
+      adapter: 'ca-leginfo',
+      stage: 'fetch',
+      reason: 'roster fetch threw',
+      detail: e instanceof Error ? e.message : String(e),
+    })
     return []
   }
 
@@ -76,7 +86,15 @@ export async function fetchCaSenateOffices(
       state: 'CA',
       chamber: 'state_senate',
     })
-    if (!openstates_person_id) continue
+    if (!openstates_person_id) {
+      opts.onSkip?.({
+        adapter: 'ca-leginfo',
+        stage: 'resolve',
+        legislator: s.full_name,
+        reason: 'unmatched in officials table (state_senate)',
+      })
+      continue
+    }
 
     if (s.capitol_office) {
       const parts = parseAddressText(s.capitol_office)
@@ -90,6 +108,13 @@ export async function fetchCaSenateOffices(
           ...(parts.postal_code ? { postal_code: parts.postal_code } : {}),
           ...(parts.phone ? { phone: parts.phone } : {}),
           source_url: SOURCE_URL,
+        })
+      } else {
+        opts.onSkip?.({
+          adapter: 'ca-leginfo',
+          stage: 'parse',
+          legislator: s.full_name,
+          reason: 'parseAddressText returned null for capitol office',
         })
       }
     }
@@ -105,6 +130,13 @@ export async function fetchCaSenateOffices(
           ...(parts.postal_code ? { postal_code: parts.postal_code } : {}),
           ...(parts.phone ? { phone: parts.phone } : {}),
           source_url: SOURCE_URL,
+        })
+      } else {
+        opts.onSkip?.({
+          adapter: 'ca-leginfo',
+          stage: 'parse',
+          legislator: s.full_name,
+          reason: 'parseAddressText returned null for district office',
         })
       }
     }

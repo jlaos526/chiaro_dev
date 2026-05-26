@@ -17,13 +17,12 @@ export const nySenateOffices: StateCommunityAdapter<NormalizedDistrictOffice> = 
   async fetchEvents(opts): Promise<NormalizedDistrictOffice[]> {
     if (opts.fetcher) return opts.fetcher()
 
-    // Assembly uses a single-page directory (no per-member loop) and
-    // does not accept onSkip today; only the per-member senate
-    // sub-fetcher propagates slice 22 instrumentation.
-    const senateOpts = opts.onSkip ? { onSkip: opts.onSkip } : {}
+    // Both sub-fetchers honor opts.onSkip (slice 22 for senate, slice 23
+    // Task 1 for assembly). Propagate when provided.
+    const subOpts = opts.onSkip ? { onSkip: opts.onSkip } : {}
     const [assembly, senate] = await Promise.all([
-      fetchAssemblyOffices(opts.client, {}),
-      fetchSenateOffices(opts.client, senateOpts),
+      fetchAssemblyOffices(opts.client, subOpts),
+      fetchSenateOffices(opts.client, subOpts),
     ])
     return [...assembly, ...senate]
   },

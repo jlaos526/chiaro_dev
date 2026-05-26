@@ -76,11 +76,12 @@ describe('fetchSwornComplaintOrders', () => {
       fetcher: async () => html,
     })
     // 8 rows: 6 legislators (3 House + 3 Senate) resolve; "Unknown Stranger"
-    // (House) doesn't resolve → error logged; Comptroller (1) filtered before resolve.
-    // Final: 6 complaints + 6 events + at least 1 error
+    // (House) doesn't resolve → onSkip emitted (slice 23: errors[] no longer
+    // populated for unresolved); Comptroller (1) filtered before resolve.
+    // Final: 6 complaints + 6 events; errors[] only populated by fetch failures.
     expect(result.complaints).toHaveLength(6)
     expect(result.events).toHaveLength(6)
-    expect(result.errors.length).toBeGreaterThan(0)
+    expect(result.errors).toHaveLength(0)
   })
 
   it('maps TX status text to canonical enum', async () => {
@@ -326,7 +327,7 @@ describe('tx-tec slice 22 onSkip instrumentation', () => {
     expect(filterSkip!.reason).toMatch(/Comptroller/i)
   })
 
-  it('dual-writes: existing errors[] AND onSkip for unresolved legislator (back-compat)', async () => {
+  it('emits resolve skip for unresolved legislator (single channel)', async () => {
     const html = await readFile(FIXTURE, 'utf8')
     const client = {
       query: vi.fn().mockImplementation((_sql: string, params: unknown[]) => {
@@ -343,10 +344,8 @@ describe('tx-tec slice 22 onSkip instrumentation', () => {
       onSkip: (r) => { skips.push(r) },
     })
 
-    // Existing slice 16/20 contract: errors[] still contains the unresolved entry
-    expect(result.errors.some(e => e.includes('Unknown Stranger'))).toBe(true)
-
-    // Slice 22 contract: onSkip ALSO called for the same unresolved case
+    // Slice 23 contract: unresolved legislator emits onSkip ONLY; errors[] is
+    // no longer populated for the unresolved case (only `fetch failed`).
     const resolveSkip = skips.find(s => s.stage === 'resolve' && s.legislator === 'Unknown Stranger')
     expect(resolveSkip).toBeDefined()
     expect(resolveSkip).toMatchObject({
@@ -355,6 +354,7 @@ describe('tx-tec slice 22 onSkip instrumentation', () => {
       legislator: 'Unknown Stranger',
     })
     expect(resolveSkip!.reason).toMatch(/unmatched/i)
+    expect(result.errors.some(e => e.includes('Unknown Stranger'))).toBe(false)
   })
 
   it('calls onSkip with fetch stage when per-case PDF fetchPdf rejects', async () => {

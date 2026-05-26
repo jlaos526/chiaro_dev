@@ -3,6 +3,7 @@ import { readFile, readdir } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { parse as parseYaml } from 'yaml'
+import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const ALL_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY']
 
@@ -56,13 +57,26 @@ export const openstatesEndReason: StateEthicsAdapter<NormalizedOfficialEvent> = 
     if (opts.fetcher) return opts.fetcher()
 
     const dir = peopleCacheDir()
-    if (!existsSync(dir)) return []
+    if (!existsSync(dir)) {
+      opts.onSkip?.({
+        adapter: 'openstates-end-reason',
+        stage: 'fetch',
+        reason: `cache dir absent: ${dir}`,
+      })
+      return []
+    }
 
     const out: NormalizedOfficialEvent[] = []
     let files: string[]
     try {
       files = await readdir(dir)
-    } catch {
+    } catch (e) {
+      opts.onSkip?.({
+        adapter: 'openstates-end-reason',
+        stage: 'fetch',
+        reason: `readdir failed for ${dir}`,
+        detail: e instanceof Error ? e.message : String(e),
+      })
       return []
     }
 
@@ -76,7 +90,14 @@ export const openstatesEndReason: StateEthicsAdapter<NormalizedOfficialEvent> = 
         } else {
           person = JSON.parse(raw) as OpenStatesPerson
         }
-      } catch {
+      } catch (e) {
+        opts.onSkip?.({
+          adapter: 'openstates-end-reason',
+          stage: 'parse',
+          legislator: file,
+          reason: 'YAML/JSON parse failed',
+          detail: e instanceof Error ? e.message : String(e),
+        })
         continue
       }
       if (!person.roles) continue
@@ -88,10 +109,23 @@ export const openstatesEndReason: StateEthicsAdapter<NormalizedOfficialEvent> = 
 
         const isResign = RESIGN_RE.test(role.end_reason)
         const isDeath  = DEATH_RE.test(role.end_reason)
+        // INTENTIONAL silent filter: most roles have end_reason like "term ended"
+        // — not a resignation/death. We don't emit a skip here because this is
+        // the normal case (the adapter's purpose is to extract ONLY resign/death
+        // events from a much larger corpus of role end_reasons).
         if (!isResign && !isDeath) continue
 
         const state = roleState ?? opts.state ?? ''
-        if (!state) continue
+        if (!state) {
+          opts.onSkip?.({
+            adapter: 'openstates-end-reason',
+            stage: 'parse',
+            legislator: person.name,
+            reason: 'could not extract state from role.jurisdiction',
+            detail: role.jurisdiction ?? '(jurisdiction empty)',
+          })
+          continue
+        }
 
         out.push({
           official_openstates_person_id: person.id,

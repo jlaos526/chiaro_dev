@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseNyAssemblyDirectoryHtml, fetchAssemblyOffices } from './assembly.ts'
+import type { SkipReason } from '../../../shared/instrumentation.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const FIXTURE = join(__dirname, '..', '..', '..', 'fixtures', 'state-community', 'ny-assembly-mem.html')
@@ -80,6 +81,81 @@ describe('fetchAssemblyOffices', () => {
     const client = {
       query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
     }
+    const rows = await fetchAssemblyOffices(client as never, { fetcher: async () => html })
+    expect(rows).toEqual([])
+  })
+})
+
+describe('fetchAssemblyOffices onSkip instrumentation (slice 23)', () => {
+  it('emits fetch-stage skip when fetcher rejects', async () => {
+    const client = { query: vi.fn() }
+    const skips: SkipReason[] = []
+    const rows = await fetchAssemblyOffices(client as never, {
+      fetcher: async () => { throw new Error('directory unreachable') },
+      onSkip: (r) => { skips.push(r) },
+    })
+    expect(rows).toEqual([])
+    expect(skips).toHaveLength(1)
+    expect(skips[0]).toMatchObject({
+      adapter: 'ny-senate',
+      stage: 'fetch',
+    })
+    expect(skips[0]!.detail).toMatch(/directory unreachable/)
+  })
+
+  it('emits resolve-stage skip per AM with no officials match', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+    }
+    const skips: SkipReason[] = []
+    const rows = await fetchAssemblyOffices(client as never, {
+      fetcher: async () => html,
+      onSkip: (r) => { skips.push(r) },
+    })
+    expect(rows).toEqual([])
+    // Fixture parses 3 valid members (Jane, Alex, Maria) — all unresolved.
+    expect(skips).toHaveLength(3)
+    expect(skips.every(s => s.adapter === 'ny-senate' && s.stage === 'resolve')).toBe(true)
+    expect(skips.map(s => s.legislator)).toEqual(['Jane Doe', 'Alex Smith', 'Maria Chen'])
+  })
+
+  it('emits parse-stage skip when parseAddressText returns null for albany office', async () => {
+    // Inject a custom HTML card whose albany_office is intentionally malformed
+    // (no commas) so parseAddressText returns null → parse skip on the
+    // capitol branch.
+    const badHtml = `
+      <div class="member-card">
+        <h3 class="member-name">Garbled Member</h3>
+        <span class="district">District 7</span>
+        <div class="albany-address">malformed no commas</div>
+      </div>
+    `
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-person/ny-1' }],
+        rowCount: 1,
+      }),
+    }
+    const skips: SkipReason[] = []
+    const rows = await fetchAssemblyOffices(client as never, {
+      fetcher: async () => badHtml,
+      onSkip: (r) => { skips.push(r) },
+    })
+    expect(rows).toEqual([])
+    expect(skips).toHaveLength(1)
+    expect(skips[0]).toMatchObject({
+      adapter: 'ny-senate',
+      stage: 'parse',
+      legislator: 'Garbled Member',
+    })
+    expect(skips[0]!.reason).toMatch(/albany/)
+  })
+
+  it('omitting onSkip preserves silent-skip behavior (back-compat)', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = { query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }) }
+    // No onSkip passed — must not throw despite all AMs being unresolved.
     const rows = await fetchAssemblyOffices(client as never, { fetcher: async () => html })
     expect(rows).toEqual([])
   })

@@ -1,5 +1,6 @@
 import type { Client } from 'pg'
 import type { StateScorecardAdapter, NormalizedStateRating } from '../shared.ts'
+import type { SkipReason } from '../../shared/instrumentation.ts'
 import { fetchMichiganRatings } from './mi.ts'
 import { fetchColoradoRatings } from './co.ts'
 
@@ -9,7 +10,7 @@ const US_STATE_NAMES: Record<string, string> = {
 
 type LcvFetcher = (
   client: Pick<Client, 'query'>,
-  opts: { session: string },
+  opts: { session: string; onSkip?: (reason: SkipReason) => void },
 ) => Promise<NormalizedStateRating[]>
 
 const PRODUCTION_FETCHERS: Record<string, LcvFetcher> = {
@@ -37,11 +38,15 @@ export const lcv: StateScorecardAdapter = {
     const injected = (opts as { fetcher?: () => Promise<NormalizedStateRating[]> }).fetcher
     if (injected) return injected()
     const targetStates = opts.state ? [opts.state] : this.covered_states
+    const subOpts: { session: string; onSkip?: (reason: SkipReason) => void } = {
+      session: opts.session,
+      ...(opts.onSkip ? { onSkip: opts.onSkip } : {}),
+    }
     const out: NormalizedStateRating[] = []
     for (const state of targetStates) {
       const handler = PRODUCTION_FETCHERS[state]
       if (!handler) continue
-      const ratings = await handler(opts.client, { session: opts.session })
+      const ratings = await handler(opts.client, subOpts)
       out.push(...ratings)
     }
     return out

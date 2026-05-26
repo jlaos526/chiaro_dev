@@ -8,6 +8,11 @@ const ALL_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID',
  * `./mobilize.ts` (slice 7). Stub retained in the codebase for
  * backwards-compat with existing test imports; never produced data so no
  * DB cleanup needed. Not in `ADAPTERS_DEFAULT` dispatch order anymore.
+ *
+ * Honors the slice 22 widened `opts.onSkip?` callback by NEVER firing it —
+ * the adapter unconditionally returns []. Inclusion in this interface is
+ * for type-uniformity with other state-community adapters; if/when this
+ * stub is removed entirely, no instrumentation migration is required.
  */
 export const townhallproject: StateCommunityAdapter<NormalizedTownHall> = {
   slug: 'townhallproject',
@@ -15,6 +20,9 @@ export const townhallproject: StateCommunityAdapter<NormalizedTownHall> = {
   covered_states: ALL_STATES,
   async fetchEvents(opts) {
     if (opts.fetcher) return opts.fetcher()
+    // Deprecated per slice 7 (TownHallProject offline since 2021). Mobilize.us
+    // is the active source. No skip emitted because adapter is intentionally
+    // returning [].
     return []
   },
 }

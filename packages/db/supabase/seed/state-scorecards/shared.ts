@@ -1,4 +1,5 @@
 import type { Client } from 'pg'
+import type { SkipReason } from '../shared/instrumentation.ts'
 
 export type ScorecardLean =
   'progressive' | 'conservative' | 'libertarian' | 'single-issue' | 'centrist'
@@ -25,6 +26,7 @@ export interface StateScorecardAdapter {
     session: string
     state?: string
     fetcher?: () => Promise<NormalizedStateRating[]>  // test injection
+    onSkip?: (reason: SkipReason) => void
   }): Promise<NormalizedStateRating[]>
 }
 

@@ -7,6 +7,7 @@ import {
   deriveFormat,
 } from './mobilize-helpers.ts'
 import { resolveOfficialByName, type Chamber } from '../../shared/officials.ts'
+import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const ALL_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY']
 
@@ -64,19 +65,42 @@ interface MobilizeListResponse {
 /**
  * Parse a batch of MobilizeEvent[] into NormalizedTownHall[]. Pure function;
  * makes one client.query per event for name-resolution. Exported for tests.
+ *
+ * Optional `onSkip` callback (slice 23) fires at each silent-continue site:
+ *   - 'filter' — title/description didn't classify as state-legislator event
+ *     (regex mismatch, name not extractable, state/chamber not inferable,
+ *     or timeslot missing)
+ *   - 'resolve' — legislator name+state+chamber didn't match officials table
  */
 export async function parseMobilizeEvents(
   events: MobilizeEvent[],
   client: Client,
+  onSkip?: (reason: SkipReason) => void,
 ): Promise<NormalizedTownHall[]> {
   const out: NormalizedTownHall[] = []
   for (const event of events) {
     const description = event.description ?? ''
-    if (!isStateLegislatorEvent(event.title, description)) continue
+    if (!isStateLegislatorEvent(event.title, description)) {
+      onSkip?.({
+        adapter: 'mobilize',
+        stage: 'filter',
+        legislator: event.title,
+        reason: 'title did not match state-legislator pattern',
+      })
+      continue
+    }
 
     const name = extractLegislatorName(event.title)
       ?? extractLegislatorName(description)
-    if (!name) continue
+    if (!name) {
+      onSkip?.({
+        adapter: 'mobilize',
+        stage: 'filter',
+        legislator: event.title,
+        reason: 'could not extract legislator name from title/description',
+      })
+      continue
+    }
 
     // Prefer location.region (2-letter code). Fall back to scanning description
     // for full state names — needed for virtual events where location is null.
@@ -84,10 +108,26 @@ export async function parseMobilizeEvents(
     if (!state || !/^[A-Z]{2}$/.test(state)) {
       state = extractStateFromText(description) ?? extractStateFromText(event.title) ?? undefined
     }
-    if (!state || !/^[A-Z]{2}$/.test(state)) continue
+    if (!state || !/^[A-Z]{2}$/.test(state)) {
+      onSkip?.({
+        adapter: 'mobilize',
+        stage: 'filter',
+        legislator: name,
+        reason: 'could not infer 2-letter state from event location/text',
+      })
+      continue
+    }
 
     const chamber = inferChamberFromTitle(event.title) ?? inferChamberFromTitle(description)
-    if (!chamber) continue
+    if (!chamber) {
+      onSkip?.({
+        adapter: 'mobilize',
+        stage: 'filter',
+        legislator: name,
+        reason: 'could not infer chamber from title/description',
+      })
+      continue
+    }
 
     // Resolve openstates_person_id via shared helper.
     const officialId = await resolveOfficialByName(client, {
@@ -95,11 +135,27 @@ export async function parseMobilizeEvents(
       state,
       chamber,
     })
-    if (!officialId) continue
+    if (!officialId) {
+      onSkip?.({
+        adapter: 'mobilize',
+        stage: 'resolve',
+        legislator: name,
+        reason: `unmatched ${chamber} in officials (${state})`,
+      })
+      continue
+    }
 
     // Pick the earliest upcoming or most-recent past timeslot.
     const startTs = event.timeslots[0]?.start_date
-    if (!startTs) continue
+    if (!startTs) {
+      onSkip?.({
+        adapter: 'mobilize',
+        stage: 'filter',
+        legislator: name,
+        reason: 'event has no timeslots',
+      })
+      continue
+    }
     const eventDate = new Date(startTs * 1000).toISOString().slice(0, 10)
 
     const city = event.location?.locality
@@ -125,7 +181,11 @@ export async function parseMobilizeEvents(
  * Fetches paginated Mobilize API + parses to NormalizedTownHall[].
  * Returns [] on any network/parse error (matches slice 5xx stub fallback pattern).
  */
-async function fetchAndNormalize(client: Client, _state?: string): Promise<NormalizedTownHall[]> {
+async function fetchAndNormalize(
+  client: Client,
+  _state?: string,
+  onSkip?: (reason: SkipReason) => void,
+): Promise<NormalizedTownHall[]> {
   const out: NormalizedTownHall[] = []
   let url: string | null = `${MOBILIZE_API_BASE}?event_types=town_hall&per_page=${PER_PAGE}`
   let pageCount = 0
@@ -136,12 +196,26 @@ async function fetchAndNormalize(client: Client, _state?: string): Promise<Norma
     let body: MobilizeListResponse
     try {
       const resp = await fetch(url)
-      if (!resp.ok) break
+      if (!resp.ok) {
+        onSkip?.({
+          adapter: 'mobilize',
+          stage: 'fetch',
+          reason: `Mobilize API returned ${resp.status}`,
+          detail: url,
+        })
+        break
+      }
       body = await resp.json() as MobilizeListResponse
-    } catch {
+    } catch (e) {
+      onSkip?.({
+        adapter: 'mobilize',
+        stage: 'fetch',
+        reason: 'Mobilize API fetch threw',
+        detail: e instanceof Error ? e.message : String(e),
+      })
       break
     }
-    const parsed = await parseMobilizeEvents(body.data ?? [], client)
+    const parsed = await parseMobilizeEvents(body.data ?? [], client, onSkip)
     out.push(...parsed)
     url = body.next ?? null
   }
@@ -155,6 +229,6 @@ export const mobilize: StateCommunityAdapter<NormalizedTownHall> = {
 
   async fetchEvents(opts) {
     if (opts.fetcher) return opts.fetcher()
-    return fetchAndNormalize(opts.client, opts.state)
+    return fetchAndNormalize(opts.client, opts.state, opts.onSkip)
   },
 }

@@ -3,6 +3,7 @@ import type { Client } from 'pg'
 import type { NormalizedDistrictOffice } from '../../shared.ts'
 import { resolveOpenstatesPersonId } from '../../../shared/officials.ts'
 import { parseAddressText } from '../_shared.ts'
+import type { SkipReason } from '../../../shared/instrumentation.ts'
 
 const SOURCE_URL = 'https://nyassembly.gov/mem/'
 const FETCH_TIMEOUT_MS = 5000
@@ -53,14 +54,23 @@ export function parseNyAssemblyDirectoryHtml(html: string): ParsedAssemblyMember
 
 export async function fetchAssemblyOffices(
   client: Pick<Client, 'query'>,
-  opts: { fetcher?: () => Promise<string> },
+  opts: {
+    fetcher?: () => Promise<string>
+    onSkip?: (reason: SkipReason) => void
+  },
 ): Promise<NormalizedDistrictOffice[]> {
   let html: string
   try {
     html = opts.fetcher
       ? await opts.fetcher()
       : await (await fetch(SOURCE_URL, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })).text()
-  } catch {
+  } catch (e) {
+    opts.onSkip?.({
+      adapter: 'ny-senate',
+      stage: 'fetch',
+      reason: 'directory fetch threw',
+      detail: e instanceof Error ? e.message : String(e),
+    })
     return []
   }
 
@@ -73,7 +83,15 @@ export async function fetchAssemblyOffices(
       state: 'NY',
       chamber: 'state_house',
     })
-    if (!openstates_person_id) continue
+    if (!openstates_person_id) {
+      opts.onSkip?.({
+        adapter: 'ny-senate',
+        stage: 'resolve',
+        legislator: m.full_name,
+        reason: 'unmatched in officials table (state_house)',
+      })
+      continue
+    }
 
     if (m.albany_office) {
       const parts = parseAddressText(m.albany_office)
@@ -87,6 +105,13 @@ export async function fetchAssemblyOffices(
           ...(parts.postal_code ? { postal_code: parts.postal_code } : {}),
           ...(parts.phone ? { phone: parts.phone } : {}),
           source_url: SOURCE_URL,
+        })
+      } else {
+        opts.onSkip?.({
+          adapter: 'ny-senate',
+          stage: 'parse',
+          legislator: m.full_name,
+          reason: 'parseAddressText returned null for albany office',
         })
       }
     }
@@ -102,6 +127,13 @@ export async function fetchAssemblyOffices(
           ...(parts.postal_code ? { postal_code: parts.postal_code } : {}),
           ...(parts.phone ? { phone: parts.phone } : {}),
           source_url: SOURCE_URL,
+        })
+      } else {
+        opts.onSkip?.({
+          adapter: 'ny-senate',
+          stage: 'parse',
+          legislator: m.full_name,
+          reason: 'parseAddressText returned null for district office',
         })
       }
     }

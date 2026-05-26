@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseCaSenateRosterHtml, fetchCaSenateOffices } from './senate.ts'
+import type { SkipReason } from '../../../shared/instrumentation.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const FIXTURE = join(__dirname, '..', '..', '..', 'fixtures', 'state-community', 'ca-senate-roster.html')
@@ -95,5 +96,73 @@ describe('fetchCaSenateOffices', () => {
     expect(capitolRow.state).toBe('CA')
     expect(capitolRow.postal_code).toBe('95814')
     expect(capitolRow.phone).toMatch(/\(\d{3}\) \d{3}-\d{4}/)
+  })
+})
+
+describe('fetchCaSenateOffices onSkip instrumentation (slice 23)', () => {
+  it('emits fetch-stage skip when fetcher rejects', async () => {
+    const client = { query: vi.fn() }
+    const skips: SkipReason[] = []
+    const rows = await fetchCaSenateOffices(client as never, {
+      fetcher: async () => { throw new Error('network down') },
+      onSkip: (r) => { skips.push(r) },
+    })
+    expect(rows).toEqual([])
+    expect(skips).toHaveLength(1)
+    expect(skips[0]).toMatchObject({
+      adapter: 'ca-leginfo',
+      stage: 'fetch',
+    })
+    expect(skips[0]!.detail).toMatch(/network down/)
+  })
+
+  it('emits resolve-stage skip per senator with no officials match', async () => {
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+    }
+    const skips: SkipReason[] = []
+    const rows = await fetchCaSenateOffices(client as never, {
+      fetcher: async () => html,
+      onSkip: (r) => { skips.push(r) },
+    })
+    expect(rows).toEqual([])
+    // Fixture has 4 parseable senators (Jane, Alex, Maria, Pat); all unresolved.
+    expect(skips).toHaveLength(4)
+    expect(skips.every(s => s.adapter === 'ca-leginfo' && s.stage === 'resolve')).toBe(true)
+    expect(skips.map(s => s.legislator)).toEqual(['Jane Doe', 'Alex Smith', 'Maria Chen', 'Pat Skip'])
+  })
+
+  it('emits parse-stage skip when parseAddressText returns null for capitol office', async () => {
+    // Pat Skip (last fixture card) has "malformed no commas" capitol_office —
+    // parseAddressText returns null → parse skip.
+    const html = await readFile(FIXTURE, 'utf8')
+    const client = {
+      query: vi.fn().mockResolvedValue({
+        rows: [{ openstates_person_id: 'ocd-person/x' }],
+        rowCount: 1,
+      }),
+    }
+    const skips: SkipReason[] = []
+    await fetchCaSenateOffices(client as never, {
+      fetcher: async () => html,
+      onSkip: (r) => { skips.push(r) },
+    })
+    const patParseSkip = skips.find(s => s.legislator === 'Pat Skip' && s.stage === 'parse')
+    expect(patParseSkip).toBeDefined()
+    expect(patParseSkip).toMatchObject({
+      adapter: 'ca-leginfo',
+      stage: 'parse',
+      legislator: 'Pat Skip',
+    })
+    expect(patParseSkip!.reason).toMatch(/capitol/)
+  })
+
+  it('omitting onSkip preserves silent-skip behavior (back-compat)', async () => {
+    const client = { query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }) }
+    const html = await readFile(FIXTURE, 'utf8')
+    // No onSkip passed — must not throw despite all senators being unresolved.
+    const rows = await fetchCaSenateOffices(client as never, { fetcher: async () => html })
+    expect(rows).toEqual([])
   })
 })

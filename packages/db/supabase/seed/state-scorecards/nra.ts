@@ -6,6 +6,7 @@ import {
   parseNraGradesHtml,
 } from './nra-helpers.ts'
 import type { Chamber } from '../shared/officials.ts'
+import type { SkipReason } from '../shared/instrumentation.ts'
 
 const ALL_STATES = Object.keys(STATE_2_TO_NAME)
 
@@ -82,6 +83,7 @@ export async function fetchNraRatingsForState(
   state: string,
   client: Pick<Client, 'query'>,
   fetcher?: (state: string) => Promise<string>,
+  onSkip?: (reason: SkipReason) => void,
 ): Promise<NormalizedStateRating[]> {
   const stateName = STATE_2_TO_NAME[state]
   if (!stateName) return []
@@ -93,10 +95,24 @@ export async function fetchNraRatingsForState(
       html = await fetcher(state)
     } else {
       const resp = await fetch(sourceUrl, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })
-      if (!resp.ok) return []
+      if (!resp.ok) {
+        onSkip?.({
+          adapter: 'nra',
+          stage: 'fetch',
+          reason: `grades page fetch returned non-2xx (${state})`,
+          detail: `HTTP ${resp.status}`,
+        })
+        return []
+      }
       html = await resp.text()
     }
-  } catch {
+  } catch (e) {
+    onSkip?.({
+      adapter: 'nra',
+      stage: 'fetch',
+      reason: `grades page fetch threw (${state}, Cloudflare gate?)`,
+      detail: e instanceof Error ? e.message : String(e),
+    })
     return []
   }
 
@@ -105,17 +121,41 @@ export async function fetchNraRatingsForState(
 
   for (const row of rows) {
     const chamber = inferChamberFromNraTable(row.chamberLabel)
-    if (!chamber) continue
+    if (!chamber) {
+      onSkip?.({
+        adapter: 'nra',
+        stage: 'filter',
+        legislator: row.name,
+        reason: `unknown chamber label (${state}): "${row.chamberLabel}"`,
+      })
+      continue
+    }
 
     const numeric = letterToNumeric(row.letterGrade)
-    if (numeric == null) continue   // skips AQ, blank, unknown
+    if (numeric == null) {
+      onSkip?.({
+        adapter: 'nra',
+        stage: 'parse',
+        legislator: row.name,
+        reason: `letter-grade parse failed (${state}): "${row.letterGrade}"`,
+      })
+      continue   // skips AQ, blank, unknown
+    }
 
     const openstatesPersonId = await resolveOpenstatesPersonId(client, {
       full_name: row.name,
       state,
       chamber,
     })
-    if (!openstatesPersonId) continue
+    if (!openstatesPersonId) {
+      onSkip?.({
+        adapter: 'nra',
+        stage: 'resolve',
+        legislator: row.name,
+        reason: `unmatched in officials table (${state}, ${chamber})`,
+      })
+      continue
+    }
 
     out.push({
       openstates_person_id: openstatesPersonId,
@@ -146,7 +186,7 @@ export const nra: StateScorecardAdapter = {
     const targetStates = opts.state ? [opts.state] : ALL_STATES
     const allRatings: NormalizedStateRating[] = []
     for (const st of targetStates) {
-      const ratings = await fetchNraRatingsForState(st, opts.client)
+      const ratings = await fetchNraRatingsForState(st, opts.client, undefined, opts.onSkip)
       allRatings.push(...ratings)
     }
     return allRatings

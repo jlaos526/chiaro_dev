@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { ballotpediaRecalls, fetchBallotpediaRecallEvents } from './ballotpedia-recalls.ts'
+import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const FIXTURE = join(__dirname, '..', '..', 'fixtures', 'state-ethics', 'events-ballotpedia.json')
@@ -117,5 +118,67 @@ describe('fetchBallotpediaRecallEvents — production path', () => {
     })
     expect(result.events).toEqual([])
     expect(result.errors[0]).toMatch(/Index fetch failed/)
+  })
+})
+
+describe('fetchBallotpediaRecallEvents onSkip instrumentation (slice 23)', () => {
+  it('emits fetch-stage skip when index fetch throws', async () => {
+    const client = mkClient('oid-mock') as never
+    const skips: SkipReason[] = []
+    const result = await fetchBallotpediaRecallEvents(
+      client,
+      async () => { throw new Error('cloudflare gate') },
+      (r) => { skips.push(r) },
+    )
+    expect(result.events).toEqual([])
+    expect(skips).toHaveLength(1)
+    expect(skips[0]).toMatchObject({
+      adapter: 'ballotpedia-recalls',
+      stage: 'fetch',
+    })
+    expect(skips[0]!.detail).toMatch(/cloudflare gate/)
+  })
+
+  it('emits parse-stage skip when a recall row has unknown status', async () => {
+    const indexHtml = await readFile(INDEX_HTML, 'utf8')
+    const year2024Html = await readFile(YEAR_2024_HTML, 'utf8')
+    const client = mkClient('oid-mock') as never
+    const fetcher = async (url: string) => {
+      if (url === 'https://ballotpedia.org/State_legislative_recalls') return indexHtml
+      if (url === 'https://ballotpedia.org/State_legislative_recall_efforts,_2024') return year2024Html
+      return '<html><body><table></table></body></html>'
+    }
+    const skips: SkipReason[] = []
+    await fetchBallotpediaRecallEvents(client, fetcher, (r) => { skips.push(r) })
+    // Fixture has 1 row with weird status → parse-stage skip
+    const parseSkips = skips.filter(s => s.stage === 'parse' && s.adapter === 'ballotpedia-recalls')
+    expect(parseSkips.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('emits resolve-stage skip per unresolved official', async () => {
+    const indexHtml = await readFile(INDEX_HTML, 'utf8')
+    const year2024Html = await readFile(YEAR_2024_HTML, 'utf8')
+    const client = mkClient(null) as never  // no official resolves
+    const fetcher = async (url: string) => {
+      if (url === 'https://ballotpedia.org/State_legislative_recalls') return indexHtml
+      if (url === 'https://ballotpedia.org/State_legislative_recall_efforts,_2024') return year2024Html
+      return '<html><body><table></table></body></html>'
+    }
+    const skips: SkipReason[] = []
+    const result = await fetchBallotpediaRecallEvents(client, fetcher, (r) => { skips.push(r) })
+    expect(result.events.length).toBe(0)
+    const resolveSkips = skips.filter(s => s.stage === 'resolve' && s.adapter === 'ballotpedia-recalls')
+    // 4 well-formed rows are unresolved → 4 resolve skips
+    expect(resolveSkips.length).toBeGreaterThanOrEqual(4)
+    expect(resolveSkips.every(s => s.legislator)).toBe(true)
+  })
+
+  it('omitting onSkip preserves silent-skip behavior (back-compat)', async () => {
+    const client = mkClient('oid-mock') as never
+    // No onSkip passed — must not throw on fetch failure.
+    const result = await fetchBallotpediaRecallEvents(client, async () => {
+      throw new Error('network')
+    })
+    expect(result.events).toEqual([])
   })
 })

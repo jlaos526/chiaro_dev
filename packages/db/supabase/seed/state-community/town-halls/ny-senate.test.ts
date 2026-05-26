@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { nySenateTownHalls, parseNysenateEventsHtml } from './ny-senate.ts'
+import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const FIXTURE_PATH = join(__dirname, '..', '..', 'fixtures', 'state-community', 'ny-senate-events.html')
@@ -99,6 +100,55 @@ describe('nySenateTownHalls adapter', () => {
     const client = {
       query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
     }
+    const rows = await nySenateTownHalls.fetchEvents({
+      client: client as never,
+      pageFetcher: async () => html,
+    } as never)
+    expect(rows).toEqual([])
+  })
+})
+
+describe('nySenateTownHalls onSkip instrumentation (slice 23)', () => {
+  it('emits fetch-stage skip when pageFetcher rejects', async () => {
+    const client = { query: vi.fn() }
+    const skips: SkipReason[] = []
+    const rows = await nySenateTownHalls.fetchEvents({
+      client: client as never,
+      pageFetcher: async () => { throw new Error('network down') },
+      onSkip: (r: SkipReason) => { skips.push(r) },
+    } as never)
+    expect(rows).toEqual([])
+    expect(skips).toHaveLength(1)
+    expect(skips[0]).toMatchObject({
+      adapter: 'ny-senate',
+      stage: 'fetch',
+    })
+    expect(skips[0]!.detail).toMatch(/network down/)
+  })
+
+  it('emits resolve-stage skip per event whose senator is unmatched', async () => {
+    const html = await readFile(FIXTURE_PATH, 'utf8')
+    const client = {
+      query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+    }
+    const skips: SkipReason[] = []
+    const rows = await nySenateTownHalls.fetchEvents({
+      client: client as never,
+      pageFetcher: async () => html,
+      onSkip: (r: SkipReason) => { skips.push(r) },
+    } as never)
+    expect(rows).toEqual([])
+    // 4 parseable events × 1 unresolved senator each = 4 resolve skips
+    expect(skips).toHaveLength(4)
+    expect(skips.every(s => s.adapter === 'ny-senate' && s.stage === 'resolve')).toBe(true)
+  })
+
+  it('omitting onSkip preserves silent-skip behavior (back-compat)', async () => {
+    const html = await readFile(FIXTURE_PATH, 'utf8')
+    const client = {
+      query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
+    }
+    // No onSkip passed — must not throw despite all senators being unresolved.
     const rows = await nySenateTownHalls.fetchEvents({
       client: client as never,
       pageFetcher: async () => html,

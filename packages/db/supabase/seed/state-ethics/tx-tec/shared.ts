@@ -171,9 +171,6 @@ export async function fetchSwornComplaintOrders(
       chamber,
     })
     if (!openstates_person_id) {
-      // DUAL-WRITE: existing errors[] consumers stay (back-compat for
-      // slice 16/20 callers); new onSkip channel called in addition.
-      errors.push(`unresolved: ${row.respondent} (${chamber})`)
       opts.onSkip?.({
         adapter: 'tx-tec',
         stage: 'resolve',

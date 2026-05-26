@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { nra, letterToNumeric, numericToLetterGrade, fetchNraRatingsForState } from './nra.ts'
+import type { SkipReason } from '../shared/instrumentation.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const FIXTURE = join(__dirname, '..', 'fixtures', 'state-scorecards', 'nra.json')
@@ -135,6 +136,62 @@ describe('fetchNraRatingsForState — production fallback', () => {
     const ratings = await fetchNraRatingsForState('CA', client, async () => {
       throw new Error('network')
     })
+    expect(ratings).toEqual([])
+  })
+})
+
+describe('fetchNraRatingsForState onSkip instrumentation (slice 23)', () => {
+  it('emits fetch-stage skip when fetcher rejects (Cloudflare gate)', async () => {
+    const client = mkClient('osp-mock') as never
+    const skips: SkipReason[] = []
+    const ratings = await fetchNraRatingsForState(
+      'CA',
+      client,
+      async () => { throw new Error('cloudflare 403') },
+      (r) => { skips.push(r) },
+    )
+    expect(ratings).toEqual([])
+    expect(skips).toHaveLength(1)
+    expect(skips[0]).toMatchObject({
+      adapter: 'nra',
+      stage: 'fetch',
+    })
+    expect(skips[0]!.detail).toMatch(/cloudflare 403/)
+  })
+
+  it('emits parse-stage skip per letter-grade failure (AQ Member)', async () => {
+    const html = await readFile(CA_HTML, 'utf8')
+    const client = mkClient('osp-mock') as never
+    const skips: SkipReason[] = []
+    await fetchNraRatingsForState('CA', client, async () => html, (r) => { skips.push(r) })
+    // AQ Member's "AQ" grade fails letterToNumeric → parse skip
+    const aqSkip = skips.find(s => s.legislator === 'AQ Member' && s.stage === 'parse')
+    expect(aqSkip).toBeDefined()
+    expect(aqSkip).toMatchObject({
+      adapter: 'nra',
+      stage: 'parse',
+      legislator: 'AQ Member',
+    })
+    expect(aqSkip!.reason).toMatch(/AQ|letter|grade/i)
+  })
+
+  it('emits resolve-stage skip per unmatched legislator', async () => {
+    const html = await readFile(CA_HTML, 'utf8')
+    const client = mkClient(null) as never  // no resolution
+    const skips: SkipReason[] = []
+    const ratings = await fetchNraRatingsForState('CA', client, async () => html, (r) => { skips.push(r) })
+    expect(ratings).toEqual([])
+    // 7 rows survive parse stage (parser filters blank + AQ-skip filters AQ-Member) → 7 resolve skips
+    const resolveSkips = skips.filter(s => s.stage === 'resolve')
+    expect(resolveSkips).toHaveLength(7)
+    expect(resolveSkips.every(s => s.adapter === 'nra')).toBe(true)
+  })
+
+  it('omitting onSkip preserves silent-skip behavior (back-compat)', async () => {
+    const html = await readFile(CA_HTML, 'utf8')
+    const client = mkClient(null) as never
+    // No onSkip — must not throw
+    const ratings = await fetchNraRatingsForState('CA', client, async () => html)
     expect(ratings).toEqual([])
   })
 })

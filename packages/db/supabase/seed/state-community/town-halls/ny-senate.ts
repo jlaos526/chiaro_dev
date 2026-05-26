@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio'
 import type { StateCommunityAdapter, NormalizedTownHall } from '../shared.ts'
 import { resolveOpenstatesPersonId } from '../../shared/officials.ts'
+import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const SOURCE_URL = 'https://www.nysenate.gov/events?event-type=town_hall'
 const FETCH_TIMEOUT_MS = 5000
@@ -90,12 +91,19 @@ export const nySenateTownHalls: StateCommunityAdapter<NormalizedTownHall> = {
 
     // Page-level fetcher injection (returns HTML for parser tests)
     const pageFetcher = (opts as { pageFetcher?: () => Promise<string> }).pageFetcher
+    const onSkip = (opts as { onSkip?: (reason: SkipReason) => void }).onSkip
     let html: string
     try {
       html = pageFetcher
         ? await pageFetcher()
         : await (await fetch(SOURCE_URL, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })).text()
-    } catch {
+    } catch (e) {
+      onSkip?.({
+        adapter: 'ny-senate',
+        stage: 'fetch',
+        reason: 'events listing fetch threw',
+        detail: e instanceof Error ? e.message : String(e),
+      })
       return []
     }
 
@@ -108,7 +116,15 @@ export const nySenateTownHalls: StateCommunityAdapter<NormalizedTownHall> = {
         state: 'NY',
         chamber: 'state_senate',
       })
-      if (!openstates_person_id) continue
+      if (!openstates_person_id) {
+        onSkip?.({
+          adapter: 'ny-senate',
+          stage: 'resolve',
+          legislator: p.full_name,
+          reason: 'unmatched senator in officials table',
+        })
+        continue
+      }
 
       const externalId = p.detail_url.split('/').pop()
       const row: NormalizedTownHall = {

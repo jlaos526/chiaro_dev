@@ -11,6 +11,7 @@ import {
 } from './ballotpedia-recalls-helpers.ts'
 import type { Chamber } from '../../shared/officials.ts'
 import { STATE_NAME_TO_2 } from '../../state-scorecards/nra-helpers.ts'
+import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const ALL_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY']
 
@@ -79,6 +80,7 @@ async function resolveOpenstatesPersonId(
 export async function fetchBallotpediaRecallEvents(
   client: Pick<Client, 'query'>,
   fetcher: FetchFn = defaultFetcher,
+  onSkip?: (reason: SkipReason) => void,
 ): Promise<{ events: NormalizedOfficialEvent[]; errors: string[] }> {
   const errors: string[] = []
   const events: NormalizedOfficialEvent[] = []
@@ -88,6 +90,12 @@ export async function fetchBallotpediaRecallEvents(
     indexHtml = await fetcher(INDEX_URL)
   } catch (err) {
     errors.push(`Index fetch failed: ${(err as Error).message}`)
+    onSkip?.({
+      adapter: 'ballotpedia-recalls',
+      stage: 'fetch',
+      reason: 'recalls index page fetch threw (Cloudflare gate?)',
+      detail: (err as Error).message,
+    })
     return { events, errors }
   }
 
@@ -100,6 +108,12 @@ export async function fetchBallotpediaRecallEvents(
       yearHtml = await fetcher(link.url)
     } catch (err) {
       errors.push(`Year ${link.year} fetch failed: ${(err as Error).message}`)
+      onSkip?.({
+        adapter: 'ballotpedia-recalls',
+        stage: 'fetch',
+        reason: `year ${link.year} subpage fetch threw`,
+        detail: (err as Error).message,
+      })
       continue
     }
     const rows = parseRecallRows(yearHtml)
@@ -107,21 +121,45 @@ export async function fetchBallotpediaRecallEvents(
       const state = STATE_NAME_TO_2[normalizeStateName(row.stateName)]
       if (!state) {
         errors.push(`Unknown state name: ${row.stateName}`)
+        onSkip?.({
+          adapter: 'ballotpedia-recalls',
+          stage: 'parse',
+          legislator: row.legislatorRaw,
+          reason: `unknown state name: ${row.stateName}`,
+        })
         continue
       }
       const legi = parseLegislatorName(row.legislatorRaw)
       if (!legi) {
         errors.push(`Unparseable legislator (likely federal): ${row.legislatorRaw}`)
+        onSkip?.({
+          adapter: 'ballotpedia-recalls',
+          stage: 'parse',
+          legislator: row.legislatorRaw,
+          reason: 'recall row legislator name parse failed (likely federal)',
+        })
         continue
       }
       const eventType = mapOutcomeToEventType(row.status)
       if (!eventType) {
         errors.push(`Unknown status: ${row.status} (${row.legislatorRaw})`)
+        onSkip?.({
+          adapter: 'ballotpedia-recalls',
+          stage: 'parse',
+          legislator: legi.name,
+          reason: `unknown status: ${row.status}`,
+        })
         continue
       }
       const eventDate = extractDate(row.dateText)
       if (!eventDate) {
         errors.push(`Unparseable date: ${row.dateText} (${row.legislatorRaw})`)
+        onSkip?.({
+          adapter: 'ballotpedia-recalls',
+          stage: 'parse',
+          legislator: legi.name,
+          reason: `unparseable date: ${row.dateText}`,
+        })
         continue
       }
       const openstatesPersonId = await resolveOpenstatesPersonId(client, {
@@ -131,6 +169,12 @@ export async function fetchBallotpediaRecallEvents(
       })
       if (!openstatesPersonId) {
         errors.push(`Unresolved: ${legi.name} (${state}, ${legi.chamber})`)
+        onSkip?.({
+          adapter: 'ballotpedia-recalls',
+          stage: 'resolve',
+          legislator: legi.name,
+          reason: `unmatched in officials (${state}, ${legi.chamber})`,
+        })
         continue
       }
       events.push({
@@ -156,7 +200,7 @@ export const ballotpediaRecalls: StateEthicsAdapter<NormalizedOfficialEvent> = {
   async fetchEvents(opts) {
     if (opts.fetcher) return opts.fetcher()
     // Production path
-    const result = await fetchBallotpediaRecallEvents(opts.client)
+    const result = await fetchBallotpediaRecallEvents(opts.client, undefined, opts.onSkip)
     return result.events
   },
 }
