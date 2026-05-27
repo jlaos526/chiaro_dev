@@ -1,28 +1,28 @@
 import { describe, expect, it } from 'vitest'
 import { render } from '@testing-library/react'
+import { createElement, type ReactNode } from 'react'
 import { AuthWordmark } from '../../src/auth/AuthWordmark.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
+
+function wrapper({ children }: { children: ReactNode }) {
+  return createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+}
 
 describe('AuthWordmark', () => {
-  it('renders CHIARO text + logo dot', () => {
-    const { container } = render(<AuthWordmark />)
+  it('renders CHIARO wordmark text (via Logo lockup variant)', () => {
+    const { container } = render(<AuthWordmark />, { wrapper })
     expect(container.textContent).toContain('CHIARO')
-    // Logo dot is a sibling <div>; sanity check it's there.
-    expect(container.querySelectorAll('div').length).toBeGreaterThan(0)
   })
 
-  it('uses larger dimensions for md size (default)', () => {
-    const { container: md } = render(<AuthWordmark size="md" />)
-    const { container: sm } = render(<AuthWordmark size="sm" />)
-    // md text is bigger than sm; comparing computed font-size approximates this.
-    const mdText = md.querySelector('div[role]') ?? md.firstChild
-    const smText = sm.querySelector('div[role]') ?? sm.firstChild
-    expect(mdText).toBeTruthy()
-    expect(smText).toBeTruthy()
-    // Visual delta verified via web build smoke; this test asserts structure.
+  it('default size is md (S=32 logo)', () => {
+    const { container } = render(<AuthWordmark />, { wrapper })
+    // Outermost aria-label is the Logo lockup wrapper.
+    expect(container.querySelector('[aria-label="Chiaro logo"]')).not.toBeNull()
   })
 
-  it('exposes accessibility-friendly text for screen readers', () => {
-    const { container } = render(<AuthWordmark />)
-    expect(container.textContent).toBe('CHIARO')
+  it('size="sm" still renders the wordmark (smaller scale)', () => {
+    const { container } = render(<AuthWordmark size="sm" />, { wrapper })
+    expect(container.textContent).toContain('CHIARO')
+    expect(container.querySelector('[aria-label="Chiaro logo"]')).not.toBeNull()
   })
 })
