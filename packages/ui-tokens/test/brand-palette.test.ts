@@ -28,9 +28,30 @@ describe('BRAND_PALETTE.light', () => {
     expect(BRAND_PALETTE.light.accent[100]).toBe('#fdf2e8')
   })
 
-  it('exports the decisive-red alert scale with alert at 500', () => {
-    expect(BRAND_PALETTE.light.alert[500]).toBe('#a83a3a')
-    expect(BRAND_PALETTE.light.alert[100]).toBe('#fdf2f0')
+  it('exports the decisive-red alert.danger triplet', () => {
+    expect(BRAND_PALETTE.light.alert.danger.fg).toBe('#a83a3a')
+    expect(BRAND_PALETTE.light.alert.danger.bg).toBe('#fdf2f0')
+    expect(BRAND_PALETTE.light.alert.danger.border).toBe('#f5b8b0')
+  })
+
+  it('exports the alert.warning triplet', () => {
+    expect(BRAND_PALETTE.light.alert.warning.fg).toBe('#d68a1f')
+    expect(BRAND_PALETTE.light.alert.warning.bg).toBe('#fef7e8')
+    expect(BRAND_PALETTE.light.alert.warning.border).toBe('#f5c878')
+  })
+
+  it('exports the alert.success triplet', () => {
+    expect(BRAND_PALETTE.light.alert.success.fg).toBe('#1f9b88')
+    expect(BRAND_PALETTE.light.alert.success.bg).toBe('#e8f5f2')
+    expect(BRAND_PALETTE.light.alert.success.border).toBe('#7fc5b5')
+  })
+
+  it('exports signal.success (finance green)', () => {
+    expect(BRAND_PALETTE.light.signal.success).toBe('#3da75b')
+  })
+
+  it('exports link.fg (inline link blue)', () => {
+    expect(BRAND_PALETTE.light.link.fg).toBe('#3b6ed1')
   })
 })
 
@@ -50,6 +71,32 @@ describe('BRAND_PALETTE.dark', () => {
     expect(BRAND_PALETTE.dark.accent[500]).toBe('#e8a060')
     expect(BRAND_PALETTE.dark.accent[400]).toBe('#c46a2a')
   })
+
+  it('exports the alert.danger triplet (dark)', () => {
+    expect(BRAND_PALETTE.dark.alert.danger.fg).toBe('#d05050')
+    expect(BRAND_PALETTE.dark.alert.danger.bg).toBe('#2a1414')
+    expect(BRAND_PALETTE.dark.alert.danger.border).toBe('#6e2222')
+  })
+
+  it('exports the alert.warning triplet (dark)', () => {
+    expect(BRAND_PALETTE.dark.alert.warning.fg).toBe('#f0b558')
+    expect(BRAND_PALETTE.dark.alert.warning.bg).toBe('#3a2a14')
+    expect(BRAND_PALETTE.dark.alert.warning.border).toBe('#6e4a20')
+  })
+
+  it('exports the alert.success triplet (dark)', () => {
+    expect(BRAND_PALETTE.dark.alert.success.fg).toBe('#4dbfb0')
+    expect(BRAND_PALETTE.dark.alert.success.bg).toBe('#1a302c')
+    expect(BRAND_PALETTE.dark.alert.success.border).toBe('#3a6e62')
+  })
+
+  it('exports signal.success (finance green, dark)', () => {
+    expect(BRAND_PALETTE.dark.signal.success).toBe('#5dc97f')
+  })
+
+  it('exports link.fg (inline link blue, dark)', () => {
+    expect(BRAND_PALETTE.dark.link.fg).toBe('#7a98e1')
+  })
 })
 
 describe('palette mode parity', () => {
@@ -68,9 +115,34 @@ describe('palette mode parity', () => {
       .toEqual(Object.keys(BRAND_PALETTE.dark.accent).sort())
   })
 
-  it('light and dark have identical alert scale keys', () => {
+  it('light and dark have identical alert variant keys', () => {
     expect(Object.keys(BRAND_PALETTE.light.alert).sort())
       .toEqual(Object.keys(BRAND_PALETTE.dark.alert).sort())
+  })
+
+  it('light and dark alert.danger triplets share fg/bg/border keys', () => {
+    expect(Object.keys(BRAND_PALETTE.light.alert.danger).sort())
+      .toEqual(Object.keys(BRAND_PALETTE.dark.alert.danger).sort())
+  })
+
+  it('light and dark alert.warning triplets share fg/bg/border keys', () => {
+    expect(Object.keys(BRAND_PALETTE.light.alert.warning).sort())
+      .toEqual(Object.keys(BRAND_PALETTE.dark.alert.warning).sort())
+  })
+
+  it('light and dark alert.success triplets share fg/bg/border keys', () => {
+    expect(Object.keys(BRAND_PALETTE.light.alert.success).sort())
+      .toEqual(Object.keys(BRAND_PALETTE.dark.alert.success).sort())
+  })
+
+  it('light and dark have identical signal keys', () => {
+    expect(Object.keys(BRAND_PALETTE.light.signal).sort())
+      .toEqual(Object.keys(BRAND_PALETTE.dark.signal).sort())
+  })
+
+  it('light and dark have identical link keys', () => {
+    expect(Object.keys(BRAND_PALETTE.light.link).sort())
+      .toEqual(Object.keys(BRAND_PALETTE.dark.link).sort())
   })
 
   it('light and dark have identical surface keys', () => {

@@ -32,10 +32,26 @@ const buildSemantic = (mode: BrandMode) => {
     },
     alert: {
       danger: {
-        fg:     p.alert[500],
-        bg:     p.alert[100],
-        border: p.alert[300],
+        fg:     p.alert.danger.fg,
+        bg:     p.alert.danger.bg,
+        border: p.alert.danger.border,
       },
+      warning: {
+        fg:     p.alert.warning.fg,
+        bg:     p.alert.warning.bg,
+        border: p.alert.warning.border,
+      },
+      success: {
+        fg:     p.alert.success.fg,
+        bg:     p.alert.success.bg,
+        border: p.alert.success.border,
+      },
+    },
+    signal: {
+      success: p.signal.success,
+    },
+    link: {
+      fg: p.link.fg,
     },
   } as const
 }

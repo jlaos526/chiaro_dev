@@ -30,10 +30,15 @@ export const BRAND_PALETTE = {
       900: '#4a2810',
     },
     alert: {
-      100: '#fdf2f0',
-      300: '#f5b8b0',
-      500: '#a83a3a',   // ALERT — error text, destructive CTA
-      700: '#6e2222',
+      danger:  { fg: '#a83a3a', bg: '#fdf2f0', border: '#f5b8b0' },
+      warning: { fg: '#d68a1f', bg: '#fef7e8', border: '#f5c878' },
+      success: { fg: '#1f9b88', bg: '#e8f5f2', border: '#7fc5b5' },
+    },
+    signal: {
+      success: '#3da75b',   // finance "money in" / positive signal
+    },
+    link: {
+      fg: '#3b6ed1',         // inline link blue
     },
   },
   dark: {
@@ -64,10 +69,15 @@ export const BRAND_PALETTE = {
       900: '#fff0dc',
     },
     alert: {
-      100: '#2a1414',
-      300: '#6e2222',
-      500: '#d05050',   // ALERT in dark
-      700: '#f08080',
+      danger:  { fg: '#d05050', bg: '#2a1414', border: '#6e2222' },
+      warning: { fg: '#f0b558', bg: '#3a2a14', border: '#6e4a20' },
+      success: { fg: '#4dbfb0', bg: '#1a302c', border: '#3a6e62' },
+    },
+    signal: {
+      success: '#5dc97f',   // finance "money in" / positive signal (dark)
+    },
+    link: {
+      fg: '#7a98e1',         // inline link blue (dark)
     },
   },
 } as const
