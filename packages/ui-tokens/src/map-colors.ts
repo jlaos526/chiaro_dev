@@ -7,3 +7,11 @@ export const MAP_COLORS = {
 } as const
 
 export type MapColor = typeof MAP_COLORS
+
+// Slice 37: dark-mode map palette. Inverts stroke/fill — paper-tone
+// becomes the stroke (legible against deep surface) and the deep warm
+// fill replaces the paper tone.
+export const MAP_COLORS_DARK = {
+  districtStroke: '#fdf8f3',   // bright paper-tone stroke
+  districtFill:   '#3a2e26',   // deep warm fill
+} as const

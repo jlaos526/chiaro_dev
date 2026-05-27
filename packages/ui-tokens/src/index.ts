@@ -1,25 +1,48 @@
 export { COLORS, type BrandColor } from './colors.ts'
-export { MAP_COLORS, type MapColor } from './map-colors.ts'
+export { MAP_COLORS, MAP_COLORS_DARK, type MapColor } from './map-colors.ts'
 export {
   type PartyCode,
   PARTY_COLOR,
+  PARTY_COLOR_DARK,
   PARTY_LABEL,
   PARTY_SHORT,
 } from './party.ts'
-export { SCORECARD_LEAN_COLOR, SCORECARD_LEAN_LABEL, type ScorecardLean } from './scorecard.ts'
-export { INDUSTRY_COLOR, INDUSTRY_DEFAULT_COLOR } from './finance.ts'
+export {
+  SCORECARD_LEAN_COLOR,
+  SCORECARD_LEAN_COLOR_DARK,
+  SCORECARD_LEAN_LABEL,
+  type ScorecardLean,
+} from './scorecard.ts'
+export {
+  INDUSTRY_COLOR,
+  INDUSTRY_COLOR_DARK,
+  INDUSTRY_DEFAULT_COLOR,
+  INDUSTRY_DEFAULT_COLOR_DARK,
+  FINANCE_CARD_BG,
+  FINANCE_CARD_BG_DARK,
+} from './finance.ts'
 export {
   type CategoryId,
   CATEGORY_LABEL,
   CATEGORY_ACCENT,
+  CATEGORY_ACCENT_DARK,
   SUB_CASCADE_ACCENT,
+  SUB_CASCADE_ACCENT_DARK,
   CATEGORY_CARD_GRADIENT,
+  CATEGORY_CARD_GRADIENT_DARK,
+  CATEGORY_CARD_BG_SOLID,
+  CATEGORY_CARD_BG_SOLID_DARK,
 } from './category.ts'
-export { FINANCE_SUB_SECTION_SHADES, type FinanceSubSectionShade } from './finance-shades.ts'
+export {
+  FINANCE_SUB_SECTION_SHADES,
+  FINANCE_SUB_SECTION_SHADES_DARK,
+  type FinanceSubSectionShade,
+} from './finance-shades.ts'
 export {
   type AlignmentTier,
   ALIGNMENT_LABEL,
   ALIGNMENT_CHIP_COLORS,
+  ALIGNMENT_CHIP_COLORS_DARK,
   scoreToTier,
 } from './alignment.ts'
 export { titleCaseIssueArea } from './issue-area.ts'

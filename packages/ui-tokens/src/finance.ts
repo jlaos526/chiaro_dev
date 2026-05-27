@@ -14,3 +14,27 @@ export const INDUSTRY_COLOR: Record<string, string> = {
 }
 
 export const INDUSTRY_DEFAULT_COLOR = '#807a72'  // fallback for industries outside top 10
+
+// Slice 37: dark-mode industry palette. Same keys; saturated colors
+// lifted +20% lightness; "Oil & Gas" (near-black on light) inverts to
+// near-paper neutral on dark; "Retired" stays warm-gray-muted.
+export const INDUSTRY_COLOR_DARK: Record<string, string> = {
+  'Securities & Investment':   '#7ba0e8',
+  'Real Estate':               '#5dc4b3',
+  'Lawyers/Law Firms':         '#b399df',
+  'Health Professionals':      '#7fc89a',
+  'Insurance':                 '#fbdd7f',
+  'Oil & Gas':                 '#d4cec5',
+  'Pharmaceuticals/Health Products': '#e87878',
+  'Commercial Banks':          '#8a98ff',
+  'Retired':                   '#a8a098',
+  'Education':                 '#ecb05b',
+}
+
+export const INDUSTRY_DEFAULT_COLOR_DARK = '#a8a098'
+
+// Slice 37: finance card background (mint-tinted). Light variant is the
+// gradient top stop already used by the finance card; dark variant is the
+// deeper warm-green equivalent matching CATEGORY_CARD_BG_SOLID_DARK.finance.
+export const FINANCE_CARD_BG = '#f4faf6'
+export const FINANCE_CARD_BG_DARK = '#1a2820'

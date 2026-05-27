@@ -9,6 +9,16 @@ export const SCORECARD_LEAN_COLOR: Record<ScorecardLean, string> = {
   centrist:       '#807a72',
 }
 
+// Slice 37: dark-mode palette parallel to SCORECARD_LEAN_COLOR. Lightness
+// shifted +20-25% so each lean reads as a recognizable hue on dark surfaces.
+export const SCORECARD_LEAN_COLOR_DARK: Record<ScorecardLean, string> = {
+  progressive:    '#7ba0e8',
+  conservative:   '#e87878',
+  libertarian:    '#fbdd7f',
+  'single-issue': '#b399df',
+  centrist:       '#a8a098',
+}
+
 export const SCORECARD_LEAN_LABEL: Record<ScorecardLean, string> = {
   progressive:    'Progressive',
   conservative:   'Conservative',
