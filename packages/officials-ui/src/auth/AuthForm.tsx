@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { AuthInput } from './AuthInput.tsx'
 import { AuthCrossLink } from './AuthCrossLink.tsx'
 
@@ -54,6 +54,7 @@ const COPY = {
  *   3. Disabled CTA + inputs during pending submission.
  */
 export function AuthForm(props: AuthFormProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   const [email, setEmail] = useState(props.initialEmail ?? '')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -86,10 +87,10 @@ export function AuthForm(props: AuthFormProps): React.JSX.Element {
 
   return (
     <View style={styles.form} testID={props.testID}>
-      <Text accessibilityRole="header" accessibilityLevel={1} style={styles.headline}>
+      <Text accessibilityRole="header" accessibilityLevel={1} style={[styles.headline, { color: semantic.text.primary }]}>
         {copy.headline}
       </Text>
-      <Text style={styles.subhead}>{copy.subhead}</Text>
+      <Text style={[styles.subhead, { color: semantic.text.muted }]}>{copy.subhead}</Text>
 
       <AuthInput
         label="Email"
@@ -125,14 +126,14 @@ export function AuthForm(props: AuthFormProps): React.JSX.Element {
 
       {error ? (
         <View style={styles.errorBanner} accessibilityRole="alert">
-          <Text style={styles.errorBannerText}>{error}</Text>
+          <Text style={[styles.errorBannerText, { color: semantic.alert.danger.fg }]}>{error}</Text>
         </View>
       ) : null}
 
       <Pressable
         onPress={handleSubmit}
         disabled={submitting}
-        style={[styles.cta, submitting ? styles.ctaDisabled : null]}
+        style={[styles.cta, { backgroundColor: semantic.accent.primary }, submitting ? styles.ctaDisabled : null]}
         accessibilityRole="button"
         accessibilityLabel={submitting ? copy.ctaLoad : copy.cta}
         testID="auth-submit"
@@ -156,12 +157,10 @@ const styles = StyleSheet.create({
   headline: {
     fontSize: 22,
     fontWeight: '700',
-    color: COLORS.brand.text,
     letterSpacing: -0.22,
   },
   subhead: {
     fontSize: 12,
-    color: COLORS.neutral.textMuted,
     marginBottom: 14,
   },
   // Risk #2 acknowledged in spec: light-pink error background inlined as
@@ -174,11 +173,9 @@ const styles = StyleSheet.create({
   },
   errorBannerText: {
     fontSize: 12,
-    color: COLORS.signal.error,
   },
   cta: {
     height: 42,
-    backgroundColor: COLORS.brand.primary,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',

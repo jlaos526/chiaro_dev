@@ -2,7 +2,7 @@
 
 import { createElement } from 'react'
 import { Platform, Pressable, StyleSheet, Text } from 'react-native'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 export interface AuthCrossLinkProps {
   mode: 'sign-in' | 'sign-up'
@@ -18,11 +18,12 @@ const COPY = {
 }
 
 export function AuthCrossLink({ mode, onPress, href }: AuthCrossLinkProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   const { prefix, action } = COPY[mode]
   const inner = (
-    <Text style={styles.text}>
+    <Text style={[styles.text, { color: semantic.text.muted }]}>
       {prefix}
-      <Text style={styles.action}>{action}</Text>
+      <Text style={[styles.action, { color: semantic.accent.primary }]}>{action}</Text>
     </Text>
   )
 
@@ -53,6 +54,6 @@ export function AuthCrossLink({ mode, onPress, href }: AuthCrossLinkProps): Reac
 }
 
 const styles = StyleSheet.create({
-  text:   { fontSize: 13, color: COLORS.neutral.textMuted, textAlign: 'center' },
-  action: { fontWeight: '600', color: COLORS.brand.primary },
+  text:   { fontSize: 13, textAlign: 'center' },
+  action: { fontWeight: '600' },
 })

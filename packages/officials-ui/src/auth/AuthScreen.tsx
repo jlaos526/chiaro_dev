@@ -1,7 +1,7 @@
 'use client'
 
 import { StyleSheet, View } from 'react-native'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { AuthForm, type AuthFormProps } from './AuthForm.tsx'
 import { AuthWordmark } from './AuthWordmark.tsx'
 
@@ -12,9 +12,10 @@ export interface AuthScreenProps extends AuthFormProps {
 }
 
 export function AuthScreen({ showBranding = true, ...formProps }: AuthScreenProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   return (
-    <View style={styles.outer}>
-      <View style={styles.card}>
+    <View style={[styles.outer, { backgroundColor: semantic.bg.app }]}>
+      <View style={[styles.card, { backgroundColor: semantic.bg.elevated }]}>
         {showBranding && (
           <View style={styles.wordmarkWrap}>
             <AuthWordmark size="md" />
@@ -29,7 +30,6 @@ export function AuthScreen({ showBranding = true, ...formProps }: AuthScreenProp
 const styles = StyleSheet.create({
   outer: {
     flex: 1,
-    backgroundColor: COLORS.neutral.surface,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 16,
@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
   card: {
     width: '100%',
     maxWidth: 400,
-    backgroundColor: COLORS.neutral.background,
     borderRadius: 16,
     paddingHorizontal: 24,
     paddingVertical: 30,

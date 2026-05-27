@@ -1,6 +1,8 @@
+import { createElement, type ReactNode } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render } from '@testing-library/react'
 import { AuthCrossLink } from '../../src/auth/AuthCrossLink.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 
 describe('AuthCrossLink', () => {
   it('renders sign-in mode copy', () => {
@@ -41,5 +43,21 @@ describe('AuthCrossLink', () => {
     const a = container.querySelector('a')!
     fireEvent.click(a, { button: 0, ctrlKey: true })
     expect(onPress).not.toHaveBeenCalled()
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('AuthCrossLink — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() =>
+      render(<AuthCrossLink mode="sign-in" onPress={() => {}} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<AuthCrossLink mode="sign-in" onPress={() => {}} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
   })
 })

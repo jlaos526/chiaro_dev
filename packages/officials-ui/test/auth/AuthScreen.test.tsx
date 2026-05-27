@@ -1,6 +1,8 @@
+import { createElement, type ReactNode } from 'react'
 import { describe, expect, it } from 'vitest'
 import { render } from '@testing-library/react'
 import { AuthScreen } from '../../src/auth/AuthScreen.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 
 describe('AuthScreen', () => {
   const baseProps = {
@@ -33,5 +35,23 @@ describe('AuthScreen', () => {
     const { container } = render(<AuthScreen {...baseProps} mode="sign-up" />)
     expect(container.textContent).toContain('Create account')
     expect(container.querySelectorAll('input').length).toBe(3) // sign-up has 3 inputs
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('AuthScreen — mode awareness', () => {
+  const baseProps = {
+    mode: 'sign-in' as const,
+    onSubmit: async () => {},
+    onCrossLinkPress: () => {},
+  }
+
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() => render(<AuthScreen {...baseProps} />, { wrapper: lightWrapper })).not.toThrow()
+    expect(() => render(<AuthScreen {...baseProps} />, { wrapper: darkWrapper })).not.toThrow()
   })
 })

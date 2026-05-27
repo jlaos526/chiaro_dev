@@ -1,6 +1,8 @@
+import { createElement, type ReactNode } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { AuthForm } from '../../src/auth/AuthForm.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 
 function flush(): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, 0))
@@ -249,5 +251,23 @@ describe('AuthForm', () => {
     })
     const alert = container.querySelector('[role="alert"]')
     expect(alert).not.toBeNull()
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('AuthForm — mode awareness', () => {
+  const minimalProps = {
+    mode: 'sign-in' as const,
+    onSubmit: async () => {},
+    onCrossLinkPress: () => {},
+  }
+
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() => render(<AuthForm {...minimalProps} />, { wrapper: lightWrapper })).not.toThrow()
+    expect(() => render(<AuthForm {...minimalProps} />, { wrapper: darkWrapper })).not.toThrow()
   })
 })
