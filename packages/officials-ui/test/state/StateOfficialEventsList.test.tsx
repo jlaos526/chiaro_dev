@@ -33,3 +33,26 @@ describe('StateOfficialEventsList', () => {
     expect(getByText(/Censure/)).toBeTruthy()
   })
 })
+
+import { createElement, type ReactNode } from 'react'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('StateOfficialEventsList — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    const rows = [{
+      id: 'e1', event_date: '2026-03-01', event_type: 'recall_succeeded',
+      summary: 'X', outcome: null, source_url: 'https://x',
+    }] as never[]
+    expect(() =>
+      render(<StateOfficialEventsList rows={rows} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<StateOfficialEventsList rows={rows} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
+  })
+})

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { useOfficialStateFinancialDisclosures } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { StateFinancialDisclosuresList } from './StateFinancialDisclosuresList.tsx'
@@ -16,15 +16,24 @@ export function StateFinancialActivityCard({
   officialId,
 }: StateFinancialActivityCardProps): React.JSX.Element {
   const client = useChiaroClient()
+  const { semantic } = useBrandTokens()
   const disclosures = useOfficialStateFinancialDisclosures(client, officialId)
 
   const [openDisc, setOpenDisc] = useState(false)
 
+  const cardStyle = [
+    styles.card,
+    { backgroundColor: semantic.bg.app, borderColor: semantic.border.default },
+  ]
+  const titleStyle = [styles.title, { color: semantic.text.primary }]
+  const mutedStyle = [styles.muted, { color: semantic.text.muted }]
+  const summaryStyle = [styles.summary, { color: semantic.text.muted }]
+
   if (disclosures.isLoading) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Financial Disclosures</Text>
-        <Text style={styles.muted}>Loading financial disclosures…</Text>
+      <View style={cardStyle}>
+        <Text style={titleStyle}>Financial Disclosures</Text>
+        <Text style={mutedStyle}>Loading financial disclosures…</Text>
       </View>
     )
   }
@@ -34,9 +43,9 @@ export function StateFinancialActivityCard({
 
   if (discCount === 0) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Financial Disclosures</Text>
-        <Text style={[styles.muted, { fontStyle: 'italic' }]}>
+      <View style={cardStyle}>
+        <Text style={titleStyle}>Financial Disclosures</Text>
+        <Text style={[mutedStyle, { fontStyle: 'italic' }]}>
           No financial-disclosure records on file for this legislator.
         </Text>
       </View>
@@ -44,9 +53,9 @@ export function StateFinancialActivityCard({
   }
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>Financial Disclosures</Text>
-      <Text style={styles.summary}>
+    <View style={cardStyle}>
+      <Text style={titleStyle}>Financial Disclosures</Text>
+      <Text style={summaryStyle}>
         {discCount != null
           ? `${discCount} disclosure${discCount === 1 ? '' : 's'}${latestYear ? ` (latest ${latestYear})` : ''}`
           : '—'}
@@ -65,14 +74,12 @@ export function StateFinancialActivityCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.neutral.background,
-    borderColor: COLORS.neutral.border,
     borderWidth: 1,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
   },
-  title: { fontSize: 18, fontWeight: '600', marginBottom: 12, color: COLORS.brand.text },
-  muted: { color: COLORS.neutral.textMuted, fontSize: 13 },
-  summary: { fontSize: 13, color: COLORS.neutral.textMuted, marginBottom: 12 },
+  title: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
+  muted: { fontSize: 13 },
+  summary: { fontSize: 13, marginBottom: 12 },
 })

@@ -42,3 +42,23 @@ describe('StateFinancialDisclosuresList', () => {
     expect(getByText(/\(unspecified source\)/)).toBeTruthy()
   })
 })
+
+import { createElement, type ReactNode } from 'react'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('StateFinancialDisclosuresList — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    const rows = [makeRow('d1')]
+    expect(() =>
+      render(<StateFinancialDisclosuresList rows={rows} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<StateFinancialDisclosuresList rows={rows} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
+  })
+})

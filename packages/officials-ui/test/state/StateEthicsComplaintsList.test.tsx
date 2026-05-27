@@ -32,3 +32,26 @@ describe('StateEthicsComplaintsList', () => {
     expect(getByText(/Disposition: Fined \$1000/)).toBeTruthy()
   })
 })
+
+import { createElement, type ReactNode } from 'react'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('StateEthicsComplaintsList — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    const rows = [{
+      id: 'c1', complaint_date: '2026-03-01', status: 'open',
+      summary: 'X', disposition: null,
+    }] as never[]
+    expect(() =>
+      render(<StateEthicsComplaintsList rows={rows} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<StateEthicsComplaintsList rows={rows} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
+  })
+})

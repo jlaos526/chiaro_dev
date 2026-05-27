@@ -2,7 +2,7 @@
 
 import { StyleSheet, Text, View } from 'react-native'
 import type { StateFinancialDisclosureRow } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 const KIND_LABEL: Record<string, string> = {
   salary: 'Salary',
@@ -28,8 +28,16 @@ export interface StateFinancialDisclosuresListProps {
 export function StateFinancialDisclosuresList({
   rows,
 }: StateFinancialDisclosuresListProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
+
+  const mutedStyle = [styles.muted, { color: semantic.text.muted }]
+  const yearHeaderStyle = [styles.yearHeader, { color: semantic.text.primary }]
+  const rowStyle = [styles.row, { backgroundColor: semantic.bg.elevated }]
+  const titleStyle = [styles.title, { color: semantic.text.primary }]
+  const metaStyle = [styles.meta, { color: semantic.text.muted }]
+
   if (rows.length === 0) {
-    return <Text style={styles.muted}>No financial disclosures on file.</Text>
+    return <Text style={mutedStyle}>No financial disclosures on file.</Text>
   }
   // Group by filing_year
   const byYear = new Map<number, StateFinancialDisclosureRow[]>()
@@ -45,7 +53,7 @@ export function StateFinancialDisclosuresList({
         const yearRows = byYear.get(year)!
         return (
           <View key={year} style={{ gap: 4 }}>
-            <Text style={styles.yearHeader}>
+            <Text style={yearHeaderStyle}>
               {year} ({yearRows.length} disclosure
               {yearRows.length === 1 ? '' : 's'})
             </Text>
@@ -53,9 +61,9 @@ export function StateFinancialDisclosuresList({
               const low = r.amount_range_low == null ? null : Number(r.amount_range_low)
               const high = r.amount_range_high == null ? null : Number(r.amount_range_high)
               return (
-                <View key={r.id} style={styles.row}>
-                  <Text style={styles.title}>{r.income_source ?? '(unspecified source)'}</Text>
-                  <Text style={styles.meta}>
+                <View key={r.id} style={rowStyle}>
+                  <Text style={titleStyle}>{r.income_source ?? '(unspecified source)'}</Text>
+                  <Text style={metaStyle}>
                     {r.income_kind ? KIND_LABEL[r.income_kind] ?? r.income_kind : 'Kind n/a'}
                     {' · '}
                     {formatAmountRange(low, high)}
@@ -71,15 +79,14 @@ export function StateFinancialDisclosuresList({
 }
 
 const styles = StyleSheet.create({
-  muted: { color: COLORS.neutral.textMuted, fontSize: 13, fontStyle: 'italic', padding: 8 },
+  muted: { fontSize: 13, fontStyle: 'italic', padding: 8 },
   list: { gap: 12, padding: 8 },
   yearHeader: {
     fontWeight: '600',
     fontSize: 13,
-    color: COLORS.brand.text,
     marginBottom: 4,
   },
-  row: { backgroundColor: COLORS.neutral.surface, borderRadius: 6, padding: 8 },
-  title: { fontSize: 13, fontWeight: '500', color: COLORS.brand.text },
-  meta: { fontSize: 12, color: COLORS.neutral.textMuted, marginTop: 2 },
+  row: { borderRadius: 6, padding: 8 },
+  title: { fontSize: 13, fontWeight: '500' },
+  meta: { fontSize: 12, marginTop: 2 },
 })

@@ -3,6 +3,7 @@
 import { StyleSheet, Text, View } from 'react-native'
 import type { StateEthicsComplaintRow } from '@chiaro/officials'
 import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 const STATUS_LABEL: Record<string, string> = {
   open: 'Open',
@@ -12,11 +13,11 @@ const STATUS_LABEL: Record<string, string> = {
   closed_no_action: 'Closed (no action)',
 }
 
-function statusColor(status: string): string {
+function statusColor(status: string, mutedFallback: string): string {
   if (status === 'open')           return COLORS.signal.warning
   if (status === 'sanctioned')     return COLORS.signal.error
   if (status === 'dismissed' || status === 'closed_no_action') return COLORS.signal.success
-  return COLORS.neutral.textMuted
+  return mutedFallback
 }
 
 export interface StateEthicsComplaintsListProps {
@@ -26,24 +27,32 @@ export interface StateEthicsComplaintsListProps {
 export function StateEthicsComplaintsList({
   rows,
 }: StateEthicsComplaintsListProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
+
+  const mutedStyle = [styles.muted, { color: semantic.text.muted }]
+  const rowStyle = [styles.row, { backgroundColor: semantic.bg.elevated }]
+  const dateStyle = [styles.date, { color: semantic.text.primary }]
+  const summaryStyle = [styles.summary, { color: semantic.text.primary }]
+  const dispositionStyle = [styles.disposition, { color: semantic.text.muted }]
+
   if (rows.length === 0) {
-    return <Text style={styles.muted}>No ethics complaints on file.</Text>
+    return <Text style={mutedStyle}>No ethics complaints on file.</Text>
   }
   return (
     <View style={styles.list}>
       {rows.map(r => {
-        const color = statusColor(r.status)
+        const color = statusColor(r.status, semantic.text.muted)
         return (
-          <View key={r.id} style={styles.row}>
+          <View key={r.id} style={rowStyle}>
             <View style={styles.headerRow}>
-              <Text style={styles.date}>{r.complaint_date}</Text>
+              <Text style={dateStyle}>{r.complaint_date}</Text>
               <Text style={[styles.chip, { color, backgroundColor: `${color}22` }]}>
                 {STATUS_LABEL[r.status] ?? r.status}
               </Text>
             </View>
-            <Text style={styles.summary}>{r.summary}</Text>
+            <Text style={summaryStyle}>{r.summary}</Text>
             {r.disposition && (
-              <Text style={styles.disposition}>Disposition: {r.disposition}</Text>
+              <Text style={dispositionStyle}>Disposition: {r.disposition}</Text>
             )}
           </View>
         )
@@ -53,11 +62,11 @@ export function StateEthicsComplaintsList({
 }
 
 const styles = StyleSheet.create({
-  muted: { color: COLORS.neutral.textMuted, fontSize: 13, fontStyle: 'italic', padding: 8 },
+  muted: { fontSize: 13, fontStyle: 'italic', padding: 8 },
   list: { gap: 6, padding: 8 },
-  row: { backgroundColor: COLORS.neutral.surface, borderRadius: 6, padding: 8 },
+  row: { borderRadius: 6, padding: 8 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-  date: { fontWeight: '500', color: COLORS.brand.text, fontSize: 13 },
+  date: { fontWeight: '500', fontSize: 13 },
   chip: {
     fontSize: 11,
     fontWeight: '600',
@@ -65,10 +74,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     borderRadius: 4,
   },
-  summary: { fontSize: 12, color: COLORS.brand.text },
+  summary: { fontSize: 12 },
   disposition: {
     fontSize: 12,
-    color: COLORS.neutral.textMuted,
     marginTop: 4,
     fontStyle: 'italic',
   },

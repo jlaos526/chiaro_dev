@@ -6,7 +6,7 @@ import {
   useOfficialStateEthicsComplaints,
   useOfficialStateOfficialEvents,
 } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { StateEthicsComplaintsList } from './StateEthicsComplaintsList.tsx'
@@ -20,17 +20,26 @@ export function StateConductCard({
   officialId,
 }: StateConductCardProps): React.JSX.Element {
   const client = useChiaroClient()
+  const { semantic } = useBrandTokens()
   const complaints = useOfficialStateEthicsComplaints(client, officialId)
   const events = useOfficialStateOfficialEvents(client, officialId)
 
   const [openComplaints, setOpenComplaints] = useState(false)
   const [openEvents, setOpenEvents] = useState(false)
 
+  const cardStyle = [
+    styles.card,
+    { backgroundColor: semantic.bg.app, borderColor: semantic.border.default },
+  ]
+  const titleStyle = [styles.title, { color: semantic.text.primary }]
+  const mutedStyle = [styles.muted, { color: semantic.text.muted }]
+  const summaryStyle = [styles.summary, { color: semantic.text.muted }]
+
   if (complaints.isLoading || events.isLoading) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Conduct & Sanctions</Text>
-        <Text style={styles.muted}>Loading conduct records…</Text>
+      <View style={cardStyle}>
+        <Text style={titleStyle}>Conduct & Sanctions</Text>
+        <Text style={mutedStyle}>Loading conduct records…</Text>
       </View>
     )
   }
@@ -44,9 +53,9 @@ export function StateConductCard({
 
   if (allEmpty) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Conduct & Sanctions</Text>
-        <Text style={[styles.muted, { fontStyle: 'italic' }]}>
+      <View style={cardStyle}>
+        <Text style={titleStyle}>Conduct & Sanctions</Text>
+        <Text style={[mutedStyle, { fontStyle: 'italic' }]}>
           No ethics complaints or conduct events on record for this legislator.
         </Text>
       </View>
@@ -54,9 +63,9 @@ export function StateConductCard({
   }
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>Conduct & Sanctions</Text>
-      <Text style={styles.summary}>
+    <View style={cardStyle}>
+      <Text style={titleStyle}>Conduct & Sanctions</Text>
+      <Text style={summaryStyle}>
         {complaintCount != null
           ? `${complaintCount} complaint${complaintCount === 1 ? '' : 's'} (${openCount} open)`
           : '—'}
@@ -85,14 +94,12 @@ export function StateConductCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.neutral.background,
-    borderColor: COLORS.neutral.border,
     borderWidth: 1,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
   },
-  title: { fontSize: 18, fontWeight: '600', marginBottom: 12, color: COLORS.brand.text },
-  muted: { color: COLORS.neutral.textMuted, fontSize: 13 },
-  summary: { fontSize: 13, color: COLORS.neutral.textMuted, marginBottom: 12 },
+  title: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
+  muted: { fontSize: 13 },
+  summary: { fontSize: 13, marginBottom: 12 },
 })
