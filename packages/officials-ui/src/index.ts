@@ -203,3 +203,11 @@ export { AuthInput, type AuthInputProps } from './auth/AuthInput.tsx'
 export { AuthForm, type AuthFormProps } from './auth/AuthForm.tsx'
 export { AuthScreen, type AuthScreenProps } from './auth/AuthScreen.tsx'
 export { AuthPageChrome, type AuthPageChromeProps } from './auth/AuthPageChrome.tsx'
+
+// Slice 33 — brand retrofit
+export { Logo, type LogoProps } from './Logo.tsx'
+export {
+  BrandModeOverrideContext,
+  useBrandTokens,
+  type BrandTokens,
+} from './brand-hooks.ts'
