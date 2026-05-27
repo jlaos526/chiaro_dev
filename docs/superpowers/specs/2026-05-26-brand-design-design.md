@@ -460,7 +460,7 @@ Add one new test file `packages/ui-tokens/test/brand.test.ts`:
 
 **Risk:** Dark mode ships without an actual toggle, so the dark tokens are unverified in practice. Mitigation: visual brand book preview page (out of scope here but planned) will render side-by-side light/dark; first real dark consumer is the toggle slice.
 
-**Open question (deferred to spec review):** Should the logo expose a TS-rendered `<Logo />` component in this slice, or wait until the first consumer (probably auth-retrofit or the brand book preview page)? The spec assumes **defer** — geometry helpers ship, but no React component. Asking at review.
+**Locked at review:** No `<Logo />` React component in this slice. Only geometry helpers ship. The first downstream consumer (auth-retrofit or brand book preview page) builds the component when it needs one — this keeps the brand-tokens slice text-only and avoids prematurely locking the component API before we know how it'll be used.
 
 ---
 
