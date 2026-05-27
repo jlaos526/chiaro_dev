@@ -1,5 +1,7 @@
 import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { createElement, type ReactNode } from 'react'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 import { FederalDistrictOfficesList } from '../../src/federal/FederalDistrictOfficesList.tsx'
 
 describe('FederalDistrictOfficesList', () => {
@@ -29,5 +31,32 @@ describe('FederalDistrictOfficesList', () => {
     const { getByText, queryByText } = render(<FederalDistrictOfficesList rows={rows} />)
     expect(getByText(/Reno, NV/)).toBeTruthy()
     expect(queryByText(/408-555-1212/)).toBeNull()
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('FederalDistrictOfficesList — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() =>
+      render(<FederalDistrictOfficesList rows={[]} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<FederalDistrictOfficesList rows={[]} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
+    const sampleRows = [{
+      id: 'o1', official_id: 'oid',
+      address: '123 Main St', city: 'San Jose', state: 'CA', zip: '95110',
+      phone: '408-555-1212', source_url: 'https://x',
+    }] as never[]
+    expect(() =>
+      render(<FederalDistrictOfficesList rows={sampleRows} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<FederalDistrictOfficesList rows={sampleRows} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
   })
 })

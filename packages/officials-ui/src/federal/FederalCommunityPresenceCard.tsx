@@ -6,7 +6,7 @@ import {
   useOfficialDistrictOffices,
   useOfficialTownHalls,
 } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { FederalDistrictOfficesList } from './FederalDistrictOfficesList.tsx'
@@ -22,6 +22,7 @@ export function FederalCommunityPresenceCard({
   officialId,
   congress,
 }: FederalCommunityPresenceCardProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   const client = useChiaroClient()
   const offices = useOfficialDistrictOffices(client, officialId)
   const halls = useOfficialTownHalls(client, officialId, congress)
@@ -29,11 +30,19 @@ export function FederalCommunityPresenceCard({
   const [openHalls, setOpenHalls] = useState(false)
   const [openOffices, setOpenOffices] = useState(false)
 
+  const cardStyle = [
+    styles.card,
+    { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
+  ]
+  const titleStyle = [styles.title, { color: semantic.text.primary }]
+  const mutedStyle = [styles.muted, { color: semantic.text.muted }]
+  const summaryStyle = [styles.summary, { color: semantic.text.muted }]
+
   if (offices.isLoading || halls.isLoading) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Community Presence</Text>
-        <Text style={styles.muted}>Loading community presence…</Text>
+      <View style={cardStyle}>
+        <Text style={titleStyle}>Community Presence</Text>
+        <Text style={mutedStyle}>Loading community presence…</Text>
       </View>
     )
   }
@@ -45,9 +54,9 @@ export function FederalCommunityPresenceCard({
 
   if (allEmpty) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Community Presence</Text>
-        <Text style={[styles.muted, { fontStyle: 'italic' }]}>
+      <View style={cardStyle}>
+        <Text style={titleStyle}>Community Presence</Text>
+        <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No community-presence data available for this legislator yet.
         </Text>
       </View>
@@ -55,9 +64,9 @@ export function FederalCommunityPresenceCard({
   }
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>Community Presence</Text>
-      <Text style={styles.summary}>
+    <View style={cardStyle}>
+      <Text style={titleStyle}>Community Presence</Text>
+      <Text style={summaryStyle}>
         {`${hallsCount} town hall${hallsCount === 1 ? '' : 's'}`}
         {' · '}
         {`${officesCount} office${officesCount === 1 ? '' : 's'}`}
@@ -84,14 +93,12 @@ export function FederalCommunityPresenceCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.neutral.background,
-    borderColor: COLORS.neutral.border,
     borderWidth: 1,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
   },
-  title: { fontSize: 18, fontWeight: '600', marginBottom: 12, color: COLORS.brand.text },
-  muted: { color: COLORS.neutral.textMuted, fontSize: 13 },
-  summary: { fontSize: 13, color: COLORS.neutral.textMuted, marginBottom: 12 },
+  title: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
+  muted: { fontSize: 13 },
+  summary: { fontSize: 13, marginBottom: 12 },
 })

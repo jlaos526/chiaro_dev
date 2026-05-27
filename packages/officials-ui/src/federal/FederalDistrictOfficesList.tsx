@@ -2,7 +2,7 @@
 
 import { StyleSheet, Text, View } from 'react-native'
 import type { Database } from '@chiaro/db'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 type OfficeRow = Database['public']['Tables']['district_offices']['Row']
 
@@ -17,17 +17,22 @@ export interface FederalDistrictOfficesListProps {
  * render uniformly.
  */
 export function FederalDistrictOfficesList({ rows }: FederalDistrictOfficesListProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   if (rows.length === 0) {
-    return <Text style={styles.muted}>No district offices on file.</Text>
+    return (
+      <Text style={[styles.muted, { color: semantic.text.muted }]}>
+        No district offices on file.
+      </Text>
+    )
   }
   return (
     <View style={styles.list}>
       {rows.map(r => (
         <View key={r.id} style={styles.row}>
-          <Text style={styles.title}>
+          <Text style={[styles.title, { color: semantic.text.primary }]}>
             District Office · {r.city}, {r.state}
           </Text>
-          <Text style={styles.meta}>
+          <Text style={[styles.meta, { color: semantic.text.muted }]}>
             {r.address}
             {r.zip ? ` ${r.zip}` : ''}
             {r.phone ? `\n${r.phone}` : ''}
@@ -39,9 +44,9 @@ export function FederalDistrictOfficesList({ rows }: FederalDistrictOfficesListP
 }
 
 const styles = StyleSheet.create({
-  muted: { color: COLORS.neutral.textMuted, fontSize: 13, fontStyle: 'italic', padding: 8 },
+  muted: { fontSize: 13, fontStyle: 'italic', padding: 8 },
   list: { gap: 10, padding: 8 },
   row: {},
-  title: { fontSize: 13, fontWeight: '600', color: COLORS.brand.text },
-  meta: { fontSize: 12, color: COLORS.neutral.textMuted, marginTop: 2 },
+  title: { fontSize: 13, fontWeight: '600' },
+  meta: { fontSize: 12, marginTop: 2 },
 })
