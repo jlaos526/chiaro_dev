@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { useOfficialFinance } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { FederalDonorsList } from './FederalDonorsList.tsx'
@@ -26,6 +26,7 @@ export function FederalFinanceCard({
   officialId,
   cycle,
 }: FederalFinanceCardProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   const client = useChiaroClient()
   const finance = useOfficialFinance(client, officialId, cycle)
 
@@ -34,9 +35,14 @@ export function FederalFinanceCard({
 
   if (finance.isLoading) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Finance ({cycle})</Text>
-        <Text style={styles.muted}>Loading finance…</Text>
+      <View
+        style={[
+          styles.card,
+          { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
+        ]}
+      >
+        <Text style={[styles.title, { color: semantic.text.primary }]}>Finance ({cycle})</Text>
+        <Text style={[styles.muted, { color: semantic.text.muted }]}>Loading finance…</Text>
       </View>
     )
   }
@@ -44,9 +50,14 @@ export function FederalFinanceCard({
   const f = finance.data ?? null
   if (!f) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Finance ({cycle})</Text>
-        <Text style={[styles.muted, { fontStyle: 'italic' }]}>
+      <View
+        style={[
+          styles.card,
+          { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
+        ]}
+      >
+        <Text style={[styles.title, { color: semantic.text.primary }]}>Finance ({cycle})</Text>
+        <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No finance data available for this legislator and cycle.
         </Text>
       </View>
@@ -58,9 +69,14 @@ export function FederalFinanceCard({
   const pacCount = f.pacs.length
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>Finance ({cycle})</Text>
-      <Text style={styles.summary}>
+    <View
+      style={[
+        styles.card,
+        { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
+      ]}
+    >
+      <Text style={[styles.title, { color: semantic.text.primary }]}>Finance ({cycle})</Text>
+      <Text style={[styles.summary, { color: semantic.text.muted }]}>
         {fmtAmount(totalRaised)} raised
         {' · '}
         {`${donorCount} donor${donorCount === 1 ? '' : 's'}`}
@@ -89,8 +105,6 @@ export function FederalFinanceCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.neutral.background,
-    borderColor: COLORS.neutral.border,
     borderWidth: 1,
     borderRadius: 8,
     padding: 16,
@@ -100,8 +114,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 12,
-    color: COLORS.brand.text,
   },
-  muted: { color: COLORS.neutral.textMuted, fontSize: 13 },
-  summary: { fontSize: 13, color: COLORS.neutral.textMuted, marginBottom: 12 },
+  muted: { fontSize: 13 },
+  summary: { fontSize: 13, marginBottom: 12 },
 })

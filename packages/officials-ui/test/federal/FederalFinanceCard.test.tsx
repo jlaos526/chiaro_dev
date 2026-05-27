@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { ReactElement } from 'react'
+import { createElement, type ReactElement, type ReactNode } from 'react'
 import type { ChiaroClient } from '@chiaro/supabase-client'
 
 const useFinanceMock = vi.fn()
@@ -15,6 +15,7 @@ vi.mock('@chiaro/officials', async () => {
 })
 
 import { ChiaroClientProvider } from '../../src/client-context.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 import { FederalFinanceCard } from '../../src/federal/FederalFinanceCard.tsx'
 
 const mockClient = { from: () => {} } as unknown as ChiaroClient
@@ -80,5 +81,33 @@ describe('FederalFinanceCard', () => {
     expect(queryByText('Alice')).toBeNull()
     fireEvent.click(getByText(/Top individual donors/i))
     expect(getByText('Alice')).toBeTruthy()
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('FederalFinanceCard — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    useFinanceMock.mockReturnValue({
+      data: {
+        summary: { total_raised: 2_500_000 },
+        individualDonors: [{ donor_name: 'Alice', amount: 5000 }],
+        pacs: [{ pac_name: 'PAC One', amount: 10000 }],
+      },
+      isLoading: false,
+      isSuccess: true,
+    })
+    const ui = (
+      <ChiaroClientProvider client={mockClient}>
+        <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+          <FederalFinanceCard officialId="oid" cycle="2024" />
+        </QueryClientProvider>
+      </ChiaroClientProvider>
+    )
+    expect(() => render(ui, { wrapper: lightWrapper })).not.toThrow()
+    expect(() => render(ui, { wrapper: darkWrapper })).not.toThrow()
   })
 })

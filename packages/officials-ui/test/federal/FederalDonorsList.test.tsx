@@ -1,5 +1,7 @@
 import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { createElement, type ReactNode } from 'react'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 import { FederalDonorsList } from '../../src/federal/FederalDonorsList.tsx'
 
 describe('FederalDonorsList', () => {
@@ -33,5 +35,30 @@ describe('FederalDonorsList', () => {
     const { getByText, queryByText } = render(<FederalDonorsList finance={finance} />)
     expect(getByText(/Donor 9/)).toBeTruthy()
     expect(queryByText(/Donor 10/)).toBeNull()
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('FederalDonorsList — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    const finance = {
+      individualDonors: [
+        { donor_name: 'Doe, John', amount: 5800, rank: 1, finance_summary_id: 's1', employer: null, occupation: null },
+      ],
+      pacs: [],
+      industries: [],
+      topOrgs: [],
+      summary: {},
+    } as never
+    expect(() =>
+      render(<FederalDonorsList finance={finance} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<FederalDonorsList finance={finance} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
   })
 })

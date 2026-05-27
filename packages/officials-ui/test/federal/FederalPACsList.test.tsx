@@ -1,5 +1,7 @@
 import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { createElement, type ReactNode } from 'react'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 import { FederalPACsList } from '../../src/federal/FederalPACsList.tsx'
 
 describe('FederalPACsList', () => {
@@ -35,5 +37,30 @@ describe('FederalPACsList', () => {
     const { getByText, queryByText } = render(<FederalPACsList finance={finance} />)
     expect(getByText(/PAC 9/)).toBeTruthy()
     expect(queryByText(/PAC 10/)).toBeNull()
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('FederalPACsList — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    const finance = {
+      individualDonors: [],
+      pacs: [
+        { pac_name: 'ActBlue', amount: 2500000, finance_summary_id: 's1', pac_fec_id: 'C12345' },
+      ],
+      industries: [],
+      topOrgs: [],
+      summary: {},
+    } as never
+    expect(() =>
+      render(<FederalPACsList finance={finance} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<FederalPACsList finance={finance} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
   })
 })

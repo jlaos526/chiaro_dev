@@ -2,7 +2,7 @@
 
 import { StyleSheet, Text, View } from 'react-native'
 import type { OfficialFinance } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 export interface FederalPACsListProps {
   finance: OfficialFinance | null | undefined
@@ -15,16 +15,26 @@ function fmtAmount(n: number): string {
 }
 
 export function FederalPACsList({ finance }: FederalPACsListProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   const pacs = finance?.pacs ?? []
   if (pacs.length === 0) {
-    return <Text style={styles.muted}>No PAC contribution data available.</Text>
+    return (
+      <Text style={[styles.muted, { color: semantic.text.muted }]}>
+        No PAC contribution data available.
+      </Text>
+    )
   }
   return (
     <View style={styles.list}>
       {pacs.slice(0, 10).map((p, i) => (
-        <View key={`${p.pac_name}-${i}`} style={styles.row}>
-          <Text style={styles.name}>{p.pac_name}</Text>
-          <Text style={styles.amount}>{fmtAmount(Number(p.amount))}</Text>
+        <View
+          key={`${p.pac_name}-${i}`}
+          style={[styles.row, { backgroundColor: semantic.bg.app }]}
+        >
+          <Text style={[styles.name, { color: semantic.text.primary }]}>{p.pac_name}</Text>
+          <Text style={[styles.amount, { color: semantic.text.primary }]}>
+            {fmtAmount(Number(p.amount))}
+          </Text>
         </View>
       ))}
     </View>
@@ -32,15 +42,14 @@ export function FederalPACsList({ finance }: FederalPACsListProps): React.JSX.El
 }
 
 const styles = StyleSheet.create({
-  muted: { color: COLORS.neutral.textMuted, fontSize: 13, fontStyle: 'italic', padding: 8 },
+  muted: { fontSize: 13, fontStyle: 'italic', padding: 8 },
   list: { gap: 6, padding: 8 },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.neutral.surface,
     borderRadius: 6,
     padding: 8,
   },
-  name: { fontSize: 13, fontWeight: '500', color: COLORS.brand.text, flex: 1 },
-  amount: { fontSize: 13, fontWeight: '600', color: COLORS.brand.text },
+  name: { fontSize: 13, fontWeight: '500', flex: 1 },
+  amount: { fontSize: 13, fontWeight: '600' },
 })
