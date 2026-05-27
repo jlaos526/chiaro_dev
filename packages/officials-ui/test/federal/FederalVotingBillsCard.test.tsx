@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { ReactElement } from 'react'
+import { createElement, type ReactElement, type ReactNode } from 'react'
 import type { ChiaroClient } from '@chiaro/supabase-client'
 
 const useMetricsMock = vi.fn()
@@ -28,6 +28,7 @@ vi.mock('@chiaro/bills', async () => {
 })
 
 import { ChiaroClientProvider } from '../../src/client-context.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 import { FederalVotingBillsCard } from '../../src/federal/FederalVotingBillsCard.tsx'
 
 const mockClient = { from: () => {} } as unknown as ChiaroClient
@@ -115,5 +116,28 @@ describe('FederalVotingBillsCard', () => {
     expect(queryByText(/A Test Bill/)).toBeNull()
     fireEvent.click(getByText(/^▸ Sponsored bills/))
     expect(getByText(/A Test Bill/)).toBeTruthy()
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('FederalVotingBillsCard — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    useMetricsMock.mockReturnValue({ data: { attendance_pct: 90 }, isLoading: false, isSuccess: true })
+    useSponsoredMock.mockReturnValue({ data: [{ id: 'b1' }], isLoading: false, isSuccess: true })
+    useCosponsoredMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
+    useMissedMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
+    const ui = (
+      <ChiaroClientProvider client={mockClient}>
+        <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+          <FederalVotingBillsCard officialId="oid" congress="119" />
+        </QueryClientProvider>
+      </ChiaroClientProvider>
+    )
+    expect(() => render(ui, { wrapper: lightWrapper })).not.toThrow()
+    expect(() => render(ui, { wrapper: darkWrapper })).not.toThrow()
   })
 })

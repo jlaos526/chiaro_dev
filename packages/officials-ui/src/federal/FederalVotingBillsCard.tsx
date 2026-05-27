@@ -8,7 +8,7 @@ import {
   useOfficialSponsoredBills,
 } from '@chiaro/bills'
 import { useOfficialMetrics } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { FederalCosponsoredBillsList } from './FederalCosponsoredBillsList.tsx'
@@ -25,6 +25,7 @@ export function FederalVotingBillsCard({
   officialId,
   congress,
 }: FederalVotingBillsCardProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   const client = useChiaroClient()
   const metrics = useOfficialMetrics(client, officialId)
   const sponsored = useOfficialSponsoredBills(client, officialId, congress)
@@ -42,9 +43,16 @@ export function FederalVotingBillsCard({
     || metrics.isLoading
   ) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Voting & Bills ({congress}th Congress)</Text>
-        <Text style={styles.muted}>Loading voting & bills…</Text>
+      <View
+        style={[
+          styles.card,
+          { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
+        ]}
+      >
+        <Text style={[styles.title, { color: semantic.text.primary }]}>
+          Voting & Bills ({congress}th Congress)
+        </Text>
+        <Text style={[styles.muted, { color: semantic.text.muted }]}>Loading voting & bills…</Text>
       </View>
     )
   }
@@ -57,9 +65,16 @@ export function FederalVotingBillsCard({
   const allEmpty = sponsoredCount === 0 && cosponsoredCount === 0 && missedCount === 0
   if (allEmpty) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Voting & Bills ({congress}th Congress)</Text>
-        <Text style={[styles.muted, { fontStyle: 'italic' }]}>
+      <View
+        style={[
+          styles.card,
+          { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
+        ]}
+      >
+        <Text style={[styles.title, { color: semantic.text.primary }]}>
+          Voting & Bills ({congress}th Congress)
+        </Text>
+        <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No bill or voting-record data on file for this Congress.
         </Text>
       </View>
@@ -67,9 +82,16 @@ export function FederalVotingBillsCard({
   }
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>Voting & Bills ({congress}th Congress)</Text>
-      <Text style={styles.summary}>
+    <View
+      style={[
+        styles.card,
+        { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
+      ]}
+    >
+      <Text style={[styles.title, { color: semantic.text.primary }]}>
+        Voting & Bills ({congress}th Congress)
+      </Text>
+      <Text style={[styles.summary, { color: semantic.text.muted }]}>
         {`${sponsoredCount} sponsored`}
         {' · '}
         {`${cosponsoredCount} cosponsored`}
@@ -106,14 +128,12 @@ export function FederalVotingBillsCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.neutral.background,
-    borderColor: COLORS.neutral.border,
     borderWidth: 1,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
   },
-  title: { fontSize: 18, fontWeight: '600', marginBottom: 12, color: COLORS.brand.text },
-  muted: { color: COLORS.neutral.textMuted, fontSize: 13 },
-  summary: { fontSize: 13, color: COLORS.neutral.textMuted, marginBottom: 12 },
+  title: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
+  muted: { fontSize: 13 },
+  summary: { fontSize: 13, marginBottom: 12 },
 })
