@@ -1,8 +1,8 @@
 'use client'
 
-import { createElement, useId, useState } from 'react'
+import { createElement, useId, useMemo, useState } from 'react'
 import { Platform, StyleSheet, Text, TextInput, View } from 'react-native'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 export interface AuthInputProps {
   label: string
@@ -59,33 +59,40 @@ export function AuthInput({
   const errorId = `${inputId}-error`
 
   const [focused, setFocused] = useState(false)
+  const { semantic } = useBrandTokens()
 
-  if (Platform.OS === 'web') {
-    const css = `
+  // Build the CSS template only when className or active brand semantics
+  // change. Without useMemo, every keystroke re-renders the component and
+  // recomputes the whole template string — wasteful given the string is
+  // stable across keystrokes (it depends only on the active mode + the
+  // useId-derived className).
+  const css = useMemo(
+    () =>
+      `
 .${className} { position: relative; }
 .${className}.disabled { opacity: 0.5; pointer-events: none; }
 .${className} .auth-input__field {
   display: block;
   width: 100%;
   box-sizing: border-box;
-  border: 1px solid ${COLORS.neutral.border};
+  border: 1px solid ${semantic.border.default};
   border-radius: 10px;
   height: 48px;
   padding: 0 14px;
   font-size: 14px;
-  color: ${COLORS.brand.text};
+  color: ${semantic.text.primary};
   background-color: transparent;
   outline: none;
   transition: border-color 150ms ease-out, border-width 150ms ease-out;
   font-family: inherit;
 }
 .${className} .auth-input__field:focus {
-  border-color: ${COLORS.brand.primary};
+  border-color: ${semantic.accent.primary};
   border-width: 1.5px;
   padding: 0 13.5px;
 }
 .${className} .auth-input__field[aria-invalid="true"] {
-  border-color: ${COLORS.signal.error};
+  border-color: ${semantic.alert.danger.fg};
 }
 .${className} .auth-input__label {
   position: absolute;
@@ -93,10 +100,10 @@ export function AuthInput({
   top: 50%;
   transform: translateY(-50%);
   font-size: 14px;
-  color: ${COLORS.neutral.textMuted};
+  color: ${semantic.text.muted};
   pointer-events: none;
   transition: transform 150ms ease-out, color 150ms ease-out, font-size 150ms ease-out;
-  background-color: ${COLORS.neutral.background};
+  background-color: ${semantic.bg.elevated};
   padding: 0 4px;
   font-weight: 400;
   letter-spacing: 0;
@@ -105,21 +112,24 @@ export function AuthInput({
 .${className} .auth-input__field:not(:placeholder-shown) ~ .auth-input__label {
   transform: translateY(-100%) scale(0.75);
   top: 6px;
-  color: ${COLORS.brand.primary};
+  color: ${semantic.accent.primary};
   font-weight: 700;
   letter-spacing: 0.06em;
 }
 .${className} .auth-input__field[aria-invalid="true"] ~ .auth-input__label,
 .${className} .auth-input__field[aria-invalid="true"]:focus ~ .auth-input__label {
-  color: ${COLORS.signal.error};
+  color: ${semantic.alert.danger.fg};
 }
 .${className} .auth-input__error {
   font-size: 11px;
-  color: ${COLORS.signal.error};
+  color: ${semantic.alert.danger.fg};
   margin-top: 4px;
 }
-`.trim()
+`.trim(),
+    [className, semantic],
+  )
 
+  if (Platform.OS === 'web') {
     const inputType = type === 'password' ? 'password' : type === 'email' ? 'email' : 'text'
 
     return createElement(
@@ -161,16 +171,21 @@ export function AuthInput({
   }
 
   // Native: static "always compact" label.
+  // StyleSheet holds layout-only properties; color overrides come inline from
+  // useBrandTokens() so the component is mode-aware without recreating the
+  // StyleSheet per render.
   const boxStyles = [
     styles.box,
-    focused ? styles.boxFocused : null,
-    error ? styles.boxError : null,
+    { borderColor: semantic.border.default, backgroundColor: semantic.bg.elevated },
+    focused ? { borderColor: semantic.accent.primary } : null,
+    error ? { borderColor: semantic.alert.danger.fg } : null,
     disabled ? styles.boxDisabled : null,
   ]
   const labelStyles = [
     styles.label,
-    focused ? styles.labelFocused : null,
-    error ? styles.labelError : null,
+    { color: semantic.text.muted },
+    focused ? { color: semantic.accent.primary } : null,
+    error ? { color: semantic.alert.danger.fg } : null,
   ]
   return (
     <View style={boxStyles}>
@@ -181,7 +196,7 @@ export function AuthInput({
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         placeholder={placeholder ?? ''}
-        placeholderTextColor={COLORS.neutral.textMuted}
+        placeholderTextColor={semantic.text.muted}
         secureTextEntry={type === 'password'}
         keyboardType={type === 'email' ? 'email-address' : 'default'}
         autoCapitalize={type === 'email' || type === 'password' ? 'none' : 'sentences'}
@@ -190,12 +205,14 @@ export function AuthInput({
         // 'new-password') are all valid members so this cast is safe.
         autoComplete={autoComplete as never}
         editable={!disabled}
-        style={styles.input}
+        style={[styles.input, { color: semantic.text.primary }]}
         accessibilityLabel={label}
         accessibilityState={{ disabled: disabled ?? false }}
         testID={testID}
       />
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {error ? (
+        <Text style={[styles.errorText, { color: semantic.alert.danger.fg }]}>{error}</Text>
+      ) : null}
     </View>
   )
 }
@@ -203,33 +220,24 @@ export function AuthInput({
 const styles = StyleSheet.create({
   box: {
     borderWidth: 1.5,
-    borderColor: COLORS.neutral.border,
     borderRadius: 10,
     height: 48,
     paddingHorizontal: 14,
     paddingVertical: 6,
     justifyContent: 'center',
-    backgroundColor: COLORS.neutral.background,
   },
-  boxFocused: { borderColor: COLORS.brand.primary },
-  boxError:   { borderColor: COLORS.signal.error },
   boxDisabled: { opacity: 0.5 },
   label: {
     fontSize: 10,
     fontWeight: '700',
-    color: COLORS.neutral.textMuted,
     letterSpacing: 0.6,
   },
-  labelFocused: { color: COLORS.brand.primary },
-  labelError:   { color: COLORS.signal.error },
   input: {
     fontSize: 14,
-    color: COLORS.brand.text,
     padding: 0,
   },
   errorText: {
     fontSize: 11,
-    color: COLORS.signal.error,
     marginTop: 4,
   },
 })

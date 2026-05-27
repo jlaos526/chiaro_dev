@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render } from '@testing-library/react'
+import { createElement, type ReactNode } from 'react'
 import { AuthInput } from '../../src/auth/AuthInput.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 
 describe('AuthInput', () => {
   it('renders label + input element', () => {
@@ -100,5 +102,26 @@ describe('AuthInput', () => {
     // selector to flip the floating label back to its default position
     // even when no value has been entered.
     expect(input.getAttribute('placeholder')).toBe(' ')
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('AuthInput — mode awareness', () => {
+  it('renders different border colors in light vs dark', () => {
+    const { container: light } = render(
+      <AuthInput label="Email" value="" onChangeText={() => {}} />,
+      { wrapper: lightWrapper },
+    )
+    const { container: dark } = render(
+      <AuthInput label="Email" value="" onChangeText={() => {}} />,
+      { wrapper: darkWrapper },
+    )
+    // Web CSS template contains the hex values for the active mode.
+    expect(light.innerHTML).toContain('#e8d8c2') // light border.default
+    expect(dark.innerHTML).toContain('#3a2e26') // dark border.default
   })
 })
