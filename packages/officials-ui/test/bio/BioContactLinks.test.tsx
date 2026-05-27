@@ -1,7 +1,14 @@
+import { createElement, type ReactNode } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { Linking } from 'react-native'
 import { BioContactLinks } from '../../src/bio/BioContactLinks.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
 
 describe('BioContactLinks', () => {
   it('returns null when both links absent', () => {
@@ -113,5 +120,22 @@ describe('BioContactLinks — smart-anchor (twitterHandle)', () => {
     )
     const anchor = container.querySelector('a')!
     expect(anchor.getAttribute('href')).toBe('https://example.com/custom')
+  })
+})
+
+describe('BioContactLinks — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() =>
+      render(
+        <BioContactLinks officialUrl="https://pelosi.house.gov" twitterHandle="SpeakerPelosi" />,
+        { wrapper: lightWrapper },
+      ),
+    ).not.toThrow()
+    expect(() =>
+      render(
+        <BioContactLinks officialUrl="https://pelosi.house.gov" twitterHandle="SpeakerPelosi" />,
+        { wrapper: darkWrapper },
+      ),
+    ).not.toThrow()
   })
 })

@@ -1,6 +1,13 @@
+import { createElement, type ReactNode } from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { BioIdentityRow } from '../../src/bio/BioIdentityRow.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
 
 describe('BioIdentityRow', () => {
   it('renders party short label + House label + district badge', () => {
@@ -46,5 +53,20 @@ describe('BioIdentityRow', () => {
       />,
     )
     expect(screen.getByText("Wyoming's At-Large District")).toBeTruthy()
+  })
+})
+
+describe('BioIdentityRow — mode awareness', () => {
+  const props = {
+    party: 'D',
+    chamber: 'federal_house' as const,
+    stateName: 'California',
+    stateAbbrev: 'CA',
+    districtNumber: 11,
+    atLarge: false,
+  }
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() => render(<BioIdentityRow {...props} />, { wrapper: lightWrapper })).not.toThrow()
+    expect(() => render(<BioIdentityRow {...props} />, { wrapper: darkWrapper })).not.toThrow()
   })
 })

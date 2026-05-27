@@ -1,6 +1,13 @@
+import { createElement, type ReactNode } from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { BioPortrait } from '../../src/bio/BioPortrait.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
 
 describe('BioPortrait', () => {
   it('renders <img> via RN-web when portraitUrl present', () => {
@@ -28,5 +35,20 @@ describe('BioPortrait', () => {
     expect(outer).not.toBeNull()
     const bg = outer?.getAttribute('style') ?? ''
     expect(bg).toMatch(/linear-gradient\(135deg, #3b6ed1 0%, #5b8de1 100%\)/)
+  })
+})
+
+describe('BioPortrait — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() =>
+      render(<BioPortrait fullName="Nancy Pelosi" portraitUrl={null} size={72} />, {
+        wrapper: lightWrapper,
+      }),
+    ).not.toThrow()
+    expect(() =>
+      render(<BioPortrait fullName="Nancy Pelosi" portraitUrl={null} size={72} />, {
+        wrapper: darkWrapper,
+      }),
+    ).not.toThrow()
   })
 })

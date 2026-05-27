@@ -7,6 +7,9 @@ export interface BioPortraitProps {
   size: number
 }
 
+// TODO slice 37: portrait gradient brand-decision (blue vs accent rebase).
+// The white initials text below pairs with the blue gradient and depends on
+// this decision. See docs/superpowers/audits/2026-05-27-inline-hex-sweep.md.
 const PORTRAIT_GRADIENT_WEB = 'linear-gradient(135deg, #3b6ed1 0%, #5b8de1 100%)'
 const PORTRAIT_SOLID_NATIVE = '#3b6ed1'
 
@@ -52,6 +55,7 @@ export function BioPortrait({ fullName, portraitUrl, size }: BioPortraitProps): 
         justifyContent: 'center',
       }}
     >
+      {/* TODO slice 37: pairs with portrait gradient blue. */}
       <Text style={{ color: '#fff', fontWeight: '700', fontSize: size * 0.42 }}>
         {initials(fullName)}
       </Text>

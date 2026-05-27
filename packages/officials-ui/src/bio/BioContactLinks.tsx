@@ -1,5 +1,6 @@
 import { createElement } from 'react'
 import { Linking, Platform, Pressable, Text, View } from 'react-native'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 export interface BioContactLinksProps {
   officialUrl: string | null
@@ -19,6 +20,7 @@ export interface BioContactLinksProps {
   twitterHref?: string
 }
 
+// TODO slice 37: link color brand-decision (anchor blue vs accent.primary)
 const linkStyle = { fontSize: 12, color: '#3b6ed1' as const }
 
 function openUrl(url: string): void {
@@ -68,6 +70,7 @@ export function BioContactLinks({
   officialHref,
   twitterHref,
 }: BioContactLinksProps): React.JSX.Element | null {
+  const { semantic } = useBrandTokens()
   if (!officialUrl && !twitterHandle) return null
 
   return (
@@ -80,7 +83,7 @@ export function BioContactLinks({
           <Text style={linkStyle}>{officialUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')}</Text>
         </SmartLink>
       ) : null}
-      {officialUrl && twitterHandle ? <Text style={{ color: '#d8d4c9' }}>·</Text> : null}
+      {officialUrl && twitterHandle ? <Text style={{ color: semantic.border.default }}>·</Text> : null}
       {twitterHandle ? (
         <SmartLink
           href={twitterHref ?? `https://twitter.com/${twitterHandle}`}
