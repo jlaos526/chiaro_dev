@@ -20,9 +20,6 @@ export interface BioContactLinksProps {
   twitterHref?: string
 }
 
-// TODO slice 37: link color brand-decision (anchor blue vs accent.primary)
-const linkStyle = { fontSize: 12, color: '#3b6ed1' as const }
-
 function openUrl(url: string): void {
   Linking.openURL(url).catch(() => {})
 }
@@ -71,6 +68,7 @@ export function BioContactLinks({
   twitterHref,
 }: BioContactLinksProps): React.JSX.Element | null {
   const { semantic } = useBrandTokens()
+  const linkStyle = { fontSize: 12, color: semantic.link.fg } as const
   if (!officialUrl && !twitterHandle) return null
 
   return (

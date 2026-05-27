@@ -1,17 +1,12 @@
-import { createElement } from 'react'
+import { createElement, useMemo } from 'react'
 import { Image, Platform, Text, View } from 'react-native'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 export interface BioPortraitProps {
   fullName: string
   portraitUrl: string | null
   size: number
 }
-
-// TODO slice 37: portrait gradient brand-decision (blue vs accent rebase).
-// The white initials text below pairs with the blue gradient and depends on
-// this decision. See docs/superpowers/audits/2026-05-27-inline-hex-sweep.md.
-const PORTRAIT_GRADIENT_WEB = 'linear-gradient(135deg, #3b6ed1 0%, #5b8de1 100%)'
-const PORTRAIT_SOLID_NATIVE = '#3b6ed1'
 
 function initials(name: string): string {
   const words = name.trim().split(/\s+/).filter(Boolean)
@@ -23,6 +18,14 @@ function initials(name: string): string {
 }
 
 export function BioPortrait({ fullName, portraitUrl, size }: BioPortraitProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
+  const portraitSolid = semantic.link.fg
+  const portraitGradient = useMemo(
+    // #5b8de1 derived from link.fg; slice 38+ may centralize gradient derivation
+    () => `linear-gradient(135deg, ${semantic.link.fg} 0%, #5b8de1 100%)`,
+    [semantic.link.fg],
+  )
+
   if (portraitUrl) {
     return (
       <Image
@@ -41,7 +44,7 @@ export function BioPortrait({ fullName, portraitUrl, size }: BioPortraitProps): 
   // keeps the solid color — gradient loss is intentional convergence
   // (officials-ui stays Expo-free; no `expo-linear-gradient` dep).
   const useWebGradient = Platform.OS === 'web'
-  const innerBg = useWebGradient ? 'transparent' : PORTRAIT_SOLID_NATIVE
+  const innerBg = useWebGradient ? 'transparent' : portraitSolid
 
   const inner = (
     <View
@@ -55,8 +58,7 @@ export function BioPortrait({ fullName, portraitUrl, size }: BioPortraitProps): 
         justifyContent: 'center',
       }}
     >
-      {/* TODO slice 37: pairs with portrait gradient blue. */}
-      <Text style={{ color: '#fff', fontWeight: '700', fontSize: size * 0.42 }}>
+      <Text style={{ color: semantic.text.onAccent, fontWeight: '700', fontSize: size * 0.42 }}>
         {initials(fullName)}
       </Text>
     </View>
@@ -67,7 +69,7 @@ export function BioPortrait({ fullName, portraitUrl, size }: BioPortraitProps): 
       'div',
       {
         style: {
-          background: PORTRAIT_GRADIENT_WEB,
+          background: portraitGradient,
           borderRadius: size / 2,
           width: size,
           height: size,

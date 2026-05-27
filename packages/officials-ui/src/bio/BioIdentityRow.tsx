@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native'
-import { PARTY_COLOR, PARTY_SHORT } from '@chiaro/ui-tokens'
+import { PARTY_SHORT } from '@chiaro/ui-tokens'
 import { DistrictBadge } from '../cards/DistrictBadge.tsx'
-import { useBrandTokens } from '../brand-hooks.ts'
+import { useBrandTokens, usePartyColor } from '../brand-hooks.ts'
 
 export interface BioIdentityRowProps {
   party: string
@@ -22,8 +22,7 @@ export function BioIdentityRow({
   party, chamber, stateName, stateAbbrev, districtNumber, atLarge,
 }: BioIdentityRowProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
-  // TODO slice 37: replace with PARTY_COLOR.unknown when palette gets dark variants
-  const partyColor = PARTY_COLOR[party as keyof typeof PARTY_COLOR] ?? '#807a72'
+  const partyColor = usePartyColor(party)
   const partyLabel = PARTY_SHORT[party as keyof typeof PARTY_SHORT] ?? party
   return (
     <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
