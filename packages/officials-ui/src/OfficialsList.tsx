@@ -1,7 +1,7 @@
 import { createElement } from 'react'
 import { Platform, Pressable, Text, View } from 'react-native'
 import { useMyOfficials, type OfficialWithDistrict, type Party } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from './brand-hooks.ts'
 import { OfficialAvatar } from './OfficialAvatar.tsx'
 import { PartyBadge } from './PartyBadge.tsx'
 import { OfficialMeta } from './OfficialMeta.tsx'
@@ -104,6 +104,7 @@ export function OfficialsList({
   getHref,
   calibrateHref,
 }: OfficialsListProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   const client = useChiaroClient()
   const { data, isLoading, error } = useMyOfficials(client)
 
@@ -111,7 +112,7 @@ export function OfficialsList({
   if (error) return <Text>Couldn&apos;t load officials.</Text>
   if (!data || data.length === 0) {
     const calibrateContent = (
-      <Text style={{ color: COLORS.brand.primary }}>
+      <Text style={{ color: semantic.accent.primary }}>
         Calibrate your address to see your delegation.
       </Text>
     )

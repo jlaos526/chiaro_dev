@@ -1,7 +1,7 @@
 import { render, fireEvent } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { ReactElement } from 'react'
+import { createElement, type ReactElement, type ReactNode } from 'react'
 import type { ChiaroClient } from '@chiaro/supabase-client'
 import type { OfficialWithDistrict } from '@chiaro/officials'
 
@@ -21,6 +21,7 @@ vi.mock('@chiaro/officials', async () => {
 
 import { ChiaroClientProvider } from '../src/client-context.tsx'
 import { OfficialsCard } from '../src/OfficialsCard.tsx'
+import { BrandModeOverrideContext } from '../src/brand-hooks.ts'
 
 const mockClient = { from: () => {} } as unknown as ChiaroClient
 
@@ -307,5 +308,37 @@ describe('OfficialsCard — smart-anchor (See all + calibrate links)', () => {
     )
     const anchor = container.querySelector('a[href="/calibrate"]')
     expect(anchor).not.toBeNull()
+  })
+})
+
+function wrapWithMode(ui: ReactElement, mode: 'light' | 'dark') {
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  const tree = createElement(
+    BrandModeOverrideContext.Provider,
+    { value: mode },
+    <ChiaroClientProvider client={mockClient}>
+      <QueryClientProvider client={qc}>{ui}</QueryClientProvider>
+    </ChiaroClientProvider>,
+  ) as ReactNode
+  return render(tree as ReactElement)
+}
+
+describe('OfficialsCard — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    useMyOfficialsMock.mockReturnValue({ data: [], isLoading: false, error: null })
+    useScorecardsMock.mockReturnValue({ data: [] })
+    useMetricsMock.mockReturnValue({ data: null })
+    expect(() =>
+      wrapWithMode(
+        <OfficialsCard onSelect={vi.fn()} onSeeAll={vi.fn()} onCalibrate={vi.fn()} />,
+        'light',
+      ),
+    ).not.toThrow()
+    expect(() =>
+      wrapWithMode(
+        <OfficialsCard onSelect={vi.fn()} onSeeAll={vi.fn()} onCalibrate={vi.fn()} />,
+        'dark',
+      ),
+    ).not.toThrow()
   })
 })

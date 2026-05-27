@@ -1,7 +1,7 @@
 import { render, fireEvent } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { ReactElement } from 'react'
+import { createElement, type ReactElement, type ReactNode } from 'react'
 import type { ChiaroClient } from '@chiaro/supabase-client'
 import type { OfficialWithDistrict } from '@chiaro/officials'
 
@@ -17,6 +17,7 @@ vi.mock('@chiaro/officials', async () => {
 
 import { ChiaroClientProvider } from '../src/client-context.tsx'
 import { OfficialsList } from '../src/OfficialsList.tsx'
+import { BrandModeOverrideContext } from '../src/brand-hooks.ts'
 
 const mockClient = { from: () => {} } as unknown as ChiaroClient
 
@@ -215,5 +216,29 @@ describe('OfficialsList — smart-anchor (calibrate prompt)', () => {
     const notPrevented = anchor.dispatchEvent(event)
     expect(notPrevented).toBe(true)
     expect(onCalibrate).not.toHaveBeenCalled()
+  })
+})
+
+function wrapWithMode(ui: ReactElement, mode: 'light' | 'dark') {
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  const tree = createElement(
+    BrandModeOverrideContext.Provider,
+    { value: mode },
+    <ChiaroClientProvider client={mockClient}>
+      <QueryClientProvider client={qc}>{ui}</QueryClientProvider>
+    </ChiaroClientProvider>,
+  ) as ReactNode
+  return render(tree as ReactElement)
+}
+
+describe('OfficialsList — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    useMyOfficialsMock.mockReturnValue({ data: [], isLoading: false, error: null })
+    expect(() =>
+      wrapWithMode(<OfficialsList onSelect={vi.fn()} onCalibrate={vi.fn()} />, 'light'),
+    ).not.toThrow()
+    expect(() =>
+      wrapWithMode(<OfficialsList onSelect={vi.fn()} onCalibrate={vi.fn()} />, 'dark'),
+    ).not.toThrow()
   })
 })

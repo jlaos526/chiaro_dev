@@ -9,7 +9,7 @@ import {
   useOfficialScorecardRatings,
   type OfficialWithDistrict,
 } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from './brand-hooks.ts'
 import { AlignmentChip } from './cards/AlignmentChip.tsx'
 import { DistrictBadge } from './cards/DistrictBadge.tsx'
 import { OfficialAvatar } from './OfficialAvatar.tsx'
@@ -63,6 +63,7 @@ function OfficialRow({
   chipHref?: (target: { officialId: string; subCascadeSlug: string }) => string
   rowHref?: (target: { officialId: string }) => string
 }): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   const client = useChiaroClient()
   const scorecards = useOfficialScorecardRatings(client, o.id)
   const metrics = useOfficialMetrics(client, o.id)
@@ -80,7 +81,7 @@ function OfficialRow({
   const href = rowHref?.({ officialId: o.id })
 
   const nameElement = (
-    <Text style={{ fontWeight: '600', fontSize: 15, color: COLORS.brand.text }}>{o.full_name}</Text>
+    <Text style={{ fontWeight: '600', fontSize: 15, color: semantic.text.primary }}>{o.full_name}</Text>
   )
 
   let nameLink: React.JSX.Element
@@ -117,9 +118,9 @@ function OfficialRow({
       style={{
         padding: 12,
         borderWidth: 1,
-        borderColor: COLORS.neutral.border,
+        borderColor: semantic.border.default,
         borderRadius: 6,
-        backgroundColor: COLORS.neutral.background,
+        backgroundColor: semantic.bg.elevated,
         marginBottom: 8,
       }}
     >
@@ -136,7 +137,7 @@ function OfficialRow({
             districtNumber={o.chamber === 'federal_house' ? districtNumber : null}
             atLarge={o.chamber === 'federal_house' && atLarge}
           />
-          <Text style={{ fontSize: 11, color: COLORS.neutral.mute, marginTop: 2 }}>
+          <Text style={{ fontSize: 11, color: semantic.text.muted, marginTop: 2 }}>
             {currentRole} · {o.chamber === 'federal_house' ? 'House' : 'Senate'}
             {tenure != null && tenure > 0 ? ` · ${tenure} yr` : ''}
           </Text>
@@ -168,6 +169,7 @@ export function OfficialsCard({
   seeAllHref,
   calibrateHref,
 }: OfficialsCardProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   const client = useChiaroClient()
   const { data, isLoading, error } = useMyOfficials(client)
 
@@ -175,7 +177,7 @@ export function OfficialsCard({
   if (error) return <Text>Couldn&apos;t load officials.</Text>
   if (!data || data.length === 0) {
     const calibrateContent = (
-      <Text style={{ color: COLORS.brand.primary }}>
+      <Text style={{ color: semantic.accent.primary }}>
         Calibrate your address to see your delegation.
       </Text>
     )
@@ -210,7 +212,7 @@ export function OfficialsCard({
   const { federal, state } = groupOfficialsByLevel(data)
 
   const seeAllText = (
-    <Text style={{ fontSize: 14, color: COLORS.brand.primary, marginTop: 10 }}>
+    <Text style={{ fontSize: 14, color: semantic.accent.primary, marginTop: 10 }}>
       See all officials →
     </Text>
   )
@@ -245,9 +247,9 @@ export function OfficialsCard({
   return (
     <View
       accessibilityLabel="Your officials"
-      style={{ padding: 16, backgroundColor: COLORS.neutral.surface, borderRadius: 8 }}
+      style={{ padding: 16, backgroundColor: semantic.bg.app, borderRadius: 8 }}
     >
-      <Text style={{ fontSize: 16, fontWeight: '700', color: COLORS.brand.text, marginBottom: 10 }}>
+      <Text style={{ fontSize: 16, fontWeight: '700', color: semantic.text.primary, marginBottom: 10 }}>
         Your officials
       </Text>
       {federal.length > 0 ? (
@@ -257,7 +259,7 @@ export function OfficialsCard({
               fontSize: 14,
               fontWeight: '700',
               textTransform: 'uppercase',
-              color: COLORS.neutral.textMuted,
+              color: semantic.text.muted,
               marginBottom: 12,
             }}
           >
