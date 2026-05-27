@@ -1,7 +1,14 @@
+import { createElement, type ReactNode } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { BioHeader } from '../../src/bio/BioHeader.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 import type { AlignmentChipRow } from '@chiaro/officials'
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
 
 const OFFICIAL_ID = '84eeab39-349d-4ae9-acd2-2229a3d38569'
 
@@ -120,5 +127,12 @@ describe('BioHeader', () => {
     const anchors = container.querySelectorAll('a[href^="/officials/X#issue-positions:"]')
     expect(anchors.length).toBe(SAMPLE_CHIPS.length)
     expect(anchors[0]?.getAttribute('href')).toBe('/officials/X#issue-positions:environment')
+  })
+})
+
+describe('BioHeader — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() => render(<BioHeader {...PELOSI} />, { wrapper: lightWrapper })).not.toThrow()
+    expect(() => render(<BioHeader {...PELOSI} />, { wrapper: darkWrapper })).not.toThrow()
   })
 })
