@@ -1,10 +1,45 @@
 import { describe, expect, it } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import { createElement, type ReactNode } from 'react'
-import { BRAND_PALETTE, getSemantic } from '@chiaro/ui-tokens'
+import {
+  ALIGNMENT_CHIP_COLORS,
+  ALIGNMENT_CHIP_COLORS_DARK,
+  BRAND_PALETTE,
+  CATEGORY_ACCENT,
+  CATEGORY_ACCENT_DARK,
+  CATEGORY_CARD_BG_SOLID,
+  CATEGORY_CARD_BG_SOLID_DARK,
+  CATEGORY_CARD_GRADIENT,
+  CATEGORY_CARD_GRADIENT_DARK,
+  FINANCE_CARD_BG,
+  FINANCE_CARD_BG_DARK,
+  FINANCE_SUB_SECTION_SHADES,
+  FINANCE_SUB_SECTION_SHADES_DARK,
+  INDUSTRY_COLOR,
+  INDUSTRY_COLOR_DARK,
+  INDUSTRY_DEFAULT_COLOR,
+  INDUSTRY_DEFAULT_COLOR_DARK,
+  MAP_COLORS,
+  MAP_COLORS_DARK,
+  PARTY_COLOR,
+  PARTY_COLOR_DARK,
+  SCORECARD_LEAN_COLOR,
+  SCORECARD_LEAN_COLOR_DARK,
+  getSemantic,
+} from '@chiaro/ui-tokens'
 import {
   BrandModeOverrideContext,
+  useAlignmentChipColors,
   useBrandTokens,
+  useCategoryAccent,
+  useCategoryCardBgSolid,
+  useCategoryCardGradient,
+  useFinanceCardBg,
+  useFinanceSubSectionShade,
+  useIndustryColor,
+  useMapColors,
+  usePartyColor,
+  useScorecardLeanColor,
 } from '../src/brand-hooks.ts'
 
 function wrapper(override: 'light' | 'dark' | null) {
@@ -43,5 +78,182 @@ describe('useBrandTokens', () => {
   it('return object has exactly 3 keys', () => {
     const { result } = renderHook(() => useBrandTokens(), { wrapper: wrapper(null) })
     expect(Object.keys(result.current).sort()).toEqual(['mode', 'palette', 'semantic'])
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Slice 37: per-domain mode-aware accessor hook tests.
+// ---------------------------------------------------------------------------
+
+describe('usePartyColor', () => {
+  it('returns light value when mode is light', () => {
+    const { result } = renderHook(() => usePartyColor('D'), { wrapper: wrapper('light') })
+    expect(result.current).toBe(PARTY_COLOR.D)
+  })
+  it('returns dark value when mode is dark', () => {
+    const { result } = renderHook(() => usePartyColor('D'), { wrapper: wrapper('dark') })
+    expect(result.current).toBe(PARTY_COLOR_DARK.D)
+  })
+  it('falls back to unknown for unrecognized party in light mode', () => {
+    const { result } = renderHook(() => usePartyColor('XYZ'), { wrapper: wrapper('light') })
+    expect(result.current).toBe(PARTY_COLOR.unknown)
+  })
+  it('falls back to unknown for undefined party in dark mode', () => {
+    const { result } = renderHook(() => usePartyColor(undefined), { wrapper: wrapper('dark') })
+    expect(result.current).toBe(PARTY_COLOR_DARK.unknown)
+  })
+})
+
+describe('useAlignmentChipColors', () => {
+  it('returns light { bg, fg } when mode is light', () => {
+    const { result } = renderHook(() => useAlignmentChipColors('strongly-aligned'), {
+      wrapper: wrapper('light'),
+    })
+    expect(result.current).toEqual(ALIGNMENT_CHIP_COLORS['strongly-aligned'])
+  })
+  it('returns dark { bg, fg } when mode is dark', () => {
+    const { result } = renderHook(() => useAlignmentChipColors('strongly-aligned'), {
+      wrapper: wrapper('dark'),
+    })
+    expect(result.current).toEqual(ALIGNMENT_CHIP_COLORS_DARK['strongly-aligned'])
+  })
+  it('returns the mixed tier object shape', () => {
+    const { result } = renderHook(() => useAlignmentChipColors('mixed'), { wrapper: wrapper('light') })
+    expect(result.current).toEqual(ALIGNMENT_CHIP_COLORS.mixed)
+    expect(Object.keys(result.current).sort()).toEqual(['bg', 'fg'])
+  })
+})
+
+describe('useScorecardLeanColor', () => {
+  it('returns light value when mode is light', () => {
+    const { result } = renderHook(() => useScorecardLeanColor('progressive'), {
+      wrapper: wrapper('light'),
+    })
+    expect(result.current).toBe(SCORECARD_LEAN_COLOR.progressive)
+  })
+  it('returns dark value when mode is dark', () => {
+    const { result } = renderHook(() => useScorecardLeanColor('conservative'), {
+      wrapper: wrapper('dark'),
+    })
+    expect(result.current).toBe(SCORECARD_LEAN_COLOR_DARK.conservative)
+  })
+})
+
+describe('useCategoryCardGradient', () => {
+  it('returns light gradient when mode is light', () => {
+    const { result } = renderHook(() => useCategoryCardGradient('finance'), {
+      wrapper: wrapper('light'),
+    })
+    expect(result.current).toBe(CATEGORY_CARD_GRADIENT.finance)
+  })
+  it('returns dark gradient when mode is dark', () => {
+    const { result } = renderHook(() => useCategoryCardGradient('finance'), {
+      wrapper: wrapper('dark'),
+    })
+    expect(result.current).toBe(CATEGORY_CARD_GRADIENT_DARK.finance)
+  })
+})
+
+describe('useCategoryAccent', () => {
+  it('returns light accent when mode is light', () => {
+    const { result } = renderHook(() => useCategoryAccent('voting-bills'), {
+      wrapper: wrapper('light'),
+    })
+    expect(result.current).toBe(CATEGORY_ACCENT['voting-bills'])
+  })
+  it('returns dark accent when mode is dark', () => {
+    const { result } = renderHook(() => useCategoryAccent('voting-bills'), {
+      wrapper: wrapper('dark'),
+    })
+    expect(result.current).toBe(CATEGORY_ACCENT_DARK['voting-bills'])
+  })
+})
+
+describe('useCategoryCardBgSolid', () => {
+  it('returns light solid bg when mode is light', () => {
+    const { result } = renderHook(() => useCategoryCardBgSolid('service-record'), {
+      wrapper: wrapper('light'),
+    })
+    expect(result.current).toBe(CATEGORY_CARD_BG_SOLID['service-record'])
+  })
+  it('returns dark solid bg when mode is dark', () => {
+    const { result } = renderHook(() => useCategoryCardBgSolid('service-record'), {
+      wrapper: wrapper('dark'),
+    })
+    expect(result.current).toBe(CATEGORY_CARD_BG_SOLID_DARK['service-record'])
+  })
+})
+
+describe('useIndustryColor', () => {
+  it('returns light value for a known industry in light mode', () => {
+    const { result } = renderHook(() => useIndustryColor('Real Estate'), {
+      wrapper: wrapper('light'),
+    })
+    expect(result.current).toBe(INDUSTRY_COLOR['Real Estate'])
+  })
+  it('returns dark value for a known industry in dark mode', () => {
+    const { result } = renderHook(() => useIndustryColor('Real Estate'), {
+      wrapper: wrapper('dark'),
+    })
+    expect(result.current).toBe(INDUSTRY_COLOR_DARK['Real Estate'])
+  })
+  it('falls back to default color for unknown industry in light mode', () => {
+    const { result } = renderHook(() => useIndustryColor('Quasar Mining'), {
+      wrapper: wrapper('light'),
+    })
+    expect(result.current).toBe(INDUSTRY_DEFAULT_COLOR)
+  })
+  it('falls back to default color for undefined industry in dark mode', () => {
+    const { result } = renderHook(() => useIndustryColor(undefined), { wrapper: wrapper('dark') })
+    expect(result.current).toBe(INDUSTRY_DEFAULT_COLOR_DARK)
+  })
+})
+
+describe('useFinanceCardBg', () => {
+  it('returns light bg when mode is light', () => {
+    const { result } = renderHook(() => useFinanceCardBg(), { wrapper: wrapper('light') })
+    expect(result.current).toBe(FINANCE_CARD_BG)
+  })
+  it('returns dark bg when mode is dark', () => {
+    const { result } = renderHook(() => useFinanceCardBg(), { wrapper: wrapper('dark') })
+    expect(result.current).toBe(FINANCE_CARD_BG_DARK)
+  })
+})
+
+describe('useFinanceSubSectionShade', () => {
+  it('returns light shade for contributors in light mode', () => {
+    const { result } = renderHook(() => useFinanceSubSectionShade('contributors'), {
+      wrapper: wrapper('light'),
+    })
+    expect(result.current).toEqual(FINANCE_SUB_SECTION_SHADES.contributors)
+  })
+  it('returns dark shade for topDonor in dark mode', () => {
+    const { result } = renderHook(() => useFinanceSubSectionShade('topDonor'), {
+      wrapper: wrapper('dark'),
+    })
+    expect(result.current).toEqual(FINANCE_SUB_SECTION_SHADES_DARK.topDonor)
+  })
+  it('returns undefined for unknown category', () => {
+    const { result } = renderHook(() => useFinanceSubSectionShade('nope'), {
+      wrapper: wrapper('light'),
+    })
+    expect(result.current).toBeUndefined()
+  })
+})
+
+describe('useMapColors', () => {
+  it('returns light map palette when mode is light', () => {
+    const { result } = renderHook(() => useMapColors(), { wrapper: wrapper('light') })
+    expect(result.current).toEqual(MAP_COLORS)
+  })
+  it('returns dark map palette when mode is dark', () => {
+    const { result } = renderHook(() => useMapColors(), { wrapper: wrapper('dark') })
+    expect(result.current).toEqual(MAP_COLORS_DARK)
+  })
+  it('inverts stroke/fill between modes', () => {
+    const { result: light } = renderHook(() => useMapColors(), { wrapper: wrapper('light') })
+    const { result: dark } = renderHook(() => useMapColors(), { wrapper: wrapper('dark') })
+    expect(light.current.districtStroke).not.toBe(dark.current.districtStroke)
+    expect(light.current.districtFill).not.toBe(dark.current.districtFill)
   })
 })
