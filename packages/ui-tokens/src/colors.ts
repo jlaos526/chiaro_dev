@@ -1,5 +1,11 @@
 // Brand colors lifted from existing inline hex values in slice 1/2 components.
 // Migrating call sites is slice 3.5 cleanup; the constants live here.
+//
+// @deprecated These tokens are the slice-1-through-31 legacy surface. New work
+// should import from `@chiaro/ui-tokens` BRAND.* (see docs/brand-book.md and
+// docs/superpowers/specs/2026-05-26-brand-design-design.md). Legacy COLORS are
+// kept byte-identical for back-compat; do not modify values here without
+// migrating every consumer first.
 
 export const COLORS = {
   brand: {
@@ -10,11 +16,11 @@ export const COLORS = {
   neutral: {
     background: '#ffffff',
     surface: '#f7f6f4',
-    surfaceAlt: '#f3f4f6',   // banner / card background variant (slice 2 DistrictPanel)
+    surfaceAlt: '#f3f4f6',
     border: '#e6e3df',
     mute: '#807a72',
-    textMuted: '#666',       // muted label / hint text (slice 2 DistrictPanel/Map)
-    outline: '#888',         // outline / divider (slice 2 DistrictMap toggle)
+    textMuted: '#666',
+    outline: '#888',
   },
   signal: {
     error: '#c5364a',
@@ -23,11 +29,4 @@ export const COLORS = {
   },
 } as const
 
-// Domain-specific palette for the map components (web Leaflet + RN react-native-maps).
-export const MAP_COLORS = {
-  districtStroke: '#1a1714',   // matches brand.text
-  districtFill:   '#f5f0e8',   // warm paper-tone fill
-} as const
-
 export type BrandColor = typeof COLORS
-export type MapColor = typeof MAP_COLORS
