@@ -7,11 +7,10 @@ import {
   type StateScorecardRatingWithOrg,
 } from '@chiaro/officials'
 import {
-  SCORECARD_LEAN_COLOR,
   SCORECARD_LEAN_LABEL,
   type ScorecardLean,
 } from '@chiaro/ui-tokens'
-import { useBrandTokens } from '../brand-hooks.ts'
+import { useBrandTokens, useScorecardLeanColor } from '../brand-hooks.ts'
 import { useChiaroClient } from '../client-context.tsx'
 import { StateIssueVotesEvidence } from './StateIssueVotesEvidence.tsx'
 
@@ -27,10 +26,6 @@ const LEAN_GROUP_ORDER: ScorecardLean[] = [
   'centrist',
 ]
 
-function leanColor(lean: string, fallback: string): string {
-  return (SCORECARD_LEAN_COLOR as Record<string, string>)[lean] ?? fallback
-}
-
 function leanLabel(lean: string): string {
   return (SCORECARD_LEAN_LABEL as Record<string, string>)[lean] ?? lean
 }
@@ -40,6 +35,17 @@ export function StateIssuePositionsCard({
 }: StateIssuePositionsCardProps): React.JSX.Element {
   const client = useChiaroClient()
   const { semantic } = useBrandTokens()
+
+  // Resolve lean colors at the component body (rules of hooks: fixed-order calls).
+  const leanColors: Record<ScorecardLean, string> = {
+    progressive: useScorecardLeanColor('progressive'),
+    conservative: useScorecardLeanColor('conservative'),
+    'single-issue': useScorecardLeanColor('single-issue'),
+    libertarian: useScorecardLeanColor('libertarian'),
+    centrist: useScorecardLeanColor('centrist'),
+  }
+  const leanColor = (lean: string, fallback: string): string =>
+    (leanColors as Record<string, string>)[lean] ?? fallback
   const { data, isLoading } = useOfficialStateScorecardRatings(client, officialId)
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
 

@@ -2,17 +2,32 @@
 
 import { StyleSheet, Text, View } from 'react-native'
 import type { ScorecardRatingWithOrg } from '@chiaro/officials'
-import { SCORECARD_LEAN_LABEL, SCORECARD_LEAN_COLOR } from '@chiaro/ui-tokens'
-import { useBrandTokens } from '../brand-hooks.ts'
+import { SCORECARD_LEAN_LABEL, type ScorecardLean } from '@chiaro/ui-tokens'
+import { useBrandTokens, useScorecardLeanColor } from '../brand-hooks.ts'
 
 export interface FederalScorecardRatingsListProps {
   rows: ScorecardRatingWithOrg[]
 }
 
-const LEAN_GROUP_ORDER = ['progressive', 'conservative', 'single-issue', 'libertarian', 'centrist'] as const
+const LEAN_GROUP_ORDER: readonly ScorecardLean[] = [
+  'progressive',
+  'conservative',
+  'single-issue',
+  'libertarian',
+  'centrist',
+] as const
 
 export function FederalScorecardRatingsList({ rows }: FederalScorecardRatingsListProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
+
+  // Resolve lean colors at the component body (rules of hooks: fixed-order calls).
+  const leanColors: Record<ScorecardLean, string> = {
+    progressive: useScorecardLeanColor('progressive'),
+    conservative: useScorecardLeanColor('conservative'),
+    'single-issue': useScorecardLeanColor('single-issue'),
+    libertarian: useScorecardLeanColor('libertarian'),
+    centrist: useScorecardLeanColor('centrist'),
+  }
 
   if (rows.length === 0) {
     return (
@@ -36,7 +51,7 @@ export function FederalScorecardRatingsList({ rows }: FederalScorecardRatingsLis
           <Text
             style={[
               styles.groupHeader,
-              { color: SCORECARD_LEAN_COLOR[lean as keyof typeof SCORECARD_LEAN_COLOR] ?? semantic.text.muted },
+              { color: leanColors[lean] ?? semantic.text.muted },
             ]}
           >
             {SCORECARD_LEAN_LABEL[lean as keyof typeof SCORECARD_LEAN_LABEL] ?? lean}
