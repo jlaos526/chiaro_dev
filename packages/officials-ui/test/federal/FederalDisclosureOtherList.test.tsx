@@ -1,5 +1,7 @@
 import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { createElement, type ReactNode } from 'react'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 import { FederalDisclosureOtherList } from '../../src/federal/FederalDisclosureOtherList.tsx'
 import type { FederalDisclosureOther } from '@chiaro/officials'
 
@@ -102,5 +104,27 @@ describe('FederalDisclosureOtherList', () => {
     )
     const links = container.querySelectorAll('[role="link"]')
     expect(links.length).toBe(2)
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('FederalDisclosureOtherList — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() =>
+      render(<FederalDisclosureOtherList rows={[]} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<FederalDisclosureOtherList rows={[]} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<FederalDisclosureOtherList rows={[row()]} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<FederalDisclosureOtherList rows={[row()]} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
   })
 })

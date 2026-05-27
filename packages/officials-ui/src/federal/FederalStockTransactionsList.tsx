@@ -3,6 +3,7 @@
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native'
 import type { Database } from '@chiaro/db'
 import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 type TxnRow = Database['public']['Tables']['stock_transactions']['Row']
 
@@ -25,8 +26,9 @@ export interface FederalStockTransactionsListProps {
 }
 
 export function FederalStockTransactionsList({ rows }: FederalStockTransactionsListProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   if (rows.length === 0) {
-    return <Text style={styles.muted}>No stock transactions on file.</Text>
+    return <Text style={[styles.muted, { color: semantic.text.muted }]}>No stock transactions on file.</Text>
   }
   return (
     <View style={styles.list}>
@@ -37,13 +39,13 @@ export function FederalStockTransactionsList({ rows }: FederalStockTransactionsL
           <Pressable
             key={r.id}
             onPress={() => Linking.openURL(r.source_url).catch(() => {})}
-            style={styles.row}
+            style={[styles.row, { backgroundColor: semantic.bg.app }]}
           >
             <View style={{ flex: 1 }}>
-              <Text style={styles.title}>
+              <Text style={[styles.title, { color: semantic.text.primary }]}>
                 {r.transaction_date} · {r.asset_ticker ?? r.asset_name ?? 'Unknown asset'}
               </Text>
-              <Text style={styles.meta}>
+              <Text style={[styles.meta, { color: semantic.text.muted }]}>
                 {r.transaction_type ? TYPE_LABEL[r.transaction_type] ?? r.transaction_type : 'Type n/a'}
                 {' · '}{formatAmountRange(low, high)}
               </Text>
@@ -66,17 +68,16 @@ export function FederalStockTransactionsList({ rows }: FederalStockTransactionsL
 }
 
 const styles = StyleSheet.create({
-  muted: { color: COLORS.neutral.textMuted, fontSize: 13, fontStyle: 'italic', padding: 8 },
+  muted: { fontSize: 13, fontStyle: 'italic', padding: 8 },
   list: { gap: 6, padding: 8 },
   row: {
     flexDirection: 'row',
-    backgroundColor: COLORS.neutral.surface,
     borderRadius: 6,
     padding: 8,
     gap: 8,
   },
-  title: { fontSize: 13, fontWeight: '500', color: COLORS.brand.text },
-  meta: { fontSize: 12, color: COLORS.neutral.textMuted, marginTop: 2 },
+  title: { fontSize: 13, fontWeight: '500' },
+  meta: { fontSize: 12, marginTop: 2 },
   chip: {
     fontSize: 11,
     fontWeight: '600',

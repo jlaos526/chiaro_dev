@@ -2,7 +2,7 @@
 
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native'
 import type { FederalDisclosureOther } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 // DB-level check constraint allows 7 categories; the generated TS type widens
 // to `string`. The label map covers the canonical 7 — unknown categories
@@ -48,8 +48,9 @@ export interface FederalDisclosureOtherListProps {
 export function FederalDisclosureOtherList({
   rows,
 }: FederalDisclosureOtherListProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   if (rows.length === 0) {
-    return <Text style={styles.muted}>No other disclosures on file.</Text>
+    return <Text style={[styles.muted, { color: semantic.text.muted }]}>No other disclosures on file.</Text>
   }
   // Group by category
   const byCategory = new Map<string, FederalDisclosureOther[]>()
@@ -61,7 +62,7 @@ export function FederalDisclosureOtherList({
     <View style={styles.list}>
       {CATEGORY_ORDER.filter(c => byCategory.has(c)).map(category => (
         <View key={category} style={styles.section}>
-          <Text style={styles.categoryHeading}>{CATEGORY_LABEL[category]}</Text>
+          <Text style={[styles.categoryHeading, { color: semantic.text.primary }]}>{CATEGORY_LABEL[category]}</Text>
           {byCategory.get(category)!.map(r => {
             const low = r.value_min == null ? null : Number(r.value_min)
             const high = r.value_max == null ? null : Number(r.value_max)
@@ -73,11 +74,11 @@ export function FederalDisclosureOtherList({
                 accessibilityRole="link"
               >
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.name}>{r.description ?? 'Unknown'}</Text>
-                  {r.source_party ? <Text style={styles.muted}>{r.source_party}</Text> : null}
-                  <Text style={styles.year}>{r.filing_year}</Text>
+                  <Text style={[styles.name, { color: semantic.text.primary }]}>{r.description ?? 'Unknown'}</Text>
+                  {r.source_party ? <Text style={[styles.muted, { color: semantic.text.muted }]}>{r.source_party}</Text> : null}
+                  <Text style={[styles.year, { color: semantic.text.muted }]}>{r.filing_year}</Text>
                 </View>
-                <Text style={styles.amount}>{formatValue(low, high, r.value_text)}</Text>
+                <Text style={[styles.amount, { color: semantic.text.primary }]}>{formatValue(low, high, r.value_text)}</Text>
               </Pressable>
             )
           })}
@@ -90,10 +91,10 @@ export function FederalDisclosureOtherList({
 const styles = StyleSheet.create({
   list:            { gap: 12 },
   section:         { gap: 6 },
-  categoryHeading: { fontSize: 14, fontWeight: '600', color: COLORS.brand.text },
+  categoryHeading: { fontSize: 14, fontWeight: '600' },
   row:             { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6 },
-  name:            { fontSize: 13, color: COLORS.brand.text },
-  year:            { fontSize: 11, color: COLORS.neutral.textMuted, marginTop: 2 },
-  muted:           { fontSize: 12, color: COLORS.neutral.textMuted, marginTop: 2 },
-  amount:          { fontSize: 13, fontWeight: '600', color: COLORS.brand.text },
+  name:            { fontSize: 13 },
+  year:            { fontSize: 11, marginTop: 2 },
+  muted:           { fontSize: 12, marginTop: 2 },
+  amount:          { fontSize: 13, fontWeight: '600' },
 })

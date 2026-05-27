@@ -2,7 +2,7 @@
 
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native'
 import type { FederalHolding } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 function formatAmountRange(low: number | null, high: number | null): string {
   if (low == null && high == null) return 'n/a'
@@ -17,8 +17,9 @@ export interface FederalHoldingsListProps {
 }
 
 export function FederalHoldingsList({ rows }: FederalHoldingsListProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   if (rows.length === 0) {
-    return <Text style={styles.muted}>No holdings on file.</Text>
+    return <Text style={[styles.muted, { color: semantic.text.muted }]}>No holdings on file.</Text>
   }
   // Group by filing_year for sectioned rendering
   const byYear = new Map<number, FederalHolding[]>()
@@ -31,7 +32,7 @@ export function FederalHoldingsList({ rows }: FederalHoldingsListProps): React.J
     <View style={styles.list}>
       {sortedYears.map(year => (
         <View key={year} style={styles.section}>
-          <Text style={styles.yearHeading}>{year}</Text>
+          <Text style={[styles.yearHeading, { color: semantic.text.primary }]}>{year}</Text>
           {byYear.get(year)!.map(r => {
             const low = r.value_min == null ? null : Number(r.value_min)
             const high = r.value_max == null ? null : Number(r.value_max)
@@ -43,11 +44,11 @@ export function FederalHoldingsList({ rows }: FederalHoldingsListProps): React.J
                 accessibilityRole="link"
               >
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.name}>{r.asset_name ?? 'Unknown asset'}</Text>
-                  {r.asset_ticker ? <Text style={styles.ticker}>{r.asset_ticker}</Text> : null}
-                  {r.asset_type ? <Text style={styles.muted}>{r.asset_type}</Text> : null}
+                  <Text style={[styles.name, { color: semantic.text.primary }]}>{r.asset_name ?? 'Unknown asset'}</Text>
+                  {r.asset_ticker ? <Text style={[styles.ticker, { color: semantic.text.muted }]}>{r.asset_ticker}</Text> : null}
+                  {r.asset_type ? <Text style={[styles.muted, { color: semantic.text.muted }]}>{r.asset_type}</Text> : null}
                 </View>
-                <Text style={styles.amount}>{formatAmountRange(low, high)}</Text>
+                <Text style={[styles.amount, { color: semantic.text.primary }]}>{formatAmountRange(low, high)}</Text>
               </Pressable>
             )
           })}
@@ -60,10 +61,10 @@ export function FederalHoldingsList({ rows }: FederalHoldingsListProps): React.J
 const styles = StyleSheet.create({
   list:        { gap: 12 },
   section:     { gap: 6 },
-  yearHeading: { fontSize: 14, fontWeight: '600', color: COLORS.brand.text },
+  yearHeading: { fontSize: 14, fontWeight: '600' },
   row:         { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6 },
-  name:        { fontSize: 13, color: COLORS.brand.text },
-  ticker:      { fontSize: 12, color: COLORS.neutral.textMuted, marginTop: 2 },
-  muted:       { fontSize: 12, color: COLORS.neutral.textMuted },
-  amount:      { fontSize: 13, fontWeight: '600', color: COLORS.brand.text },
+  name:        { fontSize: 13 },
+  ticker:      { fontSize: 12, marginTop: 2 },
+  muted:       { fontSize: 12 },
+  amount:      { fontSize: 13, fontWeight: '600' },
 })

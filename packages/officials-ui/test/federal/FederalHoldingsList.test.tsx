@@ -1,5 +1,7 @@
 import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { createElement, type ReactNode } from 'react'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 import { FederalHoldingsList } from '../../src/federal/FederalHoldingsList.tsx'
 import type { FederalHolding } from '@chiaro/officials'
 
@@ -79,5 +81,36 @@ describe('FederalHoldingsList', () => {
     )
     const links = container.querySelectorAll('[role="link"]')
     expect(links.length).toBe(2)
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('FederalHoldingsList — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() =>
+      render(<FederalHoldingsList rows={[]} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<FederalHoldingsList rows={[]} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
+    // Also exercise non-empty path
+    const sampleRow: FederalHolding = {
+      id: 'h1', official_id: 'oid', filing_year: 2024, source: 'house-fd',
+      external_id: null, source_url: 'https://example.com/fd',
+      asset_name: 'Apple Inc.', asset_ticker: 'AAPL', asset_type: 'stock',
+      value_min: 1000, value_max: 15000,
+      income_type: null, income_min: null, income_max: null,
+      ingested_at: '2026-01-01',
+    }
+    expect(() =>
+      render(<FederalHoldingsList rows={[sampleRow]} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<FederalHoldingsList rows={[sampleRow]} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
   })
 })

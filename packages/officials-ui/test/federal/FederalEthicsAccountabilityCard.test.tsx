@@ -1,8 +1,9 @@
 import { fireEvent, render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { ReactElement } from 'react'
+import { createElement, type ReactElement, type ReactNode } from 'react'
 import type { ChiaroClient } from '@chiaro/supabase-client'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 
 const useMetricsMock = vi.fn()
 const useStockMock = vi.fn()
@@ -227,5 +228,35 @@ describe('FederalEthicsAccountabilityCard', () => {
     expect(queryByText('Davos trip')).toBeNull()
     fireEvent.click(getByText(/^▸ Other Disclosures/))
     expect(getByText('Davos trip')).toBeTruthy()
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('FederalEthicsAccountabilityCard — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    useMetricsMock.mockReturnValue({
+      data: { stock_act_compliance_pct: null },
+      isLoading: false,
+      isSuccess: true,
+    })
+    useStockMock.mockReturnValue(EMPTY_HOOK)
+    useHoldingsMock.mockReturnValue(EMPTY_HOOK)
+    useOtherMock.mockReturnValue(EMPTY_HOOK)
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const renderWith = (wrapper: typeof lightWrapper) =>
+      render(
+        <ChiaroClientProvider client={mockClient}>
+          <QueryClientProvider client={qc}>
+            <FederalEthicsAccountabilityCard officialId="oid" />
+          </QueryClientProvider>
+        </ChiaroClientProvider>,
+        { wrapper },
+      )
+    expect(() => renderWith(lightWrapper)).not.toThrow()
+    expect(() => renderWith(darkWrapper)).not.toThrow()
   })
 })

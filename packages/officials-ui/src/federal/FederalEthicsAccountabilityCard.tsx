@@ -8,7 +8,8 @@ import {
   useOfficialHoldings,
   useOfficialDisclosureOther,
 } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { COLORS, type BrandSemantic } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { FederalStockTransactionsList } from './FederalStockTransactionsList.tsx'
@@ -19,16 +20,17 @@ export interface FederalEthicsAccountabilityCardProps {
   officialId: string
 }
 
-function complianceColor(pct: number | null | undefined): string {
-  if (pct == null) return COLORS.neutral.textMuted
+function complianceColor(pct: number | null | undefined, semantic: BrandSemantic): string {
+  if (pct == null) return semantic.text.muted
   if (pct >= 90) return COLORS.signal.success
   if (pct >= 50) return COLORS.signal.warning
-  return COLORS.signal.error
+  return semantic.alert.danger.fg
 }
 
 export function FederalEthicsAccountabilityCard({
   officialId,
 }: FederalEthicsAccountabilityCardProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   const client = useChiaroClient()
   const metrics = useOfficialMetrics(client, officialId)
   const stock = useOfficialStockTransactions(client, officialId)
@@ -39,11 +41,19 @@ export function FederalEthicsAccountabilityCard({
   const [openHoldings, setOpenHoldings] = useState(false)
   const [openOther, setOpenOther] = useState(false)
 
+  const cardStyle = [
+    styles.card,
+    { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
+  ]
+  const titleStyle = [styles.title, { color: semantic.text.primary }]
+  const mutedStyle = [styles.muted, { color: semantic.text.muted }]
+  const summaryStyle = [styles.summary, { color: semantic.text.muted }]
+
   if (metrics.isLoading || stock.isLoading || holdings.isLoading || other.isLoading) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Ethics & Accountability</Text>
-        <Text style={styles.muted}>Loading ethics & accountability…</Text>
+      <View style={cardStyle}>
+        <Text style={titleStyle}>Ethics & Accountability</Text>
+        <Text style={mutedStyle}>Loading ethics & accountability…</Text>
       </View>
     )
   }
@@ -59,21 +69,21 @@ export function FederalEthicsAccountabilityCard({
 
   if (allEmpty) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Ethics & Accountability</Text>
-        <Text style={[styles.muted, { fontStyle: 'italic' }]}>
+      <View style={cardStyle}>
+        <Text style={titleStyle}>Ethics & Accountability</Text>
+        <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No stock-trade or STOCK-Act-compliance records on file.
         </Text>
       </View>
     )
   }
 
-  const compColor = complianceColor(compliancePct)
+  const compColor = complianceColor(compliancePct, semantic)
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>Ethics & Accountability</Text>
-      <Text style={styles.summary}>
+    <View style={cardStyle}>
+      <Text style={titleStyle}>Ethics & Accountability</Text>
+      <Text style={summaryStyle}>
         {`${stockCount} stock trade${stockCount === 1 ? '' : 's'}`}
         {' · '}
         {`${lateCount} late filing${lateCount === 1 ? '' : 's'}`}
@@ -83,11 +93,11 @@ export function FederalEthicsAccountabilityCard({
 
       {/* Compliance tile (always visible when pct present) */}
       {compliancePct != null && (
-        <View style={styles.complianceTile}>
+        <View style={[styles.complianceTile, { backgroundColor: semantic.bg.app }]}>
           <Text style={[styles.compliancePct, { color: compColor }]}>
             {compliancePct}%
           </Text>
-          <Text style={styles.complianceLabel}>
+          <Text style={[styles.complianceLabel, { color: semantic.text.muted }]}>
             STOCK Act on-time filing compliance (federal 45-day deadline)
           </Text>
         </View>
@@ -122,18 +132,15 @@ export function FederalEthicsAccountabilityCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.neutral.background,
-    borderColor: COLORS.neutral.border,
     borderWidth: 1,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
   },
-  title: { fontSize: 18, fontWeight: '600', marginBottom: 12, color: COLORS.brand.text },
-  muted: { color: COLORS.neutral.textMuted, fontSize: 13 },
-  summary: { fontSize: 13, color: COLORS.neutral.textMuted, marginBottom: 12 },
+  title: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
+  muted: { fontSize: 13 },
+  summary: { fontSize: 13, marginBottom: 12 },
   complianceTile: {
-    backgroundColor: COLORS.neutral.surface,
     borderRadius: 6,
     padding: 12,
     marginBottom: 12,
@@ -142,7 +149,6 @@ const styles = StyleSheet.create({
   compliancePct: { fontSize: 24, fontWeight: '700' },
   complianceLabel: {
     fontSize: 12,
-    color: COLORS.neutral.textMuted,
     marginTop: 4,
     textAlign: 'center',
   },
