@@ -42,3 +42,19 @@ describe('StateVotesEvidence', () => {
     expect(getByText(/Question v6/)).toBeTruthy()
   })
 })
+
+import { createElement, type ReactNode } from 'react'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('StateVotesEvidence — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    const votes = [makeVote('v1', 'yes')]
+    expect(() => render(<StateVotesEvidence votes={votes} />, { wrapper: lightWrapper })).not.toThrow()
+    expect(() => render(<StateVotesEvidence votes={votes} />, { wrapper: darkWrapper })).not.toThrow()
+  })
+})

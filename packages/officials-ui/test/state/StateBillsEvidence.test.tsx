@@ -41,3 +41,19 @@ describe('StateBillsEvidence', () => {
     expect(getByText(/show less/i)).toBeTruthy()
   })
 })
+
+import { createElement, type ReactNode } from 'react'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('StateBillsEvidence — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    const bills = [makeBill('b1')]
+    expect(() => render(<StateBillsEvidence bills={bills} />, { wrapper: lightWrapper })).not.toThrow()
+    expect(() => render(<StateBillsEvidence bills={bills} />, { wrapper: darkWrapper })).not.toThrow()
+  })
+})

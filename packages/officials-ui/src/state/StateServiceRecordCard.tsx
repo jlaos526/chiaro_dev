@@ -10,7 +10,7 @@ import {
   useOfficialSponsoredStateBills,
   useOfficialStateVotes,
 } from '@chiaro/state-bills'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { useChiaroClient } from '../client-context.tsx'
 import { StateBillsEvidence } from './StateBillsEvidence.tsx'
 import { StateVotesEvidence } from './StateVotesEvidence.tsx'
@@ -49,6 +49,7 @@ export function StateServiceRecordCard({
   const sponsored = useOfficialSponsoredStateBills(client, official.id)
   const votes = useOfficialStateVotes(client, official.id)
   const metrics = useOfficialMetrics(client, official.id)
+  const { semantic } = useBrandTokens()
 
   if (!isStateLevel(official.chamber)) return null
 
@@ -56,10 +57,21 @@ export function StateServiceRecordCard({
   const partyUnity = m?.party_unity_state == null ? 'Not yet computed' : `${m.party_unity_state}%`
   const attendance = m?.attendance_pct == null ? '—' : `${m.attendance_pct}%`
 
+  const subtitleStyle = [styles.subtitle, { color: semantic.text.muted }]
+  const headingStyle = { color: semantic.text.primary }
+  const rowLabelColor = { color: semantic.text.muted }
+  const rowValueColor = { color: semantic.text.primary }
+
   return (
-    <View testID="state-service-record-card" style={styles.card}>
+    <View
+      testID="state-service-record-card"
+      style={[
+        styles.card,
+        { backgroundColor: semantic.bg.app, borderColor: semantic.border.default },
+      ]}
+    >
       <View style={{ marginBottom: 12 }}>
-        <Text style={styles.title}>Service Record</Text>
+        <Text style={[styles.title, headingStyle]}>Service Record</Text>
         <View
           style={{
             flexDirection: 'row',
@@ -69,45 +81,47 @@ export function StateServiceRecordCard({
             marginTop: 2,
           }}
         >
-          <Text style={styles.subtitle}>{chamberLabel(official.chamber)}</Text>
-          <Text style={styles.subtitle}>·</Text>
-          <Text style={styles.subtitle}>{official.party}</Text>
+          <Text style={subtitleStyle}>{chamberLabel(official.chamber)}</Text>
+          <Text style={subtitleStyle}>·</Text>
+          <Text style={subtitleStyle}>{official.party}</Text>
         </View>
       </View>
 
       <View style={{ gap: 8 }}>
-        <ScalarRow label="Bills sponsored" value={m?.bills_sponsored_count ?? 0} />
-        <ScalarRow label="Bills cosponsored" value={m?.bills_cosponsored_count ?? 0} />
-        <ScalarRow label="Votes voted" value={m?.votes_voted_count ?? 0} />
-        <ScalarRow label="Votes missed" value={m?.votes_missed_count ?? 0} />
-        <ScalarRow label="Attendance" value={attendance} />
-        <ScalarRow label="Party unity" value={partyUnity} />
+        <ScalarRow label="Bills sponsored" value={m?.bills_sponsored_count ?? 0} labelColor={rowLabelColor} valueColor={rowValueColor} />
+        <ScalarRow label="Bills cosponsored" value={m?.bills_cosponsored_count ?? 0} labelColor={rowLabelColor} valueColor={rowValueColor} />
+        <ScalarRow label="Votes voted" value={m?.votes_voted_count ?? 0} labelColor={rowLabelColor} valueColor={rowValueColor} />
+        <ScalarRow label="Votes missed" value={m?.votes_missed_count ?? 0} labelColor={rowLabelColor} valueColor={rowValueColor} />
+        <ScalarRow label="Attendance" value={attendance} labelColor={rowLabelColor} valueColor={rowValueColor} />
+        <ScalarRow label="Party unity" value={partyUnity} labelColor={rowLabelColor} valueColor={rowValueColor} />
       </View>
 
-      <Text style={styles.subheading}>Performance metrics</Text>
+      <Text style={[styles.subheading, headingStyle]}>Performance metrics</Text>
       <View style={{ marginTop: 8, gap: 8 }}>
-        <ScalarRow label="Bills passed" value={fmtCount(m?.bills_passed_count)} />
-        <ScalarRow label="Hearings held" value={fmtCount(m?.hearings_held_count)} />
-        <ScalarRow label="Subject breadth" value={fmtCount(m?.subject_breadth)} />
-        <ScalarRow label="Bill passage rate" value={fmtPct(m?.bill_passage_rate)} />
+        <ScalarRow label="Bills passed" value={fmtCount(m?.bills_passed_count)} labelColor={rowLabelColor} valueColor={rowValueColor} />
+        <ScalarRow label="Hearings held" value={fmtCount(m?.hearings_held_count)} labelColor={rowLabelColor} valueColor={rowValueColor} />
+        <ScalarRow label="Subject breadth" value={fmtCount(m?.subject_breadth)} labelColor={rowLabelColor} valueColor={rowValueColor} />
+        <ScalarRow label="Bill passage rate" value={fmtPct(m?.bill_passage_rate)} labelColor={rowLabelColor} valueColor={rowValueColor} />
         <ScalarRow
           label="Fiscal impact / $"
           value={fmtRatio(m?.fiscal_impact_per_dollar_raised)}
+          labelColor={rowLabelColor}
+          valueColor={rowValueColor}
         />
         {m?.committee_chair_count != null && (
-          <ScalarRow label="Committee chair seats" value={String(m.committee_chair_count)} />
+          <ScalarRow label="Committee chair seats" value={String(m.committee_chair_count)} labelColor={rowLabelColor} valueColor={rowValueColor} />
         )}
       </View>
 
       <View style={{ marginTop: 12 }}>
-        <Text style={styles.evidenceHeading}>
+        <Text style={[styles.evidenceHeading, headingStyle]}>
           View sponsored bills ({sponsored.data?.length ?? 0})
         </Text>
         <StateBillsEvidence bills={sponsored.data ?? []} />
       </View>
 
       <View style={{ marginTop: 8 }}>
-        <Text style={styles.evidenceHeading}>
+        <Text style={[styles.evidenceHeading, headingStyle]}>
           View vote record ({votes.data?.length ?? 0})
         </Text>
         <StateVotesEvidence votes={votes.data ?? []} />
@@ -119,9 +133,13 @@ export function StateServiceRecordCard({
 function ScalarRow({
   label,
   value,
+  labelColor,
+  valueColor,
 }: {
   label: string
   value: number | string
+  labelColor: { color: string }
+  valueColor: { color: string }
 }): React.JSX.Element {
   return (
     <View
@@ -131,47 +149,39 @@ function ScalarRow({
         alignItems: 'baseline',
       }}
     >
-      <Text style={styles.rowLabel}>{label}</Text>
-      <Text style={styles.rowValue}>{value}</Text>
+      <Text style={[styles.rowLabel, labelColor]}>{label}</Text>
+      <Text style={[styles.rowValue, valueColor]}>{value}</Text>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.neutral.surface,
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: COLORS.neutral.border,
   },
   title: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.brand.text,
   },
   subtitle: {
     fontSize: 12,
-    color: COLORS.neutral.textMuted,
   },
   subheading: {
     marginTop: 16,
     fontSize: 13,
     fontWeight: '700',
-    color: COLORS.brand.text,
   },
   evidenceHeading: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.brand.text,
   },
   rowLabel: {
     fontSize: 13,
-    color: COLORS.neutral.textMuted,
   },
   rowValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.brand.text,
   },
 })

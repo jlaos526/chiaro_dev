@@ -126,3 +126,29 @@ describe('StateServiceRecordCard', () => {
     expect(queryByText('Committee chair seats')).toBeNull()
   })
 })
+
+import { createElement, type ReactNode } from 'react'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('StateServiceRecordCard — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    useMetricsMock.mockReturnValue({ data: null, isLoading: false })
+    useSponsoredMock.mockReturnValue({ data: [], isLoading: false })
+    useVotesMock.mockReturnValue({ data: [], isLoading: false })
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const tree = (
+      <ChiaroClientProvider client={mockClient}>
+        <QueryClientProvider client={qc}>
+          <StateServiceRecordCard official={stateOfficial} />
+        </QueryClientProvider>
+      </ChiaroClientProvider>
+    )
+    expect(() => render(tree, { wrapper: lightWrapper })).not.toThrow()
+    expect(() => render(tree, { wrapper: darkWrapper })).not.toThrow()
+  })
+})

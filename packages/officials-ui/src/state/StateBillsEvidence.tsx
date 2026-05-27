@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native'
 import type { StateBillWithSponsors } from '@chiaro/state-bills'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 const INITIAL_ROW_COUNT = 5
 
@@ -13,10 +13,19 @@ export interface StateBillsEvidenceProps {
 
 export function StateBillsEvidence({ bills }: StateBillsEvidenceProps): React.JSX.Element {
   const [expanded, setExpanded] = useState(false)
+  const { semantic } = useBrandTokens()
+
+  const emptyStyle = [styles.empty, { color: semantic.text.muted }]
+  const rowStyle = [styles.row, { borderTopColor: semantic.border.default }]
+  const titleStyle = [styles.title, { color: semantic.text.primary }]
+  const metaStyle = [styles.meta, { color: semantic.text.muted }]
+  const moreButtonStyle = [styles.moreButton, { borderColor: semantic.border.default }]
+  const moreTextStyle = [styles.moreText, { color: semantic.text.primary }]
+
   if (bills.length === 0) {
     return (
       <View style={{ padding: 8 }}>
-        <Text style={styles.empty}>No bills this session.</Text>
+        <Text style={emptyStyle}>No bills this session.</Text>
       </View>
     )
   }
@@ -28,19 +37,19 @@ export function StateBillsEvidence({ bills }: StateBillsEvidenceProps): React.JS
         <Pressable
           key={b.id}
           onPress={() => Linking.openURL(b.source_url).catch(() => {})}
-          style={styles.row}
+          style={rowStyle}
         >
-          <Text style={styles.title}>
+          <Text style={titleStyle}>
             {b.bill_type} {b.number}: {b.title}
           </Text>
-          <Text style={styles.meta}>
+          <Text style={metaStyle}>
             {b.status_substage ?? b.status ?? '—'} · {b.latest_action_date}
           </Text>
         </Pressable>
       ))}
       {hasMore && (
-        <Pressable onPress={() => setExpanded(e => !e)} style={styles.moreButton}>
-          <Text style={styles.moreText}>
+        <Pressable onPress={() => setExpanded(e => !e)} style={moreButtonStyle}>
+          <Text style={moreTextStyle}>
             {expanded ? 'show less' : `show more (${bills.length - INITIAL_ROW_COUNT} more)`}
           </Text>
         </Pressable>
@@ -52,24 +61,21 @@ export function StateBillsEvidence({ bills }: StateBillsEvidenceProps): React.JS
 const styles = StyleSheet.create({
   empty: {
     fontSize: 13,
-    color: COLORS.neutral.textMuted,
     fontStyle: 'italic',
   },
   row: {
     padding: 8,
     borderTopWidth: 1,
-    borderTopColor: COLORS.neutral.border,
   },
-  title: { fontSize: 14, fontWeight: '600', color: COLORS.brand.text },
-  meta: { fontSize: 12, color: COLORS.neutral.textMuted, marginTop: 2 },
+  title: { fontSize: 14, fontWeight: '600' },
+  meta: { fontSize: 12, marginTop: 2 },
   moreButton: {
     marginTop: 8,
     paddingVertical: 4,
     paddingHorizontal: 10,
     alignSelf: 'flex-start',
     borderWidth: 1,
-    borderColor: COLORS.neutral.border,
     borderRadius: 4,
   },
-  moreText: { fontSize: 12, color: COLORS.brand.text },
+  moreText: { fontSize: 12 },
 })
