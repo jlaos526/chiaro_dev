@@ -1,7 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
+import { createElement, type ReactNode } from 'react'
 import { Text } from 'react-native'
 import { CardSubsection } from '../../src/cards/CardSubsection.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 
 describe('CardSubsection', () => {
   it('renders the label', () => {
@@ -107,5 +109,31 @@ describe('CardSubsection', () => {
     expect(
       container.querySelector('[role="button"]')?.getAttribute('aria-expanded'),
     ).toBe('true')
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('CardSubsection — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() =>
+      render(
+        <CardSubsection label="Leadership" open={false} onToggle={() => {}}>
+          <Text>row 1</Text>
+        </CardSubsection>,
+        { wrapper: lightWrapper },
+      ),
+    ).not.toThrow()
+    expect(() =>
+      render(
+        <CardSubsection label="Leadership" open={true} onToggle={() => {}}>
+          <Text>row 1</Text>
+        </CardSubsection>,
+        { wrapper: darkWrapper },
+      ),
+    ).not.toThrow()
   })
 })

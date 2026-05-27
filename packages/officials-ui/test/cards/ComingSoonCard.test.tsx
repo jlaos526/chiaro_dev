@@ -1,6 +1,8 @@
 import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { createElement, type ReactNode } from 'react'
 import { ComingSoonCard } from '../../src/cards/ComingSoonCard.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 
 describe('ComingSoonCard', () => {
   it('renders category title in header', () => {
@@ -39,5 +41,21 @@ describe('ComingSoonCard', () => {
     const heading = container.querySelector('[role="heading"]')
     expect(heading).not.toBeNull()
     expect(heading?.getAttribute('aria-level')).toBe('3')
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('ComingSoonCard — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() =>
+      render(<ComingSoonCard category="Finance" />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<ComingSoonCard category="Finance" />, { wrapper: darkWrapper }),
+    ).not.toThrow()
   })
 })

@@ -1,5 +1,5 @@
 import { Text, View } from 'react-native'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 export type ComingSoonCategory =
   | 'Service Record'
@@ -21,24 +21,25 @@ export interface ComingSoonCardProps {
 }
 
 export function ComingSoonCard({ category }: ComingSoonCardProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   return (
     <View
       style={{
-        backgroundColor: COLORS.neutral.surface,
+        backgroundColor: semantic.bg.app,
         borderRadius: 12,
         padding: 16,
         borderWidth: 1,
-        borderColor: COLORS.neutral.border,
+        borderColor: semantic.border.default,
       }}
     >
       <Text
         accessibilityRole="header"
         accessibilityLevel={3}
-        style={{ fontSize: 14, fontWeight: '600', color: COLORS.brand.text }}
+        style={{ fontSize: 14, fontWeight: '600', color: semantic.text.primary }}
       >
         {category}
       </Text>
-      <Text style={{ marginTop: 8, fontSize: 13, color: COLORS.neutral.textMuted }}>
+      <Text style={{ marginTop: 8, fontSize: 13, color: semantic.text.muted }}>
         {CATEGORY_COPY[category]}
       </Text>
     </View>

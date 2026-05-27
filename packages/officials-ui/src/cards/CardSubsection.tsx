@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 export interface CardSubsectionProps {
   label: string
@@ -25,8 +25,9 @@ export function CardSubsection({
   onToggle,
   children,
 }: CardSubsectionProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   return (
-    <View style={styles.subsection}>
+    <View style={[styles.subsection, { borderTopColor: semantic.border.default }]}>
       <Pressable
         onPress={onToggle}
         accessibilityRole="button"
@@ -34,7 +35,7 @@ export function CardSubsection({
         accessibilityState={{ expanded: open }}
         aria-expanded={open}
       >
-        <Text style={styles.subsectionLabel}>
+        <Text style={[styles.subsectionLabel, { color: semantic.text.primary }]}>
           {open ? '▾' : '▸'} {label}
         </Text>
       </Pressable>
@@ -46,12 +47,10 @@ export function CardSubsection({
 const styles = StyleSheet.create({
   subsection: {
     borderTopWidth: 1,
-    borderTopColor: COLORS.neutral.border,
     paddingTop: 8,
     marginTop: 8,
   },
   subsectionLabel: {
-    color: COLORS.brand.text,
     fontSize: 14,
     fontWeight: '500',
     paddingVertical: 6,
