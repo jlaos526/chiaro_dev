@@ -2,7 +2,6 @@
 
 import { StyleSheet, Text, View } from 'react-native'
 import { useOfficialStateVotesOnSubject } from '@chiaro/state-bills'
-import { COLORS } from '@chiaro/ui-tokens'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { useChiaroClient } from '../client-context.tsx'
 
@@ -67,7 +66,7 @@ export function StateIssueVotesEvidence({
               {
                 color:
                   vp.position === 'yes'
-                    ? COLORS.signal.success
+                    ? semantic.alert.success.fg
                     : vp.position === 'no'
                     ? semantic.alert.danger.fg
                     : semantic.text.muted,

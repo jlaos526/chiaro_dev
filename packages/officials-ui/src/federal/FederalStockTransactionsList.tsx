@@ -2,7 +2,6 @@
 
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native'
 import type { Database } from '@chiaro/db'
-import { COLORS } from '@chiaro/ui-tokens'
 import { useBrandTokens } from '../brand-hooks.ts'
 
 type TxnRow = Database['public']['Tables']['stock_transactions']['Row']
@@ -54,7 +53,7 @@ export function FederalStockTransactionsList({ rows }: FederalStockTransactionsL
               <Text
                 style={[
                   styles.chip,
-                  { color: COLORS.signal.warning, backgroundColor: `${COLORS.signal.warning}22` },
+                  { color: semantic.alert.warning.fg, backgroundColor: `${semantic.alert.warning.fg}22` },
                 ]}
               >
                 {r.days_late}d late

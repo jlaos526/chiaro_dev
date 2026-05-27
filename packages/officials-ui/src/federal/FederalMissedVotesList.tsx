@@ -2,7 +2,6 @@
 
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native'
 import type { VoteRow, VotePositionEnum } from '@chiaro/bills'
-import { COLORS } from '@chiaro/ui-tokens'
 import { useBrandTokens } from '../brand-hooks.ts'
 
 /**
@@ -47,7 +46,7 @@ export function FederalMissedVotesList({ rows }: FederalMissedVotesListProps): R
               <Text
                 style={[
                   styles.chip,
-                  { color: COLORS.signal.warning, backgroundColor: `${COLORS.signal.warning}22` },
+                  { color: semantic.alert.warning.fg, backgroundColor: `${semantic.alert.warning.fg}22` },
                 ]}
               >
                 MISSED

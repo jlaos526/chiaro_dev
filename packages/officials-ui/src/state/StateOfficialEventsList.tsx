@@ -2,7 +2,7 @@
 
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native'
 import type { StateOfficialEventRow } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import type { BrandSemantic } from '@chiaro/ui-tokens'
 import { useBrandTokens } from '../brand-hooks.ts'
 
 const TYPE_LABEL: Record<string, string> = {
@@ -15,11 +15,11 @@ const TYPE_LABEL: Record<string, string> = {
   campaign_finance_violation: 'Finance violation',
 }
 
-function typeColor(type: string, mutedFallback: string): string {
-  if (type === 'expulsion' || type === 'recall_succeeded') return COLORS.signal.error
-  if (type === 'censure' || type === 'campaign_finance_violation') return COLORS.signal.warning
-  if (type === 'recall_failed') return COLORS.signal.success
-  return mutedFallback
+function typeColor(type: string, semantic: BrandSemantic): string {
+  if (type === 'expulsion' || type === 'recall_succeeded') return semantic.alert.danger.fg
+  if (type === 'censure' || type === 'campaign_finance_violation') return semantic.alert.warning.fg
+  if (type === 'recall_failed') return semantic.alert.success.fg
+  return semantic.text.muted
 }
 
 export interface StateOfficialEventsListProps {
@@ -43,7 +43,7 @@ export function StateOfficialEventsList({
   return (
     <View style={styles.list}>
       {rows.map(r => {
-        const color = typeColor(r.event_type, semantic.text.muted)
+        const color = typeColor(r.event_type, semantic)
         return (
           <Pressable
             key={r.id}

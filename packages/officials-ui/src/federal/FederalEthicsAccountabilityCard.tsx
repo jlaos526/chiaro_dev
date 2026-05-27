@@ -8,7 +8,7 @@ import {
   useOfficialHoldings,
   useOfficialDisclosureOther,
 } from '@chiaro/officials'
-import { COLORS, type BrandSemantic } from '@chiaro/ui-tokens'
+import type { BrandSemantic } from '@chiaro/ui-tokens'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
 import { useChiaroClient } from '../client-context.tsx'
@@ -22,8 +22,8 @@ export interface FederalEthicsAccountabilityCardProps {
 
 function complianceColor(pct: number | null | undefined, semantic: BrandSemantic): string {
   if (pct == null) return semantic.text.muted
-  if (pct >= 90) return COLORS.signal.success
-  if (pct >= 50) return COLORS.signal.warning
+  if (pct >= 90) return semantic.alert.success.fg
+  if (pct >= 50) return semantic.alert.warning.fg
   return semantic.alert.danger.fg
 }
 

@@ -2,13 +2,13 @@
 
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native'
 import type { BillRow } from '@chiaro/bills'
-import { COLORS, type BrandSemantic } from '@chiaro/ui-tokens'
+import type { BrandSemantic } from '@chiaro/ui-tokens'
 import { useBrandTokens } from '../brand-hooks.ts'
 
 function statusColor(status: string | null | undefined, semantic: BrandSemantic): string {
   if (!status) return semantic.text.muted
   const s = status.toLowerCase()
-  if (s.includes('passed') || s.includes('signed') || s.includes('became law') || s.includes('enacted')) return COLORS.signal.success
+  if (s.includes('passed') || s.includes('signed') || s.includes('became law') || s.includes('enacted')) return semantic.alert.success.fg
   if (s.includes('failed') || s.includes('vetoed')) return semantic.alert.danger.fg
   if (s.includes('committee') || s.includes('introduced')) return semantic.text.muted
   return semantic.text.muted

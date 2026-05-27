@@ -2,7 +2,7 @@
 
 import { StyleSheet, Text, View } from 'react-native'
 import type { StateEthicsComplaintRow } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import type { BrandSemantic } from '@chiaro/ui-tokens'
 import { useBrandTokens } from '../brand-hooks.ts'
 
 const STATUS_LABEL: Record<string, string> = {
@@ -13,11 +13,11 @@ const STATUS_LABEL: Record<string, string> = {
   closed_no_action: 'Closed (no action)',
 }
 
-function statusColor(status: string, mutedFallback: string): string {
-  if (status === 'open')           return COLORS.signal.warning
-  if (status === 'sanctioned')     return COLORS.signal.error
-  if (status === 'dismissed' || status === 'closed_no_action') return COLORS.signal.success
-  return mutedFallback
+function statusColor(status: string, semantic: BrandSemantic): string {
+  if (status === 'open')           return semantic.alert.warning.fg
+  if (status === 'sanctioned')     return semantic.alert.danger.fg
+  if (status === 'dismissed' || status === 'closed_no_action') return semantic.alert.success.fg
+  return semantic.text.muted
 }
 
 export interface StateEthicsComplaintsListProps {
@@ -41,7 +41,7 @@ export function StateEthicsComplaintsList({
   return (
     <View style={styles.list}>
       {rows.map(r => {
-        const color = statusColor(r.status, semantic.text.muted)
+        const color = statusColor(r.status, semantic)
         return (
           <View key={r.id} style={rowStyle}>
             <View style={styles.headerRow}>
