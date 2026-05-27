@@ -5,6 +5,15 @@ import {
   CATEGORY_ACCENT,
   CATEGORY_CARD_GRADIENT,
 } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
+
+/**
+ * NOTE (slice 34): This file has 13 inline hex values intentionally retained
+ * as `// TODO slice 37` deferrals — they belong to the domain category palette
+ * (`CATEGORY_CARD_BG_SOLID`), placeholder-bg literals, and link-blue color
+ * which all await slice 37's domain palette work. See:
+ * `docs/superpowers/audits/2026-05-27-inline-hex-sweep.md`.
+ */
 
 // Per-category card backgrounds. Web uses a `linear-gradient(...)` string
 // applied through the CSS `background` shorthand (RNW's StyleSheet
@@ -12,6 +21,8 @@ import {
 // only set it on a web-only outer DOM node). Native gets a near-equivalent
 // solid color (the gradient's top stop) since RN has no built-in
 // linear-gradient primitive.
+// TODO slice 37: migrate CATEGORY_CARD_BG_SOLID to @chiaro/ui-tokens
+// alongside CATEGORY_CARD_GRADIENT. Light + dark variants. See audit doc.
 const CATEGORY_CARD_BG_SOLID: Record<CategoryId, string> = {
   'service-record': '#fcfaf2',
   'issue-positions': '#f6f8fc',
@@ -37,19 +48,22 @@ type DrillDown =
 
 export type MetricCardShellProps = BaseProps & DrillDown
 
-const UNAVAILABLE_GREY = '#807a72'
+// TODO slice 37: domain placeholder bg — move to ui-tokens or fold into bg.subtle
 const UNAVAILABLE_BG = '#fafaf6'
 
 export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   const { value, label, caption, categoryId, placeholder = false, unavailable = false } = props
-  const dotColor = unavailable ? UNAVAILABLE_GREY : CATEGORY_ACCENT[categoryId]
+  const dotColor = unavailable ? semantic.text.muted : CATEGORY_ACCENT[categoryId]
   // Solid color used as the View's `backgroundColor` on native, AND as the
   // RNW-safe fallback before the web-only gradient overlay paints on top.
   const bgSolid = unavailable
     ? UNAVAILABLE_BG
     : placeholder
-      ? '#f6f4ed'
-      : (CATEGORY_CARD_BG_SOLID[categoryId] ?? '#fcfaf2')
+      ? // TODO slice 37: domain placeholder bg
+        '#f6f4ed'
+      : // TODO slice 37: category palette fallback (CATEGORY_CARD_BG_SOLID covers above)
+        (CATEGORY_CARD_BG_SOLID[categoryId] ?? '#fcfaf2')
   // On web, this gradient string is applied to a raw <div> wrapper via the
   // CSS `background` shorthand. Only the "live" variant uses the gradient;
   // placeholder / unavailable variants stay solid to read as "no data."
@@ -60,18 +74,18 @@ export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element 
   const valueStyle = {
     fontSize: 22,
     fontWeight: '700' as const,
-    color: unavailable || placeholder ? UNAVAILABLE_GREY : '#1a1714',
+    color: unavailable || placeholder ? semantic.text.muted : semantic.text.primary,
     fontStyle: unavailable || placeholder ? ('italic' as const) : ('normal' as const),
   }
   const labelStyle = {
     fontSize: 13,
     marginTop: 8,
-    color: unavailable || placeholder ? '#5a5751' : '#1a1714',
+    color: unavailable || placeholder ? semantic.text.muted : semantic.text.primary,
   }
   const captionStyle = {
     fontSize: 11,
     marginTop: 2,
-    color: unavailable ? UNAVAILABLE_GREY : '#807a72',
+    color: semantic.text.muted,
     fontStyle: unavailable || placeholder ? ('italic' as const) : ('normal' as const),
   }
 
@@ -85,6 +99,7 @@ export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element 
             style={{
               marginTop: 10,
               fontSize: 12,
+              // TODO slice 37: link blue brand-decision
               color: '#3b6ed1',
               textDecorationLine: 'underline',
             }}
@@ -101,6 +116,7 @@ export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element 
             style={{
               marginTop: 10,
               fontSize: 12,
+              // TODO slice 37: link blue brand-decision
               color: '#3b6ed1',
               textDecorationLine: 'underline',
             }}
@@ -125,7 +141,7 @@ export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element 
       accessibilityLabel={`${renderedLabel}: ${typeof value === 'string' ? value : ''}`}
       style={{
         borderWidth: 1,
-        borderColor: '#d8d4c9',
+        borderColor: semantic.border.default,
         borderRadius: 6,
         padding: 12,
         backgroundColor: innerBg,

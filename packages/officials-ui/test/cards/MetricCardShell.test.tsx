@@ -1,6 +1,13 @@
+import { createElement, type ReactNode } from 'react'
 import { render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { MetricCardShell } from '../../src/cards/MetricCardShell.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
 
 describe('MetricCardShell', () => {
   it('renders the value and label text', () => {
@@ -87,5 +94,32 @@ describe('MetricCardShell', () => {
       />,
     )
     expect(queryByText('view evidence →')).toBeNull()
+  })
+})
+
+describe('MetricCardShell — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() =>
+      render(
+        <MetricCardShell
+          value="$223,500"
+          label="Base Salary"
+          categoryId="service-record"
+          externalSourceUrl="https://example.org"
+        />,
+        { wrapper: lightWrapper },
+      ),
+    ).not.toThrow()
+    expect(() =>
+      render(
+        <MetricCardShell
+          value="$223,500"
+          label="Base Salary"
+          categoryId="service-record"
+          externalSourceUrl="https://example.org"
+        />,
+        { wrapper: darkWrapper },
+      ),
+    ).not.toThrow()
   })
 })
