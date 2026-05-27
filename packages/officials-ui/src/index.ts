@@ -209,5 +209,6 @@ export { Logo, type LogoProps } from './Logo.tsx'
 export {
   BrandModeOverrideContext,
   useBrandTokens,
+  useMapColors,
   type BrandTokens,
 } from './brand-hooks.ts'

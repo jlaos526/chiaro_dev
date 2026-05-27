@@ -3,7 +3,8 @@ import { useState } from 'react'
 import { MapContainer, TileLayer, GeoJSON, CircleMarker, Tooltip } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { TIER_COLOR, TIER_LABEL, DISTRICT_GROUPS, type DistrictTier } from '@chiaro/location'
-import { COLORS, MAP_COLORS } from '@chiaro/ui-tokens'
+import { useMapColors } from '@chiaro/officials-ui'
+import { COLORS } from '@chiaro/ui-tokens'
 
 export type DistrictMapDistrict = {
   id: string
@@ -20,6 +21,7 @@ export function DistrictMap({
   districts: DistrictMapDistrict[]
   homePoint?: { lat: number; lng: number } | null
 }) {
+  const mapColors = useMapColors()
   // U.S. Senate tiers default to off — both seats represent the entire state,
   // so their boundaries dominate the view and obscure local context.
   const [enabled, setEnabled] = useState<Record<string, boolean>>(
@@ -94,7 +96,7 @@ export function DistrictMap({
           <CircleMarker
             center={[homePoint.lat, homePoint.lng]}
             radius={6}
-            pathOptions={{ color: MAP_COLORS.districtStroke, fillColor: MAP_COLORS.districtFill, weight: 2, fillOpacity: 1 }}
+            pathOptions={{ color: mapColors.districtStroke, fillColor: mapColors.districtFill, weight: 2, fillOpacity: 1 }}
           >
             <Tooltip permanent={false} direction="top">Home</Tooltip>
           </CircleMarker>

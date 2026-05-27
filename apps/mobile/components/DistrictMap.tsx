@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import MapView, { Polygon, Marker, PROVIDER_DEFAULT } from 'react-native-maps'
 import { TIER_COLOR, TIER_LABEL, DISTRICT_GROUPS, type DistrictTier } from '@chiaro/location'
-import { COLORS, MAP_COLORS } from '@chiaro/ui-tokens'
+import { useMapColors } from '@chiaro/officials-ui'
+import { COLORS } from '@chiaro/ui-tokens'
 
 export type DistrictMapDistrict = {
   id: string
@@ -19,6 +20,7 @@ export function DistrictMap({
   districts: DistrictMapDistrict[]
   homePoint?: { lat: number; lng: number } | null
 }) {
+  const mapColors = useMapColors()
   // U.S. Senate tiers default to off — both seats represent the entire state,
   // so their boundaries dominate the view and obscure local context.
   const [enabled, setEnabled] = useState<Record<string, boolean>>(
@@ -75,7 +77,7 @@ export function DistrictMap({
           <Marker
             coordinate={{ latitude: homePoint.lat, longitude: homePoint.lng }}
             title="Home"
-            pinColor={MAP_COLORS.districtStroke}
+            pinColor={mapColors.districtStroke}
           />
         )}
       </MapView>
