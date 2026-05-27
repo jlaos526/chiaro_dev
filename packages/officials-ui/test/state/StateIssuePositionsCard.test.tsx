@@ -121,3 +121,28 @@ describe('StateIssuePositionsCard', () => {
     expect(getByText(/No matching votes for this subject/i)).toBeTruthy()
   })
 })
+
+import { createElement, type ReactNode } from 'react'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('StateIssuePositionsCard — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    useRatingsMock.mockReturnValue({ data: [], isLoading: false })
+    useVotesOnSubjectMock.mockReturnValue({ data: [], isLoading: false })
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const tree = (
+      <ChiaroClientProvider client={mockClient}>
+        <QueryClientProvider client={qc}>
+          <StateIssuePositionsCard officialId="oid" />
+        </QueryClientProvider>
+      </ChiaroClientProvider>
+    )
+    expect(() => render(tree, { wrapper: lightWrapper })).not.toThrow()
+    expect(() => render(tree, { wrapper: darkWrapper })).not.toThrow()
+  })
+})

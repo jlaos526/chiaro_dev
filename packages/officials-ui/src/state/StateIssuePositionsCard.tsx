@@ -7,11 +7,11 @@ import {
   type StateScorecardRatingWithOrg,
 } from '@chiaro/officials'
 import {
-  COLORS,
   SCORECARD_LEAN_COLOR,
   SCORECARD_LEAN_LABEL,
   type ScorecardLean,
 } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { useChiaroClient } from '../client-context.tsx'
 import { StateIssueVotesEvidence } from './StateIssueVotesEvidence.tsx'
 
@@ -27,8 +27,8 @@ const LEAN_GROUP_ORDER: ScorecardLean[] = [
   'centrist',
 ]
 
-function leanColor(lean: string): string {
-  return (SCORECARD_LEAN_COLOR as Record<string, string>)[lean] ?? COLORS.neutral.textMuted
+function leanColor(lean: string, fallback: string): string {
+  return (SCORECARD_LEAN_COLOR as Record<string, string>)[lean] ?? fallback
 }
 
 function leanLabel(lean: string): string {
@@ -39,22 +39,34 @@ export function StateIssuePositionsCard({
   officialId,
 }: StateIssuePositionsCardProps): React.JSX.Element {
   const client = useChiaroClient()
+  const { semantic } = useBrandTokens()
   const { data, isLoading } = useOfficialStateScorecardRatings(client, officialId)
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
+  const cardStyle = [
+    styles.card,
+    { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
+  ]
+  const titleStyle = [styles.title, { color: semantic.text.primary }]
+  const mutedStyle = [styles.muted, { color: semantic.text.muted }]
+  const ratingRowStyle = [styles.ratingRow, { borderBottomColor: semantic.border.default }]
+  const orgNameStyle = [styles.orgName, { color: semantic.text.primary }]
+  const issueAreaStyle = [styles.issueArea, { color: semantic.text.muted }]
+  const scoreStyle = [styles.score, { color: semantic.text.primary }]
+
   if (isLoading) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Issue Positions</Text>
-        <Text style={styles.muted}>Loading issue positions…</Text>
+      <View style={cardStyle}>
+        <Text style={titleStyle}>Issue Positions</Text>
+        <Text style={mutedStyle}>Loading issue positions…</Text>
       </View>
     )
   }
   if (!data || data.length === 0) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Issue Positions</Text>
-        <Text style={[styles.muted, { fontStyle: 'italic' }]}>
+      <View style={cardStyle}>
+        <Text style={titleStyle}>Issue Positions</Text>
+        <Text style={[mutedStyle, { fontStyle: 'italic' }]}>
           No issue-position ratings available for this legislator yet.
         </Text>
       </View>
@@ -82,21 +94,21 @@ export function StateIssuePositionsCard({
   ]
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>Issue Positions</Text>
+    <View style={cardStyle}>
+      <Text style={titleStyle}>Issue Positions</Text>
       {orderedLeans.map(lean => (
         <View key={lean} style={{ marginBottom: 12 }}>
-          <Text style={[styles.leanHeader, { color: leanColor(lean) }]}>
+          <Text style={[styles.leanHeader, { color: leanColor(lean, semantic.text.muted) }]}>
             {leanLabel(lean)}
           </Text>
           {byLean.get(lean)!.map(r => (
-            <View key={r.id} style={styles.ratingRow}>
+            <View key={r.id} style={ratingRowStyle}>
               <Pressable onPress={() => toggle(r.id)} style={styles.ratingButton}>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.orgName}>{r.org.name}</Text>
-                  <Text style={styles.issueArea}>{r.org.issue_area}</Text>
+                  <Text style={orgNameStyle}>{r.org.name}</Text>
+                  <Text style={issueAreaStyle}>{r.org.issue_area}</Text>
                 </View>
-                <Text style={styles.score}>
+                <Text style={scoreStyle}>
                   {Number(r.score).toFixed(0)} / {r.org.scoring_max}
                 </Text>
               </Pressable>
@@ -116,8 +128,6 @@ export function StateIssuePositionsCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.neutral.background,
-    borderColor: COLORS.neutral.border,
     borderWidth: 1,
     borderRadius: 8,
     padding: 16,
@@ -127,10 +137,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 12,
-    color: COLORS.brand.text,
   },
   muted: {
-    color: COLORS.neutral.textMuted,
     fontSize: 13,
   },
   leanHeader: {
@@ -140,7 +148,6 @@ const styles = StyleSheet.create({
   },
   ratingRow: {
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.neutral.border,
     paddingVertical: 8,
   },
   ratingButton: {
@@ -148,7 +155,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  orgName: { fontSize: 14, color: COLORS.brand.text },
-  issueArea: { fontSize: 12, color: COLORS.neutral.textMuted, marginTop: 2 },
-  score: { fontSize: 14, fontWeight: '600', color: COLORS.brand.text },
+  orgName: { fontSize: 14 },
+  issueArea: { fontSize: 12, marginTop: 2 },
+  score: { fontSize: 14, fontWeight: '600' },
 })

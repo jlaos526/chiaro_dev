@@ -3,6 +3,7 @@
 import { StyleSheet, Text, View } from 'react-native'
 import { useOfficialStateVotesOnSubject } from '@chiaro/state-bills'
 import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { useChiaroClient } from '../client-context.tsx'
 
 // Maps a scorecard org's issue_area to candidate subject strings that may
@@ -29,15 +30,21 @@ export function StateIssueVotesEvidence({
   issueArea,
 }: StateIssueVotesEvidenceProps): React.JSX.Element {
   const client = useChiaroClient()
+  const { semantic } = useBrandTokens()
   const subjects = SUBJECT_BY_AREA_STATE[issueArea] ?? []
   const { data, isLoading } = useOfficialStateVotesOnSubject(client, officialId, subjects)
 
+  const mutedStyle = [styles.muted, { color: semantic.text.muted }]
+  const rowStyle = [styles.row, { backgroundColor: semantic.bg.app }]
+  const billTitleStyle = [styles.billTitle, { color: semantic.text.primary }]
+  const metaStyle = [styles.meta, { color: semantic.text.muted }]
+
   if (isLoading) {
-    return <Text style={styles.muted}>Loading evidence votes…</Text>
+    return <Text style={mutedStyle}>Loading evidence votes…</Text>
   }
   if (!data || data.length === 0) {
     return (
-      <Text style={styles.muted}>
+      <Text style={mutedStyle}>
         No matching votes for this subject area in current session.
       </Text>
     )
@@ -45,12 +52,12 @@ export function StateIssueVotesEvidence({
   return (
     <View style={styles.list}>
       {data.slice(0, 5).map(vp => (
-        <View key={vp.vote.id} style={styles.row}>
+        <View key={vp.vote.id} style={rowStyle}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.billTitle}>
+            <Text style={billTitleStyle}>
               {vp.vote.bill?.bill_type} {vp.vote.bill?.number} — {vp.vote.bill?.title}
             </Text>
-            <Text style={styles.meta}>
+            <Text style={metaStyle}>
               {vp.vote.question} · {vp.vote.vote_date}
             </Text>
           </View>
@@ -62,8 +69,8 @@ export function StateIssueVotesEvidence({
                   vp.position === 'yes'
                     ? COLORS.signal.success
                     : vp.position === 'no'
-                    ? COLORS.signal.error
-                    : COLORS.neutral.textMuted,
+                    ? semantic.alert.danger.fg
+                    : semantic.text.muted,
               },
             ]}
           >
@@ -77,7 +84,6 @@ export function StateIssueVotesEvidence({
 
 const styles = StyleSheet.create({
   muted: {
-    color: COLORS.neutral.textMuted,
     fontSize: 13,
     fontStyle: 'italic',
     padding: 8,
@@ -86,11 +92,10 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.neutral.surface,
     borderRadius: 6,
     padding: 8,
   },
-  billTitle: { fontSize: 13, fontWeight: '500', color: COLORS.brand.text },
-  meta: { fontSize: 12, color: COLORS.neutral.textMuted },
+  billTitle: { fontSize: 13, fontWeight: '500' },
+  meta: { fontSize: 12 },
   position: { fontWeight: '600' },
 })
