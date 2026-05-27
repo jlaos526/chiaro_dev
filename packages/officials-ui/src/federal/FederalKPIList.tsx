@@ -2,7 +2,7 @@
 
 import { StyleSheet, Text, View } from 'react-native'
 import type { Database } from '@chiaro/db'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 type MetricsRow = Database['public']['Tables']['official_metrics']['Row']
 
@@ -33,8 +33,13 @@ export function FederalKPIList({
   metrics,
   hideLivesInDistrict,
 }: FederalKPIListProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   if (!metrics) {
-    return <Text style={styles.muted}>No KPI data available.</Text>
+    return (
+      <Text style={[styles.muted, { color: semantic.text.muted }]}>
+        No KPI data available.
+      </Text>
+    )
   }
   const tiles: Tile[] = [
     { label: 'Bills sponsored', value: fmtCount(metrics.bills_sponsored_count) },
@@ -49,9 +54,9 @@ export function FederalKPIList({
   return (
     <View style={styles.grid}>
       {tiles.map(t => (
-        <View key={t.label} style={styles.tile}>
-          <Text style={styles.tileValue}>{t.value}</Text>
-          <Text style={styles.tileLabel}>{t.label}</Text>
+        <View key={t.label} style={[styles.tile, { backgroundColor: semantic.bg.app }]}>
+          <Text style={[styles.tileValue, { color: semantic.text.primary }]}>{t.value}</Text>
+          <Text style={[styles.tileLabel, { color: semantic.text.muted }]}>{t.label}</Text>
         </View>
       ))}
     </View>
@@ -59,15 +64,14 @@ export function FederalKPIList({
 }
 
 const styles = StyleSheet.create({
-  muted: { color: COLORS.neutral.textMuted, fontSize: 13, fontStyle: 'italic', padding: 8 },
+  muted: { fontSize: 13, fontStyle: 'italic', padding: 8 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, padding: 8 },
   tile: {
-    backgroundColor: COLORS.neutral.surface,
     borderRadius: 6,
     padding: 8,
     minWidth: 120,
     alignItems: 'center',
   },
-  tileValue: { fontWeight: '600', color: COLORS.brand.text, fontSize: 15 },
-  tileLabel: { color: COLORS.neutral.textMuted, fontSize: 11, marginTop: 4 },
+  tileValue: { fontWeight: '600', fontSize: 15 },
+  tileLabel: { fontSize: 11, marginTop: 4 },
 })

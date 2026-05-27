@@ -6,7 +6,7 @@ import {
   useOfficialLeadershipHistory,
   useOfficialMetrics,
 } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { FederalKPIList } from './FederalKPIList.tsx'
@@ -25,14 +25,23 @@ export function FederalServiceRecordCard({
   const client = useChiaroClient()
   const metrics = useOfficialMetrics(client, officialId)
   const leadership = useOfficialLeadershipHistory(client, officialId)
+  const { semantic } = useBrandTokens()
 
   const [openLeadership, setOpenLeadership] = useState(false)
 
+  const cardStyle = [
+    styles.card,
+    { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
+  ]
+  const titleStyle = [styles.title, { color: semantic.text.primary }]
+  const mutedStyle = [styles.muted, { color: semantic.text.muted }]
+  const summaryStyle = [styles.summary, { color: semantic.text.muted }]
+
   if (metrics.isLoading || leadership.isLoading) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Service Record</Text>
-        <Text style={styles.muted}>Loading service record…</Text>
+      <View style={cardStyle}>
+        <Text style={titleStyle}>Service Record</Text>
+        <Text style={mutedStyle}>Loading service record…</Text>
       </View>
     )
   }
@@ -43,9 +52,9 @@ export function FederalServiceRecordCard({
 
   if (allEmpty) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Service Record</Text>
-        <Text style={[styles.muted, { fontStyle: 'italic' }]}>
+      <View style={cardStyle}>
+        <Text style={titleStyle}>Service Record</Text>
+        <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No service record data on file for this legislator.
         </Text>
       </View>
@@ -57,9 +66,9 @@ export function FederalServiceRecordCard({
   const attendance = m?.attendance_pct ?? null
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>Service Record</Text>
-      <Text style={styles.summary}>
+    <View style={cardStyle}>
+      <Text style={titleStyle}>Service Record</Text>
+      <Text style={summaryStyle}>
         {sponsored != null ? `${sponsored} bill${sponsored === 1 ? '' : 's'} sponsored` : '—'}
         {' · '}
         {cosponsored != null ? `${cosponsored} cosponsored` : '—'}
@@ -87,8 +96,6 @@ export function FederalServiceRecordCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.neutral.background,
-    borderColor: COLORS.neutral.border,
     borderWidth: 1,
     borderRadius: 8,
     padding: 16,
@@ -98,8 +105,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 12,
-    color: COLORS.brand.text,
   },
-  muted: { color: COLORS.neutral.textMuted, fontSize: 13 },
-  summary: { fontSize: 13, color: COLORS.neutral.textMuted, marginBottom: 12 },
+  muted: { fontSize: 13 },
+  summary: { fontSize: 13, marginBottom: 12 },
 })
