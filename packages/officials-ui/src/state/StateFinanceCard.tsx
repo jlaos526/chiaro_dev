@@ -7,7 +7,7 @@ import {
   useOfficialStateFinanceSummary,
   type OfficialWithDistrict,
 } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { useChiaroClient } from '../client-context.tsx'
 import { StateDonorsEvidence } from './StateDonorsEvidence.tsx'
 
@@ -41,15 +41,29 @@ export function StateFinanceCard({
   const client = useChiaroClient()
   const summaryQ = useOfficialStateFinanceSummary(client, official.id)
   const donorsQ = useOfficialStateDonors(client, official.id)
+  const { semantic } = useBrandTokens()
 
   if (!isStateLevel(official.chamber)) return null
+
+  const cardColors = {
+    backgroundColor: semantic.bg.app,
+    borderColor: semantic.border.default,
+  }
+  const titleColor = { color: semantic.text.primary }
+  const mutedColor = { color: semantic.text.muted }
+  const sourcePillColors = {
+    borderColor: semantic.border.default,
+    color: semantic.text.primary,
+  }
+  const rowLabelColor = { color: semantic.text.muted }
+  const rowValueColor = { color: semantic.text.primary }
 
   const summary = summaryQ.data
   if (!summary) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Finance</Text>
-        <Text style={styles.emptyMuted}>
+      <View style={[styles.card, cardColors]}>
+        <Text style={[styles.title, titleColor]}>Finance</Text>
+        <Text style={[styles.emptyMuted, mutedColor]}>
           No state finance data yet for this legislator.
         </Text>
       </View>
@@ -59,23 +73,43 @@ export function StateFinanceCard({
   const sourceLabel = SOURCE_LABEL[summary.source] ?? summary.source
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, cardColors]}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.title}>Finance</Text>
-          <Text style={styles.subtitle}>{summary.cycle} cycle</Text>
+          <Text style={[styles.title, titleColor]}>Finance</Text>
+          <Text style={[styles.subtitle, mutedColor]}>{summary.cycle} cycle</Text>
         </View>
-        <Text style={styles.sourcePill}>{sourceLabel}</Text>
+        <Text style={[styles.sourcePill, sourcePillColors]}>{sourceLabel}</Text>
       </View>
 
       <View style={{ gap: 8 }}>
-        <ScalarRow label="Total raised" value={fmtDollars(summary.total_raised)} />
-        <ScalarRow label="Total disbursed" value={fmtDollars(summary.total_disbursed)} />
-        <ScalarRow label="Small-donor %" value={fmtPct(summary.small_donor_pct)} />
-        <ScalarRow label="In-state %" value={fmtPct(summary.in_state_pct)} />
+        <ScalarRow
+          label="Total raised"
+          value={fmtDollars(summary.total_raised)}
+          labelColor={rowLabelColor}
+          valueColor={rowValueColor}
+        />
+        <ScalarRow
+          label="Total disbursed"
+          value={fmtDollars(summary.total_disbursed)}
+          labelColor={rowLabelColor}
+          valueColor={rowValueColor}
+        />
+        <ScalarRow
+          label="Small-donor %"
+          value={fmtPct(summary.small_donor_pct)}
+          labelColor={rowLabelColor}
+          valueColor={rowValueColor}
+        />
+        <ScalarRow
+          label="In-state %"
+          value={fmtPct(summary.in_state_pct)}
+          labelColor={rowLabelColor}
+          valueColor={rowValueColor}
+        />
       </View>
 
-      <Text style={styles.donorsHeading}>
+      <Text style={[styles.donorsHeading, titleColor]}>
         Top donors ({donorsQ.data?.length ?? 0})
       </Text>
       <StateDonorsEvidence donors={donorsQ.data ?? []} />
@@ -86,9 +120,13 @@ export function StateFinanceCard({
 function ScalarRow({
   label,
   value,
+  labelColor,
+  valueColor,
 }: {
   label: string
   value: string
+  labelColor: { color: string }
+  valueColor: { color: string }
 }): React.JSX.Element {
   return (
     <View
@@ -98,19 +136,17 @@ function ScalarRow({
         alignItems: 'baseline',
       }}
     >
-      <Text style={styles.rowLabel}>{label}</Text>
-      <Text style={styles.rowValue}>{value}</Text>
+      <Text style={[styles.rowLabel, labelColor]}>{label}</Text>
+      <Text style={[styles.rowValue, valueColor]}>{value}</Text>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.neutral.surface,
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: COLORS.neutral.border,
   },
   header: {
     flexDirection: 'row',
@@ -121,11 +157,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 14,
     fontWeight: '700',
-    color: COLORS.brand.text,
   },
   subtitle: {
     fontSize: 12,
-    color: COLORS.neutral.textMuted,
     marginTop: 2,
   },
   sourcePill: {
@@ -134,28 +168,22 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: COLORS.neutral.border,
-    color: COLORS.brand.text,
   },
   emptyMuted: {
     marginTop: 8,
     fontSize: 13,
-    color: COLORS.neutral.textMuted,
     fontStyle: 'italic',
   },
   donorsHeading: {
     marginTop: 12,
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.brand.text,
   },
   rowLabel: {
     fontSize: 13,
-    color: COLORS.neutral.textMuted,
   },
   rowValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: COLORS.brand.text,
   },
 })

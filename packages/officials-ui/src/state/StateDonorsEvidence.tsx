@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import type { StateFinanceIndividualDonorRow } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 const INITIAL_ROW_COUNT = 5
 
@@ -29,10 +29,20 @@ export interface StateDonorsEvidenceProps {
 
 export function StateDonorsEvidence({ donors }: StateDonorsEvidenceProps): React.JSX.Element {
   const [expanded, setExpanded] = useState(false)
+  const { semantic } = useBrandTokens()
+
+  const emptyStyle = [styles.empty, { color: semantic.text.muted }]
+  const rowStyle = [styles.row, { borderTopColor: semantic.border.default }]
+  const donorNameStyle = [styles.donorName, { color: semantic.text.primary }]
+  const amountStyle = [styles.amount, { color: semantic.text.primary }]
+  const metaStyle = [styles.meta, { color: semantic.text.muted }]
+  const moreButtonStyle = [styles.moreButton, { borderColor: semantic.border.default }]
+  const moreTextStyle = [styles.moreText, { color: semantic.text.primary }]
+
   if (donors.length === 0) {
     return (
       <View style={{ padding: 8 }}>
-        <Text style={styles.empty}>No donor data for this cycle.</Text>
+        <Text style={emptyStyle}>No donor data for this cycle.</Text>
       </View>
     )
   }
@@ -43,18 +53,18 @@ export function StateDonorsEvidence({ donors }: StateDonorsEvidenceProps): React
       {visible.map(d => {
         const secondary = secondaryLine(d)
         return (
-          <View key={d.rank} style={styles.row}>
+          <View key={d.rank} style={rowStyle}>
             <View style={styles.headerRow}>
-              <Text style={styles.donorName}>{d.donor_name}</Text>
-              <Text style={styles.amount}>{fmtAmount(Number(d.amount))}</Text>
+              <Text style={donorNameStyle}>{d.donor_name}</Text>
+              <Text style={amountStyle}>{fmtAmount(Number(d.amount))}</Text>
             </View>
-            {secondary && <Text style={styles.meta}>{secondary}</Text>}
+            {secondary && <Text style={metaStyle}>{secondary}</Text>}
           </View>
         )
       })}
       {hasMore && (
-        <Pressable onPress={() => setExpanded(e => !e)} style={styles.moreButton}>
-          <Text style={styles.moreText}>
+        <Pressable onPress={() => setExpanded(e => !e)} style={moreButtonStyle}>
+          <Text style={moreTextStyle}>
             {expanded ? 'show less' : `show more (${donors.length - INITIAL_ROW_COUNT} more)`}
           </Text>
         </Pressable>
@@ -64,28 +74,26 @@ export function StateDonorsEvidence({ donors }: StateDonorsEvidenceProps): React
 }
 
 const styles = StyleSheet.create({
-  empty: { fontSize: 13, color: COLORS.neutral.textMuted, fontStyle: 'italic' },
+  empty: { fontSize: 13, fontStyle: 'italic' },
   row: {
     padding: 8,
     borderTopWidth: 1,
-    borderTopColor: COLORS.neutral.border,
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'baseline',
   },
-  donorName: { fontWeight: '600', color: COLORS.brand.text },
-  amount: { color: COLORS.brand.text },
-  meta: { fontSize: 12, color: COLORS.neutral.textMuted, marginTop: 2 },
+  donorName: { fontWeight: '600' },
+  amount: {},
+  meta: { fontSize: 12, marginTop: 2 },
   moreButton: {
     marginTop: 8,
     paddingVertical: 4,
     paddingHorizontal: 10,
     alignSelf: 'flex-start',
     borderWidth: 1,
-    borderColor: COLORS.neutral.border,
     borderRadius: 4,
   },
-  moreText: { fontSize: 12, color: COLORS.brand.text },
+  moreText: { fontSize: 12 },
 })
