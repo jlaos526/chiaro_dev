@@ -1,9 +1,10 @@
 import { render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { ReactElement } from 'react'
+import { createElement, type ReactElement, type ReactNode } from 'react'
 import type { ChiaroClient } from '@chiaro/supabase-client'
 import type { OfficialWithDistrict } from '@chiaro/officials'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 
 // Mock every hook touched by the 6 composed cards to a quick no-op shape.
 // vi.mock factories are hoisted — keep them self-contained (no outer refs).
@@ -112,5 +113,27 @@ describe('StateOfficialDetailPage', () => {
       <StateOfficialDetailPage official={stateOfficial} offices={[]} />,
     )
     expect(queryByTestId('offices-section')).toBeNull()
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('StateOfficialDetailPage — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const renderWith = (wrapper: typeof lightWrapper) =>
+      render(
+        <ChiaroClientProvider client={mockClient}>
+          <QueryClientProvider client={qc}>
+            <StateOfficialDetailPage official={stateOfficial} offices={[]} />
+          </QueryClientProvider>
+        </ChiaroClientProvider>,
+        { wrapper },
+      )
+    expect(() => renderWith(lightWrapper)).not.toThrow()
+    expect(() => renderWith(darkWrapper)).not.toThrow()
   })
 })

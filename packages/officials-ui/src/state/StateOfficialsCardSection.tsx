@@ -1,5 +1,5 @@
 import { Pressable, Text, View } from 'react-native'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import type { OfficialWithDistrict } from '@chiaro/officials'
 
 function chamberLabelFor(o: OfficialWithDistrict): string {
@@ -19,6 +19,7 @@ export function StateOfficialsCardSection({
   officials,
   onSelect,
 }: StateOfficialsCardSectionProps): React.JSX.Element | null {
+  const { semantic } = useBrandTokens()
   if (officials.length === 0) return null
 
   return (
@@ -28,7 +29,7 @@ export function StateOfficialsCardSection({
           fontSize: 14,
           fontWeight: '700',
           textTransform: 'uppercase',
-          color: COLORS.neutral.textMuted,
+          color: semantic.text.muted,
           marginBottom: 12,
         }}
       >
@@ -42,15 +43,17 @@ export function StateOfficialsCardSection({
             style={{
               padding: 12,
               borderWidth: 1,
-              borderColor: COLORS.neutral.border,
+              borderColor: semantic.border.default,
               borderRadius: 12,
-              backgroundColor: COLORS.neutral.surface,
+              backgroundColor: semantic.bg.app,
             }}
           >
-            <Text style={{ fontSize: 12, color: COLORS.neutral.textMuted }}>
+            <Text style={{ fontSize: 12, color: semantic.text.muted }}>
               {chamberLabelFor(o)}
             </Text>
-            <Text style={{ fontSize: 16, fontWeight: '600', color: COLORS.brand.text, marginTop: 2 }}>
+            <Text
+              style={{ fontSize: 16, fontWeight: '600', color: semantic.text.primary, marginTop: 2 }}
+            >
               {o.full_name}
             </Text>
           </Pressable>

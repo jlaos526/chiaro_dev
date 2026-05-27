@@ -1,6 +1,8 @@
 import { render, fireEvent } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
+import { createElement, type ReactNode } from 'react'
 import type { OfficialWithDistrict } from '@chiaro/officials'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 import { StateOfficialsCardSection } from '../../src/state/StateOfficialsCardSection.tsx'
 
 function mkState(
@@ -60,5 +62,23 @@ describe('StateOfficialsCardSection', () => {
     )
     fireEvent.click(getByText('Asm Test'))
     expect(onSelect).toHaveBeenCalledWith({ officialId: 'state-id-1' })
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('StateOfficialsCardSection — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    const officials = [mkState('state_house', 'Asm Test')]
+    const renderWith = (wrapper: typeof lightWrapper) =>
+      render(
+        <StateOfficialsCardSection officials={officials} onSelect={vi.fn()} />,
+        { wrapper },
+      )
+    expect(() => renderWith(lightWrapper)).not.toThrow()
+    expect(() => renderWith(darkWrapper)).not.toThrow()
   })
 })

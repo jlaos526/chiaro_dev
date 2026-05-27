@@ -3,7 +3,7 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import type { OfficialWithDistrict } from '@chiaro/officials'
 import type { Database } from '@chiaro/db'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { ComingSoonCard, type ComingSoonCategory } from '../cards/ComingSoonCard.tsx'
 import { StateCommunityPresenceCard } from './StateCommunityPresenceCard.tsx'
 import { StateConductCard } from './StateConductCard.tsx'
@@ -35,36 +35,48 @@ export function StateOfficialDetailPage({
   official,
   offices,
 }: StateOfficialDetailPageProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   const districtCode = official.district?.code ?? official.district_code ?? ''
   const title = official.title ?? null
+
+  const nameStyle = [styles.name, { color: semantic.text.primary }]
+  const titleStyle = [styles.title, { color: semantic.text.muted }]
+  const identityCellStyle = [styles.identityCell, { color: semantic.text.muted }]
+  const officesHeadingStyle = [styles.officesHeading, { color: semantic.text.primary }]
+  const officeCardStyle = [
+    styles.officeCard,
+    { borderColor: semantic.border.default, backgroundColor: semantic.bg.app },
+  ]
+  const officeAddressStyle = [styles.officeAddress, { color: semantic.text.primary }]
+  const officePhoneStyle = [styles.officePhone, { color: semantic.text.muted }]
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Bio header */}
       <View style={styles.bioBlock}>
-        <Text style={styles.name}>{official.full_name}</Text>
+        <Text style={nameStyle}>{official.full_name}</Text>
         {title && (
-          <Text testID="official-title" style={styles.title}>
+          <Text testID="official-title" style={titleStyle}>
             {title}
           </Text>
         )}
         <View style={styles.identityRow}>
-          <Text style={styles.identityCell}>{chamberLabel(official.chamber)}</Text>
-          <Text style={styles.identityCell}>·</Text>
-          <Text style={styles.identityCell}>{official.party}</Text>
-          <Text style={styles.identityCell}>·</Text>
-          <Text style={styles.identityCell}>{districtCode}</Text>
+          <Text style={identityCellStyle}>{chamberLabel(official.chamber)}</Text>
+          <Text style={identityCellStyle}>·</Text>
+          <Text style={identityCellStyle}>{official.party}</Text>
+          <Text style={identityCellStyle}>·</Text>
+          <Text style={identityCellStyle}>{districtCode}</Text>
         </View>
       </View>
 
       {/* Offices contact section — real data, between bio and cascade */}
       {offices.length > 0 && (
         <View testID="offices-section" style={styles.officesSection}>
-          <Text style={styles.officesHeading}>Offices</Text>
+          <Text style={officesHeadingStyle}>Offices</Text>
           {offices.map(office => (
-            <View key={office.id} style={styles.officeCard}>
-              <Text style={styles.officeAddress}>{office.address}</Text>
-              {office.phone && <Text style={styles.officePhone}>{office.phone}</Text>}
+            <View key={office.id} style={officeCardStyle}>
+              <Text style={officeAddressStyle}>{office.address}</Text>
+              {office.phone && <Text style={officePhoneStyle}>{office.phone}</Text>}
             </View>
           ))}
         </View>
@@ -96,13 +108,11 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 24,
     fontWeight: '700',
-    color: COLORS.brand.text,
   },
   title: {
     marginTop: 4,
     fontSize: 13,
     fontStyle: 'italic',
-    color: COLORS.neutral.textMuted,
   },
   identityRow: {
     flexDirection: 'row',
@@ -113,7 +123,6 @@ const styles = StyleSheet.create({
   },
   identityCell: {
     fontSize: 14,
-    color: COLORS.neutral.textMuted,
   },
   officesSection: {
     marginBottom: 24,
@@ -122,22 +131,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 8,
-    color: COLORS.brand.text,
   },
   officeCard: {
     padding: 12,
     borderWidth: 1,
-    borderColor: COLORS.neutral.border,
     borderRadius: 8,
     marginBottom: 8,
-    backgroundColor: COLORS.neutral.surface,
   },
-  officeAddress: {
-    color: COLORS.brand.text,
-  },
+  officeAddress: {},
   officePhone: {
     marginTop: 4,
-    color: COLORS.neutral.textMuted,
   },
   cascade: {
     gap: 12,
