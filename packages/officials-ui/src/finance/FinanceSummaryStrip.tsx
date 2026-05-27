@@ -1,7 +1,7 @@
 import { createElement } from 'react'
 import { Platform, Text, View } from 'react-native'
 import { CATEGORY_CARD_GRADIENT } from '@chiaro/ui-tokens'
-import { useBrandTokens } from '../brand-hooks.ts'
+import { useBrandTokens, useFinanceCardBg } from '../brand-hooks.ts'
 
 export interface FinanceSummaryStripProps {
   cycle: string
@@ -22,21 +22,17 @@ function formatPct(n: number | null): string {
   return `${Math.round(n)}%`
 }
 
-// TODO slice 37: finance signal green
-const DOT = '#3da75b'
-// TODO slice 37: finance domain bg
-const SOLID_NATIVE = '#f4faf6'
-
 function Cell({
   label,
   value,
   headline,
 }: { label: string; value: string; headline?: boolean }): React.JSX.Element {
   const { semantic } = useBrandTokens()
+  const dotColor = semantic.signal.success
   return (
     <View style={{ flex: headline ? 1.3 : 1, paddingHorizontal: 12 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: DOT, marginRight: 5 }} />
+        <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: dotColor, marginRight: 5 }} />
         <Text
           style={{
             fontSize: 11,
@@ -70,13 +66,14 @@ export function FinanceSummaryStrip({
   pacPct,
 }: FinanceSummaryStripProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
+  const cardBg = useFinanceCardBg()
   // Pattern B (see MetricCardShell): on web, paint the finance category
   // gradient via a raw <div> wrapper using CSS `background` (RNW strips
   // `linear-gradient(...)` from `backgroundColor`). Inner View is
   // transparent so the gradient shows through. Native paints the solid
   // top stop directly.
   const useWebGradient = Platform.OS === 'web'
-  const innerBg = useWebGradient ? 'transparent' : SOLID_NATIVE
+  const innerBg = useWebGradient ? 'transparent' : cardBg
 
   const inner = (
     <View

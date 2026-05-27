@@ -3,7 +3,7 @@
 import { createElement, useState } from 'react'
 import { Linking, Platform, Pressable, Text, View } from 'react-native'
 import { CATEGORY_CARD_GRADIENT } from '@chiaro/ui-tokens'
-import { useBrandTokens } from '../brand-hooks.ts'
+import { useBrandTokens, useFinanceCardBg } from '../brand-hooks.ts'
 import { PillChevron } from '../cards/PillChevron.tsx'
 
 export interface TopAmountRow {
@@ -22,9 +22,6 @@ export interface TopAmountBreakdownProps {
   sourceUrl?: string
 }
 
-// TODO slice 37: finance domain bg
-const SOLID_NATIVE = '#f4faf6'
-
 function formatMoney(n: number): string {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
   if (n >= 1_000) return `$${Math.round(n / 1_000)}K`
@@ -37,6 +34,7 @@ export function TopAmountBreakdown({
   sourceUrl,
 }: TopAmountBreakdownProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
+  const cardBg = useFinanceCardBg()
   const [expanded, setExpanded] = useState(false)
   const total = rows.reduce((s, r) => s + r.amount, 0)
   const max = Math.max(...rows.map(r => r.amount), 1)
@@ -49,7 +47,7 @@ export function TopAmountBreakdown({
   // transparent so the gradient shows through. Native paints the solid
   // top stop directly.
   const useWebGradient = Platform.OS === 'web'
-  const innerBg = useWebGradient ? 'transparent' : SOLID_NATIVE
+  const innerBg = useWebGradient ? 'transparent' : cardBg
 
   const inner = (
     <View
@@ -85,8 +83,7 @@ export function TopAmountBreakdown({
               <View style={{ marginTop: 4, height: 6, backgroundColor: semantic.border.default, borderRadius: 3 }}>
                 <View
                   style={{
-                    // TODO slice 37: finance signal green
-                    backgroundColor: '#3da75b',
+                    backgroundColor: semantic.signal.success,
                     width: `${(r.amount / max) * 100}%`,
                     height: '100%',
                     borderRadius: 3,
@@ -141,8 +138,7 @@ export function TopAmountBreakdown({
               style: {
                 marginTop: 12,
                 fontSize: 12,
-                // TODO slice 37: link blue brand-decision
-                color: '#3b6ed1',
+                color: semantic.link.fg,
                 textDecoration: 'underline',
                 cursor: 'pointer',
                 display: 'inline-block',
@@ -156,8 +152,7 @@ export function TopAmountBreakdown({
             onPress={() => Linking.openURL(sourceUrl).catch(() => {})}
           >
             <Text
-              // TODO slice 37: link blue brand-decision
-              style={{ marginTop: 12, fontSize: 12, color: '#3b6ed1', textDecorationLine: 'underline' }}
+              style={{ marginTop: 12, fontSize: 12, color: semantic.link.fg, textDecorationLine: 'underline' }}
             >
               → full breakdown on OpenSecrets
             </Text>
