@@ -1,6 +1,7 @@
 import { createElement } from 'react'
 import { Platform, Pressable, Text, View } from 'react-native'
-import { type AlignmentTier, ALIGNMENT_CHIP_COLORS } from '@chiaro/ui-tokens'
+import { type AlignmentTier } from '@chiaro/ui-tokens'
+import { useAlignmentChipColors } from '../brand-hooks.ts'
 
 export interface AlignmentChipProps {
   label: string
@@ -29,7 +30,7 @@ export interface AlignmentChipProps {
 export function AlignmentChip({
   label, tier, href, onPress,
 }: AlignmentChipProps): React.JSX.Element {
-  const { bg, fg } = ALIGNMENT_CHIP_COLORS[tier]
+  const { bg, fg } = useAlignmentChipColors(tier)
   const chipStyle = {
     paddingHorizontal: 10,
     paddingVertical: 3,
