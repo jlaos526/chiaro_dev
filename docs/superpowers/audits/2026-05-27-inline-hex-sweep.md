@@ -4,6 +4,33 @@
 >
 > **Slice 37 reads this doc as its inheritance manifest.** Every deferred site below must be addressed (token introduction or brand-philosophy decision) before slice 37 closes.
 
+## Status
+
+**CLOSED 2026-05-27** by slice 37.
+
+Every deferred site documented below has been migrated to proper BRAND tokens:
+
+| Category | Sites closed | Migration target |
+|---|---|---|
+| Link blue (`#3b6ed1`) | 7 sites across BioPortrait, BioContactLinks, MetricCardShell, TopAmountBreakdown | `semantic.link.fg` |
+| Finance signal green (`#3da75b`) | 2 sites across TopAmountBreakdown, FinanceSummaryStrip | `semantic.signal.success` |
+| Finance mint background (`#f4faf6`) | 2 sites across TopAmountBreakdown, FinanceSummaryStrip | `useFinanceCardBg()` (resolves to `FINANCE_CARD_BG` / `FINANCE_CARD_BG_DARK`) |
+| MetricCardShell category palette | 6 sites | Moved to `@chiaro/ui-tokens/category.ts` `CATEGORY_CARD_BG_SOLID` (+ `_DARK`); consumed via `useCategoryCardBgSolid()` hook |
+| MetricCardShell placeholder backgrounds | 3 sites | Folded into `semantic.bg.subtle` |
+| PARTY_COLOR fallback (`#807a72`) | 1 site (BioIdentityRow) | `PARTY_COLOR.unknown` + `usePartyColor()` hook |
+| BioPortrait gradient lighter stop (`#5b8de1`) | 1 site | Retained inline with documented derivation comment (slice 38+ may centralize) |
+| BioPortrait white initials (`#fff`) | 1 site | `semantic.text.onAccent` |
+
+**Total: 23 sites closed.** Zero `// TODO slice 37` markers remain across the codebase.
+
+Slice 37 also added:
+- New `BRAND.semantic` namespaces: `alert.warning`, `alert.success`, `signal.success`, `link`
+- Dark variants for all 7 domain palettes (`PARTY_COLOR_DARK`, `ALIGNMENT_CHIP_COLORS_DARK`, etc.)
+- 10 new per-domain hooks in `@chiaro/officials-ui/brand-hooks.ts`
+- Closed all `COLORS.signal.*` exceptions from slices 35-36
+
+After slice 37, the retrofit track is complete. Slice 38+ targets the full visual reskin (brand-philosophy decisions deferred from this slice).
+
 ## Summary
 
 - **Files swept:** 8 (5 `bio/` + 1 `cards/MetricCardShell` + 2 `finance/`)
