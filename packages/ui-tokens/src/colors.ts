@@ -1,12 +1,12 @@
-// Brand colors lifted from existing inline hex values in slice 1/2 components.
-// Migrating call sites is slice 3.5 cleanup; the constants live here.
-//
-// @deprecated These tokens are the slice-1-through-31 legacy surface. New work
-// should import from `@chiaro/ui-tokens` BRAND.* (see docs/brand-book.md and
-// docs/superpowers/specs/2026-05-26-brand-design-design.md). Legacy COLORS are
-// kept byte-identical for back-compat; do not modify values here without
-// migrating every consumer first.
-
+/**
+ * Brand colors lifted from existing inline hex values in slice 1/2 components.
+ *
+ * @deprecated These tokens are the slice-1-through-31 legacy surface. New work
+ * should import from `@chiaro/ui-tokens` BRAND.* (see docs/brand-book.md and
+ * docs/superpowers/specs/2026-05-26-brand-design-design.md). Legacy COLORS are
+ * kept byte-identical for back-compat; do not modify values here without
+ * migrating every consumer first.
+ */
 export const COLORS = {
   brand: {
     primary: '#5b6cff',
@@ -29,4 +29,5 @@ export const COLORS = {
   },
 } as const
 
+/** @deprecated See `COLORS` deprecation note. */
 export type BrandColor = typeof COLORS
