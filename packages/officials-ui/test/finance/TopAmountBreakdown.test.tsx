@@ -1,7 +1,14 @@
+import { createElement, type ReactNode } from 'react'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { Linking } from 'react-native'
 import { TopAmountBreakdown } from '../../src/finance/TopAmountBreakdown.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
 
 const TEN = Array.from({ length: 10 }, (_, i) => ({
   label: `Industry ${i + 1}`,
@@ -125,5 +132,16 @@ describe('TopAmountBreakdown', () => {
     expect(toggle?.getAttribute('aria-label')).toBe('Expand top industries')
     fireEvent.click(toggle!)
     expect(toggle?.getAttribute('aria-label')).toBe('Collapse top industries')
+  })
+})
+
+describe('TopAmountBreakdown — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() =>
+      render(<TopAmountBreakdown rows={TEN} noun={NOUN_INDUSTRY} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<TopAmountBreakdown rows={TEN} noun={NOUN_INDUSTRY} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
   })
 })

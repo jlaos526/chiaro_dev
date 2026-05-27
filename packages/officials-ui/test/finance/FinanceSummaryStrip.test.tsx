@@ -1,6 +1,13 @@
+import { createElement, type ReactNode } from 'react'
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { FinanceSummaryStrip } from '../../src/finance/FinanceSummaryStrip.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
 
 describe('FinanceSummaryStrip', () => {
   it('renders 3 cells with formatted values', () => {
@@ -34,5 +41,22 @@ describe('FinanceSummaryStrip', () => {
     expect(outer).not.toBeNull()
     const bg = outer?.getAttribute('style') ?? ''
     expect(bg).toMatch(/linear-gradient\(180deg, #f4faf6 0%, #fff 100%\)/)
+  })
+})
+
+describe('FinanceSummaryStrip — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() =>
+      render(
+        <FinanceSummaryStrip cycle="2024" totalRaised={1_000_000} smallDonorPct={28} pacPct={5} />,
+        { wrapper: lightWrapper },
+      ),
+    ).not.toThrow()
+    expect(() =>
+      render(
+        <FinanceSummaryStrip cycle="2024" totalRaised={1_000_000} smallDonorPct={28} pacPct={5} />,
+        { wrapper: darkWrapper },
+      ),
+    ).not.toThrow()
   })
 })

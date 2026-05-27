@@ -3,6 +3,7 @@
 import { createElement, useState } from 'react'
 import { Linking, Platform, Pressable, Text, View } from 'react-native'
 import { CATEGORY_CARD_GRADIENT } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { PillChevron } from '../cards/PillChevron.tsx'
 
 export interface TopAmountRow {
@@ -21,6 +22,7 @@ export interface TopAmountBreakdownProps {
   sourceUrl?: string
 }
 
+// TODO slice 37: finance domain bg
 const SOLID_NATIVE = '#f4faf6'
 
 function formatMoney(n: number): string {
@@ -34,6 +36,7 @@ export function TopAmountBreakdown({
   noun,
   sourceUrl,
 }: TopAmountBreakdownProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   const [expanded, setExpanded] = useState(false)
   const total = rows.reduce((s, r) => s + r.amount, 0)
   const max = Math.max(...rows.map(r => r.amount), 1)
@@ -53,7 +56,7 @@ export function TopAmountBreakdown({
       style={{
         backgroundColor: innerBg,
         borderWidth: 1,
-        borderColor: '#d8d4c9',
+        borderColor: semantic.border.default,
         borderRadius: 6,
         padding: 14,
       }}
@@ -69,19 +72,20 @@ export function TopAmountBreakdown({
                   style={{
                     fontWeight: isTop ? '700' : '600',
                     fontSize: isTop ? 14 : 13,
-                    color: '#1a1714',
+                    color: semantic.text.primary,
                   }}
                 >
                   {r.label}
                 </Text>
                 <View style={{ flexDirection: 'row' }}>
-                  <Text style={{ fontWeight: '700', color: '#1a1714' }}>{formatMoney(r.amount)}</Text>
-                  <Text style={{ color: '#5a5751', fontSize: 11 }}> · {pct}%</Text>
+                  <Text style={{ fontWeight: '700', color: semantic.text.primary }}>{formatMoney(r.amount)}</Text>
+                  <Text style={{ color: semantic.text.muted, fontSize: 11 }}> · {pct}%</Text>
                 </View>
               </View>
-              <View style={{ marginTop: 4, height: 6, backgroundColor: '#e8e6dd', borderRadius: 3 }}>
+              <View style={{ marginTop: 4, height: 6, backgroundColor: semantic.border.default, borderRadius: 3 }}>
                 <View
                   style={{
+                    // TODO slice 37: finance signal green
                     backgroundColor: '#3da75b',
                     width: `${(r.amount / max) * 100}%`,
                     height: '100%',
@@ -102,9 +106,9 @@ export function TopAmountBreakdown({
           accessibilityLabel={`${expanded ? 'Collapse' : 'Expand'} top ${noun.plural}`}
           style={{
             marginTop: 12,
-            backgroundColor: '#fff',
+            backgroundColor: semantic.bg.elevated,
             borderWidth: 1,
-            borderColor: '#d8d4c9',
+            borderColor: semantic.border.default,
             borderRadius: 6,
             paddingHorizontal: 12,
             paddingVertical: 8,
@@ -114,10 +118,10 @@ export function TopAmountBreakdown({
           }}
         >
           <PillChevron open={expanded} />
-          <Text style={{ flex: 1, fontWeight: '600', color: '#1a1714', fontSize: 13 }}>
+          <Text style={{ flex: 1, fontWeight: '600', color: semantic.text.primary, fontSize: 13 }}>
             {expanded ? 'Show less' : `Show 5 more ${noun.plural}`}
           </Text>
-          <Text style={{ color: '#5a5751', fontSize: 11 }}>
+          <Text style={{ color: semantic.text.muted, fontSize: 11 }}>
             {expanded ? `${rows.length} of ${rows.length} shown` : `5 of ${rows.length} shown`}
           </Text>
         </Pressable>
@@ -137,6 +141,7 @@ export function TopAmountBreakdown({
               style: {
                 marginTop: 12,
                 fontSize: 12,
+                // TODO slice 37: link blue brand-decision
                 color: '#3b6ed1',
                 textDecoration: 'underline',
                 cursor: 'pointer',
@@ -150,7 +155,10 @@ export function TopAmountBreakdown({
             accessibilityRole="link"
             onPress={() => Linking.openURL(sourceUrl).catch(() => {})}
           >
-            <Text style={{ marginTop: 12, fontSize: 12, color: '#3b6ed1', textDecorationLine: 'underline' }}>
+            <Text
+              // TODO slice 37: link blue brand-decision
+              style={{ marginTop: 12, fontSize: 12, color: '#3b6ed1', textDecorationLine: 'underline' }}
+            >
               → full breakdown on OpenSecrets
             </Text>
           </Pressable>
