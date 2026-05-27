@@ -1,5 +1,7 @@
 import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { createElement, type ReactNode } from 'react'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 import { StateDistrictOfficesList } from '../../src/state/StateDistrictOfficesList.tsx'
 
 function makeOffice(id: string, overrides: Partial<Record<string, unknown>> = {}): never {
@@ -35,5 +37,28 @@ describe('StateDistrictOfficesList', () => {
     const { getByText } = render(<StateDistrictOfficesList rows={rows} />)
     expect(getByText(/Capitol Office · San Jose, CA/)).toBeTruthy()
     expect(getByText(/Hours: Mon-Fri 9-5/)).toBeTruthy()
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('StateDistrictOfficesList — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() =>
+      render(<StateDistrictOfficesList rows={[]} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<StateDistrictOfficesList rows={[]} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
+    const sampleRows = [makeOffice('o1')]
+    expect(() =>
+      render(<StateDistrictOfficesList rows={sampleRows} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<StateDistrictOfficesList rows={sampleRows} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
   })
 })

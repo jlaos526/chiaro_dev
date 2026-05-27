@@ -7,7 +7,7 @@ import {
   useOfficialStateDistrictOffices,
   useOfficialStateTownHalls,
 } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { StateCommitteeHearingsList } from './StateCommitteeHearingsList.tsx'
@@ -22,6 +22,7 @@ export function StateCommunityPresenceCard({
   officialId,
 }: StateCommunityPresenceCardProps): React.JSX.Element {
   const client = useChiaroClient()
+  const { semantic } = useBrandTokens()
   const halls = useOfficialStateTownHalls(client, officialId)
   const offices = useOfficialStateDistrictOffices(client, officialId)
   const hearings = useOfficialStateCommitteeHearings(client, officialId)
@@ -30,11 +31,19 @@ export function StateCommunityPresenceCard({
   const [openHearings, setOpenHearings] = useState(false)
   const [openOffices, setOpenOffices] = useState(false)
 
+  const cardStyle = [
+    styles.card,
+    { backgroundColor: semantic.bg.app, borderColor: semantic.border.default },
+  ]
+  const titleStyle = [styles.title, { color: semantic.text.primary }]
+  const mutedStyle = [styles.muted, { color: semantic.text.muted }]
+  const summaryStyle = [styles.summary, { color: semantic.text.muted }]
+
   if (halls.isLoading || offices.isLoading || hearings.isLoading) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Community Presence</Text>
-        <Text style={styles.muted}>Loading community presence…</Text>
+      <View style={cardStyle}>
+        <Text style={titleStyle}>Community Presence</Text>
+        <Text style={mutedStyle}>Loading community presence…</Text>
       </View>
     )
   }
@@ -49,9 +58,9 @@ export function StateCommunityPresenceCard({
 
   if (allEmpty) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Community Presence</Text>
-        <Text style={[styles.muted, { fontStyle: 'italic' }]}>
+      <View style={cardStyle}>
+        <Text style={titleStyle}>Community Presence</Text>
+        <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No community-presence data available for this legislator yet.
         </Text>
       </View>
@@ -59,10 +68,10 @@ export function StateCommunityPresenceCard({
   }
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>Community Presence</Text>
+    <View style={cardStyle}>
+      <Text style={titleStyle}>Community Presence</Text>
 
-      <Text style={styles.summary}>
+      <Text style={summaryStyle}>
         {hallCount != null ? `${hallCount} town hall${hallCount === 1 ? '' : 's'}` : '—'}
         {' · '}
         {hearingCount != null
@@ -101,14 +110,12 @@ export function StateCommunityPresenceCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.neutral.background,
-    borderColor: COLORS.neutral.border,
     borderWidth: 1,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
   },
-  title: { fontSize: 18, fontWeight: '600', marginBottom: 12, color: COLORS.brand.text },
-  muted: { color: COLORS.neutral.textMuted, fontSize: 13 },
-  summary: { fontSize: 13, color: COLORS.neutral.textMuted, marginBottom: 12 },
+  title: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
+  muted: { fontSize: 13 },
+  summary: { fontSize: 13, marginBottom: 12 },
 })

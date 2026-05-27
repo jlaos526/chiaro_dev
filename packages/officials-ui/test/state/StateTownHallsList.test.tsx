@@ -1,5 +1,7 @@
 import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { createElement, type ReactNode } from 'react'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 import { StateTownHallsList } from '../../src/state/StateTownHallsList.tsx'
 
 describe('StateTownHallsList', () => {
@@ -32,5 +34,32 @@ describe('StateTownHallsList', () => {
     }] as never[]
     const { getByText } = render(<StateTownHallsList rows={rows} />)
     expect(getByText(/Format n\/a/)).toBeTruthy()
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('StateTownHallsList — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    expect(() =>
+      render(<StateTownHallsList rows={[]} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<StateTownHallsList rows={[]} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
+    const sampleRows = [{
+      id: 't1', event_date: '2026-03-15',
+      city: 'Sacramento', state: 'CA', format: 'hybrid',
+      attendance_estimate: 80, source_url: 'https://x',
+    }] as never[]
+    expect(() =>
+      render(<StateTownHallsList rows={sampleRows} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<StateTownHallsList rows={sampleRows} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
   })
 })
