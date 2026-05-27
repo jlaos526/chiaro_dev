@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { ReactElement } from 'react'
+import { createElement, type ReactElement, type ReactNode } from 'react'
 import type { ChiaroClient } from '@chiaro/supabase-client'
 
 const useScorecardsMock = vi.fn()
@@ -15,6 +15,7 @@ vi.mock('@chiaro/officials', async () => {
 })
 
 import { ChiaroClientProvider } from '../../src/client-context.tsx'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 import { FederalIssuePositionsCard } from '../../src/federal/FederalIssuePositionsCard.tsx'
 
 const mockClient = { from: () => {} } as unknown as ChiaroClient
@@ -71,5 +72,38 @@ describe('FederalIssuePositionsCard', () => {
     const { getByText } = wrap(<FederalIssuePositionsCard officialId="oid" />)
     expect(getByText(/2 orgs rated/i)).toBeTruthy()
     expect(getByText(/2 lean groups/i)).toBeTruthy()
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('FederalIssuePositionsCard — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    useScorecardsMock.mockReturnValue({
+      data: [
+        {
+          id: 'r1',
+          official_id: 'oid',
+          org_id: 'aclu',
+          score_numeric: 80,
+          source_url: null,
+          org: { name: 'ACLU', lean: 'progressive', issue_area: 'civil-rights', scoring_max: 100 },
+        },
+      ],
+      isLoading: false,
+      isSuccess: true,
+    })
+    const ui = (
+      <ChiaroClientProvider client={mockClient}>
+        <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+          <FederalIssuePositionsCard officialId="oid" />
+        </QueryClientProvider>
+      </ChiaroClientProvider>
+    )
+    expect(() => render(ui, { wrapper: lightWrapper })).not.toThrow()
+    expect(() => render(ui, { wrapper: darkWrapper })).not.toThrow()
   })
 })

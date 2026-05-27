@@ -1,5 +1,7 @@
 import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
+import { createElement, type ReactNode } from 'react'
+import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 import { FederalScorecardRatingsList } from '../../src/federal/FederalScorecardRatingsList.tsx'
 
 describe('FederalScorecardRatingsList', () => {
@@ -26,5 +28,24 @@ describe('FederalScorecardRatingsList', () => {
     expect(getByText(/Conservative/)).toBeTruthy()
     expect(getByText(/ACLU/)).toBeTruthy()
     expect(getByText(/NRA/)).toBeTruthy()
+  })
+})
+
+const lightWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
+const darkWrapper = ({ children }: { children: ReactNode }) =>
+  createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+describe('FederalScorecardRatingsList — mode awareness', () => {
+  it('renders under both light and dark wrappers without throwing', () => {
+    const rows = [
+      {
+        id: 'r1', score: 95, official_id: 'oid', congress: '119',
+        ingested_at: '2026-01-01', source_url: 'https://x', scorecard_id: 'o1',
+        org: { id: 'o1', name: 'ACLU', issue_area: 'civil-liberties', lean: 'progressive', scoring_max: 100, scoring_min: 0, slug: 'aclu', methodology_url: 'https://x', notes: null },
+      },
+    ] as never[]
+    expect(() => render(<FederalScorecardRatingsList rows={rows} />, { wrapper: lightWrapper })).not.toThrow()
+    expect(() => render(<FederalScorecardRatingsList rows={rows} />, { wrapper: darkWrapper })).not.toThrow()
   })
 })

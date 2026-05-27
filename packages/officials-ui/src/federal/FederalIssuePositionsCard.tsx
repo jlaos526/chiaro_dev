@@ -2,7 +2,7 @@
 
 import { StyleSheet, Text, View } from 'react-native'
 import { useOfficialScorecardRatings } from '@chiaro/officials'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 import { useChiaroClient } from '../client-context.tsx'
 import { FederalScorecardRatingsList } from './FederalScorecardRatingsList.tsx'
 
@@ -13,14 +13,20 @@ export interface FederalIssuePositionsCardProps {
 export function FederalIssuePositionsCard({
   officialId,
 }: FederalIssuePositionsCardProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   const client = useChiaroClient()
   const ratings = useOfficialScorecardRatings(client, officialId)
 
   if (ratings.isLoading) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Issue Positions</Text>
-        <Text style={styles.muted}>Loading issue positions…</Text>
+      <View
+        style={[
+          styles.card,
+          { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
+        ]}
+      >
+        <Text style={[styles.title, { color: semantic.text.primary }]}>Issue Positions</Text>
+        <Text style={[styles.muted, { color: semantic.text.muted }]}>Loading issue positions…</Text>
       </View>
     )
   }
@@ -28,9 +34,14 @@ export function FederalIssuePositionsCard({
   const rows = ratings.data ?? []
   if (rows.length === 0) {
     return (
-      <View style={styles.card}>
-        <Text style={styles.title}>Issue Positions</Text>
-        <Text style={[styles.muted, { fontStyle: 'italic' }]}>
+      <View
+        style={[
+          styles.card,
+          { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
+        ]}
+      >
+        <Text style={[styles.title, { color: semantic.text.primary }]}>Issue Positions</Text>
+        <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No issue-position ratings available for this legislator yet.
         </Text>
       </View>
@@ -39,9 +50,14 @@ export function FederalIssuePositionsCard({
 
   const leans = new Set(rows.map(r => r.org?.lean ?? 'centrist'))
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>Issue Positions</Text>
-      <Text style={styles.summary}>
+    <View
+      style={[
+        styles.card,
+        { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
+      ]}
+    >
+      <Text style={[styles.title, { color: semantic.text.primary }]}>Issue Positions</Text>
+      <Text style={[styles.summary, { color: semantic.text.muted }]}>
         {rows.length} org{rows.length === 1 ? '' : 's'} rated · {leans.size} lean group
         {leans.size === 1 ? '' : 's'}
       </Text>
@@ -52,8 +68,6 @@ export function FederalIssuePositionsCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.neutral.background,
-    borderColor: COLORS.neutral.border,
     borderWidth: 1,
     borderRadius: 8,
     padding: 16,
@@ -63,8 +77,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 12,
-    color: COLORS.brand.text,
   },
-  muted: { color: COLORS.neutral.textMuted, fontSize: 13 },
-  summary: { fontSize: 13, color: COLORS.neutral.textMuted, marginBottom: 12 },
+  muted: { fontSize: 13 },
+  summary: { fontSize: 13, marginBottom: 12 },
 })

@@ -2,7 +2,8 @@
 
 import { StyleSheet, Text, View } from 'react-native'
 import type { ScorecardRatingWithOrg } from '@chiaro/officials'
-import { COLORS, SCORECARD_LEAN_LABEL, SCORECARD_LEAN_COLOR } from '@chiaro/ui-tokens'
+import { SCORECARD_LEAN_LABEL, SCORECARD_LEAN_COLOR } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 export interface FederalScorecardRatingsListProps {
   rows: ScorecardRatingWithOrg[]
@@ -11,8 +12,14 @@ export interface FederalScorecardRatingsListProps {
 const LEAN_GROUP_ORDER = ['progressive', 'conservative', 'single-issue', 'libertarian', 'centrist'] as const
 
 export function FederalScorecardRatingsList({ rows }: FederalScorecardRatingsListProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
+
   if (rows.length === 0) {
-    return <Text style={styles.muted}>No scorecard ratings on file.</Text>
+    return (
+      <Text style={[styles.muted, { color: semantic.text.muted }]}>
+        No scorecard ratings on file.
+      </Text>
+    )
   }
 
   const byLean = new Map<string, ScorecardRatingWithOrg[]>()
@@ -29,20 +36,24 @@ export function FederalScorecardRatingsList({ rows }: FederalScorecardRatingsLis
           <Text
             style={[
               styles.groupHeader,
-              { color: SCORECARD_LEAN_COLOR[lean as keyof typeof SCORECARD_LEAN_COLOR] ?? COLORS.neutral.textMuted },
+              { color: SCORECARD_LEAN_COLOR[lean as keyof typeof SCORECARD_LEAN_COLOR] ?? semantic.text.muted },
             ]}
           >
             {SCORECARD_LEAN_LABEL[lean as keyof typeof SCORECARD_LEAN_LABEL] ?? lean}
           </Text>
           {byLean.get(lean)!.map(r => (
-            <View key={r.id} style={styles.row}>
+            <View key={r.id} style={[styles.row, { backgroundColor: semantic.bg.app }]}>
               <View style={{ flex: 1 }}>
-                <Text style={styles.name}>{r.org?.name ?? '(unknown org)'}</Text>
+                <Text style={[styles.name, { color: semantic.text.primary }]}>
+                  {r.org?.name ?? '(unknown org)'}
+                </Text>
                 {r.org?.issue_area && (
-                  <Text style={styles.issueArea}>· {r.org.issue_area}</Text>
+                  <Text style={[styles.issueArea, { color: semantic.text.muted }]}>
+                    · {r.org.issue_area}
+                  </Text>
                 )}
               </View>
-              <Text style={styles.score}>
+              <Text style={[styles.score, { color: semantic.text.primary }]}>
                 {Number(r.score).toFixed(0)} / {r.org?.scoring_max ?? 100}
               </Text>
             </View>
@@ -54,19 +65,18 @@ export function FederalScorecardRatingsList({ rows }: FederalScorecardRatingsLis
 }
 
 const styles = StyleSheet.create({
-  muted: { color: COLORS.neutral.textMuted, fontSize: 13, fontStyle: 'italic', padding: 8 },
+  muted: { fontSize: 13, fontStyle: 'italic', padding: 8 },
   list: { gap: 10, padding: 8 },
   group: { gap: 4 },
   groupHeader: { fontSize: 13, fontWeight: '600', marginBottom: 4 },
   row: {
     flexDirection: 'row',
-    backgroundColor: COLORS.neutral.surface,
     borderRadius: 6,
     padding: 8,
     gap: 8,
     marginBottom: 4,
   },
-  name: { fontSize: 13, color: COLORS.brand.text },
-  issueArea: { fontSize: 12, color: COLORS.neutral.textMuted, marginTop: 2 },
-  score: { fontSize: 13, fontWeight: '600', color: COLORS.brand.text, alignSelf: 'center' },
+  name: { fontSize: 13 },
+  issueArea: { fontSize: 12, marginTop: 2 },
+  score: { fontSize: 13, fontWeight: '600', alignSelf: 'center' },
 })
