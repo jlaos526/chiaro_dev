@@ -196,6 +196,9 @@ export {
   type StateOfficialsCardSectionProps,
 } from './state/StateOfficialsCardSection.tsx'
 
+// Slice 39 — generic input primitives
+export { BrandTextInput, type BrandTextInputProps } from './inputs/BrandTextInput.tsx'
+
 // auth/* primitives (slice 31) — leaf components for the auth screens
 export { AuthWordmark, type AuthWordmarkProps } from './auth/AuthWordmark.tsx'
 export { AuthCrossLink, type AuthCrossLinkProps } from './auth/AuthCrossLink.tsx'
