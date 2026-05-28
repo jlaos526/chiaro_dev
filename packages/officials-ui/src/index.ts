@@ -212,3 +212,11 @@ export {
   useMapColors,
   type BrandTokens,
 } from './brand-hooks.ts'
+
+// Slice 38 — dark mode toggle
+export {
+  BrandModeProvider,
+  useBrandModeSetter,
+  type BrandModeProviderProps,
+} from './brand-mode-provider.tsx'
+export { BrandModeThemeRow } from './settings/brand-mode-theme-row.tsx'

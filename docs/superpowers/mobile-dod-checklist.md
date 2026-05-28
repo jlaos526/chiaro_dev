@@ -174,6 +174,15 @@ Sentry within ~30s; verify the stack trace is readable (source maps
 attached) and that `event.request.data.address` shows `[scrubbed]` if
 the user was on the calibrate flow.
 
+## Slice 38 — Dark mode toggle
+
+- [ ] Settings page shows Theme row between Home address and Sign out.
+- [ ] Three options visible: System, Light, Dark; correct option is highlighted on mount.
+- [ ] Tapping each option repaints the UI instantly.
+- [ ] After choosing Dark, kill + relaunch app → splash visible, then UI renders in dark mode with no flash.
+- [ ] After choosing System, change OS theme → app follows live.
+- [ ] After choosing Light then System, OS theme dictates rendering.
+
 ## After the run
 
 If any item fails:
