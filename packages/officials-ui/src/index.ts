@@ -223,3 +223,8 @@ export {
   type BrandModeProviderProps,
 } from './brand-mode-provider.tsx'
 export { BrandModeThemeRow } from './settings/brand-mode-theme-row.tsx'
+
+// Slice 39 — settings architecture
+export { SettingsRow, type SettingsRowProps } from './settings/SettingsRow.tsx'
+export { SettingsScreen, type SettingsScreenProps } from './settings/SettingsScreen.tsx'
+export { SettingsSection, type SettingsSectionProps } from './settings/SettingsSection.tsx'

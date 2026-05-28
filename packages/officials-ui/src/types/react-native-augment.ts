@@ -26,6 +26,20 @@ declare module 'react-native' {
   interface AccessibilityProps {
     accessibilityLevel?: number
   }
+
+  /**
+   * `dataSet?: Record<string, string | number | boolean | null | undefined>`
+   *
+   * RNW 0.19 serializes `dataSet={{ key: value }}` to `data-key="value"`
+   * on the rendered DOM element (translation at
+   * `node_modules/react-native-web/dist/modules/createDOMProps/index.js:140,
+   * 757-767`). RN native ignores it. RN's TypeScript definitions
+   * (`react-native/Libraries/Components/View/ViewPropTypes.d.ts`) omit it.
+   * Slice 39 (SettingsSection) origin.
+   */
+  interface ViewProps {
+    dataSet?: Record<string, string | number | boolean | null | undefined>
+  }
 }
 
 export {}
