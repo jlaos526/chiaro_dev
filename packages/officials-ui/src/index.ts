@@ -219,3 +219,4 @@ export {
   useBrandModeSetter,
   type BrandModeProviderProps,
 } from './brand-mode-provider.tsx'
+export { BrandModeThemeRow } from './settings/brand-mode-theme-row.tsx'
