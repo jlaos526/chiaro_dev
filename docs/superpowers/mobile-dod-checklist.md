@@ -183,6 +183,21 @@ the user was on the calibrate flow.
 - [ ] After choosing System, change OS theme → app follows live.
 - [ ] After choosing Light then System, OS theme dictates rendering.
 
+## Slice 39 — Settings architecture + Calibrate refactor
+
+- [ ] Settings page shows 5 sections in order: Account, Appearance, Notifications, Profile, About.
+- [ ] Sign-out row in Account section uses destructive (red) text.
+- [ ] Tapping Home address navigates to /settings/address.
+- [ ] Tapping Sign out signs out and routes to /sign-in.
+- [ ] Theme row in Appearance section toggles brand mode; entire page repaints.
+- [ ] Notifications toggles are disabled and don't respond to taps.
+- [ ] Profile rows show "Coming soon" badge.
+- [ ] About section shows version string.
+- [ ] Privacy policy / Terms of service nav rows navigate (may 404 — acceptable for v1).
+- [ ] /calibrate shows centered card; Calibrate + Skip flows work.
+- [ ] **Known regression**: GPS "use my current location" button dropped pre-CalibrateScreen-extension; mobile users must type address. Helper preserved at `apps/mobile/lib/location-permissions.ts` for restoration.
+- [ ] All Settings + Calibrate surfaces fully repaint in dark mode.
+
 ## After the run
 
 If any item fails:
