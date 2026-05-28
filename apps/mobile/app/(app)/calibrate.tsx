@@ -3,14 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { CalibrateScreen } from '@chiaro/officials-ui'
 import { addressInputSchema } from '@chiaro/location'
 import { supabase } from '@/lib/supabase'
-
-// Slice 39 task 9. Mobile mirrors web task 8 — thin shell around
-// CalibrateScreen. The pre-slice-39 mobile screen also offered a
-// "Use my current location" GPS path via `getCurrentLocation()`; the
-// slice 39 CalibrateScreen component only exposes an address-entry
-// surface, so the GPS path is dropped here for now. Restoring it is a
-// follow-up — either extend CalibrateScreen with an optional onGpsSubmit
-// prop or wrap CalibrateScreen with a mobile-only GPS row above the card.
+import { getCurrentLocation } from '@/lib/location-permissions'
 
 export default function CalibratePage() {
   const router = useRouter()
@@ -32,10 +25,26 @@ export default function CalibratePage() {
     router.replace('/')
   }
 
+  async function handleGpsSubmit() {
+    const result = await getCurrentLocation()
+    if (!result.ok) throw new Error(result.message)
+
+    const { error: invokeErr } = await supabase.functions.invoke('calibrate-location', {
+      body: { lat: result.lat, lng: result.lng },
+    })
+    if (invokeErr) {
+      const status = (invokeErr as { context?: { status?: number } }).context?.status
+      if (status === 422) throw new Error("We can't resolve districts for that location yet.")
+      if (status === 502) throw new Error('Location lookup is temporarily unavailable. Try again.')
+      throw new Error('Something went wrong. Try again.')
+    }
+    router.replace('/')
+  }
+
   async function handleSkip() {
     await AsyncStorage.setItem('chiaro_skip_calibrate', '1')
     router.replace('/')
   }
 
-  return <CalibrateScreen onSubmit={handleSubmit} onSkip={handleSkip} />
+  return <CalibrateScreen onSubmit={handleSubmit} onGpsSubmit={handleGpsSubmit} onSkip={handleSkip} />
 }

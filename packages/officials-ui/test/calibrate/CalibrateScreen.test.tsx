@@ -77,4 +77,44 @@ describe('CalibrateScreen', () => {
     fireEvent.click(getByText('Skip for now'))
     expect(onSkip).toHaveBeenCalled()
   })
+
+  it('omits GPS button when onGpsSubmit is not provided', () => {
+    const { queryByText } = render(
+      <CalibrateScreen onSubmit={async () => {}} />,
+      { wrapper: withMode('light') },
+    )
+    expect(queryByText('Use my current location')).toBeNull()
+  })
+
+  it('renders GPS button when onGpsSubmit is provided', () => {
+    const { getByText } = render(
+      <CalibrateScreen onSubmit={async () => {}} onGpsSubmit={async () => {}} />,
+      { wrapper: withMode('light') },
+    )
+    expect(getByText('Use my current location')).toBeTruthy()
+  })
+
+  it('calls onGpsSubmit when GPS button is pressed', async () => {
+    const onGpsSubmit = vi.fn().mockResolvedValue(undefined)
+    const { getByText } = render(
+      <CalibrateScreen onSubmit={async () => {}} onGpsSubmit={onGpsSubmit} />,
+      { wrapper: withMode('light') },
+    )
+    await act(async () => {
+      fireEvent.click(getByText('Use my current location'))
+    })
+    expect(onGpsSubmit).toHaveBeenCalled()
+  })
+
+  it('shows error message when onGpsSubmit throws', async () => {
+    const onGpsSubmit = vi.fn().mockRejectedValue(new Error('Location access denied'))
+    const { getByText, findByText } = render(
+      <CalibrateScreen onSubmit={async () => {}} onGpsSubmit={onGpsSubmit} />,
+      { wrapper: withMode('light') },
+    )
+    await act(async () => {
+      fireEvent.click(getByText('Use my current location'))
+    })
+    expect(await findByText('Location access denied')).toBeTruthy()
+  })
 })

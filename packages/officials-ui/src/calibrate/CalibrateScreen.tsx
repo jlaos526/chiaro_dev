@@ -11,8 +11,16 @@ export interface CalibrateScreenProps {
   initialAddress?: string
   onSubmit: (address: string) => Promise<void>
   onSkip?: () => void
+  /** When provided, renders a brand-outlined "Use my current location" button
+   *  above the address input. Handler is responsible for requesting
+   *  permission + reading coords + submitting them to the backend; throws on
+   *  failure for friendly error display. Mobile-only in practice; web doesn't
+   *  pass this prop. */
+  onGpsSubmit?: () => Promise<void>
   submitLabel?: string
   loadingLabel?: string
+  gpsLabel?: string
+  gpsLoadingLabel?: string
 }
 
 // Web: parent <main>/<body>/<html> have no defined height by default, so the
@@ -28,8 +36,11 @@ export function CalibrateScreen({
   initialAddress = '',
   onSubmit,
   onSkip,
+  onGpsSubmit,
   submitLabel = 'Calibrate',
   loadingLabel = 'Calibrating…',
+  gpsLabel = 'Use my current location',
+  gpsLoadingLabel = 'Getting location…',
 }: CalibrateScreenProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const [address, setAddress] = useState(initialAddress)
@@ -48,11 +59,37 @@ export function CalibrateScreen({
     }
   }
 
+  async function handleGps() {
+    if (!onGpsSubmit) return
+    setError(null)
+    setLoading(true)
+    try {
+      await onGpsSubmit()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not get your location.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <View style={[styles.outer, { backgroundColor: semantic.bg.app }, WEB_VIEWPORT_FILL]}>
       <View style={[styles.card, { backgroundColor: semantic.bg.elevated }]}>
         <Text style={[styles.title, { color: semantic.text.primary }]}>{title}</Text>
         <Text style={[styles.description, { color: semantic.text.muted }]}>{description}</Text>
+        {onGpsSubmit ? (
+          <Pressable
+            onPress={loading ? undefined : handleGps}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: loading }}
+            aria-disabled={loading}
+            style={[styles.gpsButton, { borderColor: semantic.accent.primary, opacity: loading ? 0.6 : 1 }]}
+          >
+            <Text style={[styles.gpsButtonText, { color: semantic.accent.primary }]}>
+              {loading ? gpsLoadingLabel : gpsLabel}
+            </Text>
+          </Pressable>
+        ) : null}
         <BrandTextInput
           label="Address"
           value={address}
@@ -109,6 +146,8 @@ const styles = StyleSheet.create({
   error: { fontSize: 13 },
   cta: { borderRadius: 8, paddingVertical: 12, alignItems: 'center' },
   ctaText: { fontSize: 15, fontWeight: '600' },
+  gpsButton: { borderWidth: 1.5, borderRadius: 8, paddingVertical: 12, alignItems: 'center' },
+  gpsButtonText: { fontSize: 15, fontWeight: '600' },
   skip: { alignItems: 'center', paddingVertical: 8 },
   skipText: { fontSize: 14 },
 })
