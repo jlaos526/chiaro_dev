@@ -1,5 +1,6 @@
 'use client'
 
+import type * as React from 'react'
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 import { BrandModeOverrideContext } from './brand-hooks.ts'
 import type { BrandMode } from '@chiaro/ui-tokens'
@@ -17,7 +18,7 @@ export interface BrandModeProviderProps {
   children?: ReactNode
 }
 
-export function BrandModeProvider({ defaultMode, onChange, children }: BrandModeProviderProps) {
+export function BrandModeProvider({ defaultMode, onChange, children }: BrandModeProviderProps): React.JSX.Element {
   const [override, setOverride] = useState<BrandMode | null>(defaultMode)
   const setMode = useCallback(
     (mode: BrandMode | null) => {

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { act, render, renderHook } from '@testing-library/react'
+import { act, renderHook } from '@testing-library/react'
 import { createElement, type ReactNode } from 'react'
 import { useBrandTokens } from '../src/brand-hooks.ts'
 import { BrandModeProvider, useBrandModeSetter } from '../src/brand-mode-provider.tsx'
