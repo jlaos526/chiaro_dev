@@ -231,3 +231,5 @@ export { SettingsSection, type SettingsSectionProps } from './settings/SettingsS
 export { SettingsNavRow, type SettingsNavRowProps } from './settings/SettingsNavRow.tsx'
 export { SettingsActionRow, type SettingsActionRowProps } from './settings/SettingsActionRow.tsx'
 export { SettingsToggleRow, type SettingsToggleRowProps } from './settings/SettingsToggleRow.tsx'
+export { SettingsValueRow, type SettingsValueRowProps } from './settings/SettingsValueRow.tsx'
+export { SettingsComingSoonRow, type SettingsComingSoonRowProps } from './settings/SettingsComingSoonRow.tsx'
