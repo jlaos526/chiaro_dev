@@ -2,6 +2,7 @@
 
 import { BrandModeProvider } from '@chiaro/officials-ui'
 import { writeBrandModeCookie } from '@/lib/brand-mode-cookie.client'
+import { BrandModeBodyStyle } from '@/lib/brand-mode-body-style'
 import type * as React from 'react'
 import type { ReactNode } from 'react'
 import type { BrandMode } from '@chiaro/ui-tokens'
@@ -15,6 +16,7 @@ export function ClientBrandModeWiring({
 }): React.JSX.Element {
   return (
     <BrandModeProvider defaultMode={defaultMode} onChange={writeBrandModeCookie}>
+      <BrandModeBodyStyle />
       {children}
     </BrandModeProvider>
   )
