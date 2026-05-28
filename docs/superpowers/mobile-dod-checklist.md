@@ -194,8 +194,9 @@ the user was on the calibrate flow.
 - [ ] Profile rows show "Coming soon" badge.
 - [ ] About section shows version string.
 - [ ] Privacy policy / Terms of service nav rows navigate (may 404 — acceptable for v1).
-- [ ] /calibrate shows centered card; Calibrate + Skip flows work.
-- [ ] **Known regression**: GPS "use my current location" button dropped pre-CalibrateScreen-extension; mobile users must type address. Helper preserved at `apps/mobile/lib/location-permissions.ts` for restoration.
+- [ ] /calibrate shows centered card; "Use my current location" button (brand-outlined) appears above address input; Calibrate + GPS + Skip flows work.
+- [ ] Tap "Use my current location" → GPS permission prompt → coords submitted via `{lat, lng}` body to `calibrate-location` Edge Function.
+- [ ] GPS-denied path shows the helper's friendly message in CalibrateScreen's error slot.
 - [ ] All Settings + Calibrate surfaces fully repaint in dark mode.
 
 ## After the run
