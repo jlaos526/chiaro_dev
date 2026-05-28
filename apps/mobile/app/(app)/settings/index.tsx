@@ -1,6 +1,7 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { Link, useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { BrandModeThemeRow } from '@chiaro/officials-ui'
 import { supabase } from '@/lib/supabase'
 
 export default function SettingsIndex() {
@@ -13,6 +14,7 @@ export default function SettingsIndex() {
   return (
     <View style={styles.root}>
       <Link href="/settings/address" style={styles.row}><Text>Home address ›</Text></Link>
+      <View style={styles.themeRow}><BrandModeThemeRow /></View>
       <Pressable style={styles.row} onPress={handleSignOut}><Text>Sign out</Text></Pressable>
     </View>
   )
@@ -21,4 +23,5 @@ export default function SettingsIndex() {
 const styles = StyleSheet.create({
   root: { padding: 20, gap: 12 },
   row: { padding: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: '#aaa' },
+  themeRow: { paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: '#aaa' },
 })
