@@ -233,3 +233,6 @@ export { SettingsActionRow, type SettingsActionRowProps } from './settings/Setti
 export { SettingsToggleRow, type SettingsToggleRowProps } from './settings/SettingsToggleRow.tsx'
 export { SettingsValueRow, type SettingsValueRowProps } from './settings/SettingsValueRow.tsx'
 export { SettingsComingSoonRow, type SettingsComingSoonRowProps } from './settings/SettingsComingSoonRow.tsx'
+
+// Slice 39 — calibrate
+export { CalibrateScreen, type CalibrateScreenProps } from './calibrate/CalibrateScreen.tsx'
