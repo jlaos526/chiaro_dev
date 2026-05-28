@@ -1,27 +1,63 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native'
-import { Link, useRouter } from 'expo-router'
+import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { BrandModeThemeRow } from '@chiaro/officials-ui'
+import {
+  BrandModeThemeRow,
+  SettingsActionRow,
+  SettingsComingSoonRow,
+  SettingsNavRow,
+  SettingsScreen,
+  SettingsSection,
+  SettingsToggleRow,
+  SettingsValueRow,
+} from '@chiaro/officials-ui'
 import { supabase } from '@/lib/supabase'
+
+const APP_VERSION = process.env.EXPO_PUBLIC_APP_VERSION ?? 'dev'
 
 export default function SettingsIndex() {
   const router = useRouter()
+
   async function handleSignOut() {
     await AsyncStorage.removeItem('chiaro_skip_calibrate')
     await supabase.auth.signOut()
-    router.replace('/sign-in')
+    // `/sign-in` lives under the `(auth)` group; typed-routes manifest doesn't
+    // expose the bare path. Cast follows the existing `as never` convention
+    // documented at apps/mobile/app/(app)/officials/[id].tsx:43 et al.
+    router.replace('/sign-in' as never)
   }
+
   return (
-    <View style={styles.root}>
-      <Link href="/settings/address" style={styles.row}><Text>Home address ›</Text></Link>
-      <View style={styles.themeRow}><BrandModeThemeRow /></View>
-      <Pressable style={styles.row} onPress={handleSignOut}><Text>Sign out</Text></Pressable>
-    </View>
+    <SettingsScreen>
+      <SettingsSection title="Account">
+        <SettingsNavRow
+          label="Home address"
+          onPress={() => router.push('/settings/address')}
+        />
+        <SettingsActionRow label="Sign out" danger onPress={handleSignOut} />
+      </SettingsSection>
+
+      <SettingsSection title="Appearance">
+        <BrandModeThemeRow />
+      </SettingsSection>
+
+      <SettingsSection title="Notifications" description="Coming soon">
+        <SettingsToggleRow label="Push notifications" value={false} disabled onChange={() => {}} />
+        <SettingsToggleRow label="Email digest" value={false} disabled onChange={() => {}} />
+      </SettingsSection>
+
+      <SettingsSection title="Profile">
+        <SettingsComingSoonRow label="Display name" />
+        <SettingsComingSoonRow label="Avatar" />
+      </SettingsSection>
+
+      <SettingsSection title="About">
+        <SettingsValueRow label="Version" value={APP_VERSION} />
+        {/* /legal/privacy + /legal/terms are not yet in the routes manifest;
+            casting per existing apps/mobile/ convention until the legal pages
+            ship (tracked as slice 39 follow-up). */}
+        <SettingsNavRow label="Privacy policy" onPress={() => router.push('/legal/privacy' as never)} />
+        <SettingsNavRow label="Terms of service" onPress={() => router.push('/legal/terms' as never)} />
+      </SettingsSection>
+    </SettingsScreen>
   )
 }
-
-const styles = StyleSheet.create({
-  root: { padding: 20, gap: 12 },
-  row: { padding: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: '#aaa' },
-  themeRow: { paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: '#aaa' },
-})

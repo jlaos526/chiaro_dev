@@ -196,6 +196,9 @@ export {
   type StateOfficialsCardSectionProps,
 } from './state/StateOfficialsCardSection.tsx'
 
+// Slice 39 — generic input primitives
+export { BrandTextInput, type BrandTextInputProps } from './inputs/BrandTextInput.tsx'
+
 // auth/* primitives (slice 31) — leaf components for the auth screens
 export { AuthWordmark, type AuthWordmarkProps } from './auth/AuthWordmark.tsx'
 export { AuthCrossLink, type AuthCrossLinkProps } from './auth/AuthCrossLink.tsx'
@@ -220,3 +223,16 @@ export {
   type BrandModeProviderProps,
 } from './brand-mode-provider.tsx'
 export { BrandModeThemeRow } from './settings/brand-mode-theme-row.tsx'
+
+// Slice 39 — settings architecture
+export { SettingsRow, type SettingsRowProps } from './settings/SettingsRow.tsx'
+export { SettingsScreen, type SettingsScreenProps } from './settings/SettingsScreen.tsx'
+export { SettingsSection, type SettingsSectionProps } from './settings/SettingsSection.tsx'
+export { SettingsNavRow, type SettingsNavRowProps } from './settings/SettingsNavRow.tsx'
+export { SettingsActionRow, type SettingsActionRowProps } from './settings/SettingsActionRow.tsx'
+export { SettingsToggleRow, type SettingsToggleRowProps } from './settings/SettingsToggleRow.tsx'
+export { SettingsValueRow, type SettingsValueRowProps } from './settings/SettingsValueRow.tsx'
+export { SettingsComingSoonRow, type SettingsComingSoonRowProps } from './settings/SettingsComingSoonRow.tsx'
+
+// Slice 39 — calibrate
+export { CalibrateScreen, type CalibrateScreenProps } from './calibrate/CalibrateScreen.tsx'

@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 import { fireEvent, render } from '@testing-library/react'
 import { createElement, type ReactNode } from 'react'
-import { AuthInput } from '../../src/auth/AuthInput.tsx'
+import { BrandTextInput } from '../../src/inputs/BrandTextInput.tsx'
 import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 
-describe('AuthInput', () => {
+describe('BrandTextInput', () => {
   it('renders label + input element', () => {
     const { container } = render(
-      <AuthInput label="Email" value="" onChangeText={() => {}} />,
+      <BrandTextInput label="Email" value="" onChangeText={() => {}} />,
     )
     const input = container.querySelector('input')
     expect(input).not.toBeNull()
@@ -19,7 +19,7 @@ describe('AuthInput', () => {
 
   it('renders type="email" when type=email', () => {
     const { container } = render(
-      <AuthInput label="Email" value="" onChangeText={() => {}} type="email" />,
+      <BrandTextInput label="Email" value="" onChangeText={() => {}} type="email" />,
     )
     const input = container.querySelector('input')!
     expect(input.getAttribute('type')).toBe('email')
@@ -27,7 +27,7 @@ describe('AuthInput', () => {
 
   it('renders type="password" when type=password', () => {
     const { container } = render(
-      <AuthInput label="Password" value="" onChangeText={() => {}} type="password" />,
+      <BrandTextInput label="Password" value="" onChangeText={() => {}} type="password" />,
     )
     const input = container.querySelector('input')!
     expect(input.getAttribute('type')).toBe('password')
@@ -35,7 +35,7 @@ describe('AuthInput', () => {
 
   it('forwards autoComplete prop to input', () => {
     const { container } = render(
-      <AuthInput
+      <BrandTextInput
         label="Password"
         value=""
         onChangeText={() => {}}
@@ -49,7 +49,7 @@ describe('AuthInput', () => {
 
   it('shows error state with aria-invalid + error message', () => {
     const { container } = render(
-      <AuthInput
+      <BrandTextInput
         label="Email"
         value=""
         onChangeText={() => {}}
@@ -71,7 +71,7 @@ describe('AuthInput', () => {
 
   it('shows disabled state via disabled attribute', () => {
     const { container } = render(
-      <AuthInput
+      <BrandTextInput
         label="Email"
         value=""
         onChangeText={() => {}}
@@ -85,7 +85,7 @@ describe('AuthInput', () => {
   it('fires onChangeText on input change', () => {
     const onChangeText = vi.fn()
     const { container } = render(
-      <AuthInput label="Email" value="" onChangeText={onChangeText} />,
+      <BrandTextInput label="Email" value="" onChangeText={onChangeText} />,
     )
     const input = container.querySelector('input')!
     fireEvent.change(input, { target: { value: 'jane@example.com' } })
@@ -94,7 +94,7 @@ describe('AuthInput', () => {
 
   it('empty state: input value is empty + placeholder=" " enables :placeholder-shown CSS', () => {
     const { container } = render(
-      <AuthInput label="Email" value="" onChangeText={() => {}} />,
+      <BrandTextInput label="Email" value="" onChangeText={() => {}} />,
     )
     const input = container.querySelector('input')!
     expect(input.getAttribute('value')).toBe('')
@@ -110,14 +110,14 @@ const lightWrapper = ({ children }: { children: ReactNode }) =>
 const darkWrapper = ({ children }: { children: ReactNode }) =>
   createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
 
-describe('AuthInput — mode awareness', () => {
+describe('BrandTextInput — mode awareness', () => {
   it('renders different border colors in light vs dark', () => {
     const { container: light } = render(
-      <AuthInput label="Email" value="" onChangeText={() => {}} />,
+      <BrandTextInput label="Email" value="" onChangeText={() => {}} />,
       { wrapper: lightWrapper },
     )
     const { container: dark } = render(
-      <AuthInput label="Email" value="" onChangeText={() => {}} />,
+      <BrandTextInput label="Email" value="" onChangeText={() => {}} />,
       { wrapper: darkWrapper },
     )
     // Web CSS template contains the hex values for the active mode.
