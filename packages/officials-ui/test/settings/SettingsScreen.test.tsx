@@ -28,4 +28,11 @@ describe('SettingsScreen', () => {
     )
     expect(getByText('child-content')).toBeTruthy()
   })
+
+  it('applies viewport-fill (minHeight: 100vh) on web', () => {
+    const { container } = render(<SettingsScreen>{null}</SettingsScreen>, { wrapper: withMode('light') })
+    // jsdom is Platform.OS === 'web'; outer View should receive the WEB_VIEWPORT_FILL style.
+    const outer = container.firstChild as HTMLElement
+    expect(outer?.getAttribute('style')).toMatch(/min-height:\s*100vh/i)
+  })
 })

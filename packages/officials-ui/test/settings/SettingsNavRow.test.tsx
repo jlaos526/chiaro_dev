@@ -56,4 +56,20 @@ describe('SettingsNavRow', () => {
     fireEvent.click(anchor, { metaKey: false, ctrlKey: false, shiftKey: false, button: 0 })
     expect(onPress).toHaveBeenCalled()
   })
+
+  it('falls through to browser default on modifier-click (cmd/ctrl/shift/middle)', () => {
+    const onPress = vi.fn()
+    const { container } = render(
+      <SettingsNavRow label="Home address" href="/settings/address" onPress={onPress} />,
+      { wrapper: withMode('light') },
+    )
+    const anchor = container.querySelector('a') as HTMLAnchorElement
+    // Each modifier branch should bypass preventDefault + onPress, restoring
+    // real anchor semantics (new-tab on cmd-click, etc.).
+    fireEvent.click(anchor, { metaKey: true })
+    fireEvent.click(anchor, { ctrlKey: true })
+    fireEvent.click(anchor, { shiftKey: true })
+    fireEvent.click(anchor, { button: 1 })
+    expect(onPress).not.toHaveBeenCalled()
+  })
 })

@@ -53,4 +53,12 @@ describe('SettingsToggleRow', () => {
     )
     expect(getByText('Send alerts when bills you follow get scheduled')).toBeTruthy()
   })
+
+  it('sets aria-disabled="true" on the row when disabled', () => {
+    const { container } = render(
+      <SettingsToggleRow label="Push notifications" value={false} onChange={() => {}} disabled />,
+      { wrapper: withMode('light') },
+    )
+    expect(container.querySelector('[aria-disabled="true"]')).not.toBeNull()
+  })
 })
