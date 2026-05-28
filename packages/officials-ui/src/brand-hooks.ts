@@ -46,10 +46,10 @@ import {
 /**
  * Override Context for forced light/dark. null = follow system preference.
  *
- * Slice 33 ships no Provider component — the value is always null at runtime.
- * Tests wrap their tree with `BrandModeOverrideContext.Provider value="dark"`
- * to force dark mode. A future slice (likely 38) will ship a Provider that
- * reads from a settings store.
+ * Wrapped by `<BrandModeProvider>` (slice 38, `./brand-mode-provider.tsx`),
+ * which manages state + persists via cookie (web) / AsyncStorage (mobile).
+ * Tests may wrap their tree directly with `BrandModeOverrideContext.Provider
+ * value="dark"` to force a mode without a full Provider.
  */
 export const BrandModeOverrideContext = createContext<BrandMode | null>(null)
 
