@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { BrandModeThemeRow } from '@chiaro/officials-ui'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 export default function SettingsIndex() {
@@ -15,6 +16,7 @@ export default function SettingsIndex() {
   return (
     <ul>
       <li><Link href="/settings/address">Home address</Link></li>
+      <li style={{ margin: '16px 0' }}><BrandModeThemeRow /></li>
       <li><button type="button" onClick={handleSignOut}>Sign out</button></li>
     </ul>
   )
