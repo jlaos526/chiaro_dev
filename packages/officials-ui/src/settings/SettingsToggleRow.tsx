@@ -2,6 +2,7 @@
 
 import { StyleSheet, Switch, Text, View } from 'react-native'
 import { useBrandTokens } from '../brand-hooks.ts'
+import { SettingsRow } from './SettingsRow.tsx'
 
 export interface SettingsToggleRowProps {
   label: string
@@ -21,11 +22,7 @@ export function SettingsToggleRow({
   const { semantic } = useBrandTokens()
   const opacity = disabled ? 0.5 : 1
   return (
-    <View
-      style={styles.row}
-      aria-disabled={disabled}
-      accessibilityState={{ disabled: !!disabled }}
-    >
+    <SettingsRow disabled={disabled}>
       <View style={styles.labelGroup}>
         <Text style={[styles.label, { color: semantic.text.primary, opacity }]}>{label}</Text>
         {description ? (
@@ -37,19 +34,11 @@ export function SettingsToggleRow({
         onValueChange={disabled ? undefined : onChange}
         disabled={disabled}
       />
-    </View>
+    </SettingsRow>
   )
 }
 
 const styles = StyleSheet.create({
-  row: {
-    minHeight: 56,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
   labelGroup: { flex: 1, gap: 2 },
   label: { fontSize: 15 },
   description: { fontSize: 13 },

@@ -7,7 +7,10 @@ import { useBrandTokens } from '../brand-hooks.ts'
 export interface SettingsRowProps {
   children: ReactNode
   onPress?: () => void
-  disabled?: boolean
+  // `boolean | undefined` (not bare `boolean?`) so callers under
+  // exactOptionalPropertyTypes can forward an optional disabled value
+  // directly without a `?? false` coercion.
+  disabled?: boolean | undefined
   accessibilityLabel?: string
   accessibilityRole?: 'button' | 'link'
 }
@@ -37,7 +40,15 @@ export function SettingsRow({
       </Pressable>
     )
   }
-  return <View style={styles.row}>{children}</View>
+  return (
+    <View
+      style={styles.row}
+      accessibilityState={disabled !== undefined ? { disabled: !!disabled } : undefined}
+      aria-disabled={disabled}
+    >
+      {children}
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({

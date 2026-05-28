@@ -2,6 +2,7 @@
 
 import { StyleSheet, Text, View } from 'react-native'
 import { useBrandTokens } from '../brand-hooks.ts'
+import { SettingsRow } from './SettingsRow.tsx'
 
 export interface SettingsComingSoonRowProps {
   label: string
@@ -11,7 +12,7 @@ export interface SettingsComingSoonRowProps {
 export function SettingsComingSoonRow({ label, description }: SettingsComingSoonRowProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   return (
-    <View style={styles.row}>
+    <SettingsRow>
       <View style={styles.labelGroup}>
         <Text style={[styles.label, { color: semantic.text.primary, opacity: 0.6 }]}>{label}</Text>
         {description ? (
@@ -21,19 +22,11 @@ export function SettingsComingSoonRow({ label, description }: SettingsComingSoon
       <View style={[styles.badge, { backgroundColor: semantic.bg.subtle }]}>
         <Text style={[styles.badgeText, { color: semantic.text.muted }]}>Coming soon</Text>
       </View>
-    </View>
+    </SettingsRow>
   )
 }
 
 const styles = StyleSheet.create({
-  row: {
-    minHeight: 56,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
   labelGroup: { flex: 1, gap: 2 },
   label: { fontSize: 15 },
   description: { fontSize: 13 },
