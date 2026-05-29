@@ -1,100 +1,99 @@
 export type CategoryId =
   | 'service-record'
-  | 'issue-positions'
   | 'community-presence'
   | 'finance'
+  | 'issue-positions'
   | 'ethics-accountability'
   | 'voting-bills'
 
 export const CATEGORY_LABEL: Record<CategoryId, string> = {
   'service-record':        'Service Record',
-  'issue-positions':       'Issue Positions',
   'community-presence':    'Community Presence',
   'finance':               'Finance',
+  'issue-positions':       'Issue Positions',
   'ethics-accountability': 'Ethics & Accountability',
   'voting-bills':          'Voting & Bills',
 }
 
-// Palette A — semantic earthen. Locked 2026-05-17.
+// Palette — slice 41 semantic-aligned. Locked 2026-05-29.
 export const CATEGORY_ACCENT: Record<CategoryId, string> = {
-  'service-record':        '#c89a4e',
-  'issue-positions':       '#3b6ed1',
-  'community-presence':    '#1f9b88',
-  'finance':               '#3da75b',
-  'ethics-accountability': '#d68a1f',
-  'voting-bills':          '#7d57c1',
+  'service-record':        '#c89a4e',  // gold (achievement medal, unchanged)
+  'community-presence':    '#b86340',  // terracotta (town square clay) — was '#1f9b88'
+  'finance':               '#1a8f5a',  // emerald (money) — was '#3da75b'
+  'issue-positions':       '#3b6ed1',  // blue (considered stance, unchanged)
+  'ethics-accountability': '#8a3a4d',  // burgundy (judicial gravitas) — was '#d68a1f'
+  'voting-bills':          '#7d57c1',  // purple (legislative, unchanged)
 }
 
+// Slice 41: lightened/desaturated tints per category for nested expand
+// panels. Issue Positions + Voting Bills unchanged; 4 changed categories
+// re-derived from new accents (terracotta / emerald / burgundy + slice 41
+// re-tone of gold).
 export const SUB_CASCADE_ACCENT: Record<CategoryId, string> = {
-  'service-record':        '#e1c896',
-  'issue-positions':       '#87aae0',
-  'community-presence':    '#7fc7bb',
-  'finance':               '#8fc89d',
-  'ethics-accountability': '#ecbc7d',
-  'voting-bills':          '#b39bd9',
+  'service-record':        '#e1c896',  // unchanged
+  'community-presence':    '#e0b8a0',  // terracotta-derived — was '#7fc7bb'
+  'finance':               '#7eb898',  // emerald-derived — was '#8fc89d'
+  'issue-positions':       '#87aae0',  // unchanged
+  'ethics-accountability': '#c89aa8',  // burgundy-derived — was '#ecbc7d'
+  'voting-bills':          '#b39bd9',  // unchanged
 }
 
+// Slice 41: Level B medium saturation start stops; #fff endpoint preserved.
 export const CATEGORY_CARD_GRADIENT: Record<CategoryId, string> = {
-  'service-record':        'linear-gradient(180deg, #fcfaf2 0%, #fff 100%)',
-  'issue-positions':       'linear-gradient(180deg, #f6f8fc 0%, #fff 100%)',
-  'community-presence':    'linear-gradient(180deg, #f3faf8 0%, #fff 100%)',
-  'finance':               'linear-gradient(180deg, #f4faf6 0%, #fff 100%)',
-  'ethics-accountability': 'linear-gradient(180deg, #fcf7f0 0%, #fff 100%)',
-  'voting-bills':          'linear-gradient(180deg, #f7f4fc 0%, #fff 100%)',
+  'service-record':        'linear-gradient(180deg, #f5e6cc 0%, #fff 100%)',
+  'community-presence':    'linear-gradient(180deg, #f5dece 0%, #fff 100%)',
+  'finance':               'linear-gradient(180deg, #d4e8d8 0%, #fff 100%)',
+  'issue-positions':       'linear-gradient(180deg, #d8e0f5 0%, #fff 100%)',
+  'ethics-accountability': 'linear-gradient(180deg, #ecc8cf 0%, #fff 100%)',
+  'voting-bills':          'linear-gradient(180deg, #e0d5f0 0%, #fff 100%)',
 }
 
-// Slice 37: solid per-category card background tokens (moved from
-// MetricCardShell). Native uses these directly (RN lacks a built-in
-// linear-gradient primitive); web prefers CATEGORY_CARD_GRADIENT.
+// Slice 41: Level B medium saturation. Cards identify as their category
+// color rather than near-invisible pale tints. Native uses these directly
+// (RN lacks a built-in linear-gradient primitive); web prefers CATEGORY_CARD_GRADIENT.
 export const CATEGORY_CARD_BG_SOLID: Record<CategoryId, string> = {
-  'service-record':        '#fcfaf2',
-  'issue-positions':       '#f6f8fc',
-  'community-presence':    '#f3faf8',
-  'finance':               '#f4faf6',
-  'ethics-accountability': '#fcf7f0',
-  'voting-bills':          '#f7f4fc',
+  'service-record':        '#f5e6cc',  // gold tint
+  'community-presence':    '#f5dece',  // terracotta tint
+  'finance':               '#d4e8d8',  // emerald tint
+  'issue-positions':       '#d8e0f5',  // blue tint
+  'ethics-accountability': '#ecc8cf',  // burgundy tint
+  'voting-bills':          '#e0d5f0',  // purple tint
 }
 
-// Slice 37: dark-mode CATEGORY_ACCENT. Lightness shifted up so semantic
-// hue remains recognizable on dark surface.
-export const CATEGORY_ACCENT_DARK: Record<CategoryId, string> = {
-  'service-record':        '#e0b97a',
-  'issue-positions':       '#7ba0e8',
-  'community-presence':    '#5dc4b3',
-  'finance':               '#7fc89a',
-  'ethics-accountability': '#ecb05b',
-  'voting-bills':          '#b399df',
-}
+// Slice 41: CATEGORY_ACCENT_DARK now mirrors CATEGORY_ACCENT (single-hex
+// per category, both modes). Export name preserved for slice 37
+// `useCategoryAccent` hook back-compat.
+export const CATEGORY_ACCENT_DARK: Record<CategoryId, string> = CATEGORY_ACCENT
 
-// Slice 37: dark-mode SUB_CASCADE_ACCENT — softer tint pulled toward
-// neutral so cascade levels remain perceptibly distinct from CATEGORY_ACCENT.
+// Slice 41: dark-mode SUB_CASCADE_ACCENT — re-derived from new accents.
 export const SUB_CASCADE_ACCENT_DARK: Record<CategoryId, string> = {
-  'service-record':        '#9a8866',
-  'issue-positions':       '#6680b8',
-  'community-presence':    '#4a9888',
-  'finance':               '#5e9a70',
-  'ethics-accountability': '#b08850',
-  'voting-bills':          '#8470a8',
+  'service-record':        '#8a6a55',  // gold-derived — was '#9a8866'
+  'community-presence':    '#a08858',  // terracotta-derived — was '#4a9888'
+  'finance':               '#4e8060',  // emerald-derived — was '#5e9a70'
+  'issue-positions':       '#6680b8',  // unchanged
+  'ethics-accountability': '#704a55',  // burgundy-derived — was '#b08850'
+  'voting-bills':          '#8470a8',  // unchanged
 }
 
-// Slice 37: dark-mode CATEGORY_CARD_GRADIENT — fades a deep tier-tinted
-// stop to the same neutral surface used in CATEGORY_CARD_BG_SOLID_DARK.
+// Slice 41: cool slate start stops + cascade endpoint to slice 40 bg.app
+// (#16181c, was warm '#1a1714' — slice 40 left this stale).
 export const CATEGORY_CARD_GRADIENT_DARK: Record<CategoryId, string> = {
-  'service-record':        'linear-gradient(180deg, #2a221c 0%, #1a1714 100%)',
-  'issue-positions':       'linear-gradient(180deg, #1c2030 0%, #1a1714 100%)',
-  'community-presence':    'linear-gradient(180deg, #1c2a28 0%, #1a1714 100%)',
-  'finance':               'linear-gradient(180deg, #1c2820 0%, #1a1714 100%)',
-  'ethics-accountability': 'linear-gradient(180deg, #2a2218 0%, #1a1714 100%)',
-  'voting-bills':          'linear-gradient(180deg, #241c2a 0%, #1a1714 100%)',
+  'service-record':        'linear-gradient(180deg, #23211a 0%, #16181c 100%)',
+  'community-presence':    'linear-gradient(180deg, #23201c 0%, #16181c 100%)',
+  'finance':               'linear-gradient(180deg, #1c2521 0%, #16181c 100%)',
+  'issue-positions':       'linear-gradient(180deg, #1c2030 0%, #16181c 100%)',
+  'ethics-accountability': 'linear-gradient(180deg, #22191d 0%, #16181c 100%)',
+  'voting-bills':          'linear-gradient(180deg, #241c2a 0%, #16181c 100%)',
 }
 
-// Slice 37: dark-mode CATEGORY_CARD_BG_SOLID. Deeper warm equivalents so
-// each card retains its semantic temperature against a dark surface.
+// Slice 41: cool slate base + subtle hue tint per category. Replaces the
+// slice 33-37 warm-brown anchors that visibly clashed with slice 40's new
+// cool slate page bg (#16181c) and card bg (#1e2126).
 export const CATEGORY_CARD_BG_SOLID_DARK: Record<CategoryId, string> = {
-  'service-record':        '#2a221c',
-  'issue-positions':       '#1c2030',
-  'community-presence':    '#1c2a28',
-  'finance':               '#1c2820',
-  'ethics-accountability': '#2a2218',
-  'voting-bills':          '#241c2a',
+  'service-record':        '#23211a',  // gold-tinted cool slate — was '#2a221c'
+  'community-presence':    '#23201c',  // terracotta-tinted — was '#1c2a28' teal-tinted
+  'finance':               '#1c2521',  // emerald-tinted — was '#1c2820' medium-green-tinted
+  'issue-positions':       '#1c2030',  // unchanged
+  'ethics-accountability': '#22191d',  // burgundy-tinted — was '#2a2218' amber-tinted
+  'voting-bills':          '#241c2a',  // unchanged
 }

@@ -80,6 +80,34 @@ Only consumer is `packages/officials-ui/src/bio/BioPortrait.tsx`. Native (no CSS
 
 Slices 38+ target full visual re-skin: aggressive accent use, gradient retuning, marketing surfaces, dark mode toggle UI. Tangle brand work with IA decisions intentionally. Not in scope for slices 33-37.
 
+### Category palette (slice 41)
+
+Re-derived 4 category accent colors for stronger semantic fit, collapsed light/dark variants to single-hex-per-category, and reordered the enum for a narrative card flow.
+
+**Accent hex changes:**
+- `CATEGORY_ACCENT['community-presence']`: `#1f9b88` teal → `#b86340` terracotta (town square clay, gathering)
+- `CATEGORY_ACCENT['finance']`: `#3da75b` medium green → `#1a8f5a` emerald (money, deeper saturation)
+- `CATEGORY_ACCENT['ethics-accountability']`: `#d68a1f` amber → `#8a3a4d` burgundy (judicial gravitas)
+
+**Light/dark collapse:**
+- `CATEGORY_ACCENT_DARK` now mirrors `CATEGORY_ACCENT` per category (single-hex across both modes). Export name preserved for slice 37 `useCategoryAccent` hook back-compat.
+
+**Card bg + gradient refresh:**
+- `CATEGORY_CARD_BG_SOLID` light → Level B medium saturation (cards now identify as their category color).
+- `CATEGORY_CARD_BG_SOLID_DARK` → cool slate base with hue tints (replaces slice 33-37 warm-brown leftovers).
+- `CATEGORY_CARD_GRADIENT_DARK` endpoints → `#16181c` (slice 40 bg.app cool slate; was warm `#1a1714`).
+
+**Sub-cascade refresh:**
+- `SUB_CASCADE_ACCENT` + `SUB_CASCADE_ACCENT_DARK` re-derived for the 4 changed categories.
+
+**Map palette cascade:**
+- `MAP_COLORS_DARK.districtFill` → `#3a3e45` cool slate (was warm `#3a2e26`).
+
+**Enum reorder:**
+- New `CategoryId` + `CATEGORY_LABEL` order: Service Record → Community Presence → Finance → Issue Positions → Ethics & Accountability → Voting & Bills.
+
+Federal officials detail pages (web + mobile) reorder to match. State-officials pages out of scope (different card composition per Gotcha #15).
+
 ---
 
 *See `docs/brand-book.md` (slice 32) for the brand reference.*

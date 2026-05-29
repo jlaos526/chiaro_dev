@@ -211,6 +211,20 @@ the user was on the calibrate flow.
 - [ ] Alert tints (danger red, warning amber, success green) unchanged in dark.
 - [ ] Link blue (#7a98e1) unchanged in dark.
 
+## Slice 41 — Category palette reskin
+
+- [ ] Federal officials detail page (mobile) shows 6 cards in new order: Service Record → Community Presence → Finance → Issue Positions → Ethics → Voting & Bills.
+- [ ] Service Record card dot is gold `#c89a4e`.
+- [ ] Community Presence card dot is terracotta `#b86340` (NEW; was teal).
+- [ ] Finance card dot is emerald `#1a8f5a` (NEW; was medium green).
+- [ ] Issue Positions card dot is blue `#3b6ed1` (unchanged).
+- [ ] Ethics & Accountability card dot is burgundy `#8a3a4d` (NEW; was amber).
+- [ ] Voting & Bills card dot is purple `#7d57c1` (unchanged).
+- [ ] In dark mode, each card bg shows a subtle hue tint over cool slate (no warm-brown islands).
+- [ ] In light mode, each card bg shows medium-saturation category tint (visibly different from app bg cream).
+- [ ] Map district fill in dark mode is cool slate `#3a3e45`, not warm brown.
+- [ ] Sub-cascade nested expand panels show desaturated category tints (light + dark).
+
 ## After the run
 
 If any item fails:
