@@ -1,16 +1,22 @@
 import { Text, View } from 'react-native'
+import { type AlignmentTier } from '@chiaro/ui-tokens'
+import { useAlignmentChipColors } from '../brand-hooks.ts'
 
 export interface ComplianceIconProps {
   state: 'on-time' | 'late'
 }
 
-const STYLES = {
-  'on-time': { bg: '#c5e3c7', fg: '#1f4d24', glyph: '✓', label: 'Filed on time' },
-  'late':    { bg: '#f4d3c0', fg: '#7a3e1c', glyph: '✖', label: 'Late filing' }, // ✖ = U+2716
-} as const
+// Glyph + label stay as inline constants — they're not palette concerns.
+// Color values come from useAlignmentChipColors via the slice 42 refactor,
+// so dark mode + future palette tweaks track automatically.
+const GLYPH: Record<ComplianceIconProps['state'], { glyph: string; label: string; tier: AlignmentTier }> = {
+  'on-time': { glyph: '✓', label: 'Filed on time', tier: 'strongly-aligned' },
+  'late':    { glyph: '✖', label: 'Late filing',   tier: 'mostly-differs' }, // ✖ = U+2716
+}
 
 export function ComplianceIcon({ state }: ComplianceIconProps): React.JSX.Element {
-  const { bg, fg, glyph, label } = STYLES[state]
+  const { glyph, label, tier } = GLYPH[state]
+  const { bg, fg } = useAlignmentChipColors(tier)
   return (
     <View
       accessibilityLabel={label}

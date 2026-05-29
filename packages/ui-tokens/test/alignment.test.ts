@@ -3,6 +3,7 @@ import {
   type AlignmentTier,
   ALIGNMENT_LABEL,
   ALIGNMENT_CHIP_COLORS,
+  ALIGNMENT_CHIP_COLORS_DARK,
   scoreToTier,
 } from '../src/alignment.ts'
 
@@ -24,13 +25,27 @@ describe('ALIGNMENT_LABEL', () => {
   })
 })
 
-describe('ALIGNMENT_CHIP_COLORS', () => {
-  it('matches the locked palette per tier', () => {
-    expect(ALIGNMENT_CHIP_COLORS['strongly-aligned']).toEqual({ bg: '#c5e3c7', fg: '#1f4d24' })
-    expect(ALIGNMENT_CHIP_COLORS['mostly-aligned']).toEqual({ bg: '#d4ecd5', fg: '#2a6b30' })
-    expect(ALIGNMENT_CHIP_COLORS['mixed']).toEqual({ bg: '#f0eee5', fg: '#5a5751' })
-    expect(ALIGNMENT_CHIP_COLORS['mostly-differs']).toEqual({ bg: '#f4d3c0', fg: '#7a3e1c' })
-    expect(ALIGNMENT_CHIP_COLORS['strongly-differs']).toEqual({ bg: '#f0b8a0', fg: '#5a2812' })
+describe('ALIGNMENT_CHIP_COLORS (slice 42 thermal palette)', () => {
+  it('matches the locked light hex values per tier', () => {
+    expect(ALIGNMENT_CHIP_COLORS['strongly-aligned']).toEqual({ bg: '#a8d4b0', fg: '#0f3a1c' })  // V2 saturation
+    expect(ALIGNMENT_CHIP_COLORS['mostly-aligned']).toEqual({ bg: '#d8ecda', fg: '#2a6b30' })
+    expect(ALIGNMENT_CHIP_COLORS['mixed']).toEqual({ bg: '#eedbb5', fg: '#7c5a1e' })             // gold pivot
+    expect(ALIGNMENT_CHIP_COLORS['mostly-differs']).toEqual({ bg: '#f0d3c0', fg: '#6a3e1c' })
+    expect(ALIGNMENT_CHIP_COLORS['strongly-differs']).toEqual({ bg: '#dca088', fg: '#4a1e0c' })  // V2 saturation
+  })
+})
+
+describe('ALIGNMENT_CHIP_COLORS_DARK (slice 42)', () => {
+  it('matches the locked dark hex values per tier', () => {
+    expect(ALIGNMENT_CHIP_COLORS_DARK['strongly-aligned']).toEqual({ bg: '#143020', fg: '#a8e0b0' })
+    expect(ALIGNMENT_CHIP_COLORS_DARK['mostly-aligned']).toEqual({ bg: '#24462d', fg: '#a8c9af' })
+    expect(ALIGNMENT_CHIP_COLORS_DARK['mixed']).toEqual({ bg: '#23211a', fg: '#e1c896' })          // matches CATEGORY_CARD_BG_SOLID_DARK['service-record']
+    expect(ALIGNMENT_CHIP_COLORS_DARK['mostly-differs']).toEqual({ bg: '#3e2820', fg: '#e0a890' })
+    expect(ALIGNMENT_CHIP_COLORS_DARK['strongly-differs']).toEqual({ bg: '#5e2418', fg: '#f5a888' })
+  })
+
+  it('shares the same 5 tier keys with light variant', () => {
+    expect(Object.keys(ALIGNMENT_CHIP_COLORS_DARK).sort()).toEqual(Object.keys(ALIGNMENT_CHIP_COLORS).sort())
   })
 })
 
