@@ -220,21 +220,42 @@ logoGeometry(48).boundingWidth    // 69
 
 The old `COLORS` and `MAP_COLORS` exports remain unchanged for back-compat with slice-1-through-31 consumers. They are `@deprecated`; new work imports from `BRAND.*`.
 
-## 11. Category palette (slice 41)
+## 11. Category palette (slice 41 + 43)
 
-The per-category accents identify each profile-page card (federal + state officials detail views). Light + dark modes share one hex per category (slice 41 single-hex collapse).
+Each category card identifies a card-section on the federal + state officials detail pages. Slice 41 (2026-05-27) locked the 6 accent colors. Slice 43 (2026-05-29) replaced the per-category gradient + bg pattern with a **universal neutral card bg + 3px top stripe in the category accent**.
 
-| Category | Hex | Semantic |
-|---|---|---|
-| Service Record | `#c89a4e` | gold — achievement medal, heritage record |
-| Community Presence | `#b86340` | terracotta — town square clay, gathering |
-| Finance | `#1a8f5a` | emerald — money, growth |
-| Issue Positions | `#3b6ed1` | blue — considered stance, perspective |
-| Ethics & Accountability | `#8a3a4d` | burgundy — judicial gravitas, law-book leather |
-| Voting & Bills | `#7d57c1` | purple — legislative, parchment |
+### Universal card surface
 
-Card-render order on federal officials pages: Service Record → Community Presence → Finance → Issue Positions → Ethics → Voting & Bills.
-"who they are → where they show up → what they do with money → what they believe → how they behave → what they vote on"
+| Token | Light | Dark | Purpose |
+|---|---|---|---|
+| `CATEGORY_CARD_BG` | `#fffaf2` | `#2a2e34` | Single bg for all 6 category cards |
+
+The light value sits visibly above the page bg `#efece5`; the dark value sits above the slice 40 `surface.elevated` `#262a30`. Both are mode-aware via `useCategoryCardBg()` in `@chiaro/officials-ui`.
+
+### Top stripe
+
+Every card renders a 3px `borderTopWidth` in its category accent (consumed via `useCategoryAccent(id)`):
+
+| Category | Stripe color |
+|---|---|
+| Service Record | `#c89a4e` (gold) |
+| Community Presence | `#b86340` (terracotta) |
+| Finance | `#1a8f5a` (emerald) |
+| Issue Positions | `#3b6ed1` (blue) |
+| Ethics & Accountability | `#8a3a4d` (burgundy) |
+| Voting & Bills | `#7d57c1` (purple) |
+
+### What slice 43 dropped
+
+- `CATEGORY_CARD_GRADIENT` + `_DARK` (12 gradient strings deleted)
+- `CATEGORY_CARD_BG_SOLID` + `_DARK` (12 per-category hexes deleted)
+- `FINANCE_CARD_BG` + `_DARK` (slice 37 abstraction collapsed; orphan exports)
+- 3 hooks (`useCategoryCardGradient`, `useCategoryCardBgSolid`, `useFinanceCardBg`)
+- The Pattern B createElement gradient escape hatch (CLAUDE.md Gotcha #19f) for category cards. The escape hatch stays alive for `BioPortrait` (separate concept).
+
+### Placeholder + unavailable variants
+
+Cards in placeholder or unavailable state render without the 3px stripe (1px top border matches the other borders + `semantic.bg.subtle` bg) so they read as "no data" rather than "active category card."
 
 ## 12. AlignmentChip palette (slice 42)
 
