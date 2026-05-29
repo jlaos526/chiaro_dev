@@ -9,9 +9,9 @@ import {
 
 const ALL_IDS: CategoryId[] = [
   'service-record',
-  'issue-positions',
   'community-presence',
   'finance',
+  'issue-positions',
   'ethics-accountability',
   'voting-bills',
 ]
@@ -27,6 +27,20 @@ describe('CATEGORY_LABEL', () => {
     expect(CATEGORY_LABEL['finance']).toBe('Finance')
     expect(CATEGORY_LABEL['ethics-accountability']).toBe('Ethics & Accountability')
     expect(CATEGORY_LABEL['voting-bills']).toBe('Voting & Bills')
+  })
+})
+
+describe('CategoryId enum + CATEGORY_LABEL ordering (slice 41)', () => {
+  it('CATEGORY_LABEL keys follow the slice 41 narrative order', () => {
+    const keys = Object.keys(CATEGORY_LABEL) as CategoryId[]
+    expect(keys).toEqual([
+      'service-record',
+      'community-presence',
+      'finance',
+      'issue-positions',
+      'ethics-accountability',
+      'voting-bills',
+    ])
   })
 })
 

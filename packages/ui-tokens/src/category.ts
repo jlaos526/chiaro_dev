@@ -1,16 +1,16 @@
 export type CategoryId =
   | 'service-record'
-  | 'issue-positions'
   | 'community-presence'
   | 'finance'
+  | 'issue-positions'
   | 'ethics-accountability'
   | 'voting-bills'
 
 export const CATEGORY_LABEL: Record<CategoryId, string> = {
   'service-record':        'Service Record',
-  'issue-positions':       'Issue Positions',
   'community-presence':    'Community Presence',
   'finance':               'Finance',
+  'issue-positions':       'Issue Positions',
   'ethics-accountability': 'Ethics & Accountability',
   'voting-bills':          'Voting & Bills',
 }
