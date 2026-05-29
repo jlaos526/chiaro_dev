@@ -1,11 +1,11 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import {
+  FederalServiceRecordCard,
   FederalCommunityPresenceCard,
-  FederalEthicsAccountabilityCard,
   FederalFinanceCard,
   FederalIssuePositionsCard,
-  FederalServiceRecordCard,
+  FederalEthicsAccountabilityCard,
   FederalVotingBillsCard,
 } from '@chiaro/officials-ui'
 import { BioHeaderClient } from './BioHeaderClient'
@@ -127,9 +127,9 @@ export default async function OfficialPage(
           officialId={id}
           {...(official.chamber === 'federal_senate' ? { hideLivesInDistrict: true } : {})}
         />
+        <FederalCommunityPresenceCard officialId={id} congress={CURRENT_CONGRESS} />
         <FederalFinanceCard officialId={id} cycle={CURRENT_CYCLE} />
         <FederalIssuePositionsCard officialId={id} />
-        <FederalCommunityPresenceCard officialId={id} congress={CURRENT_CONGRESS} />
         <FederalEthicsAccountabilityCard officialId={id} />
         <FederalVotingBillsCard officialId={id} congress={CURRENT_CONGRESS} />
       </div>
