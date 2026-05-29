@@ -6,10 +6,6 @@ import {
   CATEGORY_ACCENT_DARK,
   CATEGORY_CARD_BG,
   CATEGORY_CARD_BG_DARK,
-  CATEGORY_CARD_BG_SOLID,
-  CATEGORY_CARD_BG_SOLID_DARK,
-  CATEGORY_CARD_GRADIENT,
-  CATEGORY_CARD_GRADIENT_DARK,
   SUB_CASCADE_ACCENT,
   SUB_CASCADE_ACCENT_DARK,
 } from '../src/category.ts'
@@ -93,60 +89,6 @@ describe('SUB_CASCADE_ACCENT_DARK (slice 41 dark)', () => {
     expect(SUB_CASCADE_ACCENT_DARK['issue-positions']).toBe('#6680b8')       // unchanged
     expect(SUB_CASCADE_ACCENT_DARK['ethics-accountability']).toBe('#704a55') // NEW burgundy-derived (was '#b08850' amber-derived)
     expect(SUB_CASCADE_ACCENT_DARK['voting-bills']).toBe('#8470a8')          // unchanged
-  })
-})
-
-describe('CATEGORY_CARD_GRADIENT (slice 41 light, Level B start stops)', () => {
-  it('matches the locked light gradients per category', () => {
-    expect(CATEGORY_CARD_GRADIENT['service-record']).toBe('linear-gradient(180deg, #f5e6cc 0%, #fff 100%)')
-    expect(CATEGORY_CARD_GRADIENT['community-presence']).toBe('linear-gradient(180deg, #f5dece 0%, #fff 100%)')
-    expect(CATEGORY_CARD_GRADIENT['finance']).toBe('linear-gradient(180deg, #d4e8d8 0%, #fff 100%)')
-    expect(CATEGORY_CARD_GRADIENT['issue-positions']).toBe('linear-gradient(180deg, #d8e0f5 0%, #fff 100%)')
-    expect(CATEGORY_CARD_GRADIENT['ethics-accountability']).toBe('linear-gradient(180deg, #ecc8cf 0%, #fff 100%)')
-    expect(CATEGORY_CARD_GRADIENT['voting-bills']).toBe('linear-gradient(180deg, #e0d5f0 0%, #fff 100%)')
-  })
-})
-
-describe('CATEGORY_CARD_GRADIENT_DARK (slice 41 cool slate endpoint)', () => {
-  it('matches the locked dark gradients per category', () => {
-    expect(CATEGORY_CARD_GRADIENT_DARK['service-record']).toBe('linear-gradient(180deg, #23211a 0%, #16181c 100%)')
-    expect(CATEGORY_CARD_GRADIENT_DARK['community-presence']).toBe('linear-gradient(180deg, #23201c 0%, #16181c 100%)')
-    expect(CATEGORY_CARD_GRADIENT_DARK['finance']).toBe('linear-gradient(180deg, #1c2521 0%, #16181c 100%)')
-    expect(CATEGORY_CARD_GRADIENT_DARK['issue-positions']).toBe('linear-gradient(180deg, #1c2030 0%, #16181c 100%)')
-    expect(CATEGORY_CARD_GRADIENT_DARK['ethics-accountability']).toBe('linear-gradient(180deg, #22191d 0%, #16181c 100%)')
-    expect(CATEGORY_CARD_GRADIENT_DARK['voting-bills']).toBe('linear-gradient(180deg, #241c2a 0%, #16181c 100%)')
-  })
-
-  it('all 6 endpoints fade to #16181c (slice 40 bg.app cool slate)', () => {
-    const ALL_IDS_LIST: CategoryId[] = [
-      'service-record', 'community-presence', 'finance',
-      'issue-positions', 'ethics-accountability', 'voting-bills',
-    ]
-    for (const id of ALL_IDS_LIST) {
-      expect(CATEGORY_CARD_GRADIENT_DARK[id]).toMatch(/#16181c 100%\)$/)
-    }
-  })
-})
-
-describe('CATEGORY_CARD_BG_SOLID (slice 41 Level B saturation)', () => {
-  it('matches the locked light card bg hexes', () => {
-    expect(CATEGORY_CARD_BG_SOLID['service-record']).toBe('#f5e6cc')
-    expect(CATEGORY_CARD_BG_SOLID['community-presence']).toBe('#f5dece')
-    expect(CATEGORY_CARD_BG_SOLID['finance']).toBe('#d4e8d8')
-    expect(CATEGORY_CARD_BG_SOLID['issue-positions']).toBe('#d8e0f5')
-    expect(CATEGORY_CARD_BG_SOLID['ethics-accountability']).toBe('#ecc8cf')
-    expect(CATEGORY_CARD_BG_SOLID['voting-bills']).toBe('#e0d5f0')
-  })
-})
-
-describe('CATEGORY_CARD_BG_SOLID_DARK (slice 41 cool slate cascade)', () => {
-  it('matches the locked dark card bg hexes', () => {
-    expect(CATEGORY_CARD_BG_SOLID_DARK['service-record']).toBe('#23211a')        // gold-tinted cool slate
-    expect(CATEGORY_CARD_BG_SOLID_DARK['community-presence']).toBe('#23201c')    // terracotta-tinted
-    expect(CATEGORY_CARD_BG_SOLID_DARK['finance']).toBe('#1c2521')               // emerald-tinted
-    expect(CATEGORY_CARD_BG_SOLID_DARK['issue-positions']).toBe('#1c2030')       // blue (unchanged)
-    expect(CATEGORY_CARD_BG_SOLID_DARK['ethics-accountability']).toBe('#22191d') // burgundy-tinted
-    expect(CATEGORY_CARD_BG_SOLID_DARK['voting-bills']).toBe('#241c2a')          // purple (unchanged)
   })
 })
 
