@@ -97,3 +97,14 @@ export const CATEGORY_CARD_BG_SOLID_DARK: Record<CategoryId, string> = {
   'ethics-accountability': '#22191d',  // burgundy-tinted — was '#2a2218' amber-tinted
   'voting-bills':          '#241c2a',  // unchanged
 }
+
+// Slice 43: universal category card bg + 3px top stripe pattern.
+// Replaces the slice 41 CATEGORY_CARD_GRADIENT* + CATEGORY_CARD_BG_SOLID*
+// per-category maps. The stripe color comes from useCategoryAccent(id)
+// (unchanged); the bg is the same for all 6 categories. Light value is
+// V2b "medium pop" — visibly elevated above page bg #efece5 without
+// overshooting into clinical white. Dark value sits above slice 40
+// surface.elevated #262a30 for clearer card boundaries against page bg
+// #16181c. See docs/superpowers/specs/2026-05-29-card-bg-stripe-cascade-design.md §4.
+export const CATEGORY_CARD_BG = '#fffaf2'
+export const CATEGORY_CARD_BG_DARK = '#2a2e34'

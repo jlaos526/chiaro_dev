@@ -4,6 +4,8 @@ import {
   CATEGORY_LABEL,
   CATEGORY_ACCENT,
   CATEGORY_ACCENT_DARK,
+  CATEGORY_CARD_BG,
+  CATEGORY_CARD_BG_DARK,
   CATEGORY_CARD_BG_SOLID,
   CATEGORY_CARD_BG_SOLID_DARK,
   CATEGORY_CARD_GRADIENT,
@@ -145,5 +147,17 @@ describe('CATEGORY_CARD_BG_SOLID_DARK (slice 41 cool slate cascade)', () => {
     expect(CATEGORY_CARD_BG_SOLID_DARK['issue-positions']).toBe('#1c2030')       // blue (unchanged)
     expect(CATEGORY_CARD_BG_SOLID_DARK['ethics-accountability']).toBe('#22191d') // burgundy-tinted
     expect(CATEGORY_CARD_BG_SOLID_DARK['voting-bills']).toBe('#241c2a')          // purple (unchanged)
+  })
+})
+
+describe('CATEGORY_CARD_BG (slice 43 universal)', () => {
+  it('exports the locked light card bg', () => {
+    expect(CATEGORY_CARD_BG).toBe('#fffaf2')
+  })
+})
+
+describe('CATEGORY_CARD_BG_DARK (slice 43 universal)', () => {
+  it('exports the locked dark card bg', () => {
+    expect(CATEGORY_CARD_BG_DARK).toBe('#2a2e34')
   })
 })
