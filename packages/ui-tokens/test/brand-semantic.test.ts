@@ -54,6 +54,12 @@ describe('BRAND_SEMANTIC.light → palette references', () => {
     expect(BRAND_SEMANTIC.light.link.fg).toBe('#3b6ed1')
     expect(BRAND_SEMANTIC.light.link.fg).toBe(BRAND_PALETTE.light.link.fg)
   })
+
+  it('resolves portrait.gradient.from/to + initials (light)', () => {
+    expect(BRAND_SEMANTIC.light.portrait.gradient.from).toBe('#c46a2a')
+    expect(BRAND_SEMANTIC.light.portrait.gradient.to).toBe('#e8a060')
+    expect(BRAND_SEMANTIC.light.portrait.initials).toBe('#ffffff')
+  })
 })
 
 describe('BRAND_SEMANTIC.dark → palette references', () => {
@@ -93,6 +99,12 @@ describe('BRAND_SEMANTIC.dark → palette references', () => {
 
   it('resolves link.fg (inline link blue, dark)', () => {
     expect(BRAND_SEMANTIC.dark.link.fg).toBe('#7a98e1')
+  })
+
+  it('resolves portrait.gradient.from/to + initials (dark)', () => {
+    expect(BRAND_SEMANTIC.dark.portrait.gradient.from).toBe('#6b7a5d')
+    expect(BRAND_SEMANTIC.dark.portrait.gradient.to).toBe('#9caa8e')
+    expect(BRAND_SEMANTIC.dark.portrait.initials).toBe('#fff0dc')
   })
 })
 
@@ -145,6 +157,16 @@ describe('semantic parity between modes', () => {
   it('link.* keys are identical between modes', () => {
     expect(Object.keys(BRAND_SEMANTIC.light.link).sort())
       .toEqual(Object.keys(BRAND_SEMANTIC.dark.link).sort())
+  })
+
+  it('portrait keys are identical between modes', () => {
+    expect(Object.keys(BRAND_SEMANTIC.light.portrait).sort())
+      .toEqual(Object.keys(BRAND_SEMANTIC.dark.portrait).sort())
+  })
+
+  it('portrait.gradient keys are identical between modes', () => {
+    expect(Object.keys(BRAND_SEMANTIC.light.portrait.gradient).sort())
+      .toEqual(Object.keys(BRAND_SEMANTIC.dark.portrait.gradient).sort())
   })
 })
 
