@@ -46,6 +46,11 @@ const buildSemantic = (mode: BrandMode) => {
         bg:     p.alert.success.bg,
         border: p.alert.success.border,
       },
+      info: {
+        fg:     p.alert.info.fg,
+        bg:     p.alert.info.bg,
+        border: p.alert.info.border,
+      },
     },
     signal: {
       success: p.signal.success,

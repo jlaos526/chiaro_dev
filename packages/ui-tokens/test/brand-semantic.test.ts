@@ -27,22 +27,28 @@ describe('BRAND_SEMANTIC.light → palette references', () => {
     expect(BRAND_SEMANTIC.light.border.focus).toBe(BRAND_PALETTE.light.accent[500])
   })
 
-  it('resolves alert.danger.{fg,bg,border} to palette alert.danger triplet', () => {
-    expect(BRAND_SEMANTIC.light.alert.danger.fg).toBe(BRAND_PALETTE.light.alert.danger.fg)
-    expect(BRAND_SEMANTIC.light.alert.danger.bg).toBe(BRAND_PALETTE.light.alert.danger.bg)
-    expect(BRAND_SEMANTIC.light.alert.danger.border).toBe(BRAND_PALETTE.light.alert.danger.border)
+  it('resolves alert.danger.{fg,bg,border} to slice 45 burgundy triplet', () => {
+    expect(BRAND_SEMANTIC.light.alert.danger.fg).toBe('#8a3a4d')
+    expect(BRAND_SEMANTIC.light.alert.danger.bg).toBe('#f8d8d0')
+    expect(BRAND_SEMANTIC.light.alert.danger.border).toBe('#e0928a')
   })
 
-  it('resolves alert.warning.{fg,bg,border} to palette alert.warning triplet', () => {
-    expect(BRAND_SEMANTIC.light.alert.warning.fg).toBe('#d68a1f')
-    expect(BRAND_SEMANTIC.light.alert.warning.bg).toBe('#fef7e8')
-    expect(BRAND_SEMANTIC.light.alert.warning.border).toBe('#f5c878')
+  it('resolves alert.warning.{fg,bg,border} to slice 45 gold triplet', () => {
+    expect(BRAND_SEMANTIC.light.alert.warning.fg).toBe('#c89a4e')
+    expect(BRAND_SEMANTIC.light.alert.warning.bg).toBe('#f9e3b8')
+    expect(BRAND_SEMANTIC.light.alert.warning.border).toBe('#d6a85a')
   })
 
-  it('resolves alert.success.{fg,bg,border} to palette alert.success triplet', () => {
-    expect(BRAND_SEMANTIC.light.alert.success.fg).toBe('#1f9b88')
-    expect(BRAND_SEMANTIC.light.alert.success.bg).toBe('#e8f5f2')
-    expect(BRAND_SEMANTIC.light.alert.success.border).toBe('#7fc5b5')
+  it('resolves alert.success.{fg,bg,border} to slice 45 emerald triplet', () => {
+    expect(BRAND_SEMANTIC.light.alert.success.fg).toBe('#1a8f5a')
+    expect(BRAND_SEMANTIC.light.alert.success.bg).toBe('#c5e0d6')
+    expect(BRAND_SEMANTIC.light.alert.success.border).toBe('#5fa897')
+  })
+
+  it('resolves alert.info.{fg,bg,border} to slice 45 terracotta triplet (new)', () => {
+    expect(BRAND_SEMANTIC.light.alert.info.fg).toBe('#b86340')
+    expect(BRAND_SEMANTIC.light.alert.info.bg).toBe('#f3d7b6')
+    expect(BRAND_SEMANTIC.light.alert.info.border).toBe('#d6a474')
   })
 
   it('resolves signal.success to finance green', () => {
@@ -75,22 +81,28 @@ describe('BRAND_SEMANTIC.dark → palette references', () => {
     expect(BRAND_SEMANTIC.dark.bg.app).toBe('#16181c')
   })
 
-  it('resolves alert.danger.{fg,bg,border} (dark)', () => {
-    expect(BRAND_SEMANTIC.dark.alert.danger.fg).toBe('#d05050')
-    expect(BRAND_SEMANTIC.dark.alert.danger.bg).toBe('#2a1414')
-    expect(BRAND_SEMANTIC.dark.alert.danger.border).toBe('#6e2222')
+  it('resolves alert.danger.{fg,bg,border} (dark, slice 45)', () => {
+    expect(BRAND_SEMANTIC.dark.alert.danger.fg).toBe('#c89aa8')
+    expect(BRAND_SEMANTIC.dark.alert.danger.bg).toBe('#2a1820')
+    expect(BRAND_SEMANTIC.dark.alert.danger.border).toBe('#5a2535')
   })
 
-  it('resolves alert.warning.{fg,bg,border} (dark)', () => {
-    expect(BRAND_SEMANTIC.dark.alert.warning.fg).toBe('#f0b558')
-    expect(BRAND_SEMANTIC.dark.alert.warning.bg).toBe('#3a2a14')
-    expect(BRAND_SEMANTIC.dark.alert.warning.border).toBe('#6e4a20')
+  it('resolves alert.warning.{fg,bg,border} (dark, slice 45)', () => {
+    expect(BRAND_SEMANTIC.dark.alert.warning.fg).toBe('#e1c896')
+    expect(BRAND_SEMANTIC.dark.alert.warning.bg).toBe('#2e2516')
+    expect(BRAND_SEMANTIC.dark.alert.warning.border).toBe('#7c5a1e')
   })
 
-  it('resolves alert.success.{fg,bg,border} (dark)', () => {
-    expect(BRAND_SEMANTIC.dark.alert.success.fg).toBe('#4dbfb0')
-    expect(BRAND_SEMANTIC.dark.alert.success.bg).toBe('#1a302c')
-    expect(BRAND_SEMANTIC.dark.alert.success.border).toBe('#3a6e62')
+  it('resolves alert.success.{fg,bg,border} (dark, slice 45)', () => {
+    expect(BRAND_SEMANTIC.dark.alert.success.fg).toBe('#7eb898')
+    expect(BRAND_SEMANTIC.dark.alert.success.bg).toBe('#162a1f')
+    expect(BRAND_SEMANTIC.dark.alert.success.border).toBe('#0f5a4f')
+  })
+
+  it('resolves alert.info.{fg,bg,border} (dark, slice 45 new)', () => {
+    expect(BRAND_SEMANTIC.dark.alert.info.fg).toBe('#e0b8a0')
+    expect(BRAND_SEMANTIC.dark.alert.info.bg).toBe('#2a1f18')
+    expect(BRAND_SEMANTIC.dark.alert.info.border).toBe('#7a3e23')
   })
 
   it('resolves signal.success (finance green, dark)', () => {
