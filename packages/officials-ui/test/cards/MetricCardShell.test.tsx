@@ -65,7 +65,7 @@ describe('MetricCardShell', () => {
     expect(queryByText('view source →')).toBeNull()
   })
 
-  it('applies per-category gradient background when not placeholder/unavailable', () => {
+  it('applies the universal card bg + per-category 3px top stripe (slice 43)', () => {
     const { container } = render(
       <MetricCardShell
         value="$5.2M"
@@ -74,12 +74,15 @@ describe('MetricCardShell', () => {
         externalSourceUrl="https://www.opensecrets.org"
       />,
     )
-    // Outer card is the first descendant element. RNW propagates the
-    // `background` string straight through; inline style is read from DOM.
+    // Outer card is the only descendant element (no wrapper div post-slice-43).
     const outer = container.firstElementChild as HTMLElement | null
     expect(outer).not.toBeNull()
-    const bg = outer?.getAttribute('style') ?? ''
-    expect(bg).toMatch(/linear-gradient\(180deg, #d4e8d8 0%, #fff 100%\)/)
+    const style = outer?.getAttribute('style') ?? ''
+    // RNW normalizes #fffaf2 to rgb(255, 250, 242) in inline style.
+    expect(style).toMatch(/background-color:\s*rgb\(255,\s*250,\s*242\)/)
+    // RNW normalizes #1a8f5a (CATEGORY_ACCENT.finance) to rgb(26, 143, 90).
+    expect(style).toMatch(/border-top-color:\s*rgb\(26,\s*143,\s*90\)/)
+    expect(style).toMatch(/border-top-width:\s*3px/)
   })
 
   it('placeholder variant suppresses CTA', () => {
