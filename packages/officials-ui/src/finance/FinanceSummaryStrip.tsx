@@ -1,7 +1,5 @@
-import { createElement } from 'react'
-import { Platform, Text, View } from 'react-native'
-import { CATEGORY_CARD_GRADIENT } from '@chiaro/ui-tokens'
-import { useBrandTokens, useFinanceCardBg } from '../brand-hooks.ts'
+import { Text, View } from 'react-native'
+import { useBrandTokens, useCategoryAccent, useCategoryCardBg } from '../brand-hooks.ts'
 
 export interface FinanceSummaryStripProps {
   cycle: string
@@ -66,22 +64,17 @@ export function FinanceSummaryStrip({
   pacPct,
 }: FinanceSummaryStripProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
-  const cardBg = useFinanceCardBg()
-  // Pattern B (see MetricCardShell): on web, paint the finance category
-  // gradient via a raw <div> wrapper using CSS `background` (RNW strips
-  // `linear-gradient(...)` from `backgroundColor`). Inner View is
-  // transparent so the gradient shows through. Native paints the solid
-  // top stop directly.
-  const useWebGradient = Platform.OS === 'web'
-  const innerBg = useWebGradient ? 'transparent' : cardBg
-
-  const inner = (
+  const cardBg = useCategoryCardBg()
+  const financeAccent = useCategoryAccent('finance')
+  return (
     <View
       style={{
         flexDirection: 'row',
-        backgroundColor: innerBg,
+        backgroundColor: cardBg,
         borderWidth: 1,
         borderColor: semantic.border.default,
+        borderTopWidth: 3,
+        borderTopColor: financeAccent,
         borderRadius: 6,
         padding: 12,
         marginBottom: 10,
@@ -94,19 +87,4 @@ export function FinanceSummaryStrip({
       <Cell label="PAC %" value={pacPct == null ? '—' : `${pacPct.toFixed(1)}%`} />
     </View>
   )
-
-  if (useWebGradient) {
-    return createElement(
-      'div',
-      {
-        style: {
-          background: CATEGORY_CARD_GRADIENT.finance,
-          borderRadius: 6,
-        },
-      },
-      inner,
-    )
-  }
-
-  return inner
 }
