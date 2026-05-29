@@ -43,16 +43,16 @@ export const CATEGORY_CARD_GRADIENT: Record<CategoryId, string> = {
   'voting-bills':          'linear-gradient(180deg, #f7f4fc 0%, #fff 100%)',
 }
 
-// Slice 37: solid per-category card background tokens (moved from
-// MetricCardShell). Native uses these directly (RN lacks a built-in
-// linear-gradient primitive); web prefers CATEGORY_CARD_GRADIENT.
+// Slice 41: Level B medium saturation. Cards identify as their category
+// color rather than near-invisible pale tints. Native uses these directly
+// (RN lacks a built-in linear-gradient primitive); web prefers CATEGORY_CARD_GRADIENT.
 export const CATEGORY_CARD_BG_SOLID: Record<CategoryId, string> = {
-  'service-record':        '#fcfaf2',
-  'issue-positions':       '#f6f8fc',
-  'community-presence':    '#f3faf8',
-  'finance':               '#f4faf6',
-  'ethics-accountability': '#fcf7f0',
-  'voting-bills':          '#f7f4fc',
+  'service-record':        '#f5e6cc',  // gold tint
+  'community-presence':    '#f5dece',  // terracotta tint
+  'finance':               '#d4e8d8',  // emerald tint
+  'issue-positions':       '#d8e0f5',  // blue tint
+  'ethics-accountability': '#ecc8cf',  // burgundy tint
+  'voting-bills':          '#e0d5f0',  // purple tint
 }
 
 // Slice 41: CATEGORY_ACCENT_DARK now mirrors CATEGORY_ACCENT (single-hex
@@ -82,13 +82,14 @@ export const CATEGORY_CARD_GRADIENT_DARK: Record<CategoryId, string> = {
   'voting-bills':          'linear-gradient(180deg, #241c2a 0%, #1a1714 100%)',
 }
 
-// Slice 37: dark-mode CATEGORY_CARD_BG_SOLID. Deeper warm equivalents so
-// each card retains its semantic temperature against a dark surface.
+// Slice 41: cool slate base + subtle hue tint per category. Replaces the
+// slice 33-37 warm-brown anchors that visibly clashed with slice 40's new
+// cool slate page bg (#16181c) and card bg (#1e2126).
 export const CATEGORY_CARD_BG_SOLID_DARK: Record<CategoryId, string> = {
-  'service-record':        '#2a221c',
-  'issue-positions':       '#1c2030',
-  'community-presence':    '#1c2a28',
-  'finance':               '#1c2820',
-  'ethics-accountability': '#2a2218',
-  'voting-bills':          '#241c2a',
+  'service-record':        '#23211a',  // gold-tinted cool slate — was '#2a221c'
+  'community-presence':    '#23201c',  // terracotta-tinted — was '#1c2a28' teal-tinted
+  'finance':               '#1c2521',  // emerald-tinted — was '#1c2820' medium-green-tinted
+  'issue-positions':       '#1c2030',  // unchanged
+  'ethics-accountability': '#22191d',  // burgundy-tinted — was '#2a2218' amber-tinted
+  'voting-bills':          '#241c2a',  // unchanged
 }
