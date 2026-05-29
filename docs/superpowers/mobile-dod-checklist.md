@@ -235,6 +235,15 @@ the user was on the calibrate flow.
 - [ ] ComplianceIcon on-time variant (✓ green) bg matches Strongly Aligned chip bg in both light and dark mode.
 - [ ] ComplianceIcon late variant (✖ peach) bg matches Mostly Differs chip bg in both light and dark mode.
 
+## Slice 43 — Category card bg stripe cascade
+
+- [ ] All 6 category cards on `/officials/[id]` (mobile) show a neutral cream-tinted bg + 3px top stripe in their category accent: Service Record gold, Community Presence terracotta, Finance emerald, Issue Positions blue, Ethics burgundy, Voting Bills purple.
+- [ ] In dark mode, all 6 cards show the cool slate `#2a2e34` bg + same stripe accents — cards sit visibly above the cool-slate page bg.
+- [ ] FinanceSummaryStrip renders the universal card bg + emerald top stripe; small-donor / PAC% / total-raised dots still visible.
+- [ ] TopAmountBreakdown progress bars still render `signal.success` green fills (not changed by slice 43).
+- [ ] Placeholder + unavailable MetricCardShell variants render WITHOUT a top stripe (1px border + subtle bg) — read as "no data" rather than as active category cards.
+- [ ] `/state-officials/[id]` cards mirror the federal pattern (same 6 stripes + universal bg).
+
 ## After the run
 
 If any item fails:
