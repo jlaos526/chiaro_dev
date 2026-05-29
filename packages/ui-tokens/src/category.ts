@@ -34,13 +34,14 @@ export const SUB_CASCADE_ACCENT: Record<CategoryId, string> = {
   'voting-bills':          '#b39bd9',
 }
 
+// Slice 41: Level B medium saturation start stops; #fff endpoint preserved.
 export const CATEGORY_CARD_GRADIENT: Record<CategoryId, string> = {
-  'service-record':        'linear-gradient(180deg, #fcfaf2 0%, #fff 100%)',
-  'issue-positions':       'linear-gradient(180deg, #f6f8fc 0%, #fff 100%)',
-  'community-presence':    'linear-gradient(180deg, #f3faf8 0%, #fff 100%)',
-  'finance':               'linear-gradient(180deg, #f4faf6 0%, #fff 100%)',
-  'ethics-accountability': 'linear-gradient(180deg, #fcf7f0 0%, #fff 100%)',
-  'voting-bills':          'linear-gradient(180deg, #f7f4fc 0%, #fff 100%)',
+  'service-record':        'linear-gradient(180deg, #f5e6cc 0%, #fff 100%)',
+  'community-presence':    'linear-gradient(180deg, #f5dece 0%, #fff 100%)',
+  'finance':               'linear-gradient(180deg, #d4e8d8 0%, #fff 100%)',
+  'issue-positions':       'linear-gradient(180deg, #d8e0f5 0%, #fff 100%)',
+  'ethics-accountability': 'linear-gradient(180deg, #ecc8cf 0%, #fff 100%)',
+  'voting-bills':          'linear-gradient(180deg, #e0d5f0 0%, #fff 100%)',
 }
 
 // Slice 41: Level B medium saturation. Cards identify as their category
@@ -71,15 +72,15 @@ export const SUB_CASCADE_ACCENT_DARK: Record<CategoryId, string> = {
   'voting-bills':          '#8470a8',
 }
 
-// Slice 37: dark-mode CATEGORY_CARD_GRADIENT — fades a deep tier-tinted
-// stop to the same neutral surface used in CATEGORY_CARD_BG_SOLID_DARK.
+// Slice 41: cool slate start stops + cascade endpoint to slice 40 bg.app
+// (#16181c, was warm '#1a1714' — slice 40 left this stale).
 export const CATEGORY_CARD_GRADIENT_DARK: Record<CategoryId, string> = {
-  'service-record':        'linear-gradient(180deg, #2a221c 0%, #1a1714 100%)',
-  'issue-positions':       'linear-gradient(180deg, #1c2030 0%, #1a1714 100%)',
-  'community-presence':    'linear-gradient(180deg, #1c2a28 0%, #1a1714 100%)',
-  'finance':               'linear-gradient(180deg, #1c2820 0%, #1a1714 100%)',
-  'ethics-accountability': 'linear-gradient(180deg, #2a2218 0%, #1a1714 100%)',
-  'voting-bills':          'linear-gradient(180deg, #241c2a 0%, #1a1714 100%)',
+  'service-record':        'linear-gradient(180deg, #23211a 0%, #16181c 100%)',
+  'community-presence':    'linear-gradient(180deg, #23201c 0%, #16181c 100%)',
+  'finance':               'linear-gradient(180deg, #1c2521 0%, #16181c 100%)',
+  'issue-positions':       'linear-gradient(180deg, #1c2030 0%, #16181c 100%)',
+  'ethics-accountability': 'linear-gradient(180deg, #22191d 0%, #16181c 100%)',
+  'voting-bills':          'linear-gradient(180deg, #241c2a 0%, #16181c 100%)',
 }
 
 // Slice 41: cool slate base + subtle hue tint per category. Replaces the
