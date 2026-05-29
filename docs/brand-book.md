@@ -220,6 +220,22 @@ logoGeometry(48).boundingWidth    // 69
 
 The old `COLORS` and `MAP_COLORS` exports remain unchanged for back-compat with slice-1-through-31 consumers. They are `@deprecated`; new work imports from `BRAND.*`.
 
+## 11. Category palette (slice 41)
+
+The per-category accents identify each profile-page card (federal + state officials detail views). Light + dark modes share one hex per category (slice 41 single-hex collapse).
+
+| Category | Hex | Semantic |
+|---|---|---|
+| Service Record | `#c89a4e` | gold — achievement medal, heritage record |
+| Community Presence | `#b86340` | terracotta — town square clay, gathering |
+| Finance | `#1a8f5a` | emerald — money, growth |
+| Issue Positions | `#3b6ed1` | blue — considered stance, perspective |
+| Ethics & Accountability | `#8a3a4d` | burgundy — judicial gravitas, law-book leather |
+| Voting & Bills | `#7d57c1` | purple — legislative, parchment |
+
+Card-render order on federal officials pages: Service Record → Community Presence → Finance → Issue Positions → Ethics → Voting & Bills.
+"who they are → where they show up → what they do with money → what they believe → how they behave → what they vote on"
+
 ---
 
 *See `docs/superpowers/specs/2026-05-26-brand-design-design.md` for the original design spec.*
