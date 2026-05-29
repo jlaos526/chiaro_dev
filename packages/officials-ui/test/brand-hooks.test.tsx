@@ -7,6 +7,8 @@ import {
   BRAND_PALETTE,
   CATEGORY_ACCENT,
   CATEGORY_ACCENT_DARK,
+  CATEGORY_CARD_BG,
+  CATEGORY_CARD_BG_DARK,
   CATEGORY_CARD_BG_SOLID,
   CATEGORY_CARD_BG_SOLID_DARK,
   CATEGORY_CARD_GRADIENT,
@@ -32,6 +34,7 @@ import {
   useAlignmentChipColors,
   useBrandTokens,
   useCategoryAccent,
+  useCategoryCardBg,
   useCategoryCardBgSolid,
   useCategoryCardGradient,
   useFinanceCardBg,
@@ -255,5 +258,16 @@ describe('useMapColors', () => {
     const { result: dark } = renderHook(() => useMapColors(), { wrapper: wrapper('dark') })
     expect(light.current.districtStroke).not.toBe(dark.current.districtStroke)
     expect(light.current.districtFill).not.toBe(dark.current.districtFill)
+  })
+})
+
+describe('useCategoryCardBg (slice 43)', () => {
+  it('returns light card bg when mode is light', () => {
+    const { result } = renderHook(() => useCategoryCardBg(), { wrapper: wrapper('light') })
+    expect(result.current).toBe(CATEGORY_CARD_BG)
+  })
+  it('returns dark card bg when mode is dark', () => {
+    const { result } = renderHook(() => useCategoryCardBg(), { wrapper: wrapper('dark') })
+    expect(result.current).toBe(CATEGORY_CARD_BG_DARK)
   })
 })

@@ -15,6 +15,8 @@ import {
   BRAND_PALETTE,
   CATEGORY_ACCENT,
   CATEGORY_ACCENT_DARK,
+  CATEGORY_CARD_BG,
+  CATEGORY_CARD_BG_DARK,
   CATEGORY_CARD_BG_SOLID,
   CATEGORY_CARD_BG_SOLID_DARK,
   CATEGORY_CARD_GRADIENT,
@@ -183,4 +185,15 @@ export function useFinanceSubSectionShade(category: string): FinanceSubSectionSh
 export function useMapColors(): { districtStroke: string; districtFill: string } {
   const { mode } = useBrandTokens()
   return mode === 'dark' ? MAP_COLORS_DARK : MAP_COLORS
+}
+
+/**
+ * Returns the universal category card background color for the active brand
+ * mode (slice 43). Replaces the slice 41 per-category `useCategoryCardBgSolid`
+ * + `useCategoryCardGradient` pair. The stripe color now comes from
+ * `useCategoryAccent(id)` and is applied as `borderTopColor` on the card.
+ */
+export function useCategoryCardBg(): string {
+  const { mode } = useBrandTokens()
+  return mode === 'dark' ? CATEGORY_CARD_BG_DARK : CATEGORY_CARD_BG
 }
