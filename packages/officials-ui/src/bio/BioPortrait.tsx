@@ -19,11 +19,13 @@ function initials(name: string): string {
 
 export function BioPortrait({ fullName, portraitUrl, size }: BioPortraitProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
-  const portraitSolid = semantic.link.fg
+  // Mode-aware portrait: light = brand orange, dark = sage. Centralized
+  // via semantic.portrait (slice 40) — decoupled from semantic.link.fg.
+  const portraitSolid = semantic.portrait.gradient.from
   const portraitGradient = useMemo(
-    // #5b8de1 derived from link.fg; slice 38+ may centralize gradient derivation
-    () => `linear-gradient(135deg, ${semantic.link.fg} 0%, #5b8de1 100%)`,
-    [semantic.link.fg],
+    () =>
+      `linear-gradient(135deg, ${semantic.portrait.gradient.from} 0%, ${semantic.portrait.gradient.to} 100%)`,
+    [semantic.portrait.gradient.from, semantic.portrait.gradient.to],
   )
 
   if (portraitUrl) {
@@ -58,7 +60,7 @@ export function BioPortrait({ fullName, portraitUrl, size }: BioPortraitProps): 
         justifyContent: 'center',
       }}
     >
-      <Text style={{ color: semantic.text.onAccent, fontWeight: '700', fontSize: size * 0.42 }}>
+      <Text style={{ color: semantic.portrait.initials, fontWeight: '700', fontSize: size * 0.42 }}>
         {initials(fullName)}
       </Text>
     </View>
