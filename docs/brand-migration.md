@@ -108,6 +108,30 @@ Re-derived 4 category accent colors for stronger semantic fit, collapsed light/d
 
 Federal officials detail pages (web + mobile) reorder to match. State-officials pages out of scope (different card composition per Gotcha #15).
 
+### AlignmentChip palette reskin (slice 42)
+
+Re-derived all 20 hex values across `ALIGNMENT_CHIP_COLORS` + `ALIGNMENT_CHIP_COLORS_DARK` as a cool-to-warm thermal gradient with V2 deeper-saturation Strongly emphasis. Mixed tier borrows slice 41 Service Record gold family as the on-the-fence pivot.
+
+**Light mode changes:**
+- `strongly-aligned`: `{ bg: '#c5e3c7', fg: '#1f4d24' }` → `{ bg: '#a8d4b0', fg: '#0f3a1c' }` (V2 deeper emerald)
+- `mostly-aligned`: `{ bg: '#d4ecd5', fg: '#2a6b30' }` → `{ bg: '#d8ecda', fg: '#2a6b30' }` (bg tweak only)
+- `mixed`: `{ bg: '#f0eee5', fg: '#5a5751' }` → `{ bg: '#eedbb5', fg: '#7c5a1e' }` (gold pivot — closes slice 37 "blends into cream page bg" problem)
+- `mostly-differs`: `{ bg: '#f4d3c0', fg: '#7a3e1c' }` → `{ bg: '#f0d3c0', fg: '#6a3e1c' }` (slight bg tweak + fg clean)
+- `strongly-differs`: `{ bg: '#f0b8a0', fg: '#5a2812' }` → `{ bg: '#dca088', fg: '#4a1e0c' }` (V2 deeper terracotta)
+
+**Dark mode changes:**
+- `strongly-aligned`: `{ bg: '#1f3a25', fg: '#a8d8ad' }` → `{ bg: '#143020', fg: '#a8e0b0' }`
+- `mostly-aligned`: `{ bg: '#26482e', fg: '#b8e0bd' }` → `{ bg: '#24462d', fg: '#a8c9af' }`
+- `mixed`: `{ bg: '#3a3830', fg: '#d4d0c5' }` → `{ bg: '#23211a', fg: '#e1c896' }` (matches `CATEGORY_CARD_BG_SOLID_DARK['service-record']` byte-for-byte)
+- `mostly-differs`: `{ bg: '#4a2e1c', fg: '#f0c2a5' }` → `{ bg: '#3e2820', fg: '#e0a890' }`
+- `strongly-differs`: `{ bg: '#5a2a18', fg: '#f5b095' }` → `{ bg: '#5e2418', fg: '#f5a888' }`
+
+**Consumer cleanup:**
+- `packages/officials-ui/src/cards/ComplianceIcon.tsx` refactored from inline hex literals to `useAlignmentChipColors(tier)` consumption (`on-time → strongly-aligned`, `late → mostly-differs`). Closes a CLAUDE.md "inline hex forbidden" deviation.
+
+**Not touched (coincidental hex collision):**
+- `packages/officials-ui/src/cards/PillChevron.tsx` uses literal `#f0eee5` (was the slice 37 Mixed bg) as a generic expand-affordance pill. Not semantically alignment-related; hex collision is coincidental. Migrating PillChevron to a brand token is a separate inline-hex cleanup unrelated to slice 42's reskin scope.
+
 ---
 
 *See `docs/brand-book.md` (slice 32) for the brand reference.*

@@ -236,6 +236,34 @@ The per-category accents identify each profile-page card (federal + state offici
 Card-render order on federal officials pages: Service Record → Community Presence → Finance → Issue Positions → Ethics → Voting & Bills.
 "who they are → where they show up → what they do with money → what they believe → how they behave → what they vote on"
 
+## 12. AlignmentChip palette (slice 42)
+
+5-tier chip palette identifying voting/issue-position alignment with the user's profile. Cool-to-warm thermal: emerald-aligned → gold-Mixed-pivot → terracotta-differs. V2 deeper saturation on the 2 Strongly tiers as polar emphasis (color does the work; no font-weight differentiation).
+
+### Light mode (`ALIGNMENT_CHIP_COLORS`)
+
+| Tier | bg | fg | Note |
+|---|---|---|---|
+| Strongly Aligned | `#a8d4b0` | `#0f3a1c` | V2 deeper emerald |
+| Mostly Aligned | `#d8ecda` | `#2a6b30` | Pale emerald |
+| Mixed | `#eedbb5` | `#7c5a1e` | Gold pivot (slice 41 Service Record family) |
+| Mostly Differs | `#f0d3c0` | `#6a3e1c` | Pale peach |
+| Strongly Differs | `#dca088` | `#4a1e0c` | V2 deeper terracotta |
+
+### Dark mode (`ALIGNMENT_CHIP_COLORS_DARK`)
+
+| Tier | bg | fg | Note |
+|---|---|---|---|
+| Strongly Aligned | `#143020` | `#a8e0b0` | V2 deeper emerald slate |
+| Mostly Aligned | `#24462d` | `#a8c9af` | Mid emerald slate |
+| Mixed | `#23211a` | `#e1c896` | Gold-tinted cool slate (matches `CATEGORY_CARD_BG_SOLID_DARK['service-record']`) |
+| Mostly Differs | `#3e2820` | `#e0a890` | Mid terracotta slate |
+| Strongly Differs | `#5e2418` | `#f5a888` | V2 deeper terracotta slate |
+
+### Cross-component consumption
+
+`ComplianceIcon` (filing on-time / late indicator) consumes the alignment palette via `useAlignmentChipColors(tier)` so that future palette retones cascade automatically. Mapping: `on-time → strongly-aligned`, `late → mostly-differs`.
+
 ---
 
 *See `docs/superpowers/specs/2026-05-26-brand-design-design.md` for the original design spec.*
