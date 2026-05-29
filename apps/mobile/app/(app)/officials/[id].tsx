@@ -7,11 +7,11 @@ import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
 import { firstElectedYear as deriveFirstElectedYear } from '@/lib/derivations/service-record'
 import {
   BioHeader,
+  FederalServiceRecordCard,
   FederalCommunityPresenceCard,
-  FederalEthicsAccountabilityCard,
   FederalFinanceCard,
   FederalIssuePositionsCard,
-  FederalServiceRecordCard,
+  FederalEthicsAccountabilityCard,
   FederalVotingBillsCard,
 } from '@chiaro/officials-ui'
 
@@ -81,9 +81,9 @@ export default function OfficialDetailScreen() {
             officialId={officialId}
             {...(official.chamber === 'federal_senate' ? { hideLivesInDistrict: true } : {})}
           />
+          <FederalCommunityPresenceCard officialId={officialId} congress={CURRENT_CONGRESS} />
           <FederalFinanceCard officialId={officialId} cycle={CURRENT_CYCLE} />
           <FederalIssuePositionsCard officialId={officialId} />
-          <FederalCommunityPresenceCard officialId={officialId} congress={CURRENT_CONGRESS} />
           <FederalEthicsAccountabilityCard officialId={officialId} />
           <FederalVotingBillsCard officialId={officialId} congress={CURRENT_CONGRESS} />
         </View>
