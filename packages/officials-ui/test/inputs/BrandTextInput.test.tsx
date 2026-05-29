@@ -122,6 +122,6 @@ describe('BrandTextInput — mode awareness', () => {
     )
     // Web CSS template contains the hex values for the active mode.
     expect(light.innerHTML).toContain('#e8d8c2') // light border.default
-    expect(dark.innerHTML).toContain('#3a2e26') // dark border.default
+    expect(dark.innerHTML).toContain('#2a2d33') // dark border.default (slice 40 cool slate)
   })
 })
