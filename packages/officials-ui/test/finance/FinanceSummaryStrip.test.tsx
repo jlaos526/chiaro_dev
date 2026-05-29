@@ -32,15 +32,17 @@ describe('FinanceSummaryStrip', () => {
     expect(screen.getByText('$425K')).toBeTruthy()
   })
 
-  it('applies the finance category gradient on web', () => {
+  it('applies the universal card bg + finance 3px top stripe (slice 43)', () => {
     const { container } = render(
       <FinanceSummaryStrip cycle="2024" totalRaised={1_000_000} smallDonorPct={28} pacPct={5} />,
     )
-    // Outer wrapper is the raw <div> that carries the CSS gradient.
+    // Outer wrapper is the View itself (no createElement div wrapper post-slice-43).
     const outer = container.firstElementChild as HTMLElement | null
     expect(outer).not.toBeNull()
-    const bg = outer?.getAttribute('style') ?? ''
-    expect(bg).toMatch(/linear-gradient\(180deg, #d4e8d8 0%, #fff 100%\)/)
+    const style = outer?.getAttribute('style') ?? ''
+    expect(style).toMatch(/background-color:\s*rgb\(255,\s*250,\s*242\)/)  // #fffaf2
+    expect(style).toMatch(/border-top-color:\s*rgb\(26,\s*143,\s*90\)/)    // CATEGORY_ACCENT.finance #1a8f5a
+    expect(style).toMatch(/border-top-width:\s*3px/)
   })
 })
 

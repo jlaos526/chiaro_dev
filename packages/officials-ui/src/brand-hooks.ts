@@ -15,12 +15,8 @@ import {
   BRAND_PALETTE,
   CATEGORY_ACCENT,
   CATEGORY_ACCENT_DARK,
-  CATEGORY_CARD_BG_SOLID,
-  CATEGORY_CARD_BG_SOLID_DARK,
-  CATEGORY_CARD_GRADIENT,
-  CATEGORY_CARD_GRADIENT_DARK,
-  FINANCE_CARD_BG,
-  FINANCE_CARD_BG_DARK,
+  CATEGORY_CARD_BG,
+  CATEGORY_CARD_BG_DARK,
   FINANCE_SUB_SECTION_SHADES,
   FINANCE_SUB_SECTION_SHADES_DARK,
   INDUSTRY_COLOR,
@@ -118,29 +114,11 @@ export function useScorecardLeanColor(lean: ScorecardLean): string {
 }
 
 /**
- * Returns the CSS `linear-gradient(...)` string for a category card in the
- * active mode. Web-only consumer; native uses {@link useCategoryCardBgSolid}.
- */
-export function useCategoryCardGradient(categoryId: CategoryId): string {
-  const { mode } = useBrandTokens()
-  return mode === 'dark' ? CATEGORY_CARD_GRADIENT_DARK[categoryId] : CATEGORY_CARD_GRADIENT[categoryId]
-}
-
-/**
  * Returns the category accent (saturated semantic hue) for the active mode.
  */
 export function useCategoryAccent(categoryId: CategoryId): string {
   const { mode } = useBrandTokens()
   return mode === 'dark' ? CATEGORY_ACCENT_DARK[categoryId] : CATEGORY_ACCENT[categoryId]
-}
-
-/**
- * Returns the solid per-category card background color for the active mode.
- * Native uses this directly (RN lacks a built-in linear-gradient primitive).
- */
-export function useCategoryCardBgSolid(categoryId: CategoryId): string {
-  const { mode } = useBrandTokens()
-  return mode === 'dark' ? CATEGORY_CARD_BG_SOLID_DARK[categoryId] : CATEGORY_CARD_BG_SOLID[categoryId]
 }
 
 /**
@@ -156,14 +134,6 @@ export function useIndustryColor(industry: string | undefined): string {
     if (hit !== undefined) return hit
   }
   return fallback
-}
-
-/**
- * Returns the finance-card background color for the active brand mode.
- */
-export function useFinanceCardBg(): string {
-  const { mode } = useBrandTokens()
-  return mode === 'dark' ? FINANCE_CARD_BG_DARK : FINANCE_CARD_BG
 }
 
 /**
@@ -183,4 +153,15 @@ export function useFinanceSubSectionShade(category: string): FinanceSubSectionSh
 export function useMapColors(): { districtStroke: string; districtFill: string } {
   const { mode } = useBrandTokens()
   return mode === 'dark' ? MAP_COLORS_DARK : MAP_COLORS
+}
+
+/**
+ * Returns the universal category card background color for the active brand
+ * mode (slice 43). Replaces the slice 41 per-category `useCategoryCardBgSolid`
+ * + `useCategoryCardGradient` pair. The stripe color now comes from
+ * `useCategoryAccent(id)` and is applied as `borderTopColor` on the card.
+ */
+export function useCategoryCardBg(): string {
+  const { mode } = useBrandTokens()
+  return mode === 'dark' ? CATEGORY_CARD_BG_DARK : CATEGORY_CARD_BG
 }

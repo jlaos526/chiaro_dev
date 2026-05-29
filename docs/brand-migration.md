@@ -132,6 +132,34 @@ Re-derived all 20 hex values across `ALIGNMENT_CHIP_COLORS` + `ALIGNMENT_CHIP_CO
 **Not touched (coincidental hex collision):**
 - `packages/officials-ui/src/cards/PillChevron.tsx` uses literal `#f0eee5` (was the slice 37 Mixed bg) as a generic expand-affordance pill. Not semantically alignment-related; hex collision is coincidental. Migrating PillChevron to a brand token is a separate inline-hex cleanup unrelated to slice 42's reskin scope.
 
+### Category card bg stripe cascade (slice 43)
+
+Replaces the slice 41 per-category gradient + bg pattern with a universal neutral card bg + 3px top stripe consuming the existing `useCategoryAccent(id)` (slice 41 unchanged).
+
+**New tokens:**
+- `CATEGORY_CARD_BG`: `#fffaf2` (light) — V2b medium-pop elevation above page `#efece5`
+- `CATEGORY_CARD_BG_DARK`: `#2a2e34` — above slice 40 `surface.elevated` `#262a30`
+
+**New hook:**
+- `useCategoryCardBg()` (no id arg, universal across all 6 categories)
+
+**Deleted tokens:**
+- `CATEGORY_CARD_GRADIENT` + `CATEGORY_CARD_GRADIENT_DARK` (12 gradient strings)
+- `CATEGORY_CARD_BG_SOLID` + `CATEGORY_CARD_BG_SOLID_DARK` (12 per-category hexes)
+- `FINANCE_CARD_BG` + `FINANCE_CARD_BG_DARK` (slice 37 abstraction — orphan after the slice 43 cascade)
+
+**Deleted hooks:**
+- `useCategoryCardGradient(id)`
+- `useCategoryCardBgSolid(id)`
+- `useFinanceCardBg()`
+
+**Component refactors:**
+- `MetricCardShell`, `FinanceSummaryStrip`, `TopAmountBreakdown` — all 3 dropped the Pattern B createElement gradient escape hatch (CLAUDE.md Gotcha #19f) and now render a single `<View>` with `borderTopWidth: 3` + `borderTopColor` (category accent) + `backgroundColor` (universal bg).
+
+**Placeholder/unavailable variant in `MetricCardShell`:** renders without the 3px stripe (1px top border + `semantic.bg.subtle`) so the visual distinction with "live" cards holds.
+
+**Signal.success untouched.** The slice 43 prep audit at `docs/superpowers/audits/2026-05-29-finance-green-overlap.md` recommended collapsing `signal.success` to equal `CATEGORY_ACCENT.finance`, but the user picked Option D (status quo) during brainstorm. `BRAND_SEMANTIC.signal.success` stays `#3da75b` light / `#5dc97f` dark. The actual user-flagged problem was card bg blend; this slice ships the cascade fix.
+
 ---
 
 *See `docs/brand-book.md` (slice 32) for the brand reference.*

@@ -1,11 +1,10 @@
-import { createElement, type ReactNode } from 'react'
-import { Linking, Platform, Pressable, Text, View } from 'react-native'
+import { type ReactNode } from 'react'
+import { Linking, Pressable, Text, View } from 'react-native'
 import { type CategoryId } from '@chiaro/ui-tokens'
 import {
   useBrandTokens,
   useCategoryAccent,
-  useCategoryCardBgSolid,
-  useCategoryCardGradient,
+  useCategoryCardBg,
 } from '../brand-hooks.ts'
 
 interface BaseProps {
@@ -28,20 +27,12 @@ export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element 
   const { semantic } = useBrandTokens()
   const { value, label, caption, categoryId, placeholder = false, unavailable = false } = props
   const categoryAccent = useCategoryAccent(categoryId)
-  const categoryBgSolid = useCategoryCardBgSolid(categoryId)
-  const categoryGradient = useCategoryCardGradient(categoryId)
+  const cardBg = useCategoryCardBg()
+  const isLive = !placeholder && !unavailable
+  // Live variant: full 3px top stripe in category accent.
+  // Placeholder/unavailable: no stripe (1px top border matches the other borders)
+  // so the card reads as "no data" rather than "active category card."
   const dotColor = unavailable ? semantic.text.muted : categoryAccent
-  // Solid color used as the View's `backgroundColor` on native, AND as the
-  // RNW-safe fallback before the web-only gradient overlay paints on top.
-  const bgSolid = unavailable
-    ? semantic.bg.subtle
-    : placeholder
-      ? semantic.bg.subtle
-      : categoryBgSolid
-  // On web, this gradient string is applied to a raw <div> wrapper via the
-  // CSS `background` shorthand. Only the "live" variant uses the gradient;
-  // placeholder / unavailable variants stay solid to read as "no data."
-  const bgGradientWeb = !unavailable && !placeholder ? categoryGradient : null
   const renderedLabel = unavailable ? 'Unavailable' : label
 
   const valueStyle = {
@@ -63,7 +54,7 @@ export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element 
   }
 
   let cta: ReactNode = null
-  if (!placeholder && !unavailable) {
+  if (isLive) {
     if ('onExpand' in props && typeof props.onExpand === 'function') {
       const onExpand = props.onExpand
       cta = (
@@ -99,24 +90,30 @@ export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element 
     }
   }
 
-  // On web, the gradient is painted by an outer DOM <div> via the CSS
-  // `background` shorthand (RNW's StyleSheet normalizer strips
-  // `linear-gradient(...)` from `backgroundColor`). The inner View MUST
-  // then be transparent for the gradient to show through. On native, the
-  // View paints the (solid) backgroundColor itself.
-  const useWebGradient = Platform.OS === 'web' && bgGradientWeb !== null
-  const innerBg = useWebGradient ? 'transparent' : bgSolid
-
-  const card = (
-    <View
-      accessibilityLabel={`${renderedLabel}: ${typeof value === 'string' ? value : ''}`}
-      style={{
+  // Live variant: 3px top stripe in category accent + universal card bg.
+  // Placeholder/unavailable: 1px top border + subtle bg.
+  const cardStyle = isLive
+    ? {
+        backgroundColor: cardBg,
+        borderWidth: 1,
+        borderColor: semantic.border.default,
+        borderTopWidth: 3,
+        borderTopColor: categoryAccent,
+        borderRadius: 6,
+        padding: 12,
+      }
+    : {
+        backgroundColor: semantic.bg.subtle,
         borderWidth: 1,
         borderColor: semantic.border.default,
         borderRadius: 6,
         padding: 12,
-        backgroundColor: innerBg,
-      }}
+      }
+
+  return (
+    <View
+      accessibilityLabel={`${renderedLabel}: ${typeof value === 'string' ? value : ''}`}
+      style={cardStyle}
     >
       <Text style={valueStyle}>{value}</Text>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
@@ -136,19 +133,4 @@ export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element 
       {cta}
     </View>
   )
-
-  if (useWebGradient) {
-    return createElement(
-      'div',
-      {
-        style: {
-          background: bgGradientWeb ?? undefined,
-          borderRadius: 6,
-        },
-      },
-      card,
-    )
-  }
-
-  return card
 }

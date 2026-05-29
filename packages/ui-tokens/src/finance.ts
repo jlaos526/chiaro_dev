@@ -32,9 +32,3 @@ export const INDUSTRY_COLOR_DARK: Record<string, string> = {
 }
 
 export const INDUSTRY_DEFAULT_COLOR_DARK = '#a8a098'
-
-// Slice 37: finance card background (mint-tinted). Light variant is the
-// gradient top stop already used by the finance card; dark variant is the
-// deeper warm-green equivalent matching CATEGORY_CARD_BG_SOLID_DARK.finance.
-export const FINANCE_CARD_BG = '#f4faf6'
-export const FINANCE_CARD_BG_DARK = '#1a2820'
