@@ -33,7 +33,7 @@ Six syllables. Opens with a verb. Used under the wordmark on landing, app-store 
 
 **Alert — decisive red.** `#fdf2f0` · `#f5b8b0` · **#a83a3a (primary)** · `#6e2222`
 
-### Dark mode (B1 deep warm)
+### Dark mode (cool slate, slice 40)
 
 **Ink.** `#fdf8f3` · `#e8d8c2` · `#8a7a6a` · `#6b5e52` · `#3a322c`
 
@@ -159,7 +159,7 @@ Minimum on all sides: `S × 0.5`.
 ### Do / Don't
 
 **Do.**
-- Render on cream or white in light mode; on deep warm brown in dark mode.
+- Render on cream or white in light mode; on cool slate in dark mode.
 - Keep brackets visible at sizes ≥16 — they're load-bearing identity.
 - Maintain the SE cascade — do not flip.
 
