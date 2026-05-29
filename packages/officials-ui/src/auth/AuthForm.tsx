@@ -125,7 +125,7 @@ export function AuthForm(props: AuthFormProps): React.JSX.Element {
       )}
 
       {error ? (
-        <View style={styles.errorBanner} accessibilityRole="alert">
+        <View style={[styles.errorBanner, { backgroundColor: semantic.alert.danger.bg }]} accessibilityRole="alert">
           <Text style={[styles.errorBannerText, { color: semantic.alert.danger.fg }]}>{error}</Text>
         </View>
       ) : null}
@@ -163,10 +163,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 14,
   },
-  // Risk #2 acknowledged in spec: light-pink error background inlined as
-  // hex placeholder; promote to @chiaro/ui-tokens if a 2nd caller surfaces.
+  // Slice 45 update: backgroundColor lifted to inline so it consumes
+  // semantic.alert.danger.bg via useBrandTokens (mode-aware). The static
+  // StyleSheet here keeps layout-only properties.
   errorBanner: {
-    backgroundColor: '#fef2f0',
     borderRadius: 8,
     padding: 10,
     marginTop: 8,

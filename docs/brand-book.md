@@ -287,4 +287,41 @@ Cards in placeholder or unavailable state render without the 3px stripe (1px top
 
 ---
 
+## 13. Brand primitives (slice 45)
+
+5 foundational primitives in `@chiaro/officials-ui` for page composition. All mode-aware via `useBrandTokens()`.
+
+### BrandButton
+`<BrandButton variant="primary"|"secondary" size="sm"|"default"|"lg" disabled? onPress>{children}</BrandButton>`
+Primary: `accent.primary` bg. Secondary: outlined. Disabled: opacity 0.4 + aria-disabled.
+
+### BrandHeading
+`<BrandHeading level={1|2|3} color?>{children}</BrandHeading>`
+Web renders real `<h1>`/`<h2>`/`<h3>` (SEO). Native uses Text + accessibilityRole='header' + accessibilityLevel. Sizes from BRAND_TYPE.
+
+### BrandBodyText
+`<BrandBodyText size="default"|"sm" muted?>{children}</BrandBodyText>`
+15px or 13px / 1.55 line-height. Default `semantic.text.body`; muted switches to `semantic.text.muted`.
+
+### BrandLink
+`<BrandLink href onPress? external?>{children}</BrandLink>`
+Inline smart-anchor (slice 14 pattern inlined). Web `<a href>` + onClick intercept; modifier-key clicks fall through.
+
+### BrandAlert
+`<BrandAlert severity="danger"|"warning"|"success"|"info" title?>{children}</BrandAlert>`
+P2 pill layout: 12px rounded card + 7px pill on left + 18px severity-colored icon circle + title + body.
+
+### Alert palette (slice 45 brand-family retune)
+
+| severity | light fg | light bg | light border | dark fg | dark bg | dark border |
+|---|---|---|---|---|---|---|
+| danger | `#8a3a4d` (burgundy) | `#f8d8d0` | `#e0928a` | `#c89aa8` | `#2a1820` | `#5a2535` |
+| warning | `#c89a4e` (gold) | `#f9e3b8` | `#d6a85a` | `#e1c896` | `#2e2516` | `#7c5a1e` |
+| success | `#1a8f5a` (emerald) | `#c5e0d6` | `#5fa897` | `#7eb898` | `#162a1f` | `#0f5a4f` |
+| info | `#b86340` (terracotta) | `#f3d7b6` | `#d6a474` | `#e0b8a0` | `#2a1f18` | `#7a3e23` |
+
+Replaces slice 32 generic red/amber/teal/peach. Dark `fg` values use slice 41 `SUB_CASCADE_ACCENT_DARK` family for legibility against cool-slate page bg.
+
+---
+
 *See `docs/superpowers/specs/2026-05-26-brand-design-design.md` for the original design spec.*

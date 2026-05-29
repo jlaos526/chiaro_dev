@@ -236,3 +236,16 @@ export { SettingsComingSoonRow, type SettingsComingSoonRowProps } from './settin
 
 // Slice 39 — calibrate
 export { CalibrateScreen, type CalibrateScreenProps } from './calibrate/CalibrateScreen.tsx'
+
+// Slice 45 — brand primitives. Foundational components for page composition
+// (Heading, BodyText, Button, Link, Alert). Mode-aware via useBrandTokens().
+// Used by slice 47+ to rewrite F1/F2 surfaces (per slice 44 UI audit).
+export { BrandButton, type BrandButtonProps } from './primitives/BrandButton.tsx'
+export { BrandHeading, type BrandHeadingProps } from './primitives/BrandHeading.tsx'
+export { BrandBodyText, type BrandBodyTextProps } from './primitives/BrandBodyText.tsx'
+export { BrandLink, type BrandLinkProps } from './primitives/BrandLink.tsx'
+export {
+  BrandAlert,
+  type BrandAlertProps,
+  type BrandAlertSeverity,
+} from './primitives/BrandAlert.tsx'

@@ -28,22 +28,28 @@ describe('BRAND_PALETTE.light', () => {
     expect(BRAND_PALETTE.light.accent[100]).toBe('#fdf2e8')
   })
 
-  it('exports the decisive-red alert.danger triplet', () => {
-    expect(BRAND_PALETTE.light.alert.danger.fg).toBe('#a83a3a')
-    expect(BRAND_PALETTE.light.alert.danger.bg).toBe('#fdf2f0')
-    expect(BRAND_PALETTE.light.alert.danger.border).toBe('#f5b8b0')
+  it('exports the burgundy alert.danger triplet (slice 45 brand-family)', () => {
+    expect(BRAND_PALETTE.light.alert.danger.fg).toBe('#8a3a4d')
+    expect(BRAND_PALETTE.light.alert.danger.bg).toBe('#f8d8d0')
+    expect(BRAND_PALETTE.light.alert.danger.border).toBe('#e0928a')
   })
 
-  it('exports the alert.warning triplet', () => {
-    expect(BRAND_PALETTE.light.alert.warning.fg).toBe('#d68a1f')
-    expect(BRAND_PALETTE.light.alert.warning.bg).toBe('#fef7e8')
-    expect(BRAND_PALETTE.light.alert.warning.border).toBe('#f5c878')
+  it('exports the gold alert.warning triplet (slice 45 brand-family)', () => {
+    expect(BRAND_PALETTE.light.alert.warning.fg).toBe('#c89a4e')
+    expect(BRAND_PALETTE.light.alert.warning.bg).toBe('#f9e3b8')
+    expect(BRAND_PALETTE.light.alert.warning.border).toBe('#d6a85a')
   })
 
-  it('exports the alert.success triplet', () => {
-    expect(BRAND_PALETTE.light.alert.success.fg).toBe('#1f9b88')
-    expect(BRAND_PALETTE.light.alert.success.bg).toBe('#e8f5f2')
-    expect(BRAND_PALETTE.light.alert.success.border).toBe('#7fc5b5')
+  it('exports the emerald alert.success triplet (slice 45 brand-family)', () => {
+    expect(BRAND_PALETTE.light.alert.success.fg).toBe('#1a8f5a')
+    expect(BRAND_PALETTE.light.alert.success.bg).toBe('#c5e0d6')
+    expect(BRAND_PALETTE.light.alert.success.border).toBe('#5fa897')
+  })
+
+  it('exports the terracotta alert.info triplet (slice 45 new)', () => {
+    expect(BRAND_PALETTE.light.alert.info.fg).toBe('#b86340')
+    expect(BRAND_PALETTE.light.alert.info.bg).toBe('#f3d7b6')
+    expect(BRAND_PALETTE.light.alert.info.border).toBe('#d6a474')
   })
 
   it('exports signal.success (finance green)', () => {
@@ -84,22 +90,28 @@ describe('BRAND_PALETTE.dark', () => {
     expect(BRAND_PALETTE.dark.accent[900]).toBe('#ced8e4')
   })
 
-  it('exports the alert.danger triplet (dark)', () => {
-    expect(BRAND_PALETTE.dark.alert.danger.fg).toBe('#d05050')
-    expect(BRAND_PALETTE.dark.alert.danger.bg).toBe('#2a1414')
-    expect(BRAND_PALETTE.dark.alert.danger.border).toBe('#6e2222')
+  it('exports the burgundy alert.danger triplet (dark, slice 45)', () => {
+    expect(BRAND_PALETTE.dark.alert.danger.fg).toBe('#c89aa8')
+    expect(BRAND_PALETTE.dark.alert.danger.bg).toBe('#2a1820')
+    expect(BRAND_PALETTE.dark.alert.danger.border).toBe('#5a2535')
   })
 
-  it('exports the alert.warning triplet (dark)', () => {
-    expect(BRAND_PALETTE.dark.alert.warning.fg).toBe('#f0b558')
-    expect(BRAND_PALETTE.dark.alert.warning.bg).toBe('#3a2a14')
-    expect(BRAND_PALETTE.dark.alert.warning.border).toBe('#6e4a20')
+  it('exports the gold alert.warning triplet (dark, slice 45)', () => {
+    expect(BRAND_PALETTE.dark.alert.warning.fg).toBe('#e1c896')
+    expect(BRAND_PALETTE.dark.alert.warning.bg).toBe('#2e2516')
+    expect(BRAND_PALETTE.dark.alert.warning.border).toBe('#7c5a1e')
   })
 
-  it('exports the alert.success triplet (dark)', () => {
-    expect(BRAND_PALETTE.dark.alert.success.fg).toBe('#4dbfb0')
-    expect(BRAND_PALETTE.dark.alert.success.bg).toBe('#1a302c')
-    expect(BRAND_PALETTE.dark.alert.success.border).toBe('#3a6e62')
+  it('exports the emerald alert.success triplet (dark, slice 45)', () => {
+    expect(BRAND_PALETTE.dark.alert.success.fg).toBe('#7eb898')
+    expect(BRAND_PALETTE.dark.alert.success.bg).toBe('#162a1f')
+    expect(BRAND_PALETTE.dark.alert.success.border).toBe('#0f5a4f')
+  })
+
+  it('exports the terracotta alert.info triplet (dark, slice 45 new)', () => {
+    expect(BRAND_PALETTE.dark.alert.info.fg).toBe('#e0b8a0')
+    expect(BRAND_PALETTE.dark.alert.info.bg).toBe('#2a1f18')
+    expect(BRAND_PALETTE.dark.alert.info.border).toBe('#7a3e23')
   })
 
   it('exports signal.success (finance green, dark)', () => {

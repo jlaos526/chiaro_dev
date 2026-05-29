@@ -30,9 +30,16 @@ export const BRAND_PALETTE = {
       900: '#4a2810',
     },
     alert: {
-      danger:  { fg: '#a83a3a', bg: '#fdf2f0', border: '#f5b8b0' },
-      warning: { fg: '#d68a1f', bg: '#fef7e8', border: '#f5c878' },
-      success: { fg: '#1f9b88', bg: '#e8f5f2', border: '#7fc5b5' },
+      // Slice 45 brand-family retune. Danger = burgundy (matches slice 42 ethics
+      // family + slice 41 SUB_CASCADE light); warning = gold (slice 41 Service
+      // Record family); success = emerald (slice 41 Finance family); info =
+      // terracotta (slice 41 Community Presence family). Consumers of fg
+      // automatically shift via brand-hooks. Replaces slice 32 generic
+      // red/amber/teal/peach.
+      danger:  { fg: '#8a3a4d', bg: '#f8d8d0', border: '#e0928a' },
+      warning: { fg: '#c89a4e', bg: '#f9e3b8', border: '#d6a85a' },
+      success: { fg: '#1a8f5a', bg: '#c5e0d6', border: '#5fa897' },
+      info:    { fg: '#b86340', bg: '#f3d7b6', border: '#d6a474' },
     },
     signal: {
       success: '#3da75b',   // finance "money in" / positive signal
@@ -73,9 +80,13 @@ export const BRAND_PALETTE = {
       900: '#ced8e4',   // slice 40 slate-blue lightest (was warm cream)
     },
     alert: {
-      danger:  { fg: '#d05050', bg: '#2a1414', border: '#6e2222' },
-      warning: { fg: '#f0b558', bg: '#3a2a14', border: '#6e4a20' },
-      success: { fg: '#4dbfb0', bg: '#1a302c', border: '#3a6e62' },
+      // Slice 45 dark-mode brand-family. fg uses SUB_CASCADE_ACCENT_DARK family
+      // values for legibility against cool slate page bg #16181c. bg uses deep
+      // hue-tinted slate; border picks up slice 41 family edge color.
+      danger:  { fg: '#c89aa8', bg: '#2a1820', border: '#5a2535' },
+      warning: { fg: '#e1c896', bg: '#2e2516', border: '#7c5a1e' },
+      success: { fg: '#7eb898', bg: '#162a1f', border: '#0f5a4f' },
+      info:    { fg: '#e0b8a0', bg: '#2a1f18', border: '#7a3e23' },
     },
     signal: {
       success: '#5dc97f',   // finance "money in" / positive signal (dark)
