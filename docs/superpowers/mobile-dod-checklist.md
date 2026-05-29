@@ -199,6 +199,18 @@ the user was on the calibrate flow.
 - [ ] GPS-denied path shows the helper's friendly message in CalibrateScreen's error slot.
 - [ ] All Settings + Calibrate surfaces fully repaint in dark mode.
 
+## Slice 40 — Dark mode reskin
+
+- [ ] Light mode unchanged: BioPortrait orange gradient, link blue, brand-orange CTA buttons.
+- [ ] Dark mode toggle → page bg becomes cool slate (not warm brown).
+- [ ] Dark mode card bg + elevated surfaces are cool slate equivalents (no warm-brown card islands floating on cool bg).
+- [ ] BioPortrait dark fallback gradient is sage (#6b7a5d → #9caa8e), not blue.
+- [ ] BioPortrait initials in dark are warm cream (#fff0dc), not white or dark ink.
+- [ ] CTA buttons (Calibrate, Sign in, etc.) in dark use slate-blue (#374f68), not warm tan orange.
+- [ ] Hover/pressed states stay in the slate-blue family (no orange flash).
+- [ ] Alert tints (danger red, warning amber, success green) unchanged in dark.
+- [ ] Link blue (#7a98e1) unchanged in dark.
+
 ## After the run
 
 If any item fails:

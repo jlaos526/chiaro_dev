@@ -33,15 +33,15 @@ Six syllables. Opens with a verb. Used under the wordmark on landing, app-store 
 
 **Alert — decisive red.** `#fdf2f0` · `#f5b8b0` · **#a83a3a (primary)** · `#6e2222`
 
-### Dark mode (B1 deep warm)
+### Dark mode (cool slate, slice 40)
 
 **Ink.** `#fdf8f3` · `#e8d8c2` · `#8a7a6a` · `#6b5e52` · `#3a322c`
 
-**Surface.** `#1a1410` · `#2a221c` · `#3a2e26` · `#22191344`
+**Surface.** `#16181c` · `#1e2126` · `#262a30` · `#1c1e2270`
 
-**Border.** `#3a2e26` · `#4a3e35`
+**Border.** `#2a2d33` · `#3a3e45`
 
-**Accent.** `#c46a2a` (hover) · **`#e8a060`** (primary) · `#f0b380` (pressed)
+**Accent — cool slate-blue.** `#1a1f28` · `#232a36` · `#2e405a` (hover) · **`#374f68`** (primary) · `#485e76` (pressed) · `#6a7d96` · `#ced8e4`
 
 **Alert.** `#2a1414` · `#6e2222` · **`#d05050`** · `#f08080`
 
@@ -54,14 +54,17 @@ Consumers read these mode-agnostic names; mode-appropriate values resolve automa
 | `text.primary` | `#1a1714` | `#fdf8f3` |
 | `text.body` | `#3a322c` | `#e8d8c2` |
 | `text.muted` | `#6b5e52` | `#8a7a6a` |
-| `bg.app` | `#efece5` | `#1a1410` |
-| `bg.card` | `#fdf8f3` | `#2a221c` |
-| `bg.elevated` | `#ffffff` | `#3a2e26` |
-| `border.default` | `#e8d8c2` | `#3a2e26` |
-| `border.focus` | `#c46a2a` | `#e8a060` |
-| `accent.primary` | `#c46a2a` | `#e8a060` |
-| `accent.secondary` | `#e8a060` | `#c46a2a` |
+| `bg.app` | `#efece5` | `#16181c` |
+| `bg.card` | `#fdf8f3` | `#1e2126` |
+| `bg.elevated` | `#ffffff` | `#262a30` |
+| `border.default` | `#e8d8c2` | `#2a2d33` |
+| `border.focus` | `#c46a2a` | `#374f68` |
+| `accent.primary` | `#c46a2a` | `#374f68` |
+| `accent.secondary` | `#e8a060` | `#485e76` |
 | `alert.danger.fg` | `#a83a3a` | `#d05050` |
+| `portrait.gradient.from` | `#c46a2a` | `#6b7a5d` |
+| `portrait.gradient.to` | `#e8a060` | `#9caa8e` |
+| `portrait.initials` | `#ffffff` | `#fff0dc` |
 
 ## 4. Typography
 
@@ -150,13 +153,13 @@ Minimum on all sides: `S × 0.5`.
 ### Backgrounds
 
 - **Light:** `surface.card` or `surface.elevated` (preferred); `surface.base` (allowed).
-- **Dark:** `surface.card` (#2a221c). Squares keep the orange family; alpha gradients self-correct.
+- **Dark:** `surface.card` (#1e2126). Squares keep the orange family; alpha gradients self-correct.
 - **Photos:** only with a solid scrim to a flat tone.
 
 ### Do / Don't
 
 **Do.**
-- Render on cream or white in light mode; on deep warm brown in dark mode.
+- Render on cream or white in light mode; on cool slate in dark mode.
 - Keep brackets visible at sizes ≥16 — they're load-bearing identity.
 - Maintain the SE cascade — do not flip.
 
@@ -195,11 +198,11 @@ import { BRAND, getSemantic, logoGeometry } from '@chiaro/ui-tokens'
 
 // Palette
 BRAND.palette.light.ink[1000]     // #1a1714
-BRAND.palette.dark.surface.card   // #2a221c
+BRAND.palette.dark.surface.card   // #1e2126
 
 // Semantic
 BRAND.semantic.light.text.primary // #1a1714
-getSemantic('dark').accent.primary // #e8a060
+getSemantic('dark').accent.primary // #374f68
 
 // Scales
 BRAND.type.h1.sizePx              // 28

@@ -53,6 +53,12 @@ describe('BRAND_PALETTE.light', () => {
   it('exports link.fg (inline link blue)', () => {
     expect(BRAND_PALETTE.light.link.fg).toBe('#3b6ed1')
   })
+
+  it('exports the portrait block (light)', () => {
+    expect(BRAND_PALETTE.light.portrait.gradient.from).toBe('#c46a2a')
+    expect(BRAND_PALETTE.light.portrait.gradient.to).toBe('#e8a060')
+    expect(BRAND_PALETTE.light.portrait.initials).toBe('#ffffff')
+  })
 })
 
 describe('BRAND_PALETTE.dark', () => {
@@ -61,15 +67,21 @@ describe('BRAND_PALETTE.dark', () => {
     expect(BRAND_PALETTE.dark.ink[100]).toBe('#3a322c')
   })
 
-  it('uses deep-warm surface (no neutral grays)', () => {
-    expect(BRAND_PALETTE.dark.surface.base).toBe('#1a1410')
-    expect(BRAND_PALETTE.dark.surface.card).toBe('#2a221c')
-    expect(BRAND_PALETTE.dark.surface.elevated).toBe('#3a2e26')
+  it('uses cool slate surface (slice 40 reskin)', () => {
+    expect(BRAND_PALETTE.dark.surface.base).toBe('#16181c')
+    expect(BRAND_PALETTE.dark.surface.card).toBe('#1e2126')
+    expect(BRAND_PALETTE.dark.surface.elevated).toBe('#262a30')
+    expect(BRAND_PALETTE.dark.surface.subtle).toBe('#1c1e2270')
   })
 
-  it('saturates accent up (light orange becomes primary on dark)', () => {
-    expect(BRAND_PALETTE.dark.accent[500]).toBe('#e8a060')
-    expect(BRAND_PALETTE.dark.accent[400]).toBe('#c46a2a')
+  it('uses slate-blue accent ramp (slice 40 reskin)', () => {
+    expect(BRAND_PALETTE.dark.accent[100]).toBe('#1a1f28')
+    expect(BRAND_PALETTE.dark.accent[200]).toBe('#232a36')
+    expect(BRAND_PALETTE.dark.accent[400]).toBe('#2e405a')
+    expect(BRAND_PALETTE.dark.accent[500]).toBe('#374f68')
+    expect(BRAND_PALETTE.dark.accent[600]).toBe('#485e76')
+    expect(BRAND_PALETTE.dark.accent[700]).toBe('#6a7d96')
+    expect(BRAND_PALETTE.dark.accent[900]).toBe('#ced8e4')
   })
 
   it('exports the alert.danger triplet (dark)', () => {
@@ -96,6 +108,17 @@ describe('BRAND_PALETTE.dark', () => {
 
   it('exports link.fg (inline link blue, dark)', () => {
     expect(BRAND_PALETTE.dark.link.fg).toBe('#7a98e1')
+  })
+
+  it('exports the portrait block (dark)', () => {
+    expect(BRAND_PALETTE.dark.portrait.gradient.from).toBe('#6b7a5d')
+    expect(BRAND_PALETTE.dark.portrait.gradient.to).toBe('#9caa8e')
+    expect(BRAND_PALETTE.dark.portrait.initials).toBe('#fff0dc')
+  })
+
+  it('exports cool slate border tokens (slice 40 reskin)', () => {
+    expect(BRAND_PALETTE.dark.border.default).toBe('#2a2d33')
+    expect(BRAND_PALETTE.dark.border.strong).toBe('#3a3e45')
   })
 })
 
@@ -153,6 +176,16 @@ describe('palette mode parity', () => {
   it('light and dark have identical border keys', () => {
     expect(Object.keys(BRAND_PALETTE.light.border).sort())
       .toEqual(Object.keys(BRAND_PALETTE.dark.border).sort())
+  })
+
+  it('light and dark have identical portrait keys', () => {
+    expect(Object.keys(BRAND_PALETTE.light.portrait).sort())
+      .toEqual(Object.keys(BRAND_PALETTE.dark.portrait).sort())
+  })
+
+  it('light and dark portrait.gradient share from/to keys', () => {
+    expect(Object.keys(BRAND_PALETTE.light.portrait.gradient).sort())
+      .toEqual(Object.keys(BRAND_PALETTE.dark.portrait.gradient).sort())
   })
 })
 

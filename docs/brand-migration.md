@@ -55,6 +55,19 @@ The tables below are the per-key migration. Slices 34-37 grep against this doc.
 
 Domain-specific palette exports (`PARTY_COLOR`, `CATEGORY_ACCENT`, `ALIGNMENT_CHIP_COLORS`, `INDUSTRY_COLOR`, `SCORECARD_LEAN_COLOR`, `SUB_CASCADE_ACCENT`, `CATEGORY_CARD_GRADIENT`, `FINANCE_SUB_SECTION_SHADES`) remain as their own exports through slice 36. Dark variants land in slice 37; a philosophy decision on AlignmentChip colors (stay red/orange/yellow/green tier, or rebase to brand?) also lands in slice 37.
 
+### `semantic.portrait` (slice 40)
+
+Mode-aware portrait gradient + initials text for `BioPortrait`. Decouples portrait rendering from `semantic.link.fg` (the slice 33-37 derivation).
+
+- `semantic.portrait.gradient.from` — gradient start hex
+- `semantic.portrait.gradient.to` — gradient end hex
+- `semantic.portrait.initials` — text color for initials fallback
+
+Light mode: brand orange `#c46a2a → #e8a060` + white initials.
+Dark mode: sage `#6b7a5d → #9caa8e` + warm cream initials `#fff0dc`.
+
+Only consumer is `packages/officials-ui/src/bio/BioPortrait.tsx`. Native (no CSS gradient primitive) falls back to `gradient.from` as the solid color, same as the slice 33 pattern.
+
 ## Per-slice scope
 
 - **Slice 33:** auth components only (6 files)

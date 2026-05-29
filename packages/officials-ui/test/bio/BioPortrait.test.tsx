@@ -1,5 +1,5 @@
 import { createElement, type ReactNode } from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { BioPortrait } from '../../src/bio/BioPortrait.tsx'
 import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
@@ -28,13 +28,41 @@ describe('BioPortrait', () => {
     render(<BioPortrait fullName="Cher" portraitUrl={null} size={72} />)
     expect(screen.getByText('C')).toBeTruthy()
   })
-  it('applies diagonal blue gradient on web when portrait missing', () => {
-    const { container } = render(<BioPortrait fullName="Nancy Pelosi" portraitUrl={null} size={72} />)
-    // Outer wrapper is the raw <div> that carries the CSS gradient.
+  it('applies light-mode orange gradient on web when portrait missing', () => {
+    const { container } = render(
+      <BioPortrait fullName="Nancy Pelosi" portraitUrl={null} size={72} />,
+      { wrapper: lightWrapper },
+    )
     const outer = container.firstElementChild as HTMLElement | null
-    expect(outer).not.toBeNull()
     const bg = outer?.getAttribute('style') ?? ''
-    expect(bg).toMatch(/linear-gradient\(135deg, #3b6ed1 0%, #5b8de1 100%\)/)
+    expect(bg).toMatch(/linear-gradient\(135deg, #c46a2a 0%, #e8a060 100%\)/)
+  })
+
+  it('applies dark-mode sage gradient on web when portrait missing', () => {
+    const { container } = render(
+      <BioPortrait fullName="Nancy Pelosi" portraitUrl={null} size={72} />,
+      { wrapper: darkWrapper },
+    )
+    const outer = container.firstElementChild as HTMLElement | null
+    const bg = outer?.getAttribute('style') ?? ''
+    expect(bg).toMatch(/linear-gradient\(135deg, #6b7a5d 0%, #9caa8e 100%\)/)
+  })
+
+  it('initials text uses semantic.portrait.initials (light = white, dark = cream)', () => {
+    const light = render(
+      <BioPortrait fullName="Nancy Pelosi" portraitUrl={null} size={72} />,
+      { wrapper: lightWrapper },
+    )
+    // Scope query to this render's container (multiple renders share document.body).
+    const lightStyle = (within(light.container).getByText('NP') as HTMLElement).getAttribute('style') ?? ''
+    expect(lightStyle).toMatch(/color:\s*(?:#ffffff|rgb\(255,\s*255,\s*255\))/i)
+
+    const dark = render(
+      <BioPortrait fullName="Nancy Pelosi" portraitUrl={null} size={72} />,
+      { wrapper: darkWrapper },
+    )
+    const darkStyle = (within(dark.container).getByText('NP') as HTMLElement).getAttribute('style') ?? ''
+    expect(darkStyle).toMatch(/color:\s*(?:#fff0dc|rgb\(255,\s*240,\s*220\))/i)
   })
 })
 

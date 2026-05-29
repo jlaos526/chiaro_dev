@@ -40,6 +40,10 @@ export const BRAND_PALETTE = {
     link: {
       fg: '#3b6ed1',         // inline link blue
     },
+    portrait: {
+      gradient: { from: '#c46a2a', to: '#e8a060' },
+      initials: '#ffffff',
+    },
   },
   dark: {
     ink: {
@@ -50,23 +54,23 @@ export const BRAND_PALETTE = {
        100: '#3a322c',   // divider
     },
     surface: {
-      base:     '#1a1410',   // app background
-      card:     '#2a221c',   // card / panel
-      elevated: '#3a2e26',   // modal, popover
-      subtle:   '#22191344', // sub-card / hover (rgba over base)
+      base:     '#16181c',   // app background — slice 40 cool slate
+      card:     '#1e2126',   // card / panel — slice 40 cool slate +luminance
+      elevated: '#262a30',   // modal, popover — slice 40 cool slate ++luminance
+      subtle:   '#1c1e2270', // sub-card / hover — 4-byte rgba over base
     },
     border: {
-      default: '#3a2e26',
-      strong:  '#4a3e35',
+      default: '#2a2d33',   // slice 40 cool slate equivalent
+      strong:  '#3a3e45',   // slice 40 cool slate equivalent
     },
     accent: {
-      100: '#2a1808',
-      200: '#5a3814',
-      400: '#c46a2a',   // hover (light-mode primary moves here)
-      500: '#e8a060',   // PRIMARY ACCENT in dark
-      600: '#f0b380',
-      700: '#fbe1c8',
-      900: '#fff0dc',
+      100: '#1a1f28',   // slice 40 slate-blue dark (accent.bg surface)
+      200: '#232a36',
+      400: '#2e405a',   // hover (darker than primary in dark mode)
+      500: '#374f68',   // PRIMARY ACCENT in dark (CTA bg) — slice 40
+      600: '#485e76',   // pressed (lighter than primary in dark mode)
+      700: '#6a7d96',
+      900: '#ced8e4',   // slice 40 slate-blue lightest (was warm cream)
     },
     alert: {
       danger:  { fg: '#d05050', bg: '#2a1414', border: '#6e2222' },
@@ -78,6 +82,10 @@ export const BRAND_PALETTE = {
     },
     link: {
       fg: '#7a98e1',         // inline link blue (dark)
+    },
+    portrait: {
+      gradient: { from: '#6b7a5d', to: '#9caa8e' },
+      initials: '#fff0dc',
     },
   },
 } as const
