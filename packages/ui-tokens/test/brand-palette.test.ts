@@ -110,6 +110,11 @@ describe('BRAND_PALETTE.dark', () => {
     expect(BRAND_PALETTE.dark.portrait.gradient.to).toBe('#9caa8e')
     expect(BRAND_PALETTE.dark.portrait.initials).toBe('#fff0dc')
   })
+
+  it('exports cool slate border tokens (slice 40 reskin)', () => {
+    expect(BRAND_PALETTE.dark.border.default).toBe('#2a2d33')
+    expect(BRAND_PALETTE.dark.border.strong).toBe('#3a3e45')
+  })
 })
 
 describe('palette mode parity', () => {

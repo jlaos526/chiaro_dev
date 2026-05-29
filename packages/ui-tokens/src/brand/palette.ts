@@ -60,8 +60,8 @@ export const BRAND_PALETTE = {
       subtle:   '#1c1e2270', // sub-card / hover — 4-byte rgba over base
     },
     border: {
-      default: '#3a2e26',
-      strong:  '#4a3e35',
+      default: '#2a2d33',   // slice 40 cool slate equivalent
+      strong:  '#3a3e45',   // slice 40 cool slate equivalent
     },
     accent: {
       100: '#2a1808',
