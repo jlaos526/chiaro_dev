@@ -225,6 +225,16 @@ the user was on the calibrate flow.
 - [ ] Map district fill in dark mode is cool slate `#3a3e45`, not warm brown.
 - [ ] Sub-cascade nested expand panels show desaturated category tints (light + dark).
 
+## Slice 42 — AlignmentChip palette reskin
+
+- [ ] AlignmentChip in BioHeader (federal + state officials) shows the new 5-tier thermal palette in light mode: pale emerald aligned → gold Mixed → peach/terracotta differs.
+- [ ] AlignmentChip Strongly Aligned chip is visibly deeper saturation than Mostly Aligned (V2 emphasis).
+- [ ] AlignmentChip Strongly Differs chip is visibly deeper saturation than Mostly Differs (V2 emphasis).
+- [ ] AlignmentChip Mixed chip is gold/cream `#eedbb5` — visibly distinct from the page bg cream `#efece5`.
+- [ ] In dark mode, AlignmentChip Mixed bg is gold-tinted cool slate `#23211a` (matches Service Record card bg).
+- [ ] ComplianceIcon on-time variant (✓ green) bg matches Strongly Aligned chip bg in both light and dark mode.
+- [ ] ComplianceIcon late variant (✖ peach) bg matches Mostly Differs chip bg in both light and dark mode.
+
 ## After the run
 
 If any item fails:
