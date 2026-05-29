@@ -79,11 +79,11 @@ describe('domain palette dark variants — key parity', () => {
 
   it('MAP_COLORS_DARK inverts stroke + fill', () => {
     expect(MAP_COLORS_DARK.districtStroke).toBe('#fdf8f3')
-    expect(MAP_COLORS_DARK.districtFill).toBe('#3a2e26')
+    expect(MAP_COLORS_DARK.districtFill).toBe('#3a3e45')
   })
 
   it('CATEGORY_CARD_BG_SOLID light values match expected', () => {
-    expect(CATEGORY_CARD_BG_SOLID['service-record']).toBe('#fcfaf2')
-    expect(CATEGORY_CARD_BG_SOLID.finance).toBe('#f4faf6')
+    expect(CATEGORY_CARD_BG_SOLID['service-record']).toBe('#f5e6cc')
+    expect(CATEGORY_CARD_BG_SOLID.finance).toBe('#d4e8d8')
   })
 })
