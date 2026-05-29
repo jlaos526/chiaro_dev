@@ -40,7 +40,7 @@ describe('FinanceSummaryStrip', () => {
     const outer = container.firstElementChild as HTMLElement | null
     expect(outer).not.toBeNull()
     const bg = outer?.getAttribute('style') ?? ''
-    expect(bg).toMatch(/linear-gradient\(180deg, #f4faf6 0%, #fff 100%\)/)
+    expect(bg).toMatch(/linear-gradient\(180deg, #d4e8d8 0%, #fff 100%\)/)
   })
 })
 
