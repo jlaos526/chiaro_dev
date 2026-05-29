@@ -40,6 +40,10 @@ export const BRAND_PALETTE = {
     link: {
       fg: '#3b6ed1',         // inline link blue
     },
+    portrait: {
+      gradient: { from: '#c46a2a', to: '#e8a060' },
+      initials: '#ffffff',
+    },
   },
   dark: {
     ink: {
@@ -78,6 +82,10 @@ export const BRAND_PALETTE = {
     },
     link: {
       fg: '#7a98e1',         // inline link blue (dark)
+    },
+    portrait: {
+      gradient: { from: '#6b7a5d', to: '#9caa8e' },
+      initials: '#fff0dc',
     },
   },
 } as const

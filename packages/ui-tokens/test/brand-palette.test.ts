@@ -53,6 +53,12 @@ describe('BRAND_PALETTE.light', () => {
   it('exports link.fg (inline link blue)', () => {
     expect(BRAND_PALETTE.light.link.fg).toBe('#3b6ed1')
   })
+
+  it('exports the portrait block (light)', () => {
+    expect(BRAND_PALETTE.light.portrait.gradient.from).toBe('#c46a2a')
+    expect(BRAND_PALETTE.light.portrait.gradient.to).toBe('#e8a060')
+    expect(BRAND_PALETTE.light.portrait.initials).toBe('#ffffff')
+  })
 })
 
 describe('BRAND_PALETTE.dark', () => {
@@ -96,6 +102,12 @@ describe('BRAND_PALETTE.dark', () => {
 
   it('exports link.fg (inline link blue, dark)', () => {
     expect(BRAND_PALETTE.dark.link.fg).toBe('#7a98e1')
+  })
+
+  it('exports the portrait block (dark)', () => {
+    expect(BRAND_PALETTE.dark.portrait.gradient.from).toBe('#6b7a5d')
+    expect(BRAND_PALETTE.dark.portrait.gradient.to).toBe('#9caa8e')
+    expect(BRAND_PALETTE.dark.portrait.initials).toBe('#fff0dc')
   })
 })
 
@@ -153,6 +165,16 @@ describe('palette mode parity', () => {
   it('light and dark have identical border keys', () => {
     expect(Object.keys(BRAND_PALETTE.light.border).sort())
       .toEqual(Object.keys(BRAND_PALETTE.dark.border).sort())
+  })
+
+  it('light and dark have identical portrait keys', () => {
+    expect(Object.keys(BRAND_PALETTE.light.portrait).sort())
+      .toEqual(Object.keys(BRAND_PALETTE.dark.portrait).sort())
+  })
+
+  it('light and dark portrait.gradient share from/to keys', () => {
+    expect(Object.keys(BRAND_PALETTE.light.portrait.gradient).sort())
+      .toEqual(Object.keys(BRAND_PALETTE.dark.portrait.gradient).sort())
   })
 })
 
