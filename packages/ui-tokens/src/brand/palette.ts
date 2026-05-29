@@ -64,13 +64,13 @@ export const BRAND_PALETTE = {
       strong:  '#3a3e45',   // slice 40 cool slate equivalent
     },
     accent: {
-      100: '#2a1808',
-      200: '#5a3814',
-      400: '#c46a2a',   // hover (light-mode primary moves here)
-      500: '#e8a060',   // PRIMARY ACCENT in dark
-      600: '#f0b380',
-      700: '#fbe1c8',
-      900: '#fff0dc',
+      100: '#1a1f28',   // slice 40 slate-blue dark (accent.bg surface)
+      200: '#232a36',
+      400: '#2e405a',   // hover (darker than primary in dark mode)
+      500: '#374f68',   // PRIMARY ACCENT in dark (CTA bg) — slice 40
+      600: '#485e76',   // pressed (lighter than primary in dark mode)
+      700: '#6a7d96',
+      900: '#ced8e4',   // slice 40 slate-blue lightest (was warm cream)
     },
     alert: {
       danger:  { fg: '#d05050', bg: '#2a1414', border: '#6e2222' },

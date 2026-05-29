@@ -67,8 +67,8 @@ describe('BRAND_SEMANTIC.dark → palette references', () => {
     expect(BRAND_SEMANTIC.dark.text.primary).toBe('#fdf8f3')
   })
 
-  it('resolves accent.primary to dark accent.500 (saturated up)', () => {
-    expect(BRAND_SEMANTIC.dark.accent.primary).toBe('#e8a060')
+  it('resolves accent.primary to dark accent.500 (slate-blue)', () => {
+    expect(BRAND_SEMANTIC.dark.accent.primary).toBe('#374f68')
   })
 
   it('resolves bg.app to dark surface.base (cool slate)', () => {

@@ -74,9 +74,14 @@ describe('BRAND_PALETTE.dark', () => {
     expect(BRAND_PALETTE.dark.surface.subtle).toBe('#1c1e2270')
   })
 
-  it('saturates accent up (light orange becomes primary on dark)', () => {
-    expect(BRAND_PALETTE.dark.accent[500]).toBe('#e8a060')
-    expect(BRAND_PALETTE.dark.accent[400]).toBe('#c46a2a')
+  it('uses slate-blue accent ramp (slice 40 reskin)', () => {
+    expect(BRAND_PALETTE.dark.accent[100]).toBe('#1a1f28')
+    expect(BRAND_PALETTE.dark.accent[200]).toBe('#232a36')
+    expect(BRAND_PALETTE.dark.accent[400]).toBe('#2e405a')
+    expect(BRAND_PALETTE.dark.accent[500]).toBe('#374f68')
+    expect(BRAND_PALETTE.dark.accent[600]).toBe('#485e76')
+    expect(BRAND_PALETTE.dark.accent[700]).toBe('#6a7d96')
+    expect(BRAND_PALETTE.dark.accent[900]).toBe('#ced8e4')
   })
 
   it('exports the alert.danger triplet (dark)', () => {
