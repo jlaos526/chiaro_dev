@@ -244,6 +244,17 @@ the user was on the calibrate flow.
 - [ ] Placeholder + unavailable MetricCardShell variants render WITHOUT a top stripe (1px border + subtle bg) — read as "no data" rather than as active category cards.
 - [ ] `/state-officials/[id]` cards mirror the federal pattern (same 6 stripes + universal bg).
 
+## Slice 45 — Brand primitives
+
+- [ ] `BrandButton` primary variant renders with `accent.primary` bg on mobile (orange in light, slate-blue in dark).
+- [ ] `BrandButton` secondary variant renders outlined.
+- [ ] `BrandHeading` renders text with proper visual hierarchy (h1 > h2 > h3).
+- [ ] `BrandBodyText` default (15px) vs sm (13px) sizes visible distinct.
+- [ ] `BrandLink` is tappable on mobile, opens external URL (or fires onPress) via `Linking`.
+- [ ] `BrandAlert` renders all 4 severities (burgundy/gold/emerald/terracotta) with correct pill + icon colors.
+- [ ] AuthForm error banner shows brand-family burgundy bg (was peach-pink in slice 32 era).
+- [ ] Dark mode toggle repaints all 5 primitives without app restart.
+
 ## After the run
 
 If any item fails:

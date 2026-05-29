@@ -162,4 +162,31 @@ Replaces the slice 41 per-category gradient + bg pattern with a universal neutra
 
 ---
 
+### Brand primitives + alert palette retune (slice 45)
+
+5 new primitives in `@chiaro/officials-ui` + retune `BRAND_PALETTE.alert.*` from slice 32 generic colors to slice 41/42 brand-family.
+
+**New primitives:**
+- `BrandButton` (variant: primary/secondary, size: sm/default/lg, disabled)
+- `BrandHeading` (level: 1/2/3 — real `<h1>`/`<h2>`/`<h3>` on web)
+- `BrandBodyText` (size: default/sm, muted)
+- `BrandLink` (smart-anchor inlined per YAGNI)
+- `BrandAlert` (severity: danger/warning/success/info — P2 pill design)
+
+**Palette retune:**
+- `alert.danger`: red `#a83a3a` → burgundy `#8a3a4d` (slice 42 ethics family + slice 41 SUB_CASCADE)
+- `alert.warning`: amber `#d68a1f` → gold `#c89a4e` (slice 41 Service Record family)
+- `alert.success`: teal `#1f9b88` → emerald `#1a8f5a` (slice 41 Finance family)
+- `alert.info`: NEW key, terracotta `#b86340` (slice 41 Community Presence family)
+
+**Consumer cascade:**
+- 6 existing `semantic.alert.*.fg` consumers (FederalSponsoredBillsList passed-bill status, etc.) auto-shift colors via the brand-hooks layer.
+- `AuthForm.tsx:169` inline `#fef2f0` migrated to `semantic.alert.danger.bg` via useBrandTokens.
+
+**Smart-anchor duplication:** `BrandLink` inlines slice 14 + 18 pattern — 3rd copy. Future consolidation deferred per YAGNI; documented as Risk #2 in spec.
+
+**Slice scope:** ~21 files. Mega Slice tier. Closes slice 44 audit F5. Unblocks slice 46 (F4 inline-hex sweep) + slice 47 (F1 web page rewrites) + slice 48 (F2 mobile screen rewrites + F3 BrandStack nav theming).
+
+---
+
 *See `docs/brand-book.md` (slice 32) for the brand reference.*
