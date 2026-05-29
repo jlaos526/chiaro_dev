@@ -54,10 +54,10 @@ export const BRAND_PALETTE = {
        100: '#3a322c',   // divider
     },
     surface: {
-      base:     '#1a1410',   // app background
-      card:     '#2a221c',   // card / panel
-      elevated: '#3a2e26',   // modal, popover
-      subtle:   '#22191344', // sub-card / hover (rgba over base)
+      base:     '#16181c',   // app background — slice 40 cool slate
+      card:     '#1e2126',   // card / panel — slice 40 cool slate +luminance
+      elevated: '#262a30',   // modal, popover — slice 40 cool slate ++luminance
+      subtle:   '#1c1e2270', // sub-card / hover — 4-byte rgba over base
     },
     border: {
       default: '#3a2e26',

@@ -67,10 +67,11 @@ describe('BRAND_PALETTE.dark', () => {
     expect(BRAND_PALETTE.dark.ink[100]).toBe('#3a322c')
   })
 
-  it('uses deep-warm surface (no neutral grays)', () => {
-    expect(BRAND_PALETTE.dark.surface.base).toBe('#1a1410')
-    expect(BRAND_PALETTE.dark.surface.card).toBe('#2a221c')
-    expect(BRAND_PALETTE.dark.surface.elevated).toBe('#3a2e26')
+  it('uses cool slate surface (slice 40 reskin)', () => {
+    expect(BRAND_PALETTE.dark.surface.base).toBe('#16181c')
+    expect(BRAND_PALETTE.dark.surface.card).toBe('#1e2126')
+    expect(BRAND_PALETTE.dark.surface.elevated).toBe('#262a30')
+    expect(BRAND_PALETTE.dark.surface.subtle).toBe('#1c1e2270')
   })
 
   it('saturates accent up (light orange becomes primary on dark)', () => {

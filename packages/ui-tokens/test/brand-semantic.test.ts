@@ -71,8 +71,8 @@ describe('BRAND_SEMANTIC.dark → palette references', () => {
     expect(BRAND_SEMANTIC.dark.accent.primary).toBe('#e8a060')
   })
 
-  it('resolves bg.app to dark surface.base', () => {
-    expect(BRAND_SEMANTIC.dark.bg.app).toBe('#1a1410')
+  it('resolves bg.app to dark surface.base (cool slate)', () => {
+    expect(BRAND_SEMANTIC.dark.bg.app).toBe('#16181c')
   })
 
   it('resolves alert.danger.{fg,bg,border} (dark)', () => {
