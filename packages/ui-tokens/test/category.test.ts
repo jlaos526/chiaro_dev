@@ -3,6 +3,7 @@ import {
   type CategoryId,
   CATEGORY_LABEL,
   CATEGORY_ACCENT,
+  CATEGORY_ACCENT_DARK,
   SUB_CASCADE_ACCENT,
   CATEGORY_CARD_GRADIENT,
 } from '../src/category.ts'
@@ -44,14 +45,26 @@ describe('CategoryId enum + CATEGORY_LABEL ordering (slice 41)', () => {
   })
 })
 
-describe('CATEGORY_ACCENT (palette A — semantic earthen)', () => {
-  it('matches the locked hex values from the spec', () => {
-    expect(CATEGORY_ACCENT['service-record']).toBe('#c89a4e')
-    expect(CATEGORY_ACCENT['issue-positions']).toBe('#3b6ed1')
-    expect(CATEGORY_ACCENT['community-presence']).toBe('#1f9b88')
-    expect(CATEGORY_ACCENT['finance']).toBe('#3da75b')
-    expect(CATEGORY_ACCENT['ethics-accountability']).toBe('#d68a1f')
-    expect(CATEGORY_ACCENT['voting-bills']).toBe('#7d57c1')
+describe('CATEGORY_ACCENT (slice 41 semantic-aligned)', () => {
+  it('matches the locked hex values from spec §4', () => {
+    expect(CATEGORY_ACCENT['service-record']).toBe('#c89a4e')        // gold (unchanged)
+    expect(CATEGORY_ACCENT['community-presence']).toBe('#b86340')    // terracotta (was '#1f9b88' teal)
+    expect(CATEGORY_ACCENT['finance']).toBe('#1a8f5a')               // emerald (was '#3da75b' medium green)
+    expect(CATEGORY_ACCENT['issue-positions']).toBe('#3b6ed1')       // blue (unchanged)
+    expect(CATEGORY_ACCENT['ethics-accountability']).toBe('#8a3a4d') // burgundy (was '#d68a1f' amber)
+    expect(CATEGORY_ACCENT['voting-bills']).toBe('#7d57c1')          // purple (unchanged)
+  })
+})
+
+describe('CATEGORY_ACCENT_DARK (slice 41: single-hex collapse)', () => {
+  it('contains values identical to CATEGORY_ACCENT per category', () => {
+    for (const id of ALL_IDS) {
+      expect(CATEGORY_ACCENT_DARK[id]).toBe(CATEGORY_ACCENT[id])
+    }
+  })
+
+  it('exports the same 6 keys as CATEGORY_ACCENT', () => {
+    expect(Object.keys(CATEGORY_ACCENT_DARK).sort()).toEqual(Object.keys(CATEGORY_ACCENT).sort())
   })
 })
 

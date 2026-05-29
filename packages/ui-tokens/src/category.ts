@@ -15,14 +15,14 @@ export const CATEGORY_LABEL: Record<CategoryId, string> = {
   'voting-bills':          'Voting & Bills',
 }
 
-// Palette A — semantic earthen. Locked 2026-05-17.
+// Palette — slice 41 semantic-aligned. Locked 2026-05-29.
 export const CATEGORY_ACCENT: Record<CategoryId, string> = {
-  'service-record':        '#c89a4e',
-  'issue-positions':       '#3b6ed1',
-  'community-presence':    '#1f9b88',
-  'finance':               '#3da75b',
-  'ethics-accountability': '#d68a1f',
-  'voting-bills':          '#7d57c1',
+  'service-record':        '#c89a4e',  // gold (achievement medal, unchanged)
+  'community-presence':    '#b86340',  // terracotta (town square clay) — was '#1f9b88'
+  'finance':               '#1a8f5a',  // emerald (money) — was '#3da75b'
+  'issue-positions':       '#3b6ed1',  // blue (considered stance, unchanged)
+  'ethics-accountability': '#8a3a4d',  // burgundy (judicial gravitas) — was '#d68a1f'
+  'voting-bills':          '#7d57c1',  // purple (legislative, unchanged)
 }
 
 export const SUB_CASCADE_ACCENT: Record<CategoryId, string> = {
@@ -55,16 +55,10 @@ export const CATEGORY_CARD_BG_SOLID: Record<CategoryId, string> = {
   'voting-bills':          '#f7f4fc',
 }
 
-// Slice 37: dark-mode CATEGORY_ACCENT. Lightness shifted up so semantic
-// hue remains recognizable on dark surface.
-export const CATEGORY_ACCENT_DARK: Record<CategoryId, string> = {
-  'service-record':        '#e0b97a',
-  'issue-positions':       '#7ba0e8',
-  'community-presence':    '#5dc4b3',
-  'finance':               '#7fc89a',
-  'ethics-accountability': '#ecb05b',
-  'voting-bills':          '#b399df',
-}
+// Slice 41: CATEGORY_ACCENT_DARK now mirrors CATEGORY_ACCENT (single-hex
+// per category, both modes). Export name preserved for slice 37
+// `useCategoryAccent` hook back-compat.
+export const CATEGORY_ACCENT_DARK: Record<CategoryId, string> = CATEGORY_ACCENT
 
 // Slice 37: dark-mode SUB_CASCADE_ACCENT — softer tint pulled toward
 // neutral so cascade levels remain perceptibly distinct from CATEGORY_ACCENT.
