@@ -9,6 +9,7 @@ import {
   CATEGORY_CARD_GRADIENT,
   CATEGORY_CARD_GRADIENT_DARK,
   SUB_CASCADE_ACCENT,
+  SUB_CASCADE_ACCENT_DARK,
 } from '../src/category.ts'
 
 const ALL_IDS: CategoryId[] = [
@@ -71,14 +72,25 @@ describe('CATEGORY_ACCENT_DARK (slice 41: single-hex collapse)', () => {
   })
 })
 
-describe('SUB_CASCADE_ACCENT (lighter shade per category)', () => {
-  it('matches the locked hex values', () => {
-    expect(SUB_CASCADE_ACCENT['service-record']).toBe('#e1c896')
-    expect(SUB_CASCADE_ACCENT['issue-positions']).toBe('#87aae0')
-    expect(SUB_CASCADE_ACCENT['community-presence']).toBe('#7fc7bb')
-    expect(SUB_CASCADE_ACCENT['finance']).toBe('#8fc89d')
-    expect(SUB_CASCADE_ACCENT['ethics-accountability']).toBe('#ecbc7d')
-    expect(SUB_CASCADE_ACCENT['voting-bills']).toBe('#b39bd9')
+describe('SUB_CASCADE_ACCENT (slice 41 light)', () => {
+  it('matches the locked light sub-cascade hexes', () => {
+    expect(SUB_CASCADE_ACCENT['service-record']).toBe('#e1c896')        // unchanged (gold-derived)
+    expect(SUB_CASCADE_ACCENT['community-presence']).toBe('#e0b8a0')    // NEW terracotta-derived (was '#7fc7bb' teal-derived)
+    expect(SUB_CASCADE_ACCENT['finance']).toBe('#7eb898')               // NEW emerald-derived (was '#8fc89d')
+    expect(SUB_CASCADE_ACCENT['issue-positions']).toBe('#87aae0')       // unchanged
+    expect(SUB_CASCADE_ACCENT['ethics-accountability']).toBe('#c89aa8') // NEW burgundy-derived (was '#ecbc7d' amber-derived)
+    expect(SUB_CASCADE_ACCENT['voting-bills']).toBe('#b39bd9')          // unchanged
+  })
+})
+
+describe('SUB_CASCADE_ACCENT_DARK (slice 41 dark)', () => {
+  it('matches the locked dark sub-cascade hexes', () => {
+    expect(SUB_CASCADE_ACCENT_DARK['service-record']).toBe('#8a6a55')        // NEW gold-derived (was '#9a8866')
+    expect(SUB_CASCADE_ACCENT_DARK['community-presence']).toBe('#a08858')    // NEW terracotta-derived (was '#4a9888' teal-derived)
+    expect(SUB_CASCADE_ACCENT_DARK['finance']).toBe('#4e8060')               // NEW emerald-derived (was '#5e9a70')
+    expect(SUB_CASCADE_ACCENT_DARK['issue-positions']).toBe('#6680b8')       // unchanged
+    expect(SUB_CASCADE_ACCENT_DARK['ethics-accountability']).toBe('#704a55') // NEW burgundy-derived (was '#b08850' amber-derived)
+    expect(SUB_CASCADE_ACCENT_DARK['voting-bills']).toBe('#8470a8')          // unchanged
   })
 })
 
