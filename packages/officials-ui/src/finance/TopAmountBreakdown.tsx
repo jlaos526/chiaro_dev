@@ -2,8 +2,7 @@
 
 import { createElement, useState } from 'react'
 import { Linking, Platform, Pressable, Text, View } from 'react-native'
-import { CATEGORY_CARD_GRADIENT } from '@chiaro/ui-tokens'
-import { useBrandTokens, useFinanceCardBg } from '../brand-hooks.ts'
+import { useBrandTokens, useCategoryAccent, useCategoryCardBg } from '../brand-hooks.ts'
 import { PillChevron } from '../cards/PillChevron.tsx'
 
 export interface TopAmountRow {
@@ -34,27 +33,22 @@ export function TopAmountBreakdown({
   sourceUrl,
 }: TopAmountBreakdownProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
-  const cardBg = useFinanceCardBg()
+  const cardBg = useCategoryCardBg()
+  const financeAccent = useCategoryAccent('finance')
   const [expanded, setExpanded] = useState(false)
   const total = rows.reduce((s, r) => s + r.amount, 0)
   const max = Math.max(...rows.map(r => r.amount), 1)
   const visible = expanded ? rows : rows.slice(0, 5)
   const showToggle = rows.length > 5
 
-  // Pattern B (see MetricCardShell): on web, paint the finance category
-  // gradient via a raw <div> wrapper using CSS `background` (RNW strips
-  // `linear-gradient(...)` from `backgroundColor`). Inner View is
-  // transparent so the gradient shows through. Native paints the solid
-  // top stop directly.
-  const useWebGradient = Platform.OS === 'web'
-  const innerBg = useWebGradient ? 'transparent' : cardBg
-
-  const inner = (
+  return (
     <View
       style={{
-        backgroundColor: innerBg,
+        backgroundColor: cardBg,
         borderWidth: 1,
         borderColor: semantic.border.default,
+        borderTopWidth: 3,
+        borderTopColor: financeAccent,
         borderRadius: 6,
         padding: 14,
       }}
@@ -161,19 +155,4 @@ export function TopAmountBreakdown({
       ) : null}
     </View>
   )
-
-  if (useWebGradient) {
-    return createElement(
-      'div',
-      {
-        style: {
-          background: CATEGORY_CARD_GRADIENT.finance,
-          borderRadius: 6,
-        },
-      },
-      inner,
-    )
-  }
-
-  return inner
 }
