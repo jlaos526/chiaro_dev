@@ -9,12 +9,6 @@ import {
   CATEGORY_ACCENT_DARK,
   CATEGORY_CARD_BG,
   CATEGORY_CARD_BG_DARK,
-  CATEGORY_CARD_BG_SOLID,
-  CATEGORY_CARD_BG_SOLID_DARK,
-  CATEGORY_CARD_GRADIENT,
-  CATEGORY_CARD_GRADIENT_DARK,
-  FINANCE_CARD_BG,
-  FINANCE_CARD_BG_DARK,
   FINANCE_SUB_SECTION_SHADES,
   FINANCE_SUB_SECTION_SHADES_DARK,
   INDUSTRY_COLOR,
@@ -35,9 +29,6 @@ import {
   useBrandTokens,
   useCategoryAccent,
   useCategoryCardBg,
-  useCategoryCardBgSolid,
-  useCategoryCardGradient,
-  useFinanceCardBg,
   useFinanceSubSectionShade,
   useIndustryColor,
   useMapColors,
@@ -142,21 +133,6 @@ describe('useScorecardLeanColor', () => {
   })
 })
 
-describe('useCategoryCardGradient', () => {
-  it('returns light gradient when mode is light', () => {
-    const { result } = renderHook(() => useCategoryCardGradient('finance'), {
-      wrapper: wrapper('light'),
-    })
-    expect(result.current).toBe(CATEGORY_CARD_GRADIENT.finance)
-  })
-  it('returns dark gradient when mode is dark', () => {
-    const { result } = renderHook(() => useCategoryCardGradient('finance'), {
-      wrapper: wrapper('dark'),
-    })
-    expect(result.current).toBe(CATEGORY_CARD_GRADIENT_DARK.finance)
-  })
-})
-
 describe('useCategoryAccent', () => {
   it('returns light accent when mode is light', () => {
     const { result } = renderHook(() => useCategoryAccent('voting-bills'), {
@@ -169,21 +145,6 @@ describe('useCategoryAccent', () => {
       wrapper: wrapper('dark'),
     })
     expect(result.current).toBe(CATEGORY_ACCENT_DARK['voting-bills'])
-  })
-})
-
-describe('useCategoryCardBgSolid', () => {
-  it('returns light solid bg when mode is light', () => {
-    const { result } = renderHook(() => useCategoryCardBgSolid('service-record'), {
-      wrapper: wrapper('light'),
-    })
-    expect(result.current).toBe(CATEGORY_CARD_BG_SOLID['service-record'])
-  })
-  it('returns dark solid bg when mode is dark', () => {
-    const { result } = renderHook(() => useCategoryCardBgSolid('service-record'), {
-      wrapper: wrapper('dark'),
-    })
-    expect(result.current).toBe(CATEGORY_CARD_BG_SOLID_DARK['service-record'])
   })
 })
 
@@ -209,17 +170,6 @@ describe('useIndustryColor', () => {
   it('falls back to default color for undefined industry in dark mode', () => {
     const { result } = renderHook(() => useIndustryColor(undefined), { wrapper: wrapper('dark') })
     expect(result.current).toBe(INDUSTRY_DEFAULT_COLOR_DARK)
-  })
-})
-
-describe('useFinanceCardBg', () => {
-  it('returns light bg when mode is light', () => {
-    const { result } = renderHook(() => useFinanceCardBg(), { wrapper: wrapper('light') })
-    expect(result.current).toBe(FINANCE_CARD_BG)
-  })
-  it('returns dark bg when mode is dark', () => {
-    const { result } = renderHook(() => useFinanceCardBg(), { wrapper: wrapper('dark') })
-    expect(result.current).toBe(FINANCE_CARD_BG_DARK)
   })
 })
 
