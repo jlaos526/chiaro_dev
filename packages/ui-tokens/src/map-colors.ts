@@ -8,10 +8,10 @@ export const MAP_COLORS = {
 
 export type MapColor = typeof MAP_COLORS
 
-// Slice 37: dark-mode map palette. Inverts stroke/fill — paper-tone
-// becomes the stroke (legible against deep surface) and the deep warm
-// fill replaces the paper tone.
+// Slice 41: dark-mode districtFill cascades to cool slate (border.strong
+// equivalent), replacing the slice 37 warm-brown anchor #3a2e26 that
+// visibly clashed with slice 40's new cool slate page bg #16181c.
 export const MAP_COLORS_DARK = {
-  districtStroke: '#fdf8f3',   // bright paper-tone stroke
-  districtFill:   '#3a2e26',   // deep warm fill
+  districtStroke: '#fdf8f3',   // bright paper-tone stroke (unchanged)
+  districtFill:   '#3a3e45',   // cool slate (was warm '#3a2e26')
 } as const
