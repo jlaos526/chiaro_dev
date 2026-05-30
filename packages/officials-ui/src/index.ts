@@ -243,6 +243,9 @@ export { BrandFormScreen, type BrandFormScreenProps } from './screens/BrandFormS
 
 // Slice 47 — nav helpers
 export { signOut, type SignOutRouter } from './nav/sign-out.ts'
+export { BrandNavRail, type BrandNavRailProps, type RailUser } from './nav/BrandNavRail.tsx'
+export { BrandNavRailMount } from './nav/BrandNavRailMount.tsx'
+export { useBreakpoint } from './nav/useBreakpoint.ts'
 
 // Slice 45 — brand primitives. Foundational components for page composition
 // (Heading, BodyText, Button, Link, Alert). Mode-aware via useBrandTokens().
