@@ -1,6 +1,7 @@
+import { Drawer } from 'expo-router/drawer'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { CalibrateScreen } from '@chiaro/officials-ui'
+import { BackButton, CalibrateScreen } from '@chiaro/officials-ui'
 import { addressInputSchema } from '@chiaro/location'
 import { supabase } from '@/lib/supabase'
 import { getCurrentLocation } from '@/lib/location-permissions'
@@ -46,5 +47,16 @@ export default function CalibratePage() {
     router.replace('/')
   }
 
-  return <CalibrateScreen onSubmit={handleSubmit} onGpsSubmit={handleGpsSubmit} onSkip={handleSkip} />
+  return (
+    <>
+      <Drawer.Screen
+        options={{
+          title: 'Calibrate',
+          drawerItemStyle: { display: 'none' },
+          headerLeft: () => <BackButton />,
+        }}
+      />
+      <CalibrateScreen onSubmit={handleSubmit} onGpsSubmit={handleGpsSubmit} onSkip={handleSkip} />
+    </>
+  )
 }
