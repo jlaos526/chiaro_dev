@@ -1,8 +1,9 @@
+import { Drawer } from 'expo-router/drawer'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Text } from 'react-native'
 import { useLocalSearchParams, Redirect } from 'expo-router'
 import { useOfficial, useOfficialDistrictOffices, isStateLevel } from '@chiaro/officials'
-import { StateOfficialDetailPage } from '@chiaro/officials-ui'
+import { BackButton, StateOfficialDetailPage } from '@chiaro/officials-ui'
 import { supabase } from '@/lib/supabase'
 
 export default function StateOfficialDetailScreen() {
@@ -20,8 +21,17 @@ export default function StateOfficialDetailScreen() {
   }
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#fff' }}>
-      <StateOfficialDetailPage official={officialQ.data} offices={officesQ.data ?? []} />
-    </SafeAreaView>
+    <>
+      <Drawer.Screen
+        options={{
+          title: 'State official',
+          drawerItemStyle: { display: 'none' },
+          headerLeft: () => <BackButton />,
+        }}
+      />
+      <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#fff' }}>
+        <StateOfficialDetailPage official={officialQ.data} offices={officesQ.data ?? []} />
+      </SafeAreaView>
+    </>
   )
 }
