@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useBrandTokens } from '../brand-hooks.ts'
+import { WEB_VIEWPORT_FILL } from '../screens/_viewport-fill.ts'
 import { BrandTextInput } from '../inputs/BrandTextInput.tsx'
 
 export interface CalibrateScreenProps {
@@ -22,13 +23,6 @@ export interface CalibrateScreenProps {
   gpsLabel?: string
   gpsLoadingLabel?: string
 }
-
-// Web: parent <main>/<body>/<html> have no defined height by default, so the
-// `flex: 1` on `outer` collapses and the card sits at the top of the viewport.
-// minHeight: '100vh' fills the viewport so justifyContent: 'center' can do its
-// job. Mobile (RN) already gets a flex-filled Screen wrapper from the navigator,
-// so this is web-only. Mirror of AuthScreen's WEB_VIEWPORT_FILL pattern.
-const WEB_VIEWPORT_FILL = Platform.OS === 'web' ? ({ minHeight: '100vh' as unknown as number }) : null
 
 export function CalibrateScreen({
   title = 'Set your home location',

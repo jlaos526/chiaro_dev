@@ -69,7 +69,7 @@ export function BrandAlert({ severity, title, children }: BrandAlertProps): Reac
             marginTop: 1,
           }}
         >
-          <Text style={{ color: '#fff', fontSize: 11, fontWeight: '800' }}>{sev.glyph}</Text>
+          <Text style={{ color: semantic.text.onAccent, fontSize: 11, fontWeight: '800' }}>{sev.glyph}</Text>
         </View>
         <View style={{ flex: 1 }}>
           {title ? (

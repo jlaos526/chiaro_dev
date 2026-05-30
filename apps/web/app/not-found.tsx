@@ -1,8 +1,10 @@
+import { BrandPageScreen, BrandBodyText, BrandLink } from '@chiaro/officials-ui'
+
 export default function NotFound(): React.JSX.Element {
   return (
-    <main>
-      <h1>Page not found</h1>
-      <p><a href="/">Go home</a></p>
-    </main>
+    <BrandPageScreen title="Page not found">
+      <BrandBodyText>We couldn&apos;t find what you were looking for.</BrandBodyText>
+      <BrandLink href="/">← Go home</BrandLink>
+    </BrandPageScreen>
   )
 }

@@ -1,10 +1,18 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { addressInputSchema, getMyLocation } from '@chiaro/location'
+import {
+  BrandFormScreen,
+  BrandTextInput,
+  BrandButton,
+  BrandAlert,
+  BrandBodyText,
+} from '@chiaro/officials-ui'
 
-export default function EditAddressPage() {
+export default function EditAddressPage(): React.JSX.Element {
   const router = useRouter()
   const [address, setAddress] = useState('')
   const [calibratedAt, setCalibratedAt] = useState<string | null>(null)
@@ -23,8 +31,7 @@ export default function EditAddressPage() {
     }).catch(() => setBootstrapping(false))
   }, [])
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  async function handleSubmit() {
     setError(null)
     const parsed = addressInputSchema.safeParse({ address })
     if (!parsed.success) {
@@ -39,7 +46,7 @@ export default function EditAddressPage() {
     setLoading(false)
     if (invokeErr) {
       const status = (invokeErr as { context?: { status?: number } }).context?.status
-      if (status === 400) setError('We couldn\'t find that address.')
+      if (status === 400) setError("We couldn't find that address.")
       else if (status === 502) setError('Address lookup is temporarily unavailable. Try again.')
       else setError('Could not save. Try again.')
       return
@@ -48,28 +55,28 @@ export default function EditAddressPage() {
     router.refresh()
   }
 
-  if (bootstrapping) return <p>Loading…</p>
+  if (bootstrapping) {
+    return (
+      <BrandFormScreen title="Home address" backHref="/settings" backLabel="← Settings">
+        <BrandBodyText muted>Loading…</BrandBodyText>
+      </BrandFormScreen>
+    )
+  }
+
+  const subtitle = calibratedAt ? `Last updated ${new Date(calibratedAt).toLocaleString()}` : undefined
 
   return (
-    <section>
-      <h2>Home address</h2>
-      {calibratedAt && <p><small>Last updated {new Date(calibratedAt).toLocaleString()}</small></p>}
-      <form onSubmit={handleSubmit}>
-        <label>
-          Address
-          <input
-            type="text"
-            value={address}
-            onChange={e => setAddress(e.target.value)}
-            required
-            minLength={5}
-          />
-        </label>
-        {error && <p role="alert">{error}</p>}
-        <button type="submit" disabled={loading}>
-          {loading ? 'Saving…' : 'Save'}
-        </button>
-      </form>
-    </section>
+    <BrandFormScreen
+      title="Home address"
+      backHref="/settings"
+      backLabel="← Settings"
+      {...(subtitle ? { subtitle } : {})}
+    >
+      <BrandTextInput label="Address" value={address} onChangeText={setAddress} />
+      {error ? <BrandAlert severity="danger" title="Couldn't save">{error}</BrandAlert> : null}
+      <BrandButton variant="primary" disabled={loading} onPress={handleSubmit}>
+        {loading ? 'Saving…' : 'Save'}
+      </BrandButton>
+    </BrandFormScreen>
   )
 }

@@ -263,6 +263,25 @@ the user was on the calibrate flow.
 - [ ] DistrictBadge text label uses body-text color (charcoal in light, cream in dark).
 - [ ] Logo mark on mobile splash/header shows brand orange (not slate-blue) — Logo is mode-invariant by design.
 
+## Slice 47 — F1 web rewrites + nav rail (web)
+
+- [ ] Sign in → land on `/` → see persistent left rail with avatar + Navigate + Sign out
+- [ ] Resize browser <768px → rail collapses to hamburger top bar
+- [ ] Tap hamburger → overlay rail slides in, scrim dims content
+- [ ] Tap scrim → overlay closes
+- [ ] Navigate Home → Officials → Settings, active item highlight tracks
+- [ ] Sign out from rail → land on `/sign-in`, no rail visible
+- [ ] Hit `/sign-in` directly while authed → no rail visible (excluded route)
+- [ ] Hit a 404 URL → "Page not found" via BrandPageScreen, rail present if authed
+- [ ] Edit profile flow happy path → routes back to `/`
+- [ ] Edit profile flow error path → BrandAlert displays + form re-enabled
+- [ ] Edit address flow happy path → routes back to `/settings`
+- [ ] Edit address flow error path → BrandAlert displays
+- [ ] /settings/address back link lands on /settings (not `/`)
+- [ ] Dark mode toggle from /settings → rail repaints correctly
+- [ ] Home page Welcome heading uses display_name when present; falls back to username; "Welcome" alone when both null
+- [ ] Profile-completion BrandAlert appears on home only when profile.completed === false
+
 ## After the run
 
 If any item fails:

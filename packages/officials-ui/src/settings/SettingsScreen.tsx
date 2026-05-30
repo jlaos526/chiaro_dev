@@ -1,19 +1,14 @@
 'use client'
 
-import { Platform, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import type { ReactNode } from 'react'
 import { useBrandTokens } from '../brand-hooks.ts'
+import { WEB_VIEWPORT_FILL } from '../screens/_viewport-fill.ts'
 
 export interface SettingsScreenProps {
   title?: string
   children: ReactNode
 }
-
-// Web parent <main>/<body>/<html> have no defined height by default, so the
-// flex:1 on `outer` collapses unless we fill the viewport. Mobile gets a
-// flex-filled Screen from the navigator and ignores this. Same pattern as
-// AuthScreen (2026-05-28 fix).
-const WEB_VIEWPORT_FILL = Platform.OS === 'web' ? ({ minHeight: '100vh' as unknown as number }) : null
 
 export function SettingsScreen({ title = 'Settings', children }: SettingsScreenProps): React.JSX.Element {
   const { semantic } = useBrandTokens()

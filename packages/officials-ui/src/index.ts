@@ -237,6 +237,16 @@ export { SettingsComingSoonRow, type SettingsComingSoonRowProps } from './settin
 // Slice 39 — calibrate
 export { CalibrateScreen, type CalibrateScreenProps } from './calibrate/CalibrateScreen.tsx'
 
+// Slice 47 — generic page shells
+export { BrandPageScreen, type BrandPageScreenProps } from './screens/BrandPageScreen.tsx'
+export { BrandFormScreen, type BrandFormScreenProps } from './screens/BrandFormScreen.tsx'
+
+// Slice 47 — nav helpers
+export { signOut, type SignOutRouter } from './nav/sign-out.ts'
+export { BrandNavRail, type BrandNavRailProps, type RailUser } from './nav/BrandNavRail.tsx'
+export { BrandNavRailMount } from './nav/BrandNavRailMount.tsx'
+export { useBreakpoint } from './nav/useBreakpoint.ts'
+
 // Slice 45 — brand primitives. Foundational components for page composition
 // (Heading, BodyText, Button, Link, Alert). Mode-aware via useBrandTokens().
 // Used by slice 47+ to rewrite F1/F2 surfaces (per slice 44 UI audit).

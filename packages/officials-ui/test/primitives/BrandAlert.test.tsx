@@ -77,4 +77,32 @@ describe('BrandAlert', () => {
     render(<BrandAlert severity="info">Just informational.</BrandAlert>)
     expect(screen.getByText('Just informational.')).toBeTruthy()
   })
+
+  describe('glyph color (slice 47 cleanup item 2)', () => {
+    it('uses semantic.text.onAccent in light mode', () => {
+      const { container } = render(
+        <BrandAlert severity="info">Body</BrandAlert>,
+        { wrapper: lightWrapper },
+      )
+      // Glyph is the 'i' Text node inside the 18px circle. Use deepest match
+      // to grab the RNW Text span (not its container divs).
+      const glyph = Array.from(container.querySelectorAll('*'))
+        .reverse()
+        .find(el => el.textContent === 'i') as HTMLElement | undefined
+      // Light onAccent is '#ffffff' which RNW normalizes to 'rgb(255, 255, 255)'
+      expect(glyph?.getAttribute('style')).toMatch(/color:\s*(rgb\(255,\s*255,\s*255\)|#fff)/i)
+    })
+
+    it('uses semantic.text.onAccent in dark mode', () => {
+      const { container } = render(
+        <BrandAlert severity="info">Body</BrandAlert>,
+        { wrapper: darkWrapper },
+      )
+      const glyph = Array.from(container.querySelectorAll('*'))
+        .reverse()
+        .find(el => el.textContent === 'i') as HTMLElement | undefined
+      // Dark onAccent is p.ink[1000] = '#fdf8f3' which RNW normalizes to 'rgb(253, 248, 243)'
+      expect(glyph?.getAttribute('style')).toMatch(/color:\s*(rgb\(253,\s*248,\s*243\)|#fdf8f3)/i)
+    })
+  })
 })

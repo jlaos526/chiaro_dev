@@ -24,6 +24,8 @@ export interface LogoProps {
   tagline?: string
   /** Defaults: `'Chiaro'` for mark, `'Chiaro logo'` for lockup. */
   accessibilityLabel?: string
+  /** When provided, decouples wordmark size from mark size. Defaults to `size × 0.65`. */
+  wordmarkSize?: number
 }
 
 export function Logo({
@@ -31,6 +33,7 @@ export function Logo({
   variant = 'mark',
   tagline,
   accessibilityLabel,
+  wordmarkSize,
 }: LogoProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const isWeb = Platform.OS === 'web'
@@ -57,19 +60,20 @@ export function Logo({
   }
 
   // Lockup: mark + CHIARO wordmark (+ optional tagline)
-  const wordmarkSize = size * 0.65 // per brand book §8.3
-  const wordmarkTracking = size >= 48 ? 0.06 : size >= 24 ? 0.07 : 0.08
-  const gap = size * 0.4
-  const taglineSize = wordmarkSize * 0.45
-  const taglineGap = wordmarkSize * 0.13
+  // wordmarkSize prop (slice 47) decouples wordmark from mark; falls back to brand book §8.3 default.
+  const effectiveWordmarkSize = wordmarkSize ?? size * 0.65
+  const wordmarkTracking = effectiveWordmarkSize >= 48 ? 0.06 : effectiveWordmarkSize >= 24 ? 0.07 : 0.08
+  const gap = Math.max(size, effectiveWordmarkSize) * 0.4
+  const taglineSize = effectiveWordmarkSize * 0.45
+  const taglineGap = effectiveWordmarkSize * 0.13
 
   const wordmark = (
     <Text
       style={{
         fontWeight: '700',
-        fontSize: wordmarkSize,
+        fontSize: effectiveWordmarkSize,
         color: semantic.text.primary,
-        letterSpacing: wordmarkTracking * wordmarkSize,
+        letterSpacing: wordmarkTracking * effectiveWordmarkSize,
       }}
     >
       CHIARO
