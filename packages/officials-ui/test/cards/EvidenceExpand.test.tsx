@@ -45,4 +45,18 @@ describe('EvidenceExpand', () => {
     fireEvent.click(getByText('view evidence'))
     expect(onToggle).toHaveBeenCalledOnce()
   })
+
+  it('borderTopColor uses semantic.border.default in light mode (slice 46)', () => {
+    const { container } = render(
+      <EvidenceExpand title="Test" open={true} onToggle={() => {}}>
+        <Text>row 1</Text>
+      </EvidenceExpand>,
+    )
+    // The first child View has the dashed top border (when open=true).
+    const inner = container.querySelector('[style*="border-top"]') as HTMLElement | null
+    expect(inner).not.toBeNull()
+    const style = inner?.getAttribute('style') ?? ''
+    // RNW normalizes #e8d8c2 (semantic.border.default light) to rgb(232, 216, 194).
+    expect(style).toMatch(/border-top-color:\s*rgb\(232,\s*216,\s*194\)/)
+  })
 })

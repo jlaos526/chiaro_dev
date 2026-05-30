@@ -12,7 +12,7 @@
 
 import { createElement } from 'react'
 import { Platform, Text, View } from 'react-native'
-import { logoGeometry, LOGO_FILLS } from '@chiaro/ui-tokens'
+import { BRAND_PALETTE, logoGeometry, LOGO_FILLS } from '@chiaro/ui-tokens'
 import { useBrandTokens } from './brand-hooks.ts'
 
 export interface LogoProps {
@@ -133,7 +133,7 @@ function renderMark(
 ): React.JSX.Element {
   // Solid color fallback for native (no alpha gradients in core RN).
   const backFill = isWeb ? LOGO_FILLS.backSquare : LOGO_FILLS.borderColor
-  const frontFill = isWeb ? LOGO_FILLS.frontSquare : '#e8a060'
+  const frontFill = isWeb ? LOGO_FILLS.frontSquare : BRAND_PALETTE.light.accent[400]
 
   const backStyle = {
     position: 'absolute' as const,

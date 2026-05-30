@@ -1,10 +1,10 @@
 // Test-time stub for react-native-svg. The real package ships a native-only
 // entry layout that Node's ESM loader rejects under jsdom. Tests don't need
-// real SVG rendering — these RN-shaped no-op components keep the component
-// API surface identical so visual smoke is preserved at the prop level.
+// real RN-svg rendering — but we DO render real DOM <svg>/<path> elements so
+// that test assertions can query SVG attributes (e.g. the fill literal on a
+// pin path) via standard DOM APIs.
 
-import type { ReactNode } from 'react'
-import { View } from 'react-native'
+import { createElement, type ReactNode } from 'react'
 
 interface BaseProps {
   children?: ReactNode
@@ -16,12 +16,21 @@ interface BaseProps {
   d?: string
 }
 
-function Svg({ children, ...rest }: BaseProps): React.JSX.Element {
-  return <View {...(rest as object)}>{children}</View>
+function Svg({ children, width, height, viewBox }: BaseProps): React.JSX.Element {
+  return createElement(
+    'svg',
+    {
+      width,
+      height,
+      viewBox,
+      xmlns: 'http://www.w3.org/2000/svg',
+    },
+    children,
+  )
 }
 
-function Path(_props: BaseProps): React.JSX.Element {
-  return <View />
+function Path({ d, fill }: BaseProps): React.JSX.Element {
+  return createElement('path', { d, fill })
 }
 
 export default Svg

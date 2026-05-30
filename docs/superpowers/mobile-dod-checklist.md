@@ -255,6 +255,14 @@ the user was on the calibrate flow.
 - [ ] AuthForm error banner shows brand-family burgundy bg (was peach-pink in slice 32 era).
 - [ ] Dark mode toggle repaints all 5 primitives without app restart.
 
+## Slice 46 — Inline-hex sweep
+
+- [ ] PillChevron pill bg repaints between modes (warm cream in light, cool slate in dark).
+- [ ] EvidenceExpand dashed-border separator visible in both light + dark modes.
+- [ ] DistrictBadge map-pin reads as saturated red in light, brighter coral in dark.
+- [ ] DistrictBadge text label uses body-text color (charcoal in light, cream in dark).
+- [ ] Logo mark on mobile splash/header shows brand orange (not slate-blue) — Logo is mode-invariant by design.
+
 ## After the run
 
 If any item fails:
