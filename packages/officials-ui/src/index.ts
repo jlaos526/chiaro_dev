@@ -247,6 +247,9 @@ export { BrandNavRail, type BrandNavRailProps, type RailUser } from './nav/Brand
 export { BrandNavRailMount } from './nav/BrandNavRailMount.tsx'
 export { useBreakpoint } from './nav/useBreakpoint.ts'
 
+// Slice 48 — nav components (mobile)
+export { BackButton } from './nav/BackButton.tsx'
+
 // Slice 45 — brand primitives. Foundational components for page composition
 // (Heading, BodyText, Button, Link, Alert). Mode-aware via useBrandTokens().
 // Used by slice 47+ to rewrite F1/F2 surfaces (per slice 44 UI audit).
