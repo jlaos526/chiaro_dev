@@ -1,3 +1,4 @@
+import { Drawer } from 'expo-router/drawer'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ScrollView, Text, View } from 'react-native'
 import { useLocalSearchParams, Redirect, useRouter } from 'expo-router'
@@ -6,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
 import { firstElectedYear as deriveFirstElectedYear } from '@/lib/derivations/service-record'
 import {
+  BackButton,
   BioHeader,
   FederalServiceRecordCard,
   FederalCommunityPresenceCard,
@@ -53,7 +55,15 @@ export default function OfficialDetailScreen() {
   const { districtNumber, atLarge } = parseDistrictCode(official.chamber, districtCode)
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#fff' }}>
+    <>
+      <Drawer.Screen
+        options={{
+          title: 'Official',
+          drawerItemStyle: { display: 'none' },
+          headerLeft: () => <BackButton />,
+        }}
+      />
+      <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#fff' }}>
       <ScrollView>
         <BioHeader
           officialId={official.id}
@@ -89,5 +99,6 @@ export default function OfficialDetailScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
+    </>
   )
 }
