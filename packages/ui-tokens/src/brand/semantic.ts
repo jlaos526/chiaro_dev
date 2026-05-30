@@ -58,6 +58,9 @@ const buildSemantic = (mode: BrandMode) => {
     link: {
       fg: p.link.fg,
     },
+    icon: {
+      location: p.icon.location,
+    },
     portrait: {
       gradient: { from: p.portrait.gradient.from, to: p.portrait.gradient.to },
       initials: p.portrait.initials,

@@ -66,6 +66,11 @@ describe('BRAND_SEMANTIC.light → palette references', () => {
     expect(BRAND_SEMANTIC.light.portrait.gradient.to).toBe('#e8a060')
     expect(BRAND_SEMANTIC.light.portrait.initials).toBe('#ffffff')
   })
+
+  it('resolves icon.location to the slice 46 palette value (light)', () => {
+    expect(BRAND_SEMANTIC.light.icon.location).toBe('#e74c3c')
+    expect(BRAND_SEMANTIC.light.icon.location).toBe(BRAND_PALETTE.light.icon.location)
+  })
 })
 
 describe('BRAND_SEMANTIC.dark → palette references', () => {
@@ -117,6 +122,11 @@ describe('BRAND_SEMANTIC.dark → palette references', () => {
     expect(BRAND_SEMANTIC.dark.portrait.gradient.from).toBe('#6b7a5d')
     expect(BRAND_SEMANTIC.dark.portrait.gradient.to).toBe('#9caa8e')
     expect(BRAND_SEMANTIC.dark.portrait.initials).toBe('#fff0dc')
+  })
+
+  it('resolves icon.location to the slice 46 palette value (dark)', () => {
+    expect(BRAND_SEMANTIC.dark.icon.location).toBe('#f08074')
+    expect(BRAND_SEMANTIC.dark.icon.location).toBe(BRAND_PALETTE.dark.icon.location)
   })
 })
 
