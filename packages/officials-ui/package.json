@@ -21,7 +21,9 @@
     "@chiaro/ui-tokens": "workspace:*"
   },
   "peerDependencies": {
+    "@react-navigation/drawer": "^7.0.0",
     "@tanstack/react-query": "^5.0.0",
+    "expo-router": "^6.0.0",
     "react": "^19.0.0",
     "react-native": "*",
     "react-native-svg": "*"
