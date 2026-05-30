@@ -40,9 +40,8 @@ export function BrandButton({
   const bg = variant === 'primary'
     ? semantic.accent.primary
     : 'transparent'
-  const borderColor = variant === 'primary'
-    ? semantic.accent.primary
-    : semantic.accent.primary
+  // Slice 47 cleanup: ternary collapsed (both branches identical).
+  const borderColor = semantic.accent.primary
   const textColor = variant === 'primary'
     ? semantic.text.onAccent
     : semantic.accent.primary
