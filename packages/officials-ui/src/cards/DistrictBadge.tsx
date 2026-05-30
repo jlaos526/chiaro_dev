@@ -1,6 +1,9 @@
+'use client'
+
 import { Text, View } from 'react-native'
 import Svg, { Path } from 'react-native-svg'
 import { type OfficialChamber } from '@chiaro/officials'
+import { useBrandTokens } from '../brand-hooks.ts'
 
 export interface DistrictBadgeProps {
   chamber: OfficialChamber
@@ -41,15 +44,16 @@ function districtLabel(p: DistrictBadgeProps): string {
 }
 
 export function DistrictBadge(props: DistrictBadgeProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
       <Svg width={12} height={14} viewBox="0 0 12 14">
         <Path
           d="M6 0C2.7 0 0 2.7 0 6c0 4.5 6 8 6 8s6-3.5 6-8c0-3.3-2.7-6-6-6zm0 8.2C4.8 8.2 3.8 7.2 3.8 6S4.8 3.8 6 3.8 8.2 4.8 8.2 6 7.2 8.2 6 8.2z"
-          fill="#d13b3b"
+          fill={semantic.icon.location}
         />
       </Svg>
-      <Text style={{ color: '#3a352b', fontSize: 12.5 }}>{districtLabel(props)}</Text>
+      <Text style={{ color: semantic.text.body, fontSize: 12.5 }}>{districtLabel(props)}</Text>
     </View>
   )
 }

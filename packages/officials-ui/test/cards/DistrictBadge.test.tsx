@@ -43,3 +43,25 @@ describe('DistrictBadge — state chambers', () => {
     expect(getByText('NE-LD 23')).toBeTruthy()
   })
 })
+
+describe('DistrictBadge — slice 46 token wiring', () => {
+  it('pin fill uses semantic.icon.location in light mode', () => {
+    const { container } = render(
+      <DistrictBadge chamber="federal_house" stateName="California" stateAbbrev="CA" districtNumber={11} />,
+    )
+    const path = container.querySelector('svg path') as SVGPathElement | null
+    expect(path).not.toBeNull()
+    // SVG fill attribute is a direct hex literal (NOT RNW-normalized).
+    expect(path?.getAttribute('fill')).toBe('#e74c3c')
+  })
+
+  it('text color uses semantic.text.body in light mode', () => {
+    const { container, getByText } = render(
+      <DistrictBadge chamber="federal_house" stateName="California" stateAbbrev="CA" districtNumber={11} />,
+    )
+    const text = getByText("California's 11th District") as HTMLElement
+    const style = text.getAttribute('style') ?? ''
+    // RNW normalizes #3a322c (semantic.text.body light) to rgb(58, 50, 44).
+    expect(style).toMatch(/color:\s*rgb\(58,\s*50,\s*44\)/)
+  })
+})
