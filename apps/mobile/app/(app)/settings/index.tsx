@@ -1,3 +1,4 @@
+import { Drawer } from 'expo-router/drawer'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {
@@ -27,7 +28,9 @@ export default function SettingsIndex() {
   }
 
   return (
-    <SettingsScreen>
+    <>
+      <Drawer.Screen options={{ title: 'Settings' }} />
+      <SettingsScreen>
       <SettingsSection title="Account">
         <SettingsNavRow
           label="Home address"
@@ -59,5 +62,6 @@ export default function SettingsIndex() {
         <SettingsNavRow label="Terms of service" onPress={() => router.push('/legal/terms' as never)} />
       </SettingsSection>
     </SettingsScreen>
+    </>
   )
 }
