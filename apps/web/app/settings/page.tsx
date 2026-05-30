@@ -10,6 +10,7 @@ import {
   SettingsSection,
   SettingsToggleRow,
   SettingsValueRow,
+  signOut,
 } from '@chiaro/officials-ui'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
@@ -19,11 +20,7 @@ export default function SettingsIndex() {
   const router = useRouter()
 
   async function handleSignOut() {
-    document.cookie = 'chiaro_skip_calibrate=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-    const supabase = createSupabaseBrowserClient()
-    await supabase.auth.signOut()
-    router.push('/sign-in')
-    router.refresh()
+    await signOut(router, createSupabaseBrowserClient())
   }
 
   return (
