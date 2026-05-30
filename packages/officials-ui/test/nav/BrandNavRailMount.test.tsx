@@ -1,9 +1,10 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { render } from '@testing-library/react'
-import { createElement, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 import { ChiaroClientProvider } from '../../src/client-context.tsx'
 import { BrandNavRailMount } from '../../src/nav/BrandNavRailMount.tsx'
+import type { ChiaroClient } from '@chiaro/supabase-client'
 
 // next/navigation stubs — vi.mock'd so the mount can be tested in isolation
 let mockPathname = '/'
@@ -21,20 +22,22 @@ vi.mock('@chiaro/profile', () => ({
   getMyProfile: vi.fn(async () => mockProfile),
 }))
 
-const fakeClient = {
-  auth: {
-    getUser: vi.fn(async () => ({ data: { user: { id: 'u1' } } })),
-    signOut: vi.fn(async () => ({})),
-  },
-} as never
+// Fake client: cast via unknown to avoid strict SupabaseClient shape requirements in tests.
+// Per-test reassignments of getUser use vi.fn() and are also cast via unknown.
+const fakeAuth = {
+  getUser: vi.fn(),
+  signOut: vi.fn(async () => ({})),
+}
+const fakeClient = { auth: fakeAuth } as unknown as ChiaroClient
 
 function wrap(mode: 'light' | 'dark' = 'light') {
-  return ({ children }: { children: ReactNode }) =>
-    createElement(
-      ChiaroClientProvider,
-      { client: fakeClient },
-      createElement(BrandModeOverrideContext.Provider, { value: mode }, children),
-    )
+  return ({ children }: { children: ReactNode }) => (
+    <ChiaroClientProvider client={fakeClient}>
+      <BrandModeOverrideContext.Provider value={mode}>
+        {children}
+      </BrandModeOverrideContext.Provider>
+    </ChiaroClientProvider>
+  )
 }
 
 describe('BrandNavRailMount', () => {
@@ -52,7 +55,7 @@ describe('BrandNavRailMount', () => {
   })
 
   it('renders null when no session user', async () => {
-    fakeClient.auth.getUser = vi.fn(async () => ({ data: { user: null } }))
+    fakeAuth.getUser = vi.fn(async () => ({ data: { user: null }, error: null }))
     mockPathname = '/'
     const { container } = render(<BrandNavRailMount />, { wrapper: wrap() })
     await new Promise(resolve => setTimeout(resolve, 0))
@@ -62,7 +65,7 @@ describe('BrandNavRailMount', () => {
   it.each(['/sign-in', '/sign-up', '/calibrate'])(
     'renders null on excluded route %s',
     async (path) => {
-      fakeClient.auth.getUser = vi.fn(async () => ({ data: { user: { id: 'u1' } } }))
+      fakeAuth.getUser = vi.fn(async () => ({ data: { user: { id: 'u1' } }, error: null }))
       mockPathname = path
       const { container } = render(<BrandNavRailMount />, { wrapper: wrap() })
       await new Promise(resolve => setTimeout(resolve, 0))
@@ -71,21 +74,21 @@ describe('BrandNavRailMount', () => {
   )
 
   it('renders rail on /', async () => {
-    fakeClient.auth.getUser = vi.fn(async () => ({ data: { user: { id: 'u1' } } }))
+    fakeAuth.getUser = vi.fn(async () => ({ data: { user: { id: 'u1' } }, error: null }))
     mockPathname = '/'
     const { findByText } = render(<BrandNavRailMount />, { wrapper: wrap() })
     expect(await findByText('Sarah')).toBeTruthy()
   })
 
   it('renders rail on /officials', async () => {
-    fakeClient.auth.getUser = vi.fn(async () => ({ data: { user: { id: 'u1' } } }))
+    fakeAuth.getUser = vi.fn(async () => ({ data: { user: { id: 'u1' } }, error: null }))
     mockPathname = '/officials'
     const { findByText } = render(<BrandNavRailMount />, { wrapper: wrap() })
     expect(await findByText('Sign out')).toBeTruthy()
   })
 
   it('falls back to "Welcome" + "?" when profile is null', async () => {
-    fakeClient.auth.getUser = vi.fn(async () => ({ data: { user: { id: 'u1' } } }))
+    fakeAuth.getUser = vi.fn(async () => ({ data: { user: { id: 'u1' } }, error: null }))
     mockProfile = null
     mockPathname = '/'
     const { findByText } = render(<BrandNavRailMount />, { wrapper: wrap() })
