@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { render } from '@testing-library/react'
 import { createElement, type ReactNode } from 'react'
 import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
-import { ChiaroClientProvider } from '../../src/client-context.tsx'
+import { ChiaroClientProvider, type ChiaroClientProviderProps } from '../../src/client-context.tsx'
+import type { DrawerContentComponentProps } from '@react-navigation/drawer'
 
 const { routerMock } = vi.hoisted(() => ({
   routerMock: { push: vi.fn(), refresh: vi.fn(), back: vi.fn() },
@@ -33,7 +34,7 @@ function wrap(mode: 'light' | 'dark' = 'light') {
   return ({ children }: { children: ReactNode }) =>
     createElement(
       ChiaroClientProvider,
-      { client: fakeClient },
+      { client: fakeClient } as unknown as ChiaroClientProviderProps,
       createElement(BrandModeOverrideContext.Provider, { value: mode }, children),
     )
 }
@@ -51,7 +52,7 @@ function makeDrawerProps(activeRouteName: string) {
       closeDrawer: vi.fn(),
     },
     descriptors: {},
-  } as never
+  } as unknown as DrawerContentComponentProps
 }
 
 describe('BrandDrawerContent', () => {

@@ -4,7 +4,7 @@ import type { ChiaroClient } from '@chiaro/supabase-client'
 
 export interface SignOutRouter {
   push: (path: string) => void
-  refresh: () => void
+  refresh?: () => void
 }
 
 /**
@@ -16,5 +16,5 @@ export async function signOut(router: SignOutRouter, client: ChiaroClient): Prom
   document.cookie = 'chiaro_skip_calibrate=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
   await client.auth.signOut()
   router.push('/sign-in')
-  router.refresh()
+  router.refresh?.()
 }
