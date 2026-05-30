@@ -239,6 +239,7 @@ export { CalibrateScreen, type CalibrateScreenProps } from './calibrate/Calibrat
 
 // Slice 47 — generic page shells
 export { BrandPageScreen, type BrandPageScreenProps } from './screens/BrandPageScreen.tsx'
+export { BrandFormScreen, type BrandFormScreenProps } from './screens/BrandFormScreen.tsx'
 
 // Slice 45 — brand primitives. Foundational components for page composition
 // (Heading, BodyText, Button, Link, Alert). Mode-aware via useBrandTokens().
