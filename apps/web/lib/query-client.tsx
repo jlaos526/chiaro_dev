@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ChiaroClientProvider } from '@chiaro/officials-ui'
+import { ChiaroClientProvider, BrandNavRailMount } from '@chiaro/officials-ui'
 import { createSupabaseBrowserClient } from './supabase/client'
 
 function makeQueryClient() {
@@ -31,7 +31,10 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
   const [qc] = React.useState(getQueryClient)
   return (
     <ChiaroClientProvider client={chiaroClient}>
-      <QueryClientProvider client={qc}>{children}</QueryClientProvider>
+      <QueryClientProvider client={qc}>
+        <BrandNavRailMount />
+        {children}
+      </QueryClientProvider>
     </ChiaroClientProvider>
   )
 }
