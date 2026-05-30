@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Redirect, Stack, useSegments } from 'expo-router'
+import { Redirect, useSegments } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { BrandDrawer } from '@chiaro/officials-ui'
 import { supabase } from '@/lib/supabase'
 
 type CalibrationStatus = 'unknown' | 'calibrated' | 'uncalibrated' | 'skipped'
@@ -38,5 +39,5 @@ export default function AppLayout() {
     return <Redirect href="/calibrate" />
   }
 
-  return <Stack screenOptions={{ headerShown: true }} />
+  return <BrandDrawer />
 }
