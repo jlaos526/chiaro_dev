@@ -7,7 +7,6 @@ import { supabase } from '@/lib/supabase'
 import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
 import { firstElectedYear as deriveFirstElectedYear } from '@/lib/derivations/service-record'
 import {
-  BackButton,
   BioHeader,
   FederalServiceRecordCard,
   FederalCommunityPresenceCard,
@@ -16,6 +15,7 @@ import {
   FederalEthicsAccountabilityCard,
   FederalVotingBillsCard,
 } from '@chiaro/officials-ui'
+import { BackButton } from '@chiaro/officials-ui/src/nav/BackButton.tsx'
 
 const CURRENT_CYCLE = '2024'
 const CURRENT_CONGRESS = '119'

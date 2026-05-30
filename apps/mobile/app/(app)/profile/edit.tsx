@@ -8,8 +8,8 @@ import {
   BrandTextInput,
   BrandButton,
   BrandAlert,
-  BackButton,
 } from '@chiaro/officials-ui'
+import { BackButton } from '@chiaro/officials-ui/src/nav/BackButton.tsx'
 
 export default function ProfileEdit() {
   const router = useRouter()

@@ -3,7 +3,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { Text } from 'react-native'
 import { useLocalSearchParams, Redirect } from 'expo-router'
 import { useOfficial, useOfficialDistrictOffices, isStateLevel } from '@chiaro/officials'
-import { BackButton, StateOfficialDetailPage } from '@chiaro/officials-ui'
+import { StateOfficialDetailPage } from '@chiaro/officials-ui'
+import { BackButton } from '@chiaro/officials-ui/src/nav/BackButton.tsx'
 import { supabase } from '@/lib/supabase'
 
 export default function StateOfficialDetailScreen() {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Redirect, useSegments } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { BrandDrawer } from '@chiaro/officials-ui'
+import { BrandDrawer } from '@chiaro/officials-ui/src/nav/BrandDrawer.tsx'
 import { supabase } from '@/lib/supabase'
 
 type CalibrationStatus = 'unknown' | 'calibrated' | 'uncalibrated' | 'skipped'

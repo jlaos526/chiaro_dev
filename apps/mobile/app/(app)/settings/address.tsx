@@ -9,8 +9,8 @@ import {
   BrandButton,
   BrandAlert,
   BrandBodyText,
-  BackButton,
 } from '@chiaro/officials-ui'
+import { BackButton } from '@chiaro/officials-ui/src/nav/BackButton.tsx'
 
 export default function EditAddressScreen() {
   const router = useRouter()
