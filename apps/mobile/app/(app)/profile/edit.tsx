@@ -1,8 +1,15 @@
+import { Drawer } from 'expo-router/drawer'
 import { useState } from 'react'
-import { Button, Text, TextInput, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { supabase } from '@/lib/supabase'
 import { profileFormSchema, updateMyProfile, ProfileError } from '@chiaro/profile'
+import {
+  BrandFormScreen,
+  BrandTextInput,
+  BrandButton,
+  BrandAlert,
+  BackButton,
+} from '@chiaro/officials-ui'
 
 export default function ProfileEdit() {
   const router = useRouter()
@@ -21,23 +28,31 @@ export default function ProfileEdit() {
     setLoading(true)
     try {
       await updateMyProfile(supabase, parsed.data)
-      router.replace('/(app)')
+      router.replace('/(app)' as never)
     } catch (err) {
-      setError(err instanceof ProfileError ? err.message : String(err))
+      setError(err instanceof ProfileError ? err.message : err instanceof Error ? err.message : String(err))
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <View style={{ padding: 24, gap: 12 }}>
-      <Text style={{ fontSize: 20 }}>Complete your profile</Text>
-      <Text>Display name</Text>
-      <TextInput value={displayName} onChangeText={setDisplayName} />
-      <Text>Username</Text>
-      <TextInput value={username} onChangeText={setUsername} autoCapitalize="none" />
-      {error && <Text style={{ color: 'red' }}>{error}</Text>}
-      <Button title={loading ? 'Saving…' : 'Save'} onPress={onSubmit} disabled={loading} />
-    </View>
+    <>
+      <Drawer.Screen
+        options={{
+          title: 'Edit profile',
+          drawerItemStyle: { display: 'none' },
+          headerLeft: () => <BackButton />,
+        }}
+      />
+      <BrandFormScreen title="Complete your profile" backHref="/" backLabel="← Home">
+        <BrandTextInput label="Display name" value={displayName} onChangeText={setDisplayName} />
+        <BrandTextInput label="Username" value={username} onChangeText={setUsername} />
+        {error ? <BrandAlert severity="danger" title="Couldn't save">{error}</BrandAlert> : null}
+        <BrandButton variant="primary" disabled={loading} onPress={onSubmit}>
+          {loading ? 'Saving…' : 'Save'}
+        </BrandButton>
+      </BrandFormScreen>
+    </>
   )
 }
