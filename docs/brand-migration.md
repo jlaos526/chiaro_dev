@@ -187,6 +187,27 @@ Replaces the slice 41 per-category gradient + bg pattern with a universal neutra
 
 **Slice scope:** ~21 files. Mega Slice tier. Closes slice 44 audit F5. Unblocks slice 46 (F4 inline-hex sweep) + slice 47 (F1 web page rewrites) + slice 48 (F2 mobile screen rewrites + F3 BrandStack nav theming).
 
+### Inline-hex sweep + new icon namespace (slice 46)
+
+Closes audit F4 (8 remaining inline hex literals after slice 45's AuthForm migration). 4 consumer source files migrate to `useBrandTokens()`; 1 stays mode-invariant (Logo native fallback).
+
+**New token:**
+- `BRAND_SEMANTIC.icon.location`: `#e74c3c` light / `#f08074` dark — saturated signal red for DistrictBadge map-pin. NEW `icon` namespace; first key. Future location-related icons can extend; non-location icons should NOT colonize.
+
+**Consumer migrations:**
+- `PillChevron.tsx`: bg `#f0eee5` → `semantic.bg.subtle`; text `#1a1714` → `semantic.text.primary`
+- `Logo.tsx`: native fallback `#e8a060` → `BRAND_PALETTE.light.accent[400]` direct import (mode-invariant — Logo IS brand identity)
+- `EvidenceExpand.tsx`: borderTopColor `#d8d4c9` → `semantic.border.default`; 2× text `#1a1714` → `semantic.text.primary`
+- `DistrictBadge.tsx`: pin fill `#d13b3b` → `semantic.icon.location` (NEW); text `#3a352b` → `semantic.text.body`
+
+**Mode-aware impact:** 5 of 8 sites had NO dark variant before slice 46. After: PillChevron, EvidenceExpand (3 sites), DistrictBadge (2 sites) all repaint with mode toggle.
+
+**Test-side change:** `packages/officials-ui/test/stubs/react-native-svg.tsx` upgraded from `<View>` to real DOM `<svg>`/`<path>` rendering so DistrictBadge SVG fill can be asserted via `querySelector('svg path').getAttribute('fill')`. Single-file stub change; zero runtime cost on native (stub only loads on web jsdom).
+
+**Remaining hex literals in `packages/officials-ui/src/`:**
+- `bio/BioPortrait.tsx` — intentional `linear-gradient(...)` template-string per slice 40
+- `primitives/BrandAlert.tsx:17-20` — slice 45 SEVERITY_BANDS map (deferred per slice 45 final-review minor #4: "duplicates BRAND_PALETTE.alert.*.fg; could derive but defensible — band ≠ fg semantically")
+
 ---
 
 *See `docs/brand-book.md` (slice 32) for the brand reference.*
