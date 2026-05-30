@@ -95,4 +95,18 @@ describe('BrandNavRailMount', () => {
     expect(await findByText('Welcome')).toBeTruthy()
     expect(await findByText('?')).toBeTruthy()
   })
+
+  it('renders rail on /settings', async () => {
+    fakeAuth.getUser = vi.fn(async () => ({ data: { user: { id: 'u1' } }, error: null }))
+    mockPathname = '/settings'
+    const { findByText } = render(<BrandNavRailMount />, { wrapper: wrap() })
+    expect(await findByText('Sign out')).toBeTruthy()
+  })
+
+  it('renders rail on /profile/edit', async () => {
+    fakeAuth.getUser = vi.fn(async () => ({ data: { user: { id: 'u1' } }, error: null }))
+    mockPathname = '/profile/edit'
+    const { findByText } = render(<BrandNavRailMount />, { wrapper: wrap() })
+    expect(await findByText('Sign out')).toBeTruthy()
+  })
 })

@@ -223,4 +223,21 @@ describe('BrandNavRail mobile variant', () => {
     )
     expect(container.querySelector('[aria-label="Open menu"]')?.getAttribute('aria-expanded')).toBe('true')
   })
+
+  it('mobile top bar uses position: fixed on web', () => {
+    const { container } = render(
+      <BrandNavRail
+        variant="mobile"
+        open={false}
+        onOpenChange={() => {}}
+        user={user}
+        pathname="/"
+        onNavigate={() => {}}
+        onSignOut={() => {}}
+      />,
+      { wrapper: withMode('light') },
+    )
+    const topBar = container.firstChild as HTMLElement
+    expect(topBar?.getAttribute('style')).toMatch(/position:\s*fixed/i)
+  })
 })

@@ -13,11 +13,14 @@ export interface BrandPageScreenProps {
   children: ReactNode
 }
 
-// Web: consume --chiaro-rail-width CSS var set by BrandNavRailMount so body
-// content shifts right of the persistent desktop rail. Defaults to 0 (no
-// rail) when the var is unset.
+// Web: consume --chiaro-rail-width and --chiaro-rail-topbar CSS vars set by
+// BrandNavRailMount so body content shifts right of the persistent desktop rail
+// and below the fixed mobile top bar. Both default to 0 when unset.
 const WEB_RAIL_AWARE_PADDING = Platform.OS === 'web'
-  ? ({ paddingLeft: 'calc(16px + var(--chiaro-rail-width, 0px))' as unknown as number })
+  ? ({
+      paddingLeft: 'calc(16px + var(--chiaro-rail-width, 0px))' as unknown as number,
+      paddingTop: 'calc(24px + var(--chiaro-rail-topbar, 0px))' as unknown as number,
+    })
   : null
 
 /**
@@ -52,7 +55,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 24,
+    // paddingTop is overridden on web via WEB_RAIL_AWARE_PADDING to consume
+    // --chiaro-rail-topbar (shifts content below the fixed mobile top bar).
+    // Split from paddingVertical so the web override wins without clobbering
+    // paddingBottom.
+    paddingTop: 24,
+    paddingBottom: 24,
   },
   column: {
     width: '100%',

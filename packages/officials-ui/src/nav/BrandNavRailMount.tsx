@@ -52,10 +52,13 @@ export function BrandNavRailMount(): React.JSX.Element | null {
     if (typeof document === 'undefined') return
     const railShown = !!hasUser
       && !EXCLUDED_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/'))
-      && isDesktop
-    document.documentElement.style.setProperty('--chiaro-rail-width', railShown ? '200px' : '0px')
+    const desktopRail = railShown && isDesktop
+    const mobileTopBar = railShown && !isDesktop
+    document.documentElement.style.setProperty('--chiaro-rail-width', desktopRail ? '200px' : '0px')
+    document.documentElement.style.setProperty('--chiaro-rail-topbar', mobileTopBar ? '52px' : '0px')
     return () => {
       document.documentElement.style.setProperty('--chiaro-rail-width', '0px')
+      document.documentElement.style.setProperty('--chiaro-rail-topbar', '0px')
     }
   }, [hasUser, pathname, isDesktop])
 

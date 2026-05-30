@@ -74,4 +74,13 @@ describe('BrandFormScreen', () => {
     )
     expect(getByText('form-body')).toBeTruthy()
   })
+
+  it('consumes the --chiaro-rail-topbar CSS var for padding-top on web', () => {
+    const { container } = render(
+      <BrandFormScreen title="X"><div>form</div></BrandFormScreen>,
+      { wrapper: withMode('light') },
+    )
+    const outer = container.firstChild as HTMLElement
+    expect(outer?.getAttribute('style')).toMatch(/padding-top:\s*calc\([^)]*--chiaro-rail-topbar/i)
+  })
 })

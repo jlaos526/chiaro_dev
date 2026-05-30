@@ -22,7 +22,10 @@ export interface BrandFormScreenProps {
 }
 
 const WEB_RAIL_AWARE_PADDING = Platform.OS === 'web'
-  ? ({ paddingLeft: 'calc(16px + var(--chiaro-rail-width, 0px))' as unknown as number })
+  ? ({
+      paddingLeft: 'calc(16px + var(--chiaro-rail-width, 0px))' as unknown as number,
+      paddingTop: 'calc(24px + var(--chiaro-rail-topbar, 0px))' as unknown as number,
+    })
   : null
 
 /**
@@ -75,7 +78,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 24,
+    // paddingTop overridden on web via WEB_RAIL_AWARE_PADDING to consume
+    // --chiaro-rail-topbar. Split from paddingVertical to avoid clobbering
+    // paddingBottom.
+    paddingTop: 24,
+    paddingBottom: 24,
   },
   card: {
     width: '100%',

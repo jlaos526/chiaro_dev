@@ -434,6 +434,9 @@ importers:
       '@chiaro/officials':
         specifier: workspace:*
         version: link:../officials
+      '@chiaro/profile':
+        specifier: workspace:*
+        version: link:../profile
       '@chiaro/state-bills':
         specifier: workspace:*
         version: link:../state-bills
