@@ -65,6 +65,10 @@ describe('BRAND_PALETTE.light', () => {
     expect(BRAND_PALETTE.light.portrait.gradient.to).toBe('#e8a060')
     expect(BRAND_PALETTE.light.portrait.initials).toBe('#ffffff')
   })
+
+  it('exports the icon.location signal red (slice 46 new namespace)', () => {
+    expect(BRAND_PALETTE.light.icon.location).toBe('#e74c3c')
+  })
 })
 
 describe('BRAND_PALETTE.dark', () => {
@@ -131,6 +135,10 @@ describe('BRAND_PALETTE.dark', () => {
   it('exports cool slate border tokens (slice 40 reskin)', () => {
     expect(BRAND_PALETTE.dark.border.default).toBe('#2a2d33')
     expect(BRAND_PALETTE.dark.border.strong).toBe('#3a3e45')
+  })
+
+  it('exports the icon.location coral (dark, slice 46 new namespace)', () => {
+    expect(BRAND_PALETTE.dark.icon.location).toBe('#f08074')
   })
 })
 

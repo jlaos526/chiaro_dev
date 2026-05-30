@@ -47,6 +47,14 @@ export const BRAND_PALETTE = {
     link: {
       fg: '#3b6ed1',         // inline link blue
     },
+    icon: {
+      // Slice 46: small "icon" namespace for graphical asset colors that don't
+      // fit alert/signal/accent semantics. First key is map-pin location red
+      // used by DistrictBadge. New icons of similar location-flavored intent
+      // (compass markers, etc.) can extend this namespace; non-location icons
+      // should NOT colonize.
+      location: '#e74c3c',   // signal red — map-pin
+    },
     portrait: {
       gradient: { from: '#c46a2a', to: '#e8a060' },
       initials: '#ffffff',
@@ -93,6 +101,11 @@ export const BRAND_PALETTE = {
     },
     link: {
       fg: '#7a98e1',         // inline link blue (dark)
+    },
+    icon: {
+      // Slice 46 dark-mode icon namespace. Coral red — brighter than light
+      // signal red for legibility against cool slate page bg #16181c.
+      location: '#f08074',
     },
     portrait: {
       gradient: { from: '#6b7a5d', to: '#9caa8e' },
