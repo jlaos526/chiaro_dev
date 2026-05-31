@@ -247,6 +247,16 @@ export { BrandNavRail, type BrandNavRailProps, type RailUser } from './nav/Brand
 export { BrandNavRailMount } from './nav/BrandNavRailMount.tsx'
 export { useBreakpoint } from './nav/useBreakpoint.ts'
 
+// Slice 48 — nav components
+// BrandNavRailBody is cross-platform (no expo-router deps — safe for web bundle)
+export { BrandNavRailBody, type BrandNavRailBodyProps, type RailRouteKey } from './nav/BrandNavRailBody.tsx'
+// BackButton, BrandDrawer, BrandDrawerContent import expo-router or expo-router/drawer
+// + @react-navigation/drawer which are mobile-only and cannot be bundled by Next.js/webpack.
+// Mobile consumers import them directly from source:
+//   import { BackButton } from '@chiaro/officials-ui/src/nav/BackButton.tsx'
+//   import { BrandDrawer } from '@chiaro/officials-ui/src/nav/BrandDrawer.tsx'
+//   import { BrandDrawerContent } from '@chiaro/officials-ui/src/nav/BrandDrawerContent.tsx'
+
 // Slice 45 — brand primitives. Foundational components for page composition
 // (Heading, BodyText, Button, Link, Alert). Mode-aware via useBrandTokens().
 // Used by slice 47+ to rewrite F1/F2 surfaces (per slice 44 UI audit).

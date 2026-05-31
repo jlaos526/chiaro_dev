@@ -2,6 +2,10 @@
 
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useBrandTokens } from '../brand-hooks.ts'
+import { BrandNavRailBody, type RailRouteKey } from './BrandNavRailBody.tsx'
+
+// Re-export RailUser so consumers can keep importing from BrandNavRail
+export type { RailUser } from './BrandNavRailBody.tsx'
 
 // Web: position the mobile top bar as fixed so it stays at the top of the
 // viewport while the user scrolls. zIndex 5 keeps it above page content but
@@ -16,14 +20,8 @@ const WEB_FIXED_TOP_BAR = Platform.OS === 'web'
     }
   : null
 
-export interface RailUser {
-  displayName: string | null
-  username: string | null
-  initial: string
-}
-
 interface RailCommonProps {
-  user: RailUser
+  user: import('./BrandNavRailBody.tsx').RailUser
   pathname: string
   onNavigate: (path: string) => void
   onSignOut: () => void
@@ -41,15 +39,19 @@ interface RailMobileProps extends RailCommonProps {
 
 export type BrandNavRailProps = RailDesktopProps | RailMobileProps
 
-const NAV_ITEMS: Array<{ path: string; label: string }> = [
-  { path: '/',          label: 'Home' },
-  { path: '/officials', label: 'Officials' },
-  { path: '/settings',  label: 'Settings' },
-]
+// ─── Pathname ↔ key helpers ─────────────────────────────────────────────────
 
-function isActive(pathname: string, itemPath: string): boolean {
-  if (itemPath === '/') return pathname === '/'
-  return pathname === itemPath || pathname.startsWith(itemPath + '/')
+function pathnameToKey(pathname: string): RailRouteKey | null {
+  if (pathname === '/') return 'home'
+  if (pathname === '/officials' || pathname.startsWith('/officials/')) return 'officials'
+  if (pathname === '/settings' || pathname.startsWith('/settings/')) return 'settings'
+  return null
+}
+
+const KEY_TO_PATH: Record<RailRouteKey, string> = {
+  home: '/',
+  officials: '/officials',
+  settings: '/settings',
 }
 
 export function BrandNavRail(props: BrandNavRailProps): React.JSX.Element {
@@ -73,10 +75,12 @@ function DesktopRail({ user, pathname, onNavigate, onSignOut }: RailDesktopProps
         },
       ]}
     >
-      <AvatarBlock user={user} semantic={semantic} />
-      <NavSection pathname={pathname} onNavigate={onNavigate} semantic={semantic} onClose={undefined} />
-      <View style={styles.spacer} />
-      <SignOutItem onPress={onSignOut} semantic={semantic} />
+      <BrandNavRailBody
+        user={user}
+        activeRouteKey={pathnameToKey(pathname)}
+        onNavigate={(key) => onNavigate(KEY_TO_PATH[key])}
+        onSignOut={onSignOut}
+      />
     </View>
   )
 }
@@ -93,8 +97,8 @@ function MobileRail({
 }: RailMobileProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
 
-  const handleNavigate = (path: string) => {
-    onNavigate(path)
+  const handleNavigate = (key: RailRouteKey) => {
+    onNavigate(KEY_TO_PATH[key])
     onOpenChange(false)
   }
   const handleSignOut = () => {
@@ -153,15 +157,12 @@ function MobileRail({
               },
             ]}
           >
-            <AvatarBlock user={user} semantic={semantic} />
-            <NavSection
-              pathname={pathname}
+            <BrandNavRailBody
+              user={user}
+              activeRouteKey={pathnameToKey(pathname)}
               onNavigate={handleNavigate}
-              semantic={semantic}
-              onClose={() => onOpenChange(false)}
+              onSignOut={handleSignOut}
             />
-            <View style={styles.spacer} />
-            <SignOutItem onPress={handleSignOut} semantic={semantic} />
           </View>
         </>
       ) : null}
@@ -169,27 +170,7 @@ function MobileRail({
   )
 }
 
-// ─── Sub-components ──────────────────────────────────────────────────────────
-
-function AvatarBlock({ user, semantic }: { user: RailUser; semantic: Semantic }): React.JSX.Element {
-  const name = user.displayName ?? user.username ?? 'Welcome'
-  const handle = user.username ? `@${user.username}` : null
-  return (
-    <View style={[styles.avatarBlock, { borderBottomColor: semantic.border.default }]}>
-      <AvatarCircle initial={user.initial} size={36} semantic={semantic} />
-      <View style={styles.avatarText}>
-        <Text style={[styles.avatarName, { color: semantic.text.primary }]} numberOfLines={1}>
-          {name}
-        </Text>
-        {handle ? (
-          <Text style={[styles.avatarHandle, { color: semantic.text.muted }]} numberOfLines={1}>
-            {handle}
-          </Text>
-        ) : null}
-      </View>
-    </View>
-  )
-}
+// ─── AvatarCircle — used by mobile top bar only ──────────────────────────────
 
 function AvatarCircle({
   initial,
@@ -218,79 +199,16 @@ function AvatarCircle({
   )
 }
 
-function NavSection({
-  pathname,
-  onNavigate,
-  semantic,
-  onClose,
-}: {
-  pathname: string
-  onNavigate: (path: string) => void
-  semantic: Semantic
-  onClose: (() => void) | undefined
-}): React.JSX.Element {
-  return (
-    <View style={styles.navSection}>
-      <Text style={[styles.sectionLabel, { color: semantic.text.muted }]}>NAVIGATE</Text>
-      {NAV_ITEMS.map(item => {
-        const active = isActive(pathname, item.path)
-        return (
-          <Pressable
-            key={item.path}
-            accessibilityRole="link"
-            onPress={() => {
-              onNavigate(item.path)
-              onClose?.()
-            }}
-            // dataSet → RNW → data-active="true"/"false" in DOM.
-            // Slice 39 pattern: dataSet camelCase keys → kebab-case data-* attrs.
-            dataSet={{ active: active ? 'true' : 'false' } as Record<string, string>}
-            style={[
-              styles.navItem,
-              { backgroundColor: active ? semantic.bg.elevated : 'transparent' },
-            ]}
-          >
-            <Text
-              style={[
-                styles.navItemText,
-                {
-                  color: semantic.text.primary,
-                  fontWeight: active ? '600' : '400',
-                },
-              ]}
-            >
-              {item.label}
-            </Text>
-          </Pressable>
-        )
-      })}
-    </View>
-  )
-}
-
-function SignOutItem({ onPress, semantic }: { onPress: () => void; semantic: Semantic }): React.JSX.Element {
-  return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={styles.navItem}>
-      <Text style={[styles.navItemText, { color: semantic.alert.danger.fg, fontWeight: '600' }]}>
-        Sign out
-      </Text>
-    </Pressable>
-  )
-}
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   desktopRail: {
     width: 200,
-    paddingHorizontal: 12,
-    paddingVertical: 18,
     borderRightWidth: 1,
     // height: '100%' — RNW resolves this fine; StyleSheet.create() expects
     // number but RNW's StyleSheet accepts '100%' for height/width at runtime.
     height: '100%' as unknown as number,
   },
-  spacer: { flex: 1 },
   topBar: {
     height: 52,
     flexDirection: 'row',
@@ -321,34 +239,7 @@ const styles = StyleSheet.create({
     left: 0,
     bottom: 0,
     width: 240,
-    paddingHorizontal: 12,
-    paddingVertical: 18,
     borderRightWidth: 1,
     zIndex: 11,
   },
-  avatarBlock: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-  },
-  avatarText: { flexShrink: 1 },
-  avatarName: { fontWeight: '700', fontSize: 13, lineHeight: 16 },
-  avatarHandle: { fontSize: 11, lineHeight: 14 },
-  navSection: { gap: 2 },
-  sectionLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 0.6,
-    paddingHorizontal: 8,
-    paddingTop: 4,
-    paddingBottom: 4,
-  },
-  navItem: {
-    paddingHorizontal: 8,
-    paddingVertical: 7,
-    borderRadius: 6,
-  },
-  navItemText: { fontSize: 13 },
 })

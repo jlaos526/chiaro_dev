@@ -282,6 +282,28 @@ the user was on the calibrate flow.
 - [ ] Home page Welcome heading uses display_name when present; falls back to username; "Welcome" alone when both null
 - [ ] Profile-completion BrandAlert appears on home only when profile.completed === false
 
+## Slice 48 — F2 + F3 mobile parity (iOS + Android)
+
+- [ ] Sign in → land on `/` → see drawer header (hamburger left, "Home" centered)
+- [ ] Tap hamburger → drawer slides in from left with avatar + Navigate + Sign out
+- [ ] Swipe from left edge → drawer opens with native iOS / Material gesture
+- [ ] Tap scrim → drawer closes
+- [ ] Navigate Home → Officials → Settings via drawer, active item highlight tracks
+- [ ] Drawer header title updates per screen
+- [ ] Sign out from drawer → land on `/sign-in`
+- [ ] Home page Logo lockup + "Welcome, {name}" body renders below drawer header
+- [ ] Profile-completion BrandAlert appears on home only when incomplete
+- [ ] Tap "Complete your profile" link → routes to /profile/edit (hidden from drawer menu, has back arrow)
+- [ ] /profile/edit back-arrow returns to /
+- [ ] Edit address from /settings → /settings/address (hidden from drawer menu, has back arrow)
+- [ ] /settings/address back-arrow returns to /settings
+- [ ] Hardware back button (Android) closes open drawer first, then navigates back
+- [ ] Dark mode toggle from /settings → drawer header + drawer content + content area repaint correctly
+- [ ] Safe area insets respected on iPhone notch + Android system bars
+- [ ] Keyboard does not push drawer off-screen
+- [ ] /officials/[id] + /state-officials/[id] hidden from drawer menu + back-arrow returns to officials list
+- [ ] /calibrate hidden from drawer menu (pre-calibration redirect still works)
+
 ## After the run
 
 If any item fails:

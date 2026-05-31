@@ -1,8 +1,16 @@
+import { Drawer } from 'expo-router/drawer'
 import { useEffect, useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
 import { supabase } from '@/lib/supabase'
 import { addressInputSchema, getMyLocation } from '@chiaro/location'
+import {
+  BrandFormScreen,
+  BrandTextInput,
+  BrandButton,
+  BrandAlert,
+  BrandBodyText,
+} from '@chiaro/officials-ui'
+import { BackButton } from '@chiaro/officials-ui/src/nav/BackButton.tsx'
 
 export default function EditAddressScreen() {
   const router = useRouter()
@@ -25,7 +33,10 @@ export default function EditAddressScreen() {
   async function save() {
     setError(null)
     const parsed = addressInputSchema.safeParse({ address })
-    if (!parsed.success) return setError('Enter a complete address.')
+    if (!parsed.success) {
+      setError('Enter a complete address.')
+      return
+    }
     setLoading(true)
     const { error: invokeErr } = await supabase.functions.invoke('calibrate-location', {
       body: { address: parsed.data.address },
@@ -33,33 +44,54 @@ export default function EditAddressScreen() {
     setLoading(false)
     if (invokeErr) {
       const status = (invokeErr as { context?: { status?: number } }).context?.status
-      if (status === 400) setError('Address not found.')
+      if (status === 400) setError("We couldn't find that address.")
       else if (status === 502) setError('Service unavailable. Try again.')
       else setError('Could not save.')
       return
     }
-    router.back()
+    router.push('/settings' as never)
   }
 
-  if (bootstrapping) return <Text>Loading…</Text>
+  const drawerScreen = (
+    <Drawer.Screen
+      options={{
+        title: 'Home address',
+        drawerItemStyle: { display: 'none' },
+        headerLeft: () => <BackButton />,
+      }}
+    />
+  )
+
+  if (bootstrapping) {
+    return (
+      <>
+        {drawerScreen}
+        <BrandFormScreen title="Home address" backHref="/settings" backLabel="← Settings">
+          <BrandBodyText muted>Loading…</BrandBodyText>
+        </BrandFormScreen>
+      </>
+    )
+  }
+
+  const subtitle = calibratedAt
+    ? `Last updated ${new Date(calibratedAt).toLocaleString()}`
+    : undefined
 
   return (
-    <View style={styles.root}>
-      {calibratedAt && <Text style={styles.meta}>Last updated {new Date(calibratedAt).toLocaleString()}</Text>}
-      <TextInput style={styles.input} value={address} onChangeText={setAddress} />
-      {error && <Text role="alert" style={styles.err}>{error}</Text>}
-      <Pressable style={styles.btn} onPress={save} disabled={loading}>
-        <Text style={styles.btnText}>{loading ? 'Saving…' : 'Save'}</Text>
-      </Pressable>
-    </View>
+    <>
+      {drawerScreen}
+      <BrandFormScreen
+        title="Home address"
+        backHref="/settings"
+        backLabel="← Settings"
+        {...(subtitle ? { subtitle } : {})}
+      >
+        <BrandTextInput label="Address" value={address} onChangeText={setAddress} />
+        {error ? <BrandAlert severity="danger" title="Couldn't save">{error}</BrandAlert> : null}
+        <BrandButton variant="primary" disabled={loading} onPress={save}>
+          {loading ? 'Saving…' : 'Save'}
+        </BrandButton>
+      </BrandFormScreen>
+    </>
   )
 }
-
-const styles = StyleSheet.create({
-  root: { padding: 20, gap: 12 },
-  input: { borderWidth: 1, borderColor: '#888', padding: 10, borderRadius: 4 },
-  btn: { backgroundColor: '#5b6cff', padding: 12, borderRadius: 4 },
-  btnText: { color: 'white', textAlign: 'center', fontWeight: '700' },
-  meta: { color: '#666' },
-  err: { color: '#d85c5c' },
-})

@@ -1,52 +1,70 @@
+import { Drawer } from 'expo-router/drawer'
 import { useEffect, useState } from 'react'
-import { Text, View } from 'react-native'
-import { Link, useRouter } from 'expo-router'
+import { useRouter } from 'expo-router'
 import { supabase } from '@/lib/supabase'
 import { getMyProfile } from '@chiaro/profile'
+import {
+  BrandPageScreen,
+  BrandHeading,
+  BrandAlert,
+  BrandLink,
+  Logo,
+  OfficialsCard,
+} from '@chiaro/officials-ui'
 import { DistrictPanel } from '@/components/DistrictPanel'
-import { OfficialsCard } from '@chiaro/officials-ui'
 
 type Profile = Awaited<ReturnType<typeof getMyProfile>>
 
 export default function Home() {
   const router = useRouter()
   const [profile, setProfile] = useState<Profile>(null)
-  const [loading, setLoading] = useState(true)
+  const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
     let mounted = true
     getMyProfile(supabase).then((p) => {
       if (mounted) {
         setProfile(p)
-        setLoading(false)
+        setLoaded(true)
       }
     })
     return () => { mounted = false }
   }, [])
 
-  if (loading) return <View style={{ padding: 24 }}><Text>Loading…</Text></View>
+  const greetingName = profile?.display_name ?? profile?.username ?? null
+  const greeting = greetingName ? `Welcome, ${greetingName}` : 'Welcome'
 
   return (
-    <View style={{ padding: 24, gap: 12 }}>
-      <Text style={{ fontSize: 24 }}>Chiaro</Text>
-      {profile?.completed ? (
-        <Text>Welcome, {profile.display_name} (@{profile.username})</Text>
-      ) : (
-        <Link href="/(app)/profile/edit">Complete your profile</Link>
-      )}
-      <DistrictPanel />
-      <OfficialsCard
-        onSelect={({ officialId, subCascadeSlug }) =>
-          router.push(
-            subCascadeSlug
-              ? `/officials/${officialId}?cat=issue-positions&sub=${subCascadeSlug}`
-              : `/officials/${officialId}`,
-          )
-        }
-        onSeeAll={() => router.push('/officials')}
-        onCalibrate={() => router.push('/calibrate')}
-      />
-      <Link href="/settings">Settings</Link>
-    </View>
+    <>
+      <Drawer.Screen options={{ title: 'Home' }} />
+      {loaded ? (
+        <BrandPageScreen>
+          <Logo variant="lockup" size={24} wordmarkSize={28} />
+          <BrandHeading level={1}>{greeting}</BrandHeading>
+          {!profile?.completed ? (
+            <BrandAlert severity="info" title="Complete your profile">
+              <BrandLink
+                href="/profile/edit"
+                onPress={() => router.push('/profile/edit' as never)}
+              >
+                Add your display name and username →
+              </BrandLink>
+            </BrandAlert>
+          ) : null}
+          <DistrictPanel />
+          <OfficialsCard
+            onSelect={({ officialId, subCascadeSlug }) =>
+              router.push(
+                (subCascadeSlug
+                  ? `/officials/${officialId}?cat=issue-positions&sub=${subCascadeSlug}`
+                  : `/officials/${officialId}`) as never,
+              )
+            }
+            onSeeAll={() => router.push('/officials' as never)}
+            onCalibrate={() => router.push('/calibrate' as never)}
+          />
+        </BrandPageScreen>
+      ) : null}
+    </>
   )
 }
