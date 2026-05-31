@@ -67,7 +67,7 @@ export function BrandNavRailBody({
         })}
       </View>
       <View style={{ flex: 1 }} />
-      <Pressable accessibilityRole="button" onPress={onSignOut} style={styles.navItem}>
+      <Pressable accessibilityRole="button" accessibilityLabel="Sign out" onPress={onSignOut} style={styles.navItem}>
         <Text style={[styles.navItemText, { color: semantic.alert.danger.fg, fontWeight: '600' }]}>Sign out</Text>
       </Pressable>
     </View>
