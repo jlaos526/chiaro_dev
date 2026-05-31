@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { render } from '@testing-library/react'
+import { render, fireEvent, waitFor } from '@testing-library/react'
 import { createElement, type ReactNode } from 'react'
 import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 import { ChiaroClientProvider, type ChiaroClientProviderProps } from '../../src/client-context.tsx'
@@ -90,5 +90,15 @@ describe('BrandDrawerContent', () => {
     const officialsActive = Array.from(container.querySelectorAll('[data-active="true"]'))
       .find(el => el.textContent?.includes('Officials'))
     expect(officialsActive).toBeTruthy()
+  })
+
+  it('invokes signOut helper + closes drawer when Sign out is pressed', async () => {
+    mockProfile = { display_name: 'Sarah', username: 'sarah' }
+    const props = makeDrawerProps('index')
+    const { findByText } = render(<BrandDrawerContent {...props} />, { wrapper: wrap() })
+    await findByText('Sarah')
+    fireEvent.click(await findByText('Sign out'))
+    await waitFor(() => expect(fakeClient.auth.signOut).toHaveBeenCalled())
+    expect(props.navigation.closeDrawer).toHaveBeenCalled()
   })
 })

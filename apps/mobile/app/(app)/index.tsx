@@ -6,6 +6,7 @@ import { getMyProfile } from '@chiaro/profile'
 import {
   BrandPageScreen,
   BrandHeading,
+  BrandBodyText,
   BrandAlert,
   BrandLink,
   Logo,
@@ -64,7 +65,11 @@ export default function Home() {
             onCalibrate={() => router.push('/calibrate' as never)}
           />
         </BrandPageScreen>
-      ) : null}
+      ) : (
+        <BrandPageScreen>
+          <BrandBodyText muted>Loading…</BrandBodyText>
+        </BrandPageScreen>
+      )}
     </>
   )
 }
