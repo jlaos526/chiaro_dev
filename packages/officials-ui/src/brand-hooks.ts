@@ -19,10 +19,6 @@ import {
   CATEGORY_CARD_BG_DARK,
   FINANCE_SUB_SECTION_SHADES,
   FINANCE_SUB_SECTION_SHADES_DARK,
-  INDUSTRY_COLOR,
-  INDUSTRY_COLOR_DARK,
-  INDUSTRY_DEFAULT_COLOR,
-  INDUSTRY_DEFAULT_COLOR_DARK,
   MAP_COLORS,
   MAP_COLORS_DARK,
   PARTY_COLOR,
@@ -119,21 +115,6 @@ export function useScorecardLeanColor(lean: ScorecardLean): string {
 export function useCategoryAccent(categoryId: CategoryId): string {
   const { mode } = useBrandTokens()
   return mode === 'dark' ? CATEGORY_ACCENT_DARK[categoryId] : CATEGORY_ACCENT[categoryId]
-}
-
-/**
- * Returns the industry color for the active brand mode. Falls back to the
- * default (out-of-top-10) industry color when the industry is not recognized.
- */
-export function useIndustryColor(industry: string | undefined): string {
-  const { mode } = useBrandTokens()
-  const table = mode === 'dark' ? INDUSTRY_COLOR_DARK : INDUSTRY_COLOR
-  const fallback = mode === 'dark' ? INDUSTRY_DEFAULT_COLOR_DARK : INDUSTRY_DEFAULT_COLOR
-  if (industry && industry in table) {
-    const hit = table[industry]
-    if (hit !== undefined) return hit
-  }
-  return fallback
 }
 
 /**

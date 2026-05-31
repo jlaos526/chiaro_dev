@@ -5,8 +5,6 @@ import {
   SCORECARD_LEAN_COLOR, SCORECARD_LEAN_COLOR_DARK,
   CATEGORY_ACCENT, CATEGORY_ACCENT_DARK,
   SUB_CASCADE_ACCENT, SUB_CASCADE_ACCENT_DARK,
-  INDUSTRY_COLOR, INDUSTRY_COLOR_DARK,
-  INDUSTRY_DEFAULT_COLOR, INDUSTRY_DEFAULT_COLOR_DARK,
   FINANCE_SUB_SECTION_SHADES, FINANCE_SUB_SECTION_SHADES_DARK,
   MAP_COLORS, MAP_COLORS_DARK,
 } from '../src/index.ts'
@@ -40,10 +38,6 @@ describe('domain palette dark variants — key parity', () => {
       .toEqual(Object.keys(SUB_CASCADE_ACCENT_DARK).sort())
   })
 
-  it('INDUSTRY_COLOR key parity', () => {
-    expect(Object.keys(INDUSTRY_COLOR).sort()).toEqual(Object.keys(INDUSTRY_COLOR_DARK).sort())
-  })
-
   it('FINANCE_SUB_SECTION_SHADES key parity', () => {
     expect(Object.keys(FINANCE_SUB_SECTION_SHADES).sort())
       .toEqual(Object.keys(FINANCE_SUB_SECTION_SHADES_DARK).sort())
@@ -51,11 +45,6 @@ describe('domain palette dark variants — key parity', () => {
 
   it('MAP_COLORS key parity', () => {
     expect(Object.keys(MAP_COLORS).sort()).toEqual(Object.keys(MAP_COLORS_DARK).sort())
-  })
-
-  it('INDUSTRY_DEFAULT_COLOR has dark variant', () => {
-    expect(INDUSTRY_DEFAULT_COLOR).toBeDefined()
-    expect(INDUSTRY_DEFAULT_COLOR_DARK).toBeDefined()
   })
 
   it('MAP_COLORS_DARK inverts stroke + fill', () => {
