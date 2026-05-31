@@ -13,6 +13,25 @@ export interface BrandAlertProps {
   children?: ReactNode
 }
 
+// SEVERITY_BANDS is intentionally not derived from semantic.alert.*.fg.
+// Reviewed in slice 45 (final-review minor #4) and confirmed in slice 51 visual
+// comparison (light + dark, all 4 severities, option A locked).
+//
+// - `band` stays CONSTANT across modes — the 7px vertical pill is the bold
+//   visual signal of severity. Using the light alert.fg hex even in dark mode
+//   keeps the band deeply saturated against the slate card bg; deriving from
+//   semantic.alert.*.fg would shift dark-mode bands to lighter variants
+//   (#c89aa8 etc), which read as "lighter accent" not "bold signal".
+//
+// - `titleLight` uses DARKER variants than alert.fg.light for legibility
+//   against the cream `CATEGORY_CARD_BG`. semantic.alert.danger.fg is #8a3a4d
+//   burgundy — sufficient against #fffaf2 card bg. But warning #c89a4e gold,
+//   success #1a8f5a emerald, info #b86340 terracotta would all wash out as
+//   title text; #7c5a1e / #0f5a4f / #7a3e23 are the contrast-tested darker
+//   variants.
+//
+// - `titleDark` mirrors alert.fg.dark byte-for-byte (the slice 41
+//   SUB_CASCADE_ACCENT_DARK family is already a legible-on-slate variant).
 const SEVERITY_BANDS: Record<BrandAlertSeverity, { band: string; glyph: string; titleLight: string; titleDark: string }> = {
   danger:  { band: '#8a3a4d', glyph: '!', titleLight: '#8a3a4d', titleDark: '#c89aa8' },
   warning: { band: '#c89a4e', glyph: '!', titleLight: '#7c5a1e', titleDark: '#e1c896' },

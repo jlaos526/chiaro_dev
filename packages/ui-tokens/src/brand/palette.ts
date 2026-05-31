@@ -59,6 +59,10 @@ export const BRAND_PALETTE = {
       gradient: { from: '#c46a2a', to: '#e8a060' },
       initials: '#ffffff',
     },
+    // Slice 51: scrim opacity for modal/drawer overlays. 0.4 alpha on
+    // light-mode app bg gives ~40% darkening which clearly indicates
+    // background is interactive-blocked without losing surrounding context.
+    scrim: 'rgba(0,0,0,0.4)',
   },
   dark: {
     ink: {
@@ -111,6 +115,10 @@ export const BRAND_PALETTE = {
       gradient: { from: '#6b7a5d', to: '#9caa8e' },
       initials: '#fff0dc',
     },
+    // Slice 51: dark scrim slightly heavier (0.55) since dark card bg
+    // (#1e2126) is already low-luminance; a heavier scrim ensures the
+    // overlayed surface still reads as "above" the dimmed content.
+    scrim: 'rgba(0,0,0,0.55)',
   },
 } as const
 

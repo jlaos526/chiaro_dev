@@ -14,15 +14,21 @@ interface BaseProps {
   viewBox?: string
   fill?: string
   d?: string
+  points?: string
+  stroke?: string
+  strokeWidth?: number | string
+  strokeLinecap?: string
+  strokeLinejoin?: string
 }
 
-function Svg({ children, width, height, viewBox }: BaseProps): React.JSX.Element {
+function Svg({ children, width, height, viewBox, fill }: BaseProps): React.JSX.Element {
   return createElement(
     'svg',
     {
       width,
       height,
       viewBox,
+      fill,
       xmlns: 'http://www.w3.org/2000/svg',
     },
     children,
@@ -33,5 +39,16 @@ function Path({ d, fill }: BaseProps): React.JSX.Element {
   return createElement('path', { d, fill })
 }
 
+function Polyline({ points, stroke, strokeWidth, strokeLinecap, strokeLinejoin, fill }: BaseProps): React.JSX.Element {
+  return createElement('polyline', {
+    points,
+    stroke,
+    strokeWidth,
+    strokeLinecap,
+    strokeLinejoin,
+    fill: fill ?? 'none',
+  })
+}
+
 export default Svg
-export { Svg, Path }
+export { Svg, Path, Polyline }

@@ -27,7 +27,7 @@ export function BrandDrawer({ screenOptionsOverride, children, ...rest }: BrandD
     headerShadowVisible: false,
     drawerStyle: { backgroundColor: semantic.bg.elevated, width: '78%' },
     drawerType: 'front',
-    overlayColor: 'rgba(0,0,0,0.4)',
+    overlayColor: semantic.scrim,
     sceneStyle: { backgroundColor: semantic.bg.app },
   }
   const merged = screenOptionsOverride
