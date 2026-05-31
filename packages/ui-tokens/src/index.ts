@@ -14,12 +14,6 @@ export {
   type ScorecardLean,
 } from './scorecard.ts'
 export {
-  INDUSTRY_COLOR,
-  INDUSTRY_COLOR_DARK,
-  INDUSTRY_DEFAULT_COLOR,
-  INDUSTRY_DEFAULT_COLOR_DARK,
-} from './finance.ts'
-export {
   type CategoryId,
   CATEGORY_LABEL,
   CATEGORY_ACCENT,

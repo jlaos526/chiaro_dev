@@ -11,10 +11,6 @@ import {
   CATEGORY_CARD_BG_DARK,
   FINANCE_SUB_SECTION_SHADES,
   FINANCE_SUB_SECTION_SHADES_DARK,
-  INDUSTRY_COLOR,
-  INDUSTRY_COLOR_DARK,
-  INDUSTRY_DEFAULT_COLOR,
-  INDUSTRY_DEFAULT_COLOR_DARK,
   MAP_COLORS,
   MAP_COLORS_DARK,
   PARTY_COLOR,
@@ -30,7 +26,6 @@ import {
   useCategoryAccent,
   useCategoryCardBg,
   useFinanceSubSectionShade,
-  useIndustryColor,
   useMapColors,
   usePartyColor,
   useScorecardLeanColor,
@@ -145,31 +140,6 @@ describe('useCategoryAccent', () => {
       wrapper: wrapper('dark'),
     })
     expect(result.current).toBe(CATEGORY_ACCENT_DARK['voting-bills'])
-  })
-})
-
-describe('useIndustryColor', () => {
-  it('returns light value for a known industry in light mode', () => {
-    const { result } = renderHook(() => useIndustryColor('Real Estate'), {
-      wrapper: wrapper('light'),
-    })
-    expect(result.current).toBe(INDUSTRY_COLOR['Real Estate'])
-  })
-  it('returns dark value for a known industry in dark mode', () => {
-    const { result } = renderHook(() => useIndustryColor('Real Estate'), {
-      wrapper: wrapper('dark'),
-    })
-    expect(result.current).toBe(INDUSTRY_COLOR_DARK['Real Estate'])
-  })
-  it('falls back to default color for unknown industry in light mode', () => {
-    const { result } = renderHook(() => useIndustryColor('Quasar Mining'), {
-      wrapper: wrapper('light'),
-    })
-    expect(result.current).toBe(INDUSTRY_DEFAULT_COLOR)
-  })
-  it('falls back to default color for undefined industry in dark mode', () => {
-    const { result } = renderHook(() => useIndustryColor(undefined), { wrapper: wrapper('dark') })
-    expect(result.current).toBe(INDUSTRY_DEFAULT_COLOR_DARK)
   })
 })
 
