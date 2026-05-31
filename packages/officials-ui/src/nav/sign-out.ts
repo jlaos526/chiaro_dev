@@ -13,7 +13,9 @@ export interface SignOutRouter {
  * Supabase session, then routes to /sign-in.
  */
 export async function signOut(router: SignOutRouter, client: ChiaroClient): Promise<void> {
-  document.cookie = 'chiaro_skip_calibrate=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+  if (typeof document !== 'undefined') {
+    document.cookie = 'chiaro_skip_calibrate=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+  }
   await client.auth.signOut()
   router.push('/sign-in')
   router.refresh?.()
