@@ -86,7 +86,7 @@ export default function EditAddressScreen() {
         backLabel="← Settings"
         {...(subtitle ? { subtitle } : {})}
       >
-        <BrandTextInput label="Address" value={address} onChangeText={setAddress} />
+        <BrandTextInput label="Address" value={address} onChangeText={setAddress} required />
         {error ? <BrandAlert severity="danger" title="Couldn't save">{error}</BrandAlert> : null}
         <BrandButton variant="primary" disabled={loading} onPress={save}>
           {loading ? 'Saving…' : 'Save'}

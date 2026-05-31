@@ -46,8 +46,8 @@ export default function ProfileEdit() {
         }}
       />
       <BrandFormScreen title="Complete your profile" backHref="/" backLabel="← Home">
-        <BrandTextInput label="Display name" value={displayName} onChangeText={setDisplayName} />
-        <BrandTextInput label="Username" value={username} onChangeText={setUsername} />
+        <BrandTextInput label="Display name" value={displayName} onChangeText={setDisplayName} required />
+        <BrandTextInput label="Username" value={username} onChangeText={setUsername} required />
         {error ? <BrandAlert severity="danger" title="Couldn't save">{error}</BrandAlert> : null}
         <BrandButton variant="primary" disabled={loading} onPress={onSubmit}>
           {loading ? 'Saving…' : 'Save'}

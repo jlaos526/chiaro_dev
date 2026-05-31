@@ -16,9 +16,13 @@ function withMode(mode: 'light' | 'dark') {
 }
 
 describe('BackButton', () => {
-  it('renders ← character', () => {
-    const { getByText } = render(<BackButton />, { wrapper: withMode('light') })
-    expect(getByText('←')).toBeTruthy()
+  it('renders an SVG chevron (slice 51)', () => {
+    const { container } = render(<BackButton />, { wrapper: withMode('light') })
+    // The slice 46 react-native-svg test stub renders real DOM <svg>/<polyline>.
+    const svg = container.querySelector('svg')
+    expect(svg).toBeTruthy()
+    const polyline = container.querySelector('svg polyline')
+    expect(polyline?.getAttribute('points')).toBe('15 6 9 12 15 18')
   })
 
   it('sets accessibilityLabel "Back"', () => {
@@ -28,8 +32,9 @@ describe('BackButton', () => {
 
   it('calls router.back() on press', () => {
     backMock.mockClear()
-    const { getByText } = render(<BackButton />, { wrapper: withMode('light') })
-    fireEvent.click(getByText('←'))
+    const { container } = render(<BackButton />, { wrapper: withMode('light') })
+    const pressable = container.querySelector('[aria-label="Back"]') as HTMLElement
+    fireEvent.click(pressable)
     expect(backMock).toHaveBeenCalled()
   })
 })

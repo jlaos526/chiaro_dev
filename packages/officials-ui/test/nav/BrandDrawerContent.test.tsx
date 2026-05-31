@@ -98,7 +98,7 @@ describe('BrandDrawerContent', () => {
     const { findByText } = render(<BrandDrawerContent {...props} />, { wrapper: wrap() })
     await findByText('Sarah')
     fireEvent.click(await findByText('Sign out'))
-    await waitFor(() => expect(fakeClient.auth.signOut).toHaveBeenCalled())
+    await waitFor(() => expect((fakeClient as { auth: { signOut: ReturnType<typeof vi.fn> } }).auth.signOut).toHaveBeenCalled())
     expect(props.navigation.closeDrawer).toHaveBeenCalled()
   })
 })

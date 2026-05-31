@@ -72,7 +72,7 @@ export default function EditAddressPage(): React.JSX.Element {
       backLabel="← Settings"
       {...(subtitle ? { subtitle } : {})}
     >
-      <BrandTextInput label="Address" value={address} onChangeText={setAddress} />
+      <BrandTextInput label="Address" value={address} onChangeText={setAddress} required />
       {error ? <BrandAlert severity="danger" title="Couldn't save">{error}</BrandAlert> : null}
       <BrandButton variant="primary" disabled={loading} onPress={handleSubmit}>
         {loading ? 'Saving…' : 'Save'}

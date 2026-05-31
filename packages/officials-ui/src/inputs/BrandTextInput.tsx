@@ -18,6 +18,10 @@ export interface BrandTextInputProps {
    *  'new-password'). Forwarded as-is to the underlying input on both
    *  platforms (RN's autoComplete accepts the same web values). */
   autoComplete?: string
+  /** Slice 51: HTML `required` attribute on web (triggers browser "please fill
+   *  in" tooltip on unfocused-blank submit). Forwarded to RN TextInput on
+   *  native via `aria-required` (ornamental — no native tooltip equivalent). */
+  required?: boolean
   testID?: string
 }
 
@@ -49,6 +53,7 @@ export function BrandTextInput({
   error,
   disabled,
   autoComplete,
+  required,
   testID,
 }: BrandTextInputProps): React.JSX.Element {
   const reactId = useId()
@@ -151,6 +156,7 @@ export function BrandTextInput({
           placeholder: placeholder ?? ' ',
           autoComplete,
           disabled: disabled ?? false,
+          required: required ?? false,
           'aria-invalid': error ? true : false,
           'aria-describedby': error ? errorId : undefined,
         }),
@@ -208,6 +214,7 @@ export function BrandTextInput({
         style={[styles.input, { color: semantic.text.primary }]}
         accessibilityLabel={label}
         accessibilityState={{ disabled: disabled ?? false }}
+        aria-required={required ?? false}
         testID={testID}
       />
       {error ? (

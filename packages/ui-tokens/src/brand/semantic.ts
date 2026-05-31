@@ -65,6 +65,7 @@ const buildSemantic = (mode: BrandMode) => {
       gradient: { from: p.portrait.gradient.from, to: p.portrait.gradient.to },
       initials: p.portrait.initials,
     },
+    scrim: p.scrim,
   } as const
 }
 
