@@ -9,6 +9,7 @@ import {
   FederalVotingBillsCard,
 } from '@chiaro/officials-ui'
 import { BioHeaderClient } from './BioHeaderClient'
+import { RepAlignmentSectionClient } from './RepAlignmentSectionClient'
 import { firstElectedYear as deriveFirstElectedYear } from '@/lib/derivations/service-record'
 import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
 import { isStateLevel, STATE_NAMES } from '@chiaro/officials'
@@ -121,6 +122,10 @@ export default async function OfficialPage(
   return (
     <main>
       <BioHeaderClient officialId={official.id} {...bioProps} chips={chips} />
+      {/* Personalized rep alignment strip (slice 52) */}
+      <div style={{ marginBottom: 12 }}>
+        <RepAlignmentSectionClient officialId={official.id} repName={official.full_name} />
+      </div>
       {/* Federal officials redesign (slice 6) — 6 cards in vertical cascade */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <FederalServiceRecordCard

@@ -38,6 +38,18 @@ vi.mock('@chiaro/state-bills', async () => {
   }
 })
 
+// RepAlignmentSection (slice 52) pulls from @chiaro/issues — stub to the
+// "no selections" shape so the strip renders its setup CTA deterministically.
+vi.mock('@chiaro/issues', async () => {
+  const actual = await vi.importActual<object>('@chiaro/issues')
+  return {
+    ...actual,
+    useRepAlignment: () => ({ data: null, isLoading: false }),
+    useMySelections: () => ({ data: [], isLoading: false }),
+    useIssueCatalog: () => ({ data: [], isLoading: false }),
+  }
+})
+
 import { ChiaroClientProvider } from '../../src/client-context.tsx'
 import { StateOfficialDetailPage } from '../../src/state/StateOfficialDetailPage.tsx'
 
@@ -113,6 +125,24 @@ describe('StateOfficialDetailPage', () => {
       <StateOfficialDetailPage official={stateOfficial} offices={[]} />,
     )
     expect(queryByTestId('offices-section')).toBeNull()
+  })
+
+  it('renders the rep alignment CTA when onSetupIssues is wired', () => {
+    const { getByText } = wrap(
+      <StateOfficialDetailPage
+        official={stateOfficial}
+        offices={[]}
+        onSetupIssues={() => {}}
+      />,
+    )
+    expect(getByText(/set your issue priorities/i)).toBeTruthy()
+  })
+
+  it('omits the alignment strip when onSetupIssues is not provided', () => {
+    const { queryByText } = wrap(
+      <StateOfficialDetailPage official={stateOfficial} offices={[]} />,
+    )
+    expect(queryByText(/set your issue priorities/i)).toBeNull()
   })
 })
 
