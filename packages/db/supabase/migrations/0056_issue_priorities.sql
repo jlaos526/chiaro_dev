@@ -38,3 +38,25 @@ create table public.user_issue_selections (
 );
 
 create index user_issue_selections_user_idx on public.user_issue_selections (user_id);
+
+-- Atomic replace of the caller's selections (mirrors apply_calibration).
+create function public.save_user_issue_selections(p_selections jsonb)
+  returns void
+  language plpgsql
+  security definer
+  set search_path = public
+as $$
+begin
+  if auth.uid() is null then
+    raise exception 'not authenticated';
+  end if;
+  delete from user_issue_selections where user_id = auth.uid();
+  insert into user_issue_selections (user_id, topic_slug, lens_slug, display_order, position, importance)
+  select auth.uid(), x.topic_slug, x.lens_slug,
+         coalesce(x.display_order, 0), x.position, coalesce(x.importance, 1)
+  from jsonb_to_recordset(p_selections) as x(
+    topic_slug text, lens_slug text, display_order int, position numeric, importance smallint);
+end;
+$$;
+
+grant execute on function public.save_user_issue_selections(jsonb) to authenticated;
