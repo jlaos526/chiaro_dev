@@ -2,8 +2,10 @@
 
 import { StyleSheet, Text, View } from 'react-native'
 import { useOfficialScorecardRatings } from '@chiaro/officials'
+import { useMySelections, useIssueCatalog } from '@chiaro/issues'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { useChiaroClient } from '../client-context.tsx'
+import { computePriorityOrgSlugs } from '../issues/priority-orgs.ts'
 import { FederalScorecardRatingsList } from './FederalScorecardRatingsList.tsx'
 
 export interface FederalIssuePositionsCardProps {
@@ -16,6 +18,12 @@ export function FederalIssuePositionsCard({
   const { semantic } = useBrandTokens()
   const client = useChiaroClient()
   const ratings = useOfficialScorecardRatings(client, officialId)
+  // The user's selected issues → the scorecard org slugs they care about. These
+  // queries never gate the card: while they load (or for logged-out users) the
+  // priority set is empty and the card renders exactly as it did pre-slice-52.
+  const selections = useMySelections(client)
+  const catalog = useIssueCatalog(client)
+  const priorityOrgSlugs = computePriorityOrgSlugs(selections.data, catalog.data)
 
   if (ratings.isLoading) {
     return (
@@ -61,7 +69,7 @@ export function FederalIssuePositionsCard({
         {rows.length} org{rows.length === 1 ? '' : 's'} rated · {leans.size} lean group
         {leans.size === 1 ? '' : 's'}
       </Text>
-      <FederalScorecardRatingsList rows={rows} />
+      <FederalScorecardRatingsList rows={rows} priorityOrgSlugs={priorityOrgSlugs} />
     </View>
   )
 }

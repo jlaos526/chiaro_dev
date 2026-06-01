@@ -6,12 +6,15 @@ import {
   useOfficialStateScorecardRatings,
   type StateScorecardRatingWithOrg,
 } from '@chiaro/officials'
+import { useMySelections, useIssueCatalog } from '@chiaro/issues'
 import {
   SCORECARD_LEAN_LABEL,
   type ScorecardLean,
 } from '@chiaro/ui-tokens'
 import { useBrandTokens, useScorecardLeanColor } from '../brand-hooks.ts'
 import { useChiaroClient } from '../client-context.tsx'
+import { IssuePriorityTag } from '../issues/IssuePriorityTag.tsx'
+import { computePriorityOrgSlugs, sortPriorityFirst } from '../issues/priority-orgs.ts'
 import { StateIssueVotesEvidence } from './StateIssueVotesEvidence.tsx'
 
 export interface StateIssuePositionsCardProps {
@@ -47,6 +50,12 @@ export function StateIssuePositionsCard({
   const leanColor = (lean: string, fallback: string): string =>
     (leanColors as Record<string, string>)[lean] ?? fallback
   const { data, isLoading } = useOfficialStateScorecardRatings(client, officialId)
+  // The user's selected issues → scorecard org slugs they care about. These
+  // queries never gate the card: while they load (or for logged-out users) the
+  // priority set is empty and the card renders exactly as it did pre-slice-52.
+  const selections = useMySelections(client)
+  const catalog = useIssueCatalog(client)
+  const priorityOrgSlugs = computePriorityOrgSlugs(selections.data, catalog.data)
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
   const cardStyle = [
@@ -93,6 +102,39 @@ export function StateIssuePositionsCard({
     setExpanded(next)
   }
 
+  // Single source of truth for a rating row — used by both the grouped (default)
+  // and the flat priority-first layouts so the Pressable + evidence-expand
+  // behavior stays identical across both.
+  const renderRatingRow = (r: StateScorecardRatingWithOrg, isPriority: boolean) => (
+    <View key={r.id} style={ratingRowStyle}>
+      <Pressable onPress={() => toggle(r.id)} style={styles.ratingButton}>
+        <View style={{ flex: 1 }}>
+          {isPriority && <IssuePriorityTag />}
+          <Text style={orgNameStyle}>{r.org.name}</Text>
+          <Text style={issueAreaStyle}>{r.org.issue_area}</Text>
+        </View>
+        <Text style={scoreStyle}>
+          {Number(r.score).toFixed(0)} / {r.org.scoring_max}
+        </Text>
+      </Pressable>
+      {expanded.has(r.id) && (
+        <StateIssueVotesEvidence officialId={officialId} issueArea={r.org.issue_area} />
+      )}
+    </View>
+  )
+
+  // Priority path: when the user has selected issues that map to orgs present
+  // here, drop the lean grouping and float matched rows to the top with a tag.
+  if (priorityOrgSlugs.size > 0) {
+    const ordered = sortPriorityFirst(data, r => r.org.slug, priorityOrgSlugs)
+    return (
+      <View style={cardStyle}>
+        <Text style={titleStyle}>Issue Positions</Text>
+        {ordered.map(r => renderRatingRow(r, priorityOrgSlugs.has(r.org.slug)))}
+      </View>
+    )
+  }
+
   // Render canonical order first, then any unknown leans last (defensive).
   const orderedLeans: string[] = [
     ...LEAN_GROUP_ORDER.filter(l => byLean.has(l)),
@@ -107,25 +149,7 @@ export function StateIssuePositionsCard({
           <Text style={[styles.leanHeader, { color: leanColor(lean, semantic.text.muted) }]}>
             {leanLabel(lean)}
           </Text>
-          {byLean.get(lean)!.map(r => (
-            <View key={r.id} style={ratingRowStyle}>
-              <Pressable onPress={() => toggle(r.id)} style={styles.ratingButton}>
-                <View style={{ flex: 1 }}>
-                  <Text style={orgNameStyle}>{r.org.name}</Text>
-                  <Text style={issueAreaStyle}>{r.org.issue_area}</Text>
-                </View>
-                <Text style={scoreStyle}>
-                  {Number(r.score).toFixed(0)} / {r.org.scoring_max}
-                </Text>
-              </Pressable>
-              {expanded.has(r.id) && (
-                <StateIssueVotesEvidence
-                  officialId={officialId}
-                  issueArea={r.org.issue_area}
-                />
-              )}
-            </View>
-          ))}
+          {byLean.get(lean)!.map(r => renderRatingRow(r, false))}
         </View>
       ))}
     </View>
