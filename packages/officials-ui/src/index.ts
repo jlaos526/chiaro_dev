@@ -281,3 +281,5 @@ export {
 } from './issues/IssueFlowProvider.tsx'
 export { IssueWelcomeScreen, QUICK_START_PRESETS, type IssueWelcomeScreenProps } from './issues/IssueWelcomeScreen.tsx'
 export { TopicPickerScreen, type TopicPickerScreenProps } from './issues/TopicPickerScreen.tsx'
+export { LensPickerScreen, type LensPickerScreenProps } from './issues/LensPickerScreen.tsx'
+export { IssueQuizScreen, type IssueQuizScreenProps } from './issues/IssueQuizScreen.tsx'
