@@ -19,6 +19,11 @@ interface BaseProps {
   strokeWidth?: number | string
   strokeLinecap?: string
   strokeLinejoin?: string
+  strokeDasharray?: string
+  x1?: number | string
+  y1?: number | string
+  x2?: number | string
+  y2?: number | string
 }
 
 function Svg({ children, width, height, viewBox, fill }: BaseProps): React.JSX.Element {
@@ -50,5 +55,13 @@ function Polyline({ points, stroke, strokeWidth, strokeLinecap, strokeLinejoin, 
   })
 }
 
+function Polygon({ points, fill, stroke, strokeWidth, strokeDasharray }: BaseProps): React.JSX.Element {
+  return createElement('polygon', { points, fill, stroke, strokeWidth, strokeDasharray })
+}
+
+function Line({ x1, y1, x2, y2, stroke, strokeWidth }: BaseProps): React.JSX.Element {
+  return createElement('line', { x1, y1, x2, y2, stroke, strokeWidth })
+}
+
 export default Svg
-export { Svg, Path, Polyline }
+export { Svg, Path, Polyline, Polygon, Line }
