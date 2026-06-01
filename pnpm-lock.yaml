@@ -471,6 +471,9 @@ importers:
       '@chiaro/db':
         specifier: workspace:*
         version: link:../db
+      '@chiaro/issues':
+        specifier: workspace:*
+        version: link:../issues
       '@chiaro/location':
         specifier: workspace:*
         version: link:../location
