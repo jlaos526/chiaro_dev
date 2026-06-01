@@ -1,3 +1,6 @@
 export * from './types.ts'
 export * from './derive.ts'
 export * from './schemas.ts'
+export * from './keys.ts'
+export * from './queries.ts'
+export * from './mutations.ts'

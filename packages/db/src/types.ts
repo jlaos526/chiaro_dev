@@ -2314,6 +2314,14 @@ export type Database = {
         }
         Returns: Json
       }
+      get_rep_issue_alignment: {
+        Args: { p_official_id: string }
+        Returns: Json
+      }
+      save_user_issue_selections: {
+        Args: { p_selections: Json }
+        Returns: undefined
+      }
       disablelongtransactions: { Args: never; Returns: string }
       dropgeometrycolumn:
         | {
