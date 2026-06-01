@@ -35,6 +35,7 @@
     "seed:federal-town-halls-mobilize": "tsx supabase/seed/federal-community-mobilize-ingest.ts",
     "seed:federal-ptrs": "tsx supabase/seed/federal-ptrs-ingest.ts",
     "seed:federal-fds": "tsx supabase/seed/federal-fds-ingest.ts",
+    "seed:issue-catalog": "tsx supabase/seed/issue-catalog-ingest.ts",
     "db:seed-unitedstates": "tsx supabase/seed/unitedstates-legislators-ingest.ts",
     "db:seed-bills-votes": "tsx supabase/seed/bills-votes-ingest.ts",
     "db:seed-scorecards": "tsx supabase/seed/scorecards/index.ts",
@@ -47,6 +48,7 @@
     "functions:serve": "supabase functions serve --env-file ../../.env.local"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.105.0",
     "cheerio": "^1.2.0",
     "pdf-parse": "^1.1.1",
     "pg": "^8.13.0",
