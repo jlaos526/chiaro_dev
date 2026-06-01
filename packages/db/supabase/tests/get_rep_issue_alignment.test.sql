@@ -1,5 +1,5 @@
 begin;
-select plan(9);
+select plan(11);
 
 -- district (officials.district_id is NOT NULL, FK -> districts)
 insert into public.districts (id, tier, state, code, name, geometry, source_version)
@@ -85,6 +85,31 @@ set local "request.jwt.claims" to '{"sub":"00000000-0000-0000-0000-000000000a97"
 select is((public.get_rep_issue_alignment('00000000-0000-0000-0000-0000000000f1')->'axes'->0->>'alignmentPct')::numeric,
           70::numeric, 'multi-stance topic averages two lenses -> 70');
 reset role;
+
+-- bill-vote source: regression guard for the federal/state UNION (vote_position vs text).
+-- Reuses official f1. Seed a bill tagged 'Environment', a vote on it, and a 'yes' position for f1.
+insert into public.bills (id, congress, bill_type, number, title, status, introduced_date, source_url)
+  values ('00000000-0000-0000-0000-0000000000b1', '119', 'hr', 100, 'Clean Air Act',
+          'introduced', '2025-01-15', 'https://x.io/bill');
+insert into public.bill_subjects (bill_id, subject)
+  values ('00000000-0000-0000-0000-0000000000b1', 'Environment');
+insert into public.votes
+    (id, congress, chamber, session, roll_call, vote_date, question, result, bill_id, source_url)
+  values ('00000000-0000-0000-0000-0000000000ec', '119', 'federal_house', 1, 1,
+          '2025-02-01', 'On Passage', 'Passed', '00000000-0000-0000-0000-0000000000b1',
+          'https://x.io/vote');
+insert into public.vote_positions (vote_id, official_id, position)
+  values ('00000000-0000-0000-0000-0000000000ec', '00000000-0000-0000-0000-0000000000f1', 'yes');
+
+-- matching 'yes' vote on an 'Environment' bill -> 100
+select is(public.rep_stance_score('00000000-0000-0000-0000-0000000000f1',
+  '[{"type":"bill-vote","weight":1.0,"config":{"subjects":["Environment"],"agree_position":"yes"}}]'::jsonb),
+  100::numeric, 'bill-vote source scores 100 for a matching yes vote');
+
+-- non-matching agree_position ('no') on the same vote -> 0
+select is(public.rep_stance_score('00000000-0000-0000-0000-0000000000f1',
+  '[{"type":"bill-vote","weight":1.0,"config":{"subjects":["Environment"],"agree_position":"no"}}]'::jsonb),
+  0::numeric, 'bill-vote source scores 0 when the vote disagrees with agree_position');
 
 select * from finish();
 rollback;

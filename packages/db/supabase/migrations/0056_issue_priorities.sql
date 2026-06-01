@@ -93,13 +93,13 @@ begin
              end
         into s_val
       from (
-        select vp.position from vote_positions vp
+        select vp.position::text from vote_positions vp
           join votes vt on vt.id = vp.vote_id
           join bill_subjects bs on bs.bill_id = vt.bill_id
          where vp.official_id = p_official_id
            and lower(bs.subject) in (select lower(x) from jsonb_array_elements_text(cfg->'subjects') x)
         union all
-        select svp.position from state_vote_positions svp
+        select svp.position::text from state_vote_positions svp
           join state_votes sv on sv.id = svp.vote_id
           join state_bill_subjects sbs on sbs.bill_id = sv.bill_id
          where svp.official_id = p_official_id
