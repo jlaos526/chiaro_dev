@@ -283,3 +283,12 @@ export { IssueWelcomeScreen, QUICK_START_PRESETS, type IssueWelcomeScreenProps }
 export { TopicPickerScreen, type TopicPickerScreenProps } from './issues/TopicPickerScreen.tsx'
 export { LensPickerScreen, type LensPickerScreenProps } from './issues/LensPickerScreen.tsx'
 export { IssueQuizScreen, type IssueQuizScreenProps } from './issues/IssueQuizScreen.tsx'
+export {
+  IssueRadarResultScreen,
+  type IssueRadarResultScreenProps,
+} from './issues/IssueRadarResultScreen.tsx'
+export { MyIssuesCard, type MyIssuesCardProps } from './issues/MyIssuesCard.tsx'
+export { IssueRadarChart, type IssueRadarChartProps } from './issues/IssueRadarChart.tsx'
+export { IssueRadarOverlay, type IssueRadarOverlayProps } from './issues/IssueRadarOverlay.tsx'
+export { RepAlignmentStrip, type RepAlignmentStripProps } from './issues/RepAlignmentStrip.tsx'
+export { IssuePriorityTag, type IssuePriorityTagProps } from './issues/IssuePriorityTag.tsx'
