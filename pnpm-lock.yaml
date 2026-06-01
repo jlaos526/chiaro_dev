@@ -361,6 +361,34 @@ importers:
         specifier: ^2.0.0
         version: 2.1.9(@types/node@25.6.0)(jsdom@25.0.1)(lightningcss@1.32.0)(terser@5.46.2)
 
+  packages/issues:
+    dependencies:
+      '@chiaro/db':
+        specifier: workspace:*
+        version: link:../db
+      '@chiaro/supabase-client':
+        specifier: workspace:*
+        version: link:../supabase-client
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+    devDependencies:
+      '@tanstack/react-query':
+        specifier: ^5.59.0
+        version: 5.100.10(react@19.1.0)
+      '@types/react':
+        specifier: ~19.1.17
+        version: 19.1.17
+      react:
+        specifier: 19.1.0
+        version: 19.1.0
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.0.0
+        version: 2.1.9(@types/node@25.6.0)(jsdom@25.0.1)(lightningcss@1.32.0)(terser@5.46.2)
+
   packages/location:
     dependencies:
       '@chiaro/db':

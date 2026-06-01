@@ -477,6 +477,80 @@ export type Database = {
           },
         ]
       }
+      issue_lenses: {
+        Row: {
+          active: boolean
+          description: string | null
+          display_order: number
+          evidence_sources: Json
+          label: string
+          lens_type: string
+          measurement_sources: Json
+          quiz_questions: Json
+          slug: string
+          topic_slug: string
+        }
+        Insert: {
+          active?: boolean
+          description?: string | null
+          display_order?: number
+          evidence_sources?: Json
+          label: string
+          lens_type: string
+          measurement_sources?: Json
+          quiz_questions?: Json
+          slug: string
+          topic_slug: string
+        }
+        Update: {
+          active?: boolean
+          description?: string | null
+          display_order?: number
+          evidence_sources?: Json
+          label?: string
+          lens_type?: string
+          measurement_sources?: Json
+          quiz_questions?: Json
+          slug?: string
+          topic_slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issue_lenses_topic_slug_fkey"
+            columns: ["topic_slug"]
+            isOneToOne: false
+            referencedRelation: "issue_topics"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      issue_topics: {
+        Row: {
+          active: boolean
+          description: string
+          display_name: string
+          display_order: number
+          slug: string
+          value_tags: string[]
+        }
+        Insert: {
+          active?: boolean
+          description: string
+          display_name: string
+          display_order?: number
+          slug: string
+          value_tags?: string[]
+        }
+        Update: {
+          active?: boolean
+          description?: string
+          display_name?: string
+          display_order?: number
+          slug?: string
+          value_tags?: string[]
+        }
+        Relationships: []
+      }
       official_metrics: {
         Row: {
           attendance_pct: number | null
@@ -1851,6 +1925,51 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "districts_geojson"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_issue_selections: {
+        Row: {
+          display_order: number
+          importance: number
+          lens_slug: string
+          position: number | null
+          selected_at: string
+          topic_slug: string
+          user_id: string
+        }
+        Insert: {
+          display_order?: number
+          importance?: number
+          lens_slug: string
+          position?: number | null
+          selected_at?: string
+          topic_slug: string
+          user_id: string
+        }
+        Update: {
+          display_order?: number
+          importance?: number
+          lens_slug?: string
+          position?: number | null
+          selected_at?: string
+          topic_slug?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_issue_selections_topic_slug_fkey"
+            columns: ["topic_slug"]
+            isOneToOne: false
+            referencedRelation: "issue_topics"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "user_issue_selections_topic_slug_lens_slug_fkey"
+            columns: ["topic_slug", "lens_slug"]
+            isOneToOne: false
+            referencedRelation: "issue_lenses"
+            referencedColumns: ["topic_slug", "slug"]
           },
         ]
       }
