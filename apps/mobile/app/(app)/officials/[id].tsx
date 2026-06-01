@@ -8,6 +8,7 @@ import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
 import { firstElectedYear as deriveFirstElectedYear } from '@/lib/derivations/service-record'
 import {
   BioHeader,
+  RepAlignmentSection,
   FederalServiceRecordCard,
   FederalCommunityPresenceCard,
   FederalFinanceCard,
@@ -85,6 +86,14 @@ export default function OfficialDetailScreen() {
             router.push(`/officials/${officialId}?cat=issue-positions&sub=${chip.subCascadeSlug}` as never)
           }
         />
+        {/* Personalized rep alignment strip (slice 52) */}
+        <View style={{ paddingHorizontal: 16, paddingTop: 12 }}>
+          <RepAlignmentSection
+            officialId={official.id}
+            repName={official.full_name}
+            onSetup={() => router.push('/issues' as never)}
+          />
+        </View>
         {/* Federal officials redesign (slice 6) — 6 cards in vertical cascade */}
         <View style={{ gap: 12, paddingHorizontal: 16, paddingTop: 12 }}>
           <FederalServiceRecordCard

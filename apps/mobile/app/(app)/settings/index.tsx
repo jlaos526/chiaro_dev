@@ -36,6 +36,10 @@ export default function SettingsIndex() {
           label="Home address"
           onPress={() => router.push('/settings/address')}
         />
+        <SettingsNavRow
+          label="Issue priorities"
+          onPress={() => router.push('/issues')}
+        />
         <SettingsActionRow label="Sign out" danger onPress={handleSignOut} />
       </SettingsSection>
 
