@@ -269,3 +269,15 @@ export {
   type BrandAlertProps,
   type BrandAlertSeverity,
 } from './primitives/BrandAlert.tsx'
+
+// Slice 52 — issue-priorities onboarding flow. The per-platform route (T19/T21)
+// mounts <IssueFlowProvider> once and renders each step screen by `step`.
+export {
+  IssueFlowProvider,
+  useIssueFlow,
+  MAX_TOPICS,
+  type IssueFlowProviderProps,
+  type IssueFlowState,
+} from './issues/IssueFlowProvider.tsx'
+export { IssueWelcomeScreen, QUICK_START_PRESETS, type IssueWelcomeScreenProps } from './issues/IssueWelcomeScreen.tsx'
+export { TopicPickerScreen, type TopicPickerScreenProps } from './issues/TopicPickerScreen.tsx'
