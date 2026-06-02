@@ -7,6 +7,31 @@ export type Json =
   | Json[]
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       bill_sponsors: {
@@ -2314,14 +2339,6 @@ export type Database = {
         }
         Returns: Json
       }
-      get_rep_issue_alignment: {
-        Args: { p_official_id: string }
-        Returns: Json
-      }
-      save_user_issue_selections: {
-        Args: { p_selections: Json }
-        Returns: undefined
-      }
       disablelongtransactions: { Args: never; Returns: string }
       dropgeometrycolumn:
         | {
@@ -2453,6 +2470,10 @@ export type Database = {
         Returns: boolean
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
+      get_rep_issue_alignment: {
+        Args: { p_official_id: string }
+        Returns: Json
+      }
       gettransactionid: { Args: never; Returns: unknown }
       longtransactionsenabled: { Args: never; Returns: boolean }
       populate_geometry_columns:
@@ -2495,6 +2516,14 @@ export type Database = {
       }
       postgis_version: { Args: never; Returns: string }
       postgis_wagyu_version: { Args: never; Returns: string }
+      rep_stance_score: {
+        Args: { p_official_id: string; p_sources: Json }
+        Returns: number
+      }
+      save_user_issue_selections: {
+        Args: { p_selections: Json }
+        Returns: undefined
+      }
       st_3dclosestpoint: {
         Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
@@ -3257,6 +3286,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       bill_status: [
