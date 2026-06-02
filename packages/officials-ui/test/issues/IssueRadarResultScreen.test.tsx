@@ -1,4 +1,4 @@
-import { createElement, type ReactElement, type ReactNode } from 'react'
+import { createElement, useEffect, useRef, type ReactElement, type ReactNode } from 'react'
 import { render, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import type { IssueTopic } from '@chiaro/issues'
@@ -21,10 +21,20 @@ const wrap = (ui: ReactElement) =>
  * state (toggle topics/lenses, set answers) before the assertions run. This is
  * the officials-ui idiom for pre-loading flow state without reaching into the
  * provider's internals.
+ *
+ * The seed MUST run from an effect, exactly once — calling the flow mutators
+ * (`toggleTopic` etc.) inline during render sets provider state on every render
+ * and loops infinitely ("Maximum update depth exceeded"). The provider's
+ * mutators are stable (`useCallback([])`), so a guarded mount effect is safe.
  */
 function Seed({ run }: { run: (flow: ReturnType<typeof useIssueFlow>) => void }): null {
   const flow = useIssueFlow()
-  run(flow)
+  const seeded = useRef(false)
+  useEffect(() => {
+    if (seeded.current) return
+    seeded.current = true
+    run(flow)
+  }, [run, flow])
   return null
 }
 
@@ -78,7 +88,7 @@ describe('IssueRadarResultScreen', () => {
         <IssueRadarResultScreen catalog={[] as never} onSave={onSave} />
       </IssueFlowProvider>,
     )
-    fireEvent.click(getByText(/save/i))
+    fireEvent.click(getByText('Save my priorities'))
     expect(onSave).toHaveBeenCalledWith(expect.any(Array))
     expect(onSave.mock.calls[0]![0]).toEqual([])
   })
@@ -113,7 +123,7 @@ describe('IssueRadarResultScreen', () => {
         <IssueRadarResultScreen catalog={CATALOG} onSave={onSave} />
       </IssueFlowProvider>,
     )
-    fireEvent.click(getByText(/save/i))
+    fireEvent.click(getByText('Save my priorities'))
     const payload = onSave.mock.calls[0]![0]
     expect(payload).toEqual(
       expect.arrayContaining([
