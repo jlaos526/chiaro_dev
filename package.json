@@ -18,6 +18,7 @@
     "db:gen-types": "pnpm --filter @chiaro/db supabase:gen-types",
     "db:check-types-drift": "pnpm db:gen-types && git diff --exit-code packages/db/src/types.ts",
     "seed:officials": "pnpm --filter @chiaro/db db:seed-officials",
+    "seed:state-officials": "pnpm --filter @chiaro/db seed:state-officials",
     "seed:tiger": "pnpm --filter @chiaro/db db:seed-tiger",
     "seed:unitedstates": "pnpm --filter @chiaro/db db:seed-unitedstates",
     "seed:bills-votes": "pnpm --filter @chiaro/db db:seed-bills-votes",
