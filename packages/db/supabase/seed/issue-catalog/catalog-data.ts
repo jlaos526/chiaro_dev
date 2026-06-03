@@ -4,8 +4,10 @@
 // existing scorecard orgs (real slugs only — see seed/scorecards/*.ts +
 // seed/state-scorecards/*.ts) and Congress.gov legislative-subject strings
 // (exact/case-insensitive match against bill_subjects.subject; a miss returns
-// NULL and degrades gracefully, NULL ≠ 0). Watchlists ship fully empty
-// (no measurement_sources / evidence_sources / quiz_questions in v1).
+// NULL and degrades gracefully, NULL ≠ 0). Watchlists carry no
+// measurement_sources / quiz_questions; the 2 data-backed donor watchlists
+// carry `evidence_sources` (finance-industry) — see below. Non-data-backed
+// watchlists ship `active: false` (slice 53).
 //
 // agree_direction on a quiz_question: +1 = "Agree" raises this stance's
 // position; -1 = "Agree" lowers it.
