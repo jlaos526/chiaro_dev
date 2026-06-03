@@ -12,6 +12,7 @@
   "dependencies": {
     "@chiaro/bills": "workspace:*",
     "@chiaro/db": "workspace:*",
+    "@chiaro/issues": "workspace:*",
     "@chiaro/location": "workspace:*",
     "@chiaro/officials": "workspace:*",
     "@chiaro/officials-ui": "workspace:*",

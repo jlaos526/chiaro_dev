@@ -10,6 +10,7 @@ import {
 } from '@chiaro/officials-ui'
 import { DistrictPanel } from '@/components/DistrictPanel'
 import { OfficialsCardClient } from './OfficialsCardClient'
+import { MyIssuesCardClient } from './MyIssuesCardClient'
 
 export default async function Home(): Promise<React.JSX.Element> {
   const supabase = await createSupabaseServerClient()
@@ -31,6 +32,7 @@ export default async function Home(): Promise<React.JSX.Element> {
       ) : null}
       <DistrictPanel />
       <OfficialsCardClient />
+      <MyIssuesCardClient />
     </BrandPageScreen>
   )
 }

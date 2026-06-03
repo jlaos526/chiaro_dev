@@ -11,7 +11,9 @@ import {
   BrandLink,
   Logo,
   OfficialsCard,
+  MyIssuesCard,
 } from '@chiaro/officials-ui'
+import { useMySelections, useIssueCatalog } from '@chiaro/issues'
 import { DistrictPanel } from '@/components/DistrictPanel'
 
 type Profile = Awaited<ReturnType<typeof getMyProfile>>
@@ -31,6 +33,9 @@ export default function Home() {
     })
     return () => { mounted = false }
   }, [])
+
+  const { data: issueSelections = [] } = useMySelections(supabase)
+  const { data: issueCatalog = [] } = useIssueCatalog(supabase)
 
   const greetingName = profile?.display_name ?? profile?.username ?? null
   const greeting = greetingName ? `Welcome, ${greetingName}` : 'Welcome'
@@ -63,6 +68,11 @@ export default function Home() {
             }
             onSeeAll={() => router.push('/officials' as never)}
             onCalibrate={() => router.push('/calibrate' as never)}
+          />
+          <MyIssuesCard
+            selections={issueSelections}
+            catalog={issueCatalog}
+            onEdit={() => router.push('/issues' as never)}
           />
         </BrandPageScreen>
       ) : (

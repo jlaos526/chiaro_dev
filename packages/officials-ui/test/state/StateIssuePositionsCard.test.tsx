@@ -1,11 +1,13 @@
 import { fireEvent, render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ReactElement } from 'react'
 import type { ChiaroClient } from '@chiaro/supabase-client'
 
 const useRatingsMock = vi.fn()
 const useVotesOnSubjectMock = vi.fn()
+const useMySelectionsMock = vi.fn()
+const useIssueCatalogMock = vi.fn()
 
 vi.mock('@chiaro/officials', async () => {
   const actual = await vi.importActual<object>('@chiaro/officials')
@@ -24,6 +26,44 @@ vi.mock('@chiaro/state-bills', async () => {
   }
 })
 
+vi.mock('@chiaro/issues', async () => {
+  const actual = await vi.importActual<object>('@chiaro/issues')
+  return {
+    ...actual,
+    useMySelections: (...args: unknown[]) => useMySelectionsMock(...args),
+    useIssueCatalog: (...args: unknown[]) => useIssueCatalogMock(...args),
+  }
+})
+
+// Catalog whose "environment" lens maps to the Sierra Club scorecard org slug.
+const CATALOG = [
+  {
+    slug: 'environment',
+    name: 'Environment',
+    display_order: 0,
+    lenses: [
+      {
+        topic_slug: 'environment',
+        slug: 'climate',
+        lens_type: 'stance',
+        measurement_sources: [
+          { type: 'scorecard', weight: 1, config: { orgs: ['sierra'] } },
+        ],
+        quiz_questions: [],
+      },
+    ],
+  },
+]
+const SELECTION = {
+  topic_slug: 'environment',
+  lens_slug: 'climate',
+  position: 80,
+  importance: 1,
+  display_order: 0,
+  selected_at: '2026-01-01',
+  user_id: 'u1',
+}
+
 import { ChiaroClientProvider } from '../../src/client-context.tsx'
 import { StateIssuePositionsCard } from '../../src/state/StateIssuePositionsCard.tsx'
 
@@ -38,9 +78,17 @@ function wrap(ui: ReactElement) {
   )
 }
 
+beforeEach(() => {
+  // Default: no selections / no catalog → priority set is empty (today's behavior).
+  useMySelectionsMock.mockReturnValue({ data: undefined, isLoading: false })
+  useIssueCatalogMock.mockReturnValue({ data: undefined, isLoading: false })
+})
+
 afterEach(() => {
   useRatingsMock.mockReset()
   useVotesOnSubjectMock.mockReset()
+  useMySelectionsMock.mockReset()
+  useIssueCatalogMock.mockReset()
 })
 
 describe('StateIssuePositionsCard', () => {
@@ -118,6 +166,80 @@ describe('StateIssuePositionsCard', () => {
     expect(queryByText(/No matching votes for this subject/i)).toBeNull()
     fireEvent.click(getByText('Sierra Club'))
     // Evidence panel mounts and renders empty-state message.
+    expect(getByText(/No matching votes for this subject/i)).toBeTruthy()
+  })
+})
+
+// NRA (conservative) listed BEFORE Sierra Club (progressive). In the default
+// grouped view, progressive sorts above conservative anyway — so to make the
+// priority sort observable we assert the ★ tag AND that the matched org floats
+// to the top of a now-FLAT list.
+const NRA_THEN_SIERRA = [
+  {
+    id: 'r-nra',
+    official_id: 'oid',
+    score: 20,
+    org: {
+      id: 'org-nra',
+      slug: 'nra',
+      name: 'NRA',
+      issue_area: 'second-amendment',
+      lean: 'conservative',
+      scoring_max: 100,
+    },
+  },
+  {
+    id: 'r-sierra',
+    official_id: 'oid',
+    score: 85,
+    org: {
+      id: 'org-sierra',
+      slug: 'sierra',
+      name: 'Sierra Club',
+      issue_area: 'environment',
+      lean: 'progressive',
+      scoring_max: 100,
+    },
+  },
+]
+
+describe('StateIssuePositionsCard — priority tagging', () => {
+  it('tags the matched org row and floats it to the top', () => {
+    useRatingsMock.mockReturnValue({ data: NRA_THEN_SIERRA, isLoading: false })
+    useVotesOnSubjectMock.mockReturnValue({ data: [], isLoading: false })
+    useMySelectionsMock.mockReturnValue({ data: [SELECTION], isLoading: false })
+    useIssueCatalogMock.mockReturnValue({ data: CATALOG, isLoading: false })
+    const { getByText, container } = wrap(<StateIssuePositionsCard officialId="oid" />)
+
+    expect(getByText(/★ Your priority/i)).toBeTruthy()
+    const text = container.textContent ?? ''
+    expect(text.indexOf('Sierra Club')).toBeGreaterThan(-1)
+    expect(text.indexOf('Sierra Club')).toBeLessThan(text.indexOf('NRA'))
+  })
+
+  it('renders NO tag and preserves grouped order when there are no selections', () => {
+    useRatingsMock.mockReturnValue({ data: NRA_THEN_SIERRA, isLoading: false })
+    useVotesOnSubjectMock.mockReturnValue({ data: [], isLoading: false })
+    useMySelectionsMock.mockReturnValue({ data: [], isLoading: false })
+    useIssueCatalogMock.mockReturnValue({ data: CATALOG, isLoading: false })
+    const { queryByText, getByText } = wrap(<StateIssuePositionsCard officialId="oid" />)
+
+    expect(queryByText(/★ Your priority/i)).toBeNull()
+    // Existing grouped-by-lean behavior intact (both lean headers + orgs present).
+    expect(getByText('Progressive')).toBeTruthy()
+    expect(getByText('Conservative')).toBeTruthy()
+    expect(getByText('Sierra Club')).toBeTruthy()
+    expect(getByText('NRA')).toBeTruthy()
+  })
+
+  it('clicking a tagged row still mounts the evidence panel', () => {
+    useRatingsMock.mockReturnValue({ data: NRA_THEN_SIERRA, isLoading: false })
+    useVotesOnSubjectMock.mockReturnValue({ data: [], isLoading: false })
+    useMySelectionsMock.mockReturnValue({ data: [SELECTION], isLoading: false })
+    useIssueCatalogMock.mockReturnValue({ data: CATALOG, isLoading: false })
+    const { getByText, queryByText } = wrap(<StateIssuePositionsCard officialId="oid" />)
+    expect(queryByText(/No matching votes for this subject/i)).toBeNull()
+    fireEvent.click(getByText('Sierra Club'))
     expect(getByText(/No matching votes for this subject/i)).toBeTruthy()
   })
 })

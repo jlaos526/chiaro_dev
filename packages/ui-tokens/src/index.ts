@@ -34,6 +34,11 @@ export {
   ALIGNMENT_CHIP_COLORS,
   ALIGNMENT_CHIP_COLORS_DARK,
   scoreToTier,
+  type AlignmentDotLevel,
+  ALIGNMENT_DOT,
+  ALIGNMENT_DOT_DARK,
+  RADAR,
+  RADAR_DARK,
 } from './alignment.ts'
 export { titleCaseIssueArea } from './issue-area.ts'
 

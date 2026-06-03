@@ -7,6 +7,31 @@ export type Json =
   | Json[]
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       bill_sponsors: {
@@ -476,6 +501,80 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      issue_lenses: {
+        Row: {
+          active: boolean
+          description: string | null
+          display_order: number
+          evidence_sources: Json
+          label: string
+          lens_type: string
+          measurement_sources: Json
+          quiz_questions: Json
+          slug: string
+          topic_slug: string
+        }
+        Insert: {
+          active?: boolean
+          description?: string | null
+          display_order?: number
+          evidence_sources?: Json
+          label: string
+          lens_type: string
+          measurement_sources?: Json
+          quiz_questions?: Json
+          slug: string
+          topic_slug: string
+        }
+        Update: {
+          active?: boolean
+          description?: string | null
+          display_order?: number
+          evidence_sources?: Json
+          label?: string
+          lens_type?: string
+          measurement_sources?: Json
+          quiz_questions?: Json
+          slug?: string
+          topic_slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issue_lenses_topic_slug_fkey"
+            columns: ["topic_slug"]
+            isOneToOne: false
+            referencedRelation: "issue_topics"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      issue_topics: {
+        Row: {
+          active: boolean
+          description: string
+          display_name: string
+          display_order: number
+          slug: string
+          value_tags: string[]
+        }
+        Insert: {
+          active?: boolean
+          description: string
+          display_name: string
+          display_order?: number
+          slug: string
+          value_tags?: string[]
+        }
+        Update: {
+          active?: boolean
+          description?: string
+          display_name?: string
+          display_order?: number
+          slug?: string
+          value_tags?: string[]
+        }
+        Relationships: []
       }
       official_metrics: {
         Row: {
@@ -1854,6 +1953,51 @@ export type Database = {
           },
         ]
       }
+      user_issue_selections: {
+        Row: {
+          display_order: number
+          importance: number
+          lens_slug: string
+          position: number | null
+          selected_at: string
+          topic_slug: string
+          user_id: string
+        }
+        Insert: {
+          display_order?: number
+          importance?: number
+          lens_slug: string
+          position?: number | null
+          selected_at?: string
+          topic_slug: string
+          user_id: string
+        }
+        Update: {
+          display_order?: number
+          importance?: number
+          lens_slug?: string
+          position?: number | null
+          selected_at?: string
+          topic_slug?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_issue_selections_topic_slug_fkey"
+            columns: ["topic_slug"]
+            isOneToOne: false
+            referencedRelation: "issue_topics"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "user_issue_selections_topic_slug_lens_slug_fkey"
+            columns: ["topic_slug", "lens_slug"]
+            isOneToOne: false
+            referencedRelation: "issue_lenses"
+            referencedColumns: ["topic_slug", "slug"]
+          },
+        ]
+      }
       user_locations: {
         Row: {
           calibrated_at: string
@@ -2326,6 +2470,10 @@ export type Database = {
         Returns: boolean
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
+      get_rep_issue_alignment: {
+        Args: { p_official_id: string }
+        Returns: Json
+      }
       gettransactionid: { Args: never; Returns: unknown }
       longtransactionsenabled: { Args: never; Returns: boolean }
       populate_geometry_columns:
@@ -2368,6 +2516,14 @@ export type Database = {
       }
       postgis_version: { Args: never; Returns: string }
       postgis_wagyu_version: { Args: never; Returns: string }
+      rep_stance_score: {
+        Args: { p_official_id: string; p_sources: Json }
+        Returns: number
+      }
+      save_user_issue_selections: {
+        Args: { p_selections: Json }
+        Returns: undefined
+      }
       st_3dclosestpoint: {
         Args: { geom1: unknown; geom2: unknown }
         Returns: unknown
@@ -3130,6 +3286,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       bill_status: [

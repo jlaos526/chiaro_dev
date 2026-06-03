@@ -11,12 +11,19 @@ import { StateFinanceCard } from './StateFinanceCard.tsx'
 import { StateFinancialActivityCard } from './StateFinancialActivityCard.tsx'
 import { StateIssuePositionsCard } from './StateIssuePositionsCard.tsx'
 import { StateServiceRecordCard } from './StateServiceRecordCard.tsx'
+import { RepAlignmentSection } from '../issues/RepAlignmentSection.tsx'
 
 type DistrictOffice = Database['public']['Tables']['district_offices']['Row']
 
 export interface StateOfficialDetailPageProps {
   official: OfficialWithDistrict
   offices: DistrictOffice[]
+  /**
+   * Navigate into the `/issues` flow. When supplied, a personalized
+   * {@link RepAlignmentSection} renders under the bio block; omitted (e.g. in
+   * unit tests that don't exercise alignment) it is skipped entirely.
+   */
+  onSetupIssues?: () => void
 }
 
 // State-officials detail-page redesign closed (slice 5I) — all 6 categories
@@ -34,6 +41,7 @@ function chamberLabel(chamber: OfficialWithDistrict['chamber']): string {
 export function StateOfficialDetailPage({
   official,
   offices,
+  onSetupIssues,
 }: StateOfficialDetailPageProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const districtCode = official.district?.code ?? official.district_code ?? ''
@@ -69,6 +77,18 @@ export function StateOfficialDetailPage({
         </View>
       </View>
 
+      {/* Personalized rep alignment strip (slice 52) — only when the host app
+          wires the /issues nav callback. */}
+      {onSetupIssues && (
+        <View style={styles.alignmentBlock}>
+          <RepAlignmentSection
+            officialId={official.id}
+            repName={official.full_name}
+            onSetup={onSetupIssues}
+          />
+        </View>
+      )}
+
       {/* Offices contact section — real data, between bio and cascade */}
       {offices.length > 0 && (
         <View testID="offices-section" style={styles.officesSection}>
@@ -103,6 +123,9 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   bioBlock: {
+    marginBottom: 24,
+  },
+  alignmentBlock: {
     marginBottom: 24,
   },
   name: {

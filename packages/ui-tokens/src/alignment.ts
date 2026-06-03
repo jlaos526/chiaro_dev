@@ -46,3 +46,44 @@ export function scoreToTier(score: number, scoringMax: number): AlignmentTier {
   if (pct >= 10) return 'mostly-differs'
   return 'strongly-differs'
 }
+
+// ---------------------------------------------------------------------------
+// Slice 52: alignment dots + radar chart palette.
+//
+// Distinct from the slice-42 chip tiers above. Dots are a 4-level per-issue
+// alignment glyph (🟢 aligned / 🟠 partial / 🔴 differs / ⚪ none) used in the
+// issue-priorities strip; RADAR is the you-vs-rep radar chart (grid + your
+// polygon fill/stroke + the rep polygon stroke). Both ship light + dark
+// variants, consumed via useAlignmentDotColor / useRadarColors brand-hooks.
+// Values may be retuned in a later visual pass.
+// ---------------------------------------------------------------------------
+
+export type AlignmentDotLevel = 'aligned' | 'partial' | 'differs' | 'none'
+
+export const ALIGNMENT_DOT: Record<AlignmentDotLevel, string> = {
+  aligned: '#1a8f5a',
+  partial: '#c89a4e',
+  differs: '#b0413e',
+  none:    '#9a948a',
+}
+
+export const ALIGNMENT_DOT_DARK: Record<AlignmentDotLevel, string> = {
+  aligned: '#4fb98a',
+  partial: '#dcc079',
+  differs: '#d98a86',
+  none:    '#7c776e',
+}
+
+export const RADAR = {
+  grid:        '#e2ddd3',
+  userFill:    'rgba(91,108,255,0.28)',
+  userStroke:  '#5b6cff',
+  repStroke:   '#c46a2a',
+} as const
+
+export const RADAR_DARK = {
+  grid:        '#2a2d33',
+  userFill:    'rgba(124,138,255,0.30)',
+  userStroke:  '#7c8aff',
+  repStroke:   '#e8a060',
+} as const

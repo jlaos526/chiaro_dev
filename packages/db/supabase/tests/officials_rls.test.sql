@@ -106,9 +106,13 @@ insert into public.officials (bioguide_id, first_name, last_name, full_name,
           '11111111-1111-1111-1111-111111111111', 1, '119');
 
 -- 8. anon SELECT permitted (public-read)
+-- Scope to the row this test seeds: in CI the officials table is already
+-- populated by the state-officials fixture ingest that runs before pgTAP, so a
+-- bare count(*) is not 1. Asserting the seeded row is visible to anon proves
+-- the public-read RLS policy without depending on table emptiness.
 set local role anon;
 select is(
-  (select count(*) from public.officials),
+  (select count(*) from public.officials where bioguide_id = 'X000001'),
   1::bigint,
   'anon can SELECT officials'
 );

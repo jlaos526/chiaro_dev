@@ -12,6 +12,8 @@ import { useColorScheme } from 'react-native'
 import {
   ALIGNMENT_CHIP_COLORS,
   ALIGNMENT_CHIP_COLORS_DARK,
+  ALIGNMENT_DOT,
+  ALIGNMENT_DOT_DARK,
   BRAND_PALETTE,
   CATEGORY_ACCENT,
   CATEGORY_ACCENT_DARK,
@@ -23,9 +25,12 @@ import {
   MAP_COLORS_DARK,
   PARTY_COLOR,
   PARTY_COLOR_DARK,
+  RADAR,
+  RADAR_DARK,
   SCORECARD_LEAN_COLOR,
   SCORECARD_LEAN_COLOR_DARK,
   getSemantic,
+  type AlignmentDotLevel,
   type AlignmentTier,
   type BrandMode,
   type BrandSemantic,
@@ -145,4 +150,28 @@ export function useMapColors(): { districtStroke: string; districtFill: string }
 export function useCategoryCardBg(): string {
   const { mode } = useBrandTokens()
   return mode === 'dark' ? CATEGORY_CARD_BG_DARK : CATEGORY_CARD_BG
+}
+
+// ---------------------------------------------------------------------------
+// Slice 52: alignment dot + radar chart accessors. Mirror the per-domain
+// pattern above — read useBrandTokens() for the active mode, index the
+// light/dark token table. Consumed by the issue-priorities radar (Task 13)
+// + alignment strip (Task 14).
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns the alignment-dot color for a per-issue level in the active mode.
+ */
+export function useAlignmentDotColor(level: AlignmentDotLevel): string {
+  const { mode } = useBrandTokens()
+  return mode === 'dark' ? ALIGNMENT_DOT_DARK[level] : ALIGNMENT_DOT[level]
+}
+
+/**
+ * Returns the `{ grid, userFill, userStroke, repStroke }` radar-chart colors
+ * for the active brand mode.
+ */
+export function useRadarColors(): typeof RADAR | typeof RADAR_DARK {
+  const { mode } = useBrandTokens()
+  return mode === 'dark' ? RADAR_DARK : RADAR
 }

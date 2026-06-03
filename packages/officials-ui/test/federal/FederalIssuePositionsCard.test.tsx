@@ -1,10 +1,12 @@
 import { render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createElement, type ReactElement, type ReactNode } from 'react'
 import type { ChiaroClient } from '@chiaro/supabase-client'
 
 const useScorecardsMock = vi.fn()
+const useMySelectionsMock = vi.fn()
+const useIssueCatalogMock = vi.fn()
 
 vi.mock('@chiaro/officials', async () => {
   const actual = await vi.importActual<object>('@chiaro/officials')
@@ -13,6 +15,44 @@ vi.mock('@chiaro/officials', async () => {
     useOfficialScorecardRatings: (...args: unknown[]) => useScorecardsMock(...args),
   }
 })
+
+vi.mock('@chiaro/issues', async () => {
+  const actual = await vi.importActual<object>('@chiaro/issues')
+  return {
+    ...actual,
+    useMySelections: (...args: unknown[]) => useMySelectionsMock(...args),
+    useIssueCatalog: (...args: unknown[]) => useIssueCatalogMock(...args),
+  }
+})
+
+// Catalog whose "civil-rights" lens maps to the ACLU scorecard org slug.
+const CATALOG = [
+  {
+    slug: 'civil-rights',
+    name: 'Civil Rights',
+    display_order: 0,
+    lenses: [
+      {
+        topic_slug: 'civil-rights',
+        slug: 'liberties',
+        lens_type: 'stance',
+        measurement_sources: [
+          { type: 'scorecard', weight: 1, config: { orgs: ['aclu'] } },
+        ],
+        quiz_questions: [],
+      },
+    ],
+  },
+]
+const SELECTION = {
+  topic_slug: 'civil-rights',
+  lens_slug: 'liberties',
+  position: 80,
+  importance: 1,
+  display_order: 0,
+  selected_at: '2026-01-01',
+  user_id: 'u1',
+}
 
 import { ChiaroClientProvider } from '../../src/client-context.tsx'
 import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
@@ -29,8 +69,16 @@ function wrap(ui: ReactElement) {
   )
 }
 
+beforeEach(() => {
+  // Default: no selections / no catalog → priority set is empty (today's behavior).
+  useMySelectionsMock.mockReturnValue({ data: undefined, isLoading: false })
+  useIssueCatalogMock.mockReturnValue({ data: undefined, isLoading: false })
+})
+
 afterEach(() => {
   useScorecardsMock.mockReset()
+  useMySelectionsMock.mockReset()
+  useIssueCatalogMock.mockReset()
 })
 
 describe('FederalIssuePositionsCard', () => {
@@ -72,6 +120,59 @@ describe('FederalIssuePositionsCard', () => {
     const { getByText } = wrap(<FederalIssuePositionsCard officialId="oid" />)
     expect(getByText(/2 orgs rated/i)).toBeTruthy()
     expect(getByText(/2 lean groups/i)).toBeTruthy()
+  })
+})
+
+// Two scorecard rows where NRA is listed BEFORE ACLU so a successful
+// matched-first sort is observable (ACLU floats above NRA).
+const NRA_THEN_ACLU = [
+  {
+    id: 'r-nra',
+    official_id: 'oid',
+    org_id: 'nra',
+    score_numeric: 30,
+    source_url: null,
+    score: 30,
+    org: { name: 'NRA', lean: 'conservative', issue_area: 'guns', scoring_max: 100, slug: 'nra' },
+  },
+  {
+    id: 'r-aclu',
+    official_id: 'oid',
+    org_id: 'aclu',
+    score_numeric: 80,
+    source_url: null,
+    score: 80,
+    org: { name: 'ACLU', lean: 'progressive', issue_area: 'civil-rights', scoring_max: 100, slug: 'aclu' },
+  },
+]
+
+describe('FederalIssuePositionsCard — priority tagging', () => {
+  it('tags the matched org row and floats it to the top', () => {
+    useScorecardsMock.mockReturnValue({ data: NRA_THEN_ACLU, isLoading: false, isSuccess: true })
+    useMySelectionsMock.mockReturnValue({ data: [SELECTION], isLoading: false })
+    useIssueCatalogMock.mockReturnValue({ data: CATALOG, isLoading: false })
+    const { getByText, container } = wrap(<FederalIssuePositionsCard officialId="oid" />)
+
+    // The ★ tag is rendered exactly once (for ACLU).
+    expect(getByText(/★ Your priority/i)).toBeTruthy()
+
+    // ACLU (matched) now precedes NRA in DOM order despite original order.
+    const text = container.textContent ?? ''
+    expect(text.indexOf('ACLU')).toBeLessThan(text.indexOf('NRA'))
+    expect(text.indexOf('ACLU')).toBeGreaterThan(-1)
+  })
+
+  it('renders NO tag and preserves original order when there are no selections', () => {
+    useScorecardsMock.mockReturnValue({ data: NRA_THEN_ACLU, isLoading: false, isSuccess: true })
+    useMySelectionsMock.mockReturnValue({ data: [], isLoading: false })
+    useIssueCatalogMock.mockReturnValue({ data: CATALOG, isLoading: false })
+    const { queryByText, getByText } = wrap(<FederalIssuePositionsCard officialId="oid" />)
+
+    expect(queryByText(/★ Your priority/i)).toBeNull()
+    // Existing grouped-by-lean behavior intact: both orgs + the summary present.
+    expect(getByText(/2 orgs rated/i)).toBeTruthy()
+    expect(getByText('ACLU')).toBeTruthy()
+    expect(getByText('NRA')).toBeTruthy()
   })
 })
 

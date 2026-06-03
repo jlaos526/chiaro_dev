@@ -33,6 +33,22 @@ jobs:
         run: pnpm db:start
       - name: Apply migrations
         run: pnpm db:reset
+      - name: Capture service role key for fixture ingest
+        # The issue-catalog fixture suite ingests via the Supabase JS client
+        # (PostgREST .from().upsert()), so it needs the API URL + service-role
+        # key rather than the SUPABASE_DB_URL the pg.Client suites use. Mirrors
+        # the `test` job's supabase-status capture.
+        id: supabase-status
+        working-directory: packages/db
+        run: |
+          SERVICE_ROLE_KEY=$(supabase status --output env | grep '^SERVICE_ROLE_KEY' | cut -d'=' -f2- | tr -d '"')
+          echo "::add-mask::$SERVICE_ROLE_KEY"
+          echo "service_role_key=$SERVICE_ROLE_KEY" >> "$GITHUB_OUTPUT"
+      - name: Issue catalog fixture ingest
+        run: pnpm --filter @chiaro/db test ingest.integration
+        env:
+          SUPABASE_URL: http://127.0.0.1:54321
+          SUPABASE_SERVICE_ROLE_KEY: ${{ steps.supabase-status.outputs.service_role_key }}
       - name: Cache TIGER 2024 download
         uses: actions/cache@v5
         with:

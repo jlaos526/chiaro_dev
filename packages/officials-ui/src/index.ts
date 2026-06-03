@@ -269,3 +269,27 @@ export {
   type BrandAlertProps,
   type BrandAlertSeverity,
 } from './primitives/BrandAlert.tsx'
+
+// Slice 52 — issue-priorities onboarding flow. The per-platform route (T19/T21)
+// mounts <IssueFlowProvider> once and renders each step screen by `step`.
+export {
+  IssueFlowProvider,
+  useIssueFlow,
+  MAX_TOPICS,
+  type IssueFlowProviderProps,
+  type IssueFlowState,
+} from './issues/IssueFlowProvider.tsx'
+export { IssueWelcomeScreen, QUICK_START_PRESETS, type IssueWelcomeScreenProps } from './issues/IssueWelcomeScreen.tsx'
+export { TopicPickerScreen, type TopicPickerScreenProps } from './issues/TopicPickerScreen.tsx'
+export { LensPickerScreen, type LensPickerScreenProps } from './issues/LensPickerScreen.tsx'
+export { IssueQuizScreen, type IssueQuizScreenProps } from './issues/IssueQuizScreen.tsx'
+export {
+  IssueRadarResultScreen,
+  type IssueRadarResultScreenProps,
+} from './issues/IssueRadarResultScreen.tsx'
+export { MyIssuesCard, type MyIssuesCardProps } from './issues/MyIssuesCard.tsx'
+export { IssueRadarChart, type IssueRadarChartProps } from './issues/IssueRadarChart.tsx'
+export { IssueRadarOverlay, type IssueRadarOverlayProps } from './issues/IssueRadarOverlay.tsx'
+export { RepAlignmentStrip, type RepAlignmentStripProps } from './issues/RepAlignmentStrip.tsx'
+export { RepAlignmentSection, type RepAlignmentSectionProps } from './issues/RepAlignmentSection.tsx'
+export { IssuePriorityTag, type IssuePriorityTagProps } from './issues/IssuePriorityTag.tsx'

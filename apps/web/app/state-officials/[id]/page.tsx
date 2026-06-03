@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { fetchOfficial, fetchOfficialDistrictOffices, isStateLevel } from '@chiaro/officials'
-import { StateOfficialDetailPage } from '@chiaro/officials-ui'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { StateOfficialDetailClient } from './StateOfficialDetailClient'
 
 interface Params { id: string }
 
@@ -20,5 +20,5 @@ export default async function StateOfficialPage(
   }
 
   const offices = await fetchOfficialDistrictOffices(supabase, id)
-  return <StateOfficialDetailPage official={official} offices={offices} />
+  return <StateOfficialDetailClient official={official} offices={offices} />
 }

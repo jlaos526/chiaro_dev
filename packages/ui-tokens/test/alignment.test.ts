@@ -5,6 +5,10 @@ import {
   ALIGNMENT_CHIP_COLORS,
   ALIGNMENT_CHIP_COLORS_DARK,
   scoreToTier,
+  ALIGNMENT_DOT,
+  ALIGNMENT_DOT_DARK,
+  RADAR,
+  RADAR_DARK,
 } from '../src/alignment.ts'
 
 const ALL_TIERS: AlignmentTier[] = [
@@ -76,6 +80,29 @@ describe('ALIGNMENT_SYMBOL removed', () => {
     for (const tier of ALL_TIERS) {
       expect(ALIGNMENT_LABEL[tier]).toBeTruthy()
       expect(ALIGNMENT_CHIP_COLORS[tier]).toBeTruthy()
+    }
+  })
+})
+
+// Slice 52: alignment dots (🟢 aligned / 🟠 partial / 🔴 differs / ⚪ none) +
+// radar chart (grid + you-fill/stroke + rep-stroke). Consumed via the
+// useAlignmentDotColor / useRadarColors brand-hooks (mode-aware).
+describe('alignment tokens', () => {
+  it('has all 4 dot levels in light + dark', () => {
+    for (const k of ['aligned', 'partial', 'differs', 'none'] as const) {
+      expect(ALIGNMENT_DOT[k]).toMatch(/^#|^rgb/)
+      expect(ALIGNMENT_DOT_DARK[k]).toMatch(/^#|^rgb/)
+    }
+  })
+
+  it('ALIGNMENT_DOT + ALIGNMENT_DOT_DARK share identical keys', () => {
+    expect(Object.keys(ALIGNMENT_DOT).sort()).toEqual(Object.keys(ALIGNMENT_DOT_DARK).sort())
+  })
+
+  it('radar has the 4 stops in both modes', () => {
+    for (const k of ['grid', 'userFill', 'userStroke', 'repStroke'] as const) {
+      expect(RADAR[k]).toBeTruthy()
+      expect(RADAR_DARK[k]).toBeTruthy()
     }
   })
 })
