@@ -1,3 +1,5 @@
+'use client'
+
 import { StyleSheet, Text, View } from 'react-native'
 import type { RepWatchlistFlag } from '@chiaro/issues'
 import { useBrandTokens } from '../brand-hooks.ts'
