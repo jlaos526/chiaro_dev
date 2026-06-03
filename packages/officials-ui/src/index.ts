@@ -293,3 +293,4 @@ export { IssueRadarOverlay, type IssueRadarOverlayProps } from './issues/IssueRa
 export { RepAlignmentStrip, type RepAlignmentStripProps } from './issues/RepAlignmentStrip.tsx'
 export { RepAlignmentSection, type RepAlignmentSectionProps } from './issues/RepAlignmentSection.tsx'
 export { IssuePriorityTag, type IssuePriorityTagProps } from './issues/IssuePriorityTag.tsx'
+export { WatchlistFlag, type WatchlistFlagProps } from './issues/WatchlistFlag.tsx'
