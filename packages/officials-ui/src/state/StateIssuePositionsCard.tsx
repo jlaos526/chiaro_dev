@@ -6,7 +6,7 @@ import {
   useOfficialStateScorecardRatings,
   type StateScorecardRatingWithOrg,
 } from '@chiaro/officials'
-import { useMySelections, useIssueCatalog } from '@chiaro/issues'
+import { useMySelections, useIssueCatalog, useRepWatchlistFlags } from '@chiaro/issues'
 import {
   SCORECARD_LEAN_LABEL,
   type ScorecardLean,
@@ -15,6 +15,7 @@ import { useBrandTokens, useScorecardLeanColor } from '../brand-hooks.ts'
 import { useChiaroClient } from '../client-context.tsx'
 import { IssuePriorityTag } from '../issues/IssuePriorityTag.tsx'
 import { computePriorityOrgSlugs, sortPriorityFirst } from '../issues/priority-orgs.ts'
+import { WatchlistFlag } from '../issues/WatchlistFlag.tsx'
 import { StateIssueVotesEvidence } from './StateIssueVotesEvidence.tsx'
 
 export interface StateIssuePositionsCardProps {
@@ -58,6 +59,23 @@ export function StateIssuePositionsCard({
   const priorityOrgSlugs = computePriorityOrgSlugs(selections.data, catalog.data)
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
 
+  // Watchlist evidence flags ("⚑") — finance-derived matches for this rep. Like
+  // the priority queries above, this never gates the card: no flags (or a
+  // logged-out user) yields a null section and the card renders as in slice 52.
+  // State donor data is federal-only today, so production state reps have no
+  // flags; the slot exists for future state watchlists. Called unconditionally
+  // before the early returns to satisfy the rules of hooks.
+  const watchlistFlags = useRepWatchlistFlags(client, officialId)
+  const flags = watchlistFlags.data ?? []
+  const flagsSection =
+    flags.length > 0 ? (
+      <View>
+        {flags.map(f => (
+          <WatchlistFlag key={`${f.topicSlug}::${f.lensSlug}`} flag={f} />
+        ))}
+      </View>
+    ) : null
+
   const cardStyle = [
     styles.card,
     { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
@@ -81,6 +99,7 @@ export function StateIssuePositionsCard({
     return (
       <View style={cardStyle}>
         <Text style={titleStyle}>Issue Positions</Text>
+        {flagsSection}
         <Text style={[mutedStyle, { fontStyle: 'italic' }]}>
           No issue-position ratings available for this legislator yet.
         </Text>
@@ -130,6 +149,7 @@ export function StateIssuePositionsCard({
     return (
       <View style={cardStyle}>
         <Text style={titleStyle}>Issue Positions</Text>
+        {flagsSection}
         {ordered.map(r => renderRatingRow(r, priorityOrgSlugs.has(r.org.slug)))}
       </View>
     )
@@ -144,6 +164,7 @@ export function StateIssuePositionsCard({
   return (
     <View style={cardStyle}>
       <Text style={titleStyle}>Issue Positions</Text>
+      {flagsSection}
       {orderedLeans.map(lean => (
         <View key={lean} style={{ marginBottom: 12 }}>
           <Text style={[styles.leanHeader, { color: leanColor(lean, semantic.text.muted) }]}>
