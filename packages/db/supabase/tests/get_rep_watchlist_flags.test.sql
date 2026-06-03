@@ -1,5 +1,5 @@
 begin;
-select plan(6);
+select plan(9);
 
 -- district (officials.district_id is NOT NULL, FK -> districts)
 insert into public.districts (id, tier, state, code, name, geometry, source_version)
@@ -29,6 +29,34 @@ insert into public.issue_lenses (topic_slug, slug, label, lens_type, evidence_so
 insert into public.user_issue_selections (user_id, topic_slug, lens_slug)
   values ('00000000-0000-0000-0000-000000000a99','environment','industry-donor-recipients');
 
+-- Extra lenses + users for the gating/filtering scenarios. All inserted as the
+-- default (superuser) role here — the authenticated role has no INSERT grant on
+-- issue_lenses / user_issue_selections / auth.users.
+-- (a) min_amount gating: same 'Oil & Gas' match but min_amount ($100000) is above
+--     the rep's summed $42000, so the lens must NOT flag.
+insert into public.issue_lenses (topic_slug, slug, label, lens_type, evidence_sources)
+  values ('environment','high-threshold-watchlist','High Threshold Watchlist','watchlist',
+          '[{"type":"finance-industry","config":{"category":"fossil-fuel","industries":["Oil & Gas"],"min_amount":100000}}]'::jsonb);
+-- (b) inactive lens: would match 'Oil & Gas' but active=false, so it must NOT flag.
+insert into public.issue_lenses (topic_slug, slug, label, lens_type, evidence_sources, active)
+  values ('environment','inactive-watchlist','Inactive Watchlist','watchlist',
+          '[{"type":"finance-industry","config":{"category":"fossil-fuel","industries":["Oil & Gas"]}}]'::jsonb,
+          false);
+-- (c) unselected lens: active + would match, but no user selects it.
+insert into public.issue_lenses (topic_slug, slug, label, lens_type, evidence_sources)
+  values ('environment','unselected-watchlist','Unselected Watchlist','watchlist',
+          '[{"type":"finance-industry","config":{"category":"fossil-fuel","industries":["Oil & Gas"]}}]'::jsonb);
+
+-- fresh users, each selecting only the lens its scenario tests (a01/a02);
+-- a03 selects nothing, to test the unselected-lens path.
+insert into auth.users (id, email) values
+  ('00000000-0000-0000-0000-000000000a01', 'gate@x.io'),
+  ('00000000-0000-0000-0000-000000000a02', 'inactive@x.io'),
+  ('00000000-0000-0000-0000-000000000a03', 'unselected@x.io');
+insert into public.user_issue_selections (user_id, topic_slug, lens_slug) values
+  ('00000000-0000-0000-0000-000000000a01','environment','high-threshold-watchlist'),
+  ('00000000-0000-0000-0000-000000000a02','environment','inactive-watchlist');
+
 -- second official: no finance rows, so no category-industry match (seeded before role
 -- switch — the authenticated role has no INSERT grant on officials).
 insert into public.officials
@@ -51,6 +79,24 @@ select is((public.get_rep_watchlist_flags('00000000-0000-0000-0000-0000000000f1'
 
 select is(jsonb_array_length(public.get_rep_watchlist_flags('00000000-0000-0000-0000-0000000000f2')),
           0, 'no flags when rep has no category industries');
+
+-- (a) min_amount gating: a01 selects only the high-threshold lens; the rep's $42000
+--     is below its $100000 min_amount, so no flag is produced.
+set local "request.jwt.claims" to '{"sub":"00000000-0000-0000-0000-000000000a01"}';
+select is(jsonb_array_length(public.get_rep_watchlist_flags('00000000-0000-0000-0000-0000000000f1')),
+          0, 'no flag when matched amount is below the lens min_amount');
+
+-- (b) inactive lens: a02 selects only the inactive lens; the function filters on
+--     l.active, so no flag even though the config would match.
+set local "request.jwt.claims" to '{"sub":"00000000-0000-0000-0000-000000000a02"}';
+select is(jsonb_array_length(public.get_rep_watchlist_flags('00000000-0000-0000-0000-0000000000f1')),
+          0, 'no flag from an inactive (active=false) watchlist lens');
+
+-- (c) unselected lens: a03 has zero selections; an active, would-match lens exists
+--     but the user never selected it, so no flag.
+set local "request.jwt.claims" to '{"sub":"00000000-0000-0000-0000-000000000a03"}';
+select is(jsonb_array_length(public.get_rep_watchlist_flags('00000000-0000-0000-0000-0000000000f1')),
+          0, 'no flag from a watchlist lens the user has not selected');
 
 reset role;
 -- clear the JWT claims GUC too: reset role alone leaves request.jwt.claims set, so
