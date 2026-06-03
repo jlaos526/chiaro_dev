@@ -10,15 +10,22 @@
 // agree_direction on a quiz_question: +1 = "Agree" raises this stance's
 // position; -1 = "Agree" lowers it.
 
+import { FOSSIL_FUEL_INDUSTRIES, PRIVATE_PRISON_INDUSTRIES } from './finance-industry-categories.ts'
+
 export interface MeasurementSource {
   type: 'scorecard' | 'bill-vote'
   weight: number
   config: { orgs?: string[]; invert?: boolean; subjects?: string[]; agree_position?: 'yes' | 'no' }
 }
+export interface EvidenceSource {
+  type: 'finance-industry'
+  config: { category: string; industries: string[]; min_amount?: number }
+}
 export interface QuizQuestion { slug: string; prompt: string; agree_direction: 1 | -1; display_order: number }
 export interface LensSeed {
   slug: string; label: string; lens_type: 'stance' | 'watchlist'; description?: string
-  measurement_sources: MeasurementSource[]; evidence_sources: unknown[]; quiz_questions: QuizQuestion[]; display_order: number
+  measurement_sources: MeasurementSource[]; evidence_sources: EvidenceSource[]; quiz_questions: QuizQuestion[]; display_order: number
+  active?: boolean
 }
 export interface TopicSeed {
   slug: string; display_name: string; description: string; value_tags: string[]; display_order: number; lenses: LensSeed[]
@@ -47,7 +54,9 @@ export const ISSUE_CATALOG: TopicSeed[] = [
           { slug: 'climate-overstated', prompt: 'The risks of climate change are overstated.', agree_direction: -1, display_order: 2 } ] },
       { slug: 'industry-donor-recipients', label: 'Industry Donor Recipients', lens_type: 'watchlist', display_order: 2,
         description: 'Reps receiving major fossil-fuel industry contributions.',
-        measurement_sources: [], evidence_sources: [], quiz_questions: [] } ] },
+        measurement_sources: [],
+        evidence_sources: [{ type: 'finance-industry', config: { category: 'fossil-fuel', industries: FOSSIL_FUEL_INDUSTRIES } }],
+        quiz_questions: [] } ] },
 
   // === immigration (2 stances) ===
   { slug: 'immigration', display_name: 'Immigration', description: 'Border enforcement, legal pathways, and the treatment of immigrants.',
@@ -88,17 +97,25 @@ export const ISSUE_CATALOG: TopicSeed[] = [
           { slug: 'end-cash-bail', prompt: 'Cash bail should be eliminated or sharply curtailed.', agree_direction: 1, display_order: 0 },
           { slug: 'reduce-incarceration', prompt: 'The country should reduce its prison population through sentencing reform.', agree_direction: 1, display_order: 1 },
           { slug: 'mandatory-minimums', prompt: 'Mandatory-minimum sentences should be kept in place.', agree_direction: -1, display_order: 2 } ] },
+      // Deferred slice 53 — curated-data only (no auto-derivable source); revisit in a future curated slice.
       { slug: 'anti-fraud-self-interest', label: 'Anti-Fraud & Self-Interest', lens_type: 'watchlist', display_order: 2,
         description: 'Reps tied to fraud findings or votes that advanced their own financial interests.',
+        active: false,
         measurement_sources: [], evidence_sources: [], quiz_questions: [] },
       { slug: 'for-profit-prisons', label: 'For-Profit Prisons', lens_type: 'watchlist', display_order: 3,
         description: 'Reps receiving major private-prison-industry contributions.',
-        measurement_sources: [], evidence_sources: [], quiz_questions: [] },
+        measurement_sources: [],
+        evidence_sources: [{ type: 'finance-industry', config: { category: 'private-prison', industries: PRIVATE_PRISON_INDUSTRIES } }],
+        quiz_questions: [] },
+      // Deferred slice 53 — curated-data only (no auto-derivable source); revisit in a future curated slice.
       { slug: 'epstein-related-protectors', label: 'Epstein-Related Protectors', lens_type: 'watchlist', display_order: 4,
         description: 'Reps who acted to block or delay release of Epstein-related records.',
+        active: false,
         measurement_sources: [], evidence_sources: [], quiz_questions: [] },
+      // @deprecated slice 53 — wrong-premise: no public SLAPP/court-records data source (Gotcha #20 audit 2026-06-03).
       { slug: 'slapp-suit-participants', label: 'SLAPP-Suit Participants', lens_type: 'watchlist', display_order: 5,
         description: 'Reps who filed or supported lawsuits aimed at silencing critics or the press.',
+        active: false,
         measurement_sources: [], evidence_sources: [], quiz_questions: [] } ] },
 
   // === civil-liberties → display "Personal Freedoms" (2 stances) ===
