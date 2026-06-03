@@ -23,6 +23,9 @@ vi.mock('@/components/DistrictPanel', () => ({
 vi.mock('../../app/OfficialsCardClient', () => ({
   OfficialsCardClient: () => <div data-testid="officials-card">officials</div>,
 }))
+vi.mock('../../app/MyIssuesCardClient', () => ({
+  MyIssuesCardClient: () => <div data-testid="my-issues-card">my-issues</div>,
+}))
 
 import Home from '../../app/page'
 
