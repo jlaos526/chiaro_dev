@@ -31,4 +31,11 @@ describe('issue catalog integration', () => {
       .select('*', { count: 'exact', head: true })
     expect(count).toBe(ISSUE_CATALOG_FIXTURE.length)
   })
+
+  it('persists evidence_sources on a watchlist lens', async () => {
+    await ingestIssueCatalog(svc as never, ISSUE_CATALOG_FIXTURE)
+    const { data } = await svc.from('issue_lenses')
+      .select('evidence_sources').eq('slug', 'fx-for-profit-prisons').single()
+    expect(((data?.evidence_sources ?? []) as unknown[]).length).toBeGreaterThan(0)
+  })
 })
