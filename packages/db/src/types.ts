@@ -2474,6 +2474,10 @@ export type Database = {
         Args: { p_official_id: string }
         Returns: Json
       }
+      get_rep_watchlist_flags: {
+        Args: { p_official_id: string }
+        Returns: Json
+      }
       gettransactionid: { Args: never; Returns: unknown }
       longtransactionsenabled: { Args: never; Returns: boolean }
       populate_geometry_columns:

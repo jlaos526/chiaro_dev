@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { fetchRepAlignment, fetchCatalog } from '../src/queries.ts'
+import { fetchRepAlignment, fetchCatalog, fetchRepWatchlistFlags } from '../src/queries.ts'
 import { saveSelections } from '../src/mutations.ts'
 
 const clientWith = (impl: Record<string, unknown>) => impl as never
@@ -18,12 +18,19 @@ describe('queries', () => {
   })
   it('fetchCatalog groups lenses under topics', async () => {
     const from = vi.fn((table: string) => ({
-      select: () => ({ order: () => Promise.resolve({
+      select: () => ({ eq: () => ({ order: () => Promise.resolve({
         data: table === 'issue_topics'
           ? [{ slug: 'environment', display_name: 'Environment', lenses: undefined }]
           : [{ topic_slug: 'environment', slug: 'conservation', lens_type: 'stance', measurement_sources: [], quiz_questions: [] }],
-        error: null }) }) }))
+        error: null }) }) }) }))
     const out = await fetchCatalog(clientWith({ from }))
     expect(out[0]?.lenses).toHaveLength(1)
+  })
+  it('fetchRepWatchlistFlags calls the RPC and returns its payload', async () => {
+    const rpc = vi.fn().mockResolvedValue({ data: [{ topicSlug: 'environment', lensSlug: 'industry-donor-recipients', label: 'X', category: 'fossil-fuel', totalAmount: 42000, evidence: [{ industry: 'Oil & Gas', amount: 42000 }] }], error: null })
+    const out = await fetchRepWatchlistFlags(clientWith({ rpc }), 'off-1')
+    expect(rpc).toHaveBeenCalledWith('get_rep_watchlist_flags', { p_official_id: 'off-1' })
+    expect(out).toHaveLength(1)
+    expect(out[0]?.evidence[0]?.industry).toBe('Oil & Gas')
   })
 })

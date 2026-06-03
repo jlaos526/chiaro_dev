@@ -25,3 +25,17 @@ export type StancePosition = { topicSlug: string; lensSlug: string; position: nu
 export type AlignmentDot = 'aligned' | 'partial' | 'differs' | 'none'
 export interface AlignmentAxis { topicSlug: string; label: string; alignmentPct: number | null; dot: AlignmentDot }
 export interface RepAlignment { overallPct: number | null; axes: AlignmentAxis[] }
+
+export interface EvidenceSource {
+  type: 'finance-industry'
+  config: { category: string; industries: string[]; min_amount?: number }
+}
+export interface WatchlistEvidenceItem { industry: string; amount: number }
+export interface RepWatchlistFlag {
+  topicSlug: string
+  lensSlug: string
+  label: string
+  category: string
+  totalAmount: number
+  evidence: WatchlistEvidenceItem[]
+}
