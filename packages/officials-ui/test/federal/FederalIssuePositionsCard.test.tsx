@@ -7,6 +7,7 @@ import type { ChiaroClient } from '@chiaro/supabase-client'
 const useScorecardsMock = vi.fn()
 const useMySelectionsMock = vi.fn()
 const useIssueCatalogMock = vi.fn()
+const useRepWatchlistFlagsMock = vi.fn()
 
 vi.mock('@chiaro/officials', async () => {
   const actual = await vi.importActual<object>('@chiaro/officials')
@@ -22,6 +23,7 @@ vi.mock('@chiaro/issues', async () => {
     ...actual,
     useMySelections: (...args: unknown[]) => useMySelectionsMock(...args),
     useIssueCatalog: (...args: unknown[]) => useIssueCatalogMock(...args),
+    useRepWatchlistFlags: (...args: unknown[]) => useRepWatchlistFlagsMock(...args),
   }
 })
 
@@ -73,12 +75,15 @@ beforeEach(() => {
   // Default: no selections / no catalog → priority set is empty (today's behavior).
   useMySelectionsMock.mockReturnValue({ data: undefined, isLoading: false })
   useIssueCatalogMock.mockReturnValue({ data: undefined, isLoading: false })
+  // Default: no watchlist flags → flagsSection is null (slice-52 behavior).
+  useRepWatchlistFlagsMock.mockReturnValue({ data: [], isLoading: false })
 })
 
 afterEach(() => {
   useScorecardsMock.mockReset()
   useMySelectionsMock.mockReset()
   useIssueCatalogMock.mockReset()
+  useRepWatchlistFlagsMock.mockReset()
 })
 
 describe('FederalIssuePositionsCard', () => {
@@ -180,6 +185,47 @@ const lightWrapper = ({ children }: { children: ReactNode }) =>
   createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children)
 const darkWrapper = ({ children }: { children: ReactNode }) =>
   createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
+
+const WATCHLIST_FLAG = {
+  topicSlug: 'environment',
+  lensSlug: 'industry-donor-recipients',
+  label: 'Industry Donor Recipients',
+  category: 'fossil-fuel',
+  totalAmount: 42000,
+  evidence: [{ industry: 'Oil & Gas', amount: 42000 }],
+}
+
+describe('FederalIssuePositionsCard — watchlist flags', () => {
+  it('renders a watchlist flag even with no scorecard ratings', () => {
+    useScorecardsMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
+    useRepWatchlistFlagsMock.mockReturnValue({ data: [WATCHLIST_FLAG], isLoading: false })
+    const { getByText } = wrap(<FederalIssuePositionsCard officialId="off-1" />)
+    expect(getByText(/Industry Donor Recipients/i)).toBeTruthy()
+  })
+
+  it('renders a watchlist flag alongside scorecard ratings', () => {
+    useScorecardsMock.mockReturnValue({
+      data: [
+        {
+          id: 'r1',
+          official_id: 'oid',
+          org_id: 'aclu',
+          score_numeric: 80,
+          source_url: null,
+          org: { name: 'ACLU', lean: 'left', issue_area: 'civil-rights', scoring_max: 100 },
+        },
+      ],
+      isLoading: false,
+      isSuccess: true,
+    })
+    useRepWatchlistFlagsMock.mockReturnValue({ data: [WATCHLIST_FLAG], isLoading: false })
+    const { getByText } = wrap(<FederalIssuePositionsCard officialId="off-1" />)
+    // Flag renders in the normal (ratings-present) branch: both the flag label
+    // and the scorecard summary line are present.
+    expect(getByText(/Industry Donor Recipients/i)).toBeTruthy()
+    expect(getByText(/1 org rated/i)).toBeTruthy()
+  })
+})
 
 describe('FederalIssuePositionsCard — mode awareness', () => {
   it('renders under both light and dark wrappers without throwing', () => {
