@@ -2,72 +2,62 @@
 
 import { StyleSheet, Text, View } from 'react-native'
 import type { RepAlignment } from '@chiaro/issues'
-import { useBrandTokens } from '../brand-hooks.ts'
+import { useBrandTokens, useRadarColors } from '../brand-hooks.ts'
 import { IssueRadarChart } from './IssueRadarChart.tsx'
 
 export interface IssueRadarOverlayProps {
-  /** Per-issue alignment for this rep. */
+  /** Per-issue alignment for this rep (carries per-axis userPos + repPos). */
   alignment: RepAlignment
-  /** Rep's display name, for the caption. */
+  /** Rep's display name, for the caption + legend. */
   repName?: string
-  /**
-   * Optional rep stance per axis (0–1) for a future TRUE you-vs-rep overlay.
-   * The current RPC returns per-axis `alignmentPct` (a single derived ring),
-   * NOT separate user/rep positions — so v1 callers leave this undefined and
-   * the chart renders a single alignment ring. Wired through to keep the API
-   * forward-compatible without fabricating rep data.
-   */
-  repValues?: (number | null)[]
 }
 
 /**
- * Expanded radar view for the rep alignment strip (Task 14).
- *
- * **v1 = a single alignment ring.** The `get_rep_issue_alignment` RPC returns a
- * per-axis `alignmentPct` (how well the rep matches the user on each issue),
- * not separate user-position vs rep-position vectors — so a true two-polygon
- * you-vs-rep overlay isn't supported yet. We map `alignmentPct → 0–1` and draw
- * the alignment shape: a fuller polygon means more aligned across issues. The
- * optional `repValues` prop is threaded to the chart for a future real overlay.
+ * Expanded radar view for the rep alignment strip — a true two-polygon
+ * you-vs-rep comparison. The filled polygon is the user's per-topic position
+ * (`userPos`); the dashed polygon is the rep's (`repPos`). A null position
+ * (no data on that topic) is drawn at center. The strip's overall % + dots
+ * still come from `alignmentPct`; this overlay is the richer positional view.
  *
  * Presentational only — the parent supplies `alignment` (and opens/closes this
- * via the strip's `onExpand`). Mode-aware via `useBrandTokens()`.
+ * via the strip's `onExpand`). Mode-aware via `useBrandTokens()`/`useRadarColors()`.
  */
 export function IssueRadarOverlay({
   alignment,
   repName,
-  repValues,
 }: IssueRadarOverlayProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
+  const radar = useRadarColors()
 
   const axisLabels = alignment.axes.map((a) => a.label)
-  // alignmentPct (0–100, nullable) → 0–1; null ("no data on this issue") → 0.
-  const userValues = alignment.axes.map((a) => (a.alignmentPct ?? 0) / 100)
+  const userValues = alignment.axes.map((a) => (a.userPos ?? 0) / 100)
+  const repValues = alignment.axes.map((a) => (a.repPos == null ? null : a.repPos / 100))
 
-  const caption = repName
-    ? `Your alignment with ${repName} per issue`
-    : 'Your alignment per issue'
+  const repLabel = repName ?? 'Rep'
+  const caption = repName ? `Your positions vs ${repName}` : 'Your positions vs this rep'
 
   return (
     <View
-      accessibilityLabel="Issue alignment radar"
+      accessibilityLabel="You versus rep issue radar"
       style={[
         styles.overlay,
         { backgroundColor: semantic.bg.card, borderColor: semantic.border.default },
       ]}
     >
-      <IssueRadarChart
-        axes={axisLabels}
-        userValues={userValues}
-        // Only forward repValues when present — IssueRadarChart's prop is a
-        // required `(number|null)[]` and the package enables
-        // exactOptionalPropertyTypes, so passing `undefined` is a type error.
-        {...(repValues ? { repValues } : {})}
-      />
+      <IssueRadarChart axes={axisLabels} userValues={userValues} repValues={repValues} />
       <Text style={[styles.caption, { color: semantic.text.muted }]}>{caption}</Text>
-      <Text style={[styles.legend, { color: semantic.text.muted }]}>
-        Fuller shape = more aligned across your issues.
-      </Text>
+      <View style={styles.legend}>
+        <View style={styles.legendRow}>
+          <View style={[styles.swatch, { backgroundColor: radar.userStroke }]} />
+          <Text style={[styles.legendText, { color: semantic.text.muted }]}>You</Text>
+        </View>
+        <View style={styles.legendRow}>
+          <View style={[styles.swatchDashed, { borderColor: radar.repStroke }]} />
+          <Text style={[styles.legendText, { color: semantic.text.muted }]} numberOfLines={1}>
+            {repLabel}
+          </Text>
+        </View>
+      </View>
     </View>
   )
 }
@@ -87,7 +77,27 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   legend: {
+    flexDirection: 'row',
+    gap: 14,
+    marginTop: 2,
+  },
+  legendRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  swatch: {
+    width: 14,
+    height: 3,
+    borderRadius: 2,
+  },
+  swatchDashed: {
+    width: 14,
+    height: 0,
+    borderTopWidth: 1.6,
+    borderStyle: 'dashed',
+  },
+  legendText: {
     fontSize: 9.5,
-    textAlign: 'center',
   },
 })
