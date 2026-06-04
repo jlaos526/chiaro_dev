@@ -8,6 +8,7 @@ const useRatingsMock = vi.fn()
 const useVotesOnSubjectMock = vi.fn()
 const useMySelectionsMock = vi.fn()
 const useIssueCatalogMock = vi.fn()
+const useRepWatchlistFlagsMock = vi.fn()
 
 vi.mock('@chiaro/officials', async () => {
   const actual = await vi.importActual<object>('@chiaro/officials')
@@ -32,6 +33,7 @@ vi.mock('@chiaro/issues', async () => {
     ...actual,
     useMySelections: (...args: unknown[]) => useMySelectionsMock(...args),
     useIssueCatalog: (...args: unknown[]) => useIssueCatalogMock(...args),
+    useRepWatchlistFlags: (...args: unknown[]) => useRepWatchlistFlagsMock(...args),
   }
 })
 
@@ -82,6 +84,8 @@ beforeEach(() => {
   // Default: no selections / no catalog → priority set is empty (today's behavior).
   useMySelectionsMock.mockReturnValue({ data: undefined, isLoading: false })
   useIssueCatalogMock.mockReturnValue({ data: undefined, isLoading: false })
+  // Default: no watchlist flags → flagsSection is null (slice-52 behavior).
+  useRepWatchlistFlagsMock.mockReturnValue({ data: [], isLoading: false })
 })
 
 afterEach(() => {
@@ -89,6 +93,7 @@ afterEach(() => {
   useVotesOnSubjectMock.mockReset()
   useMySelectionsMock.mockReset()
   useIssueCatalogMock.mockReset()
+  useRepWatchlistFlagsMock.mockReset()
 })
 
 describe('StateIssuePositionsCard', () => {
@@ -266,5 +271,24 @@ describe('StateIssuePositionsCard — mode awareness', () => {
     )
     expect(() => render(tree, { wrapper: lightWrapper })).not.toThrow()
     expect(() => render(tree, { wrapper: darkWrapper })).not.toThrow()
+  })
+})
+
+const WATCHLIST_FLAG = {
+  topicSlug: 'environment',
+  lensSlug: 'industry-donor-recipients',
+  label: 'Industry Donor Recipients',
+  category: 'fossil-fuel',
+  totalAmount: 42000,
+  evidence: [{ industry: 'Oil & Gas', amount: 42000 }],
+}
+
+describe('StateIssuePositionsCard — watchlist flags', () => {
+  it('renders a watchlist flag even with no scorecard ratings', () => {
+    useRatingsMock.mockReturnValue({ data: [], isLoading: false })
+    useVotesOnSubjectMock.mockReturnValue({ data: [], isLoading: false })
+    useRepWatchlistFlagsMock.mockReturnValue({ data: [WATCHLIST_FLAG], isLoading: false })
+    const { getByText } = wrap(<StateIssuePositionsCard officialId="off-1" />)
+    expect(getByText(/Industry Donor Recipients/i)).toBeTruthy()
   })
 })

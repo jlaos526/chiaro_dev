@@ -50,7 +50,7 @@ export const ISSUE_CATALOG_FIXTURE: TopicSeed[] = [
         display_order: 0,
         description: 'Reps receiving major private-prison-industry contributions.',
         measurement_sources: [],
-        evidence_sources: [],
+        evidence_sources: [{ type: 'finance-industry', config: { category: 'private-prison', industries: ['Private Prisons'] } }],
         quiz_questions: [],
       },
     ],

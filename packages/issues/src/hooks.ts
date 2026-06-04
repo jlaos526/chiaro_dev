@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { ChiaroClient } from '@chiaro/supabase-client'
 import { issuesKeys } from './keys.ts'
-import { fetchCatalog, fetchMySelections, fetchRepAlignment } from './queries.ts'
+import { fetchCatalog, fetchMySelections, fetchRepAlignment, fetchRepWatchlistFlags } from './queries.ts'
 import { saveSelections } from './mutations.ts'
 import type { SaveSelectionsPayload } from './schemas.ts'
 
@@ -30,6 +30,15 @@ export function useRepAlignment(client: ChiaroClient, officialId: string) {
   return useQuery({
     queryKey: issuesKeys.repAlignment(officialId),
     queryFn: () => fetchRepAlignment(client, officialId),
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
+  })
+}
+
+export function useRepWatchlistFlags(client: ChiaroClient, officialId: string) {
+  return useQuery({
+    queryKey: issuesKeys.repWatchlistFlags(officialId),
+    queryFn: () => fetchRepWatchlistFlags(client, officialId),
     staleTime: FIVE_MIN,
     gcTime: THIRTY_MIN,
   })

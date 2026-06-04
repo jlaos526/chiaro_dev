@@ -25,7 +25,7 @@ export async function ingestIssueCatalog(
     topic_slug: t.slug, slug: l.slug, label: l.label, lens_type: l.lens_type,
     description: l.description ?? null, measurement_sources: l.measurement_sources,
     evidence_sources: l.evidence_sources, quiz_questions: l.quiz_questions,
-    display_order: l.display_order, active: true })))
+    display_order: l.display_order, active: l.active ?? true })))
   const { error: le } = await client.from('issue_lenses').upsert(lensRows)
   if (le) throw new Error(`issue_lenses upsert: ${le.message}`)
 }

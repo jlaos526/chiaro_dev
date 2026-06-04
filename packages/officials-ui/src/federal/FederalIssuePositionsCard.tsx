@@ -2,10 +2,11 @@
 
 import { StyleSheet, Text, View } from 'react-native'
 import { useOfficialScorecardRatings } from '@chiaro/officials'
-import { useMySelections, useIssueCatalog } from '@chiaro/issues'
+import { useMySelections, useIssueCatalog, useRepWatchlistFlags } from '@chiaro/issues'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { useChiaroClient } from '../client-context.tsx'
 import { computePriorityOrgSlugs } from '../issues/priority-orgs.ts'
+import { WatchlistFlag } from '../issues/WatchlistFlag.tsx'
 import { FederalScorecardRatingsList } from './FederalScorecardRatingsList.tsx'
 
 export interface FederalIssuePositionsCardProps {
@@ -24,6 +25,20 @@ export function FederalIssuePositionsCard({
   const selections = useMySelections(client)
   const catalog = useIssueCatalog(client)
   const priorityOrgSlugs = computePriorityOrgSlugs(selections.data, catalog.data)
+
+  // Watchlist evidence flags ("⚑") — finance-derived matches for this rep. Like
+  // the priority queries above, this never gates the card: no flags (or a
+  // logged-out user) yields a null section and the card renders as in slice 52.
+  const watchlistFlags = useRepWatchlistFlags(client, officialId)
+  const flags = watchlistFlags.data ?? []
+  const flagsSection =
+    flags.length > 0 ? (
+      <View>
+        {flags.map(f => (
+          <WatchlistFlag key={`${f.topicSlug}::${f.lensSlug}`} flag={f} />
+        ))}
+      </View>
+    ) : null
 
   if (ratings.isLoading) {
     return (
@@ -49,6 +64,7 @@ export function FederalIssuePositionsCard({
         ]}
       >
         <Text style={[styles.title, { color: semantic.text.primary }]}>Issue Positions</Text>
+        {flagsSection}
         <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No issue-position ratings available for this legislator yet.
         </Text>
@@ -65,6 +81,7 @@ export function FederalIssuePositionsCard({
       ]}
     >
       <Text style={[styles.title, { color: semantic.text.primary }]}>Issue Positions</Text>
+      {flagsSection}
       <Text style={[styles.summary, { color: semantic.text.muted }]}>
         {rows.length} org{rows.length === 1 ? '' : 's'} rated · {leans.size} lean group
         {leans.size === 1 ? '' : 's'}
