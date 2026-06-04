@@ -1,5 +1,5 @@
 begin;
-select plan(15);
+select plan(17);
 
 -- district (officials.district_id is NOT NULL, FK -> districts)
 insert into public.districts (id, tier, state, code, name, geometry, source_version)
@@ -88,6 +88,10 @@ set local role authenticated;
 set local "request.jwt.claims" to '{"sub":"00000000-0000-0000-0000-000000000a97"}';
 select is((public.get_rep_issue_alignment('00000000-0000-0000-0000-0000000000f1')->'axes'->0->>'alignmentPct')::numeric,
           70::numeric, 'multi-stance topic averages two lenses -> 70');
+select is((public.get_rep_issue_alignment('00000000-0000-0000-0000-0000000000f1')->'axes'->0->>'userPos')::numeric,
+          95::numeric, 'multi-stance topic averages userPos -> 95');
+select is((public.get_rep_issue_alignment('00000000-0000-0000-0000-0000000000f1')->'axes'->0->>'repPos')::numeric,
+          65::numeric, 'multi-stance topic averages repPos -> 65');
 reset role;
 
 -- bill-vote source: regression guard for the federal/state UNION (vote_position vs text).
