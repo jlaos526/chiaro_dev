@@ -2,12 +2,12 @@
 import { Open } from 'unzipper'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, basename } from 'node:path'
 import { Client } from 'pg'
 import * as shapefile from 'shapefile'
 import { TIGER_SOURCES, FEDERAL_SENATE_SOURCE, TIGER_VERSION } from './tiger-config.ts'
 import { STATE_FIPS } from './tiger-state-fips.ts'
-import { fetchWithRetry } from './tiger-retry.ts'
+import { loadTigerZip, evictTigerCache, tigerCacheDir } from './tiger-cache.ts'
 
 const DB_URL = process.env.SUPABASE_DB_URL
   ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
@@ -30,6 +30,7 @@ type IngestStats = {
 type IngestCtx = {
   client: Client
   workDir: string
+  cacheDir: string
   skip: { tierStates: Set<string>; tiers: Set<string> }
   stats: IngestStats
 }
@@ -52,22 +53,48 @@ async function downloadAndUnzip(
   url: string,
   ctx: IngestCtx,
 ): Promise<{ shp: string; dbf: string } | null> {
-  console.log(`  Fetching ${url}`)
-  const result = await fetchWithRetry(url)
-
-  if (result.kind === 'gap') {
-    console.warn(`  GAP ${url} — ${result.message} (Census may not have published yet)`)
-    ctx.stats.gaps.push({ url, status: result.status })
+  let loaded = await loadTigerZip(url, ctx.cacheDir)
+  if (loaded.kind === 'gap') {
+    console.warn(`  GAP ${url} — ${loaded.message} (Census may not have published yet)`)
+    ctx.stats.gaps.push({ url, status: loaded.status })
     return null
   }
-  if (result.kind === 'error') {
-    console.error(`  ERROR ${url} failed after ${result.attempts} attempts: ${result.message}`)
-    ctx.stats.errors.push({ url, message: result.message })
+  if (loaded.kind === 'error') {
+    console.error(`  ERROR ${url} failed after ${loaded.attempts} attempts: ${loaded.message}`)
+    ctx.stats.errors.push({ url, message: loaded.message })
     return null
   }
+  console.log(loaded.fromCache ? `  Cached ${basename(new URL(url).pathname)}` : `  Fetched ${url}`)
 
-  const buf = Buffer.from(result.body)
-  const dir = await Open.buffer(buf)
+  let dir
+  try {
+    dir = await Open.buffer(Buffer.from(loaded.body))
+  } catch (e) {
+    if (loaded.fromCache) {
+      // Corrupt cache entry — evict and re-fetch once.
+      console.warn(`  Corrupt cache for ${url} — re-fetching`)
+      await evictTigerCache(url, ctx.cacheDir)
+      loaded = await loadTigerZip(url, ctx.cacheDir)
+      if (loaded.kind !== 'ok') {
+        const msg = loaded.kind === 'error' ? loaded.message : 'gap on re-fetch'
+        console.error(`  ERROR ${url} on re-fetch: ${msg}`)
+        ctx.stats.errors.push({ url, message: msg })
+        return null
+      }
+      try {
+        dir = await Open.buffer(Buffer.from(loaded.body))
+      } catch (e2) {
+        console.error(`  ERROR ${url}: corrupt zip after re-fetch`)
+        ctx.stats.errors.push({ url, message: `corrupt zip after re-fetch: ${String(e2)}` })
+        return null
+      }
+    } else {
+      console.error(`  ERROR ${url}: unzip failed`)
+      ctx.stats.errors.push({ url, message: `unzip failed: ${String(e)}` })
+      return null
+    }
+  }
+
   let shpPath = '', dbfPath = ''
   for (const entry of dir.files) {
     const lower = entry.path.toLowerCase()
@@ -251,7 +278,9 @@ async function main() {
     console.log(`Resume: ${skip.tierStates.size} (tier, state) tuples already present at ${TIGER_VERSION}`)
   }
   const workDir = await mkdtemp(join(tmpdir(), 'tiger-'))
-  const ctx: IngestCtx = { client, workDir, skip, stats }
+  const cacheDir = tigerCacheDir()
+  console.log(`TIGER zip cache: ${cacheDir}`)
+  const ctx: IngestCtx = { client, workDir, cacheDir, skip, stats }
   try {
     for (const source of TIGER_SOURCES) {
       console.log(`Tier: ${source.tier}`)
