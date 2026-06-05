@@ -49,15 +49,23 @@ jobs:
         env:
           SUPABASE_URL: http://127.0.0.1:54321
           SUPABASE_SERVICE_ROLE_KEY: ${{ steps.supabase-status.outputs.service_role_key }}
-      - name: Cache TIGER 2024 download
-        uses: actions/cache@v5
+      - name: Restore TIGER cache
+        uses: actions/cache/restore@v5
         with:
           path: ~/.cache/tiger
-          key: tiger-2024-v1
+          key: tiger-2024-v1-${{ github.run_id }}
+          restore-keys: |
+            tiger-2024-v1-
       - name: Seed districts (TIGER 2024)
         run: pnpm --filter @chiaro/db db:seed-tiger
         env:
           SUPABASE_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+      - name: Save TIGER cache
+        if: always()
+        uses: actions/cache/save@v5
+        with:
+          path: ~/.cache/tiger
+          key: tiger-2024-v1-${{ github.run_id }}
       - name: Run state-officials ingest (fixture mode)
         run: pnpm seed:state-officials --fixture-mode
         env:
@@ -199,10 +207,23 @@ jobs:
             turbo-test-${{ runner.os }}-
       - name: Start Supabase
         run: pnpm db:start
+      - name: Restore TIGER cache
+        uses: actions/cache/restore@v5
+        with:
+          path: ~/.cache/tiger
+          key: tiger-2024-v1-${{ github.run_id }}
+          restore-keys: |
+            tiger-2024-v1-
       - name: Seed TIGER
         run: pnpm --filter @chiaro/db db:seed-tiger
         env:
           SUPABASE_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+      - name: Save TIGER cache
+        if: always()
+        uses: actions/cache/save@v5
+        with:
+          path: ~/.cache/tiger
+          key: tiger-2024-v1-${{ github.run_id }}
       - name: Capture anon key + service role key for integration tests
         id: supabase-status
         working-directory: packages/db
