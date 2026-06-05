@@ -23,7 +23,14 @@ export type QuizAnswer = { topicSlug: string; lensSlug: string; questionSlug: st
 export type StancePosition = { topicSlug: string; lensSlug: string; position: number | null; importance: 1 | 2 }
 
 export type AlignmentDot = 'aligned' | 'partial' | 'differs' | 'none'
-export interface AlignmentAxis { topicSlug: string; label: string; alignmentPct: number | null; dot: AlignmentDot }
+export interface AlignmentAxis {
+  topicSlug: string
+  label: string
+  alignmentPct: number | null
+  dot: AlignmentDot
+  userPos: number | null
+  repPos: number | null
+}
 export interface RepAlignment { overallPct: number | null; axes: AlignmentAxis[] }
 
 export interface EvidenceSource {

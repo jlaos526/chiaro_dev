@@ -3,7 +3,6 @@ import { render, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import type { RepAlignment } from '@chiaro/issues'
 import { RepAlignmentStrip } from '../../src/issues/RepAlignmentStrip.tsx'
-import { IssueRadarOverlay } from '../../src/issues/IssueRadarOverlay.tsx'
 import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 
 // Mirror the officials-ui convention (see BioPortrait.test.tsx + IssueRadarChart
@@ -17,7 +16,7 @@ const wrap = (ui: ReactElement) =>
 
 const ALIGNED: RepAlignment = {
   overallPct: 72,
-  axes: [{ topicSlug: 'environment', label: 'Environment', alignmentPct: 80, dot: 'aligned' }],
+  axes: [{ topicSlug: 'environment', label: 'Environment', alignmentPct: 80, dot: 'aligned', userPos: 90, repPos: 80 }],
 }
 
 describe('RepAlignmentStrip', () => {
@@ -80,9 +79,9 @@ describe('RepAlignmentStrip', () => {
         alignment={{
           overallPct: 50,
           axes: [
-            { topicSlug: 'a', label: 'A', alignmentPct: 90, dot: 'aligned' },
-            { topicSlug: 'b', label: 'B', alignmentPct: 50, dot: 'partial' },
-            { topicSlug: 'c', label: 'C', alignmentPct: 10, dot: 'differs' },
+            { topicSlug: 'a', label: 'A', alignmentPct: 90, dot: 'aligned', userPos: 90, repPos: 85 },
+            { topicSlug: 'b', label: 'B', alignmentPct: 50, dot: 'partial', userPos: 50, repPos: 40 },
+            { topicSlug: 'c', label: 'C', alignmentPct: 10, dot: 'differs', userPos: 10, repPos: 80 },
           ],
         }}
       />,
@@ -97,7 +96,7 @@ describe('RepAlignmentStrip', () => {
         hasSelections
         onExpand={vi.fn()}
         onSetup={vi.fn()}
-        alignment={{ overallPct: null, axes: [{ topicSlug: 'x', label: 'X', alignmentPct: null, dot: 'none' }] }}
+        alignment={{ overallPct: null, axes: [{ topicSlug: 'x', label: 'X', alignmentPct: null, dot: 'none', userPos: null, repPos: null }] }}
       />,
     )
     expect(getByText(/no comparable record/i)).toBeTruthy()
@@ -128,41 +127,5 @@ describe('RepAlignmentStrip', () => {
   })
 })
 
-describe('IssueRadarOverlay', () => {
-  const THREE: RepAlignment = {
-    overallPct: 60,
-    axes: [
-      { topicSlug: 'env', label: 'Environment', alignmentPct: 80, dot: 'aligned' },
-      { topicSlug: 'gun', label: 'Gun Policy', alignmentPct: 40, dot: 'partial' },
-      { topicSlug: 'imm', label: 'Immigration', alignmentPct: null, dot: 'none' },
-    ],
-  }
-
-  it('renders the radar chart (single alignment ring → grid + user = 2 polygons)', () => {
-    const { container } = wrap(<IssueRadarOverlay alignment={THREE} />)
-    // No repValues passed → IssueRadarChart draws grid + user only.
-    expect(container.querySelectorAll('polygon').length).toBe(2)
-  })
-
-  it('shows a per-rep caption when repName is provided', () => {
-    const { getByText } = wrap(<IssueRadarOverlay alignment={THREE} repName="Alex Rivera" />)
-    expect(getByText(/your alignment with alex rivera per issue/i)).toBeTruthy()
-  })
-
-  it('shows a generic caption when repName is omitted', () => {
-    const { getByText } = wrap(<IssueRadarOverlay alignment={THREE} />)
-    expect(getByText(/your alignment per issue/i)).toBeTruthy()
-  })
-
-  it('does not throw when an axis has null alignmentPct (collapses to center)', () => {
-    expect(() => wrap(<IssueRadarOverlay alignment={THREE} repName="X" />)).not.toThrow()
-  })
-
-  it('threads repValues to the chart for a future true overlay (3 polygons)', () => {
-    const { container } = wrap(
-      <IssueRadarOverlay alignment={THREE} repName="X" repValues={[0.5, 0.5, 0.5]} />,
-    )
-    // grid + rep + user = 3 polygons once repValues is supplied.
-    expect(container.querySelectorAll('polygon').length).toBe(3)
-  })
-})
+// IssueRadarOverlay has its own dedicated test file (IssueRadarOverlay.test.tsx)
+// covering the slice-54 two-polygon you-vs-rep rewrite.

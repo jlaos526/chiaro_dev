@@ -1,5 +1,5 @@
 begin;
-select plan(11);
+select plan(17);
 
 -- district (officials.district_id is NOT NULL, FK -> districts)
 insert into public.districts (id, tier, state, code, name, geometry, source_version)
@@ -55,6 +55,10 @@ select is((public.get_rep_issue_alignment('00000000-0000-0000-0000-0000000000f1'
           90::numeric, 'overall alignment = 90');
 select is(jsonb_array_length(public.get_rep_issue_alignment('00000000-0000-0000-0000-0000000000f1')->'axes'),
           1, 'one axis returned');
+select is((public.get_rep_issue_alignment('00000000-0000-0000-0000-0000000000f1')->'axes'->0->>'userPos')::numeric,
+          90::numeric, 'axis userPos = the user position (90)');
+select is((public.get_rep_issue_alignment('00000000-0000-0000-0000-0000000000f1')->'axes'->0->>'repPos')::numeric,
+          80::numeric, 'axis repPos = the rep stance score (80)');
 reset role;
 
 -- a user with no selections -> overallPct is null (NULL != 0)
@@ -84,6 +88,10 @@ set local role authenticated;
 set local "request.jwt.claims" to '{"sub":"00000000-0000-0000-0000-000000000a97"}';
 select is((public.get_rep_issue_alignment('00000000-0000-0000-0000-0000000000f1')->'axes'->0->>'alignmentPct')::numeric,
           70::numeric, 'multi-stance topic averages two lenses -> 70');
+select is((public.get_rep_issue_alignment('00000000-0000-0000-0000-0000000000f1')->'axes'->0->>'userPos')::numeric,
+          95::numeric, 'multi-stance topic averages userPos -> 95');
+select is((public.get_rep_issue_alignment('00000000-0000-0000-0000-0000000000f1')->'axes'->0->>'repPos')::numeric,
+          65::numeric, 'multi-stance topic averages repPos -> 65');
 reset role;
 
 -- bill-vote source: regression guard for the federal/state UNION (vote_position vs text).
@@ -110,6 +118,21 @@ select is(public.rep_stance_score('00000000-0000-0000-0000-0000000000f1',
 select is(public.rep_stance_score('00000000-0000-0000-0000-0000000000f1',
   '[{"type":"bill-vote","weight":1.0,"config":{"subjects":["Environment"],"agree_position":"no"}}]'::jsonb),
   0::numeric, 'bill-vote source scores 0 when the vote disagrees with agree_position');
+
+-- userPos present + repPos null when the rep has no data on the topic's stance.
+insert into public.issue_lenses (topic_slug, slug, label, lens_type, measurement_sources)
+  values ('environment','norep','No Rep Data','stance',
+          '[{"type":"scorecard","weight":1.0,"config":{"orgs":["nra"]}}]'::jsonb);
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000a96','norep@x.io');
+insert into public.user_issue_selections (user_id, topic_slug, lens_slug, position, importance)
+  values ('00000000-0000-0000-0000-000000000a96','environment','norep', 60, 1);
+set local role authenticated;
+set local "request.jwt.claims" to '{"sub":"00000000-0000-0000-0000-000000000a96"}';
+select is((public.get_rep_issue_alignment('00000000-0000-0000-0000-0000000000f1')->'axes'->0->>'userPos')::numeric,
+          60::numeric, 'userPos present even when the rep has no data');
+select is(public.get_rep_issue_alignment('00000000-0000-0000-0000-0000000000f1')->'axes'->0->'repPos',
+          'null'::jsonb, 'repPos null when the rep has no data on the topic');
+reset role;
 
 select * from finish();
 rollback;
