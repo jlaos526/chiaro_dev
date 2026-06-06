@@ -22,3 +22,21 @@ alter table public.user_issue_selections
 alter table public.user_issue_selections
   add constraint user_issue_selections_importance_check
   check (importance in (1, 2));
+
+-- A2: rep_stance_score is SECURITY DEFINER over authenticated-only state tables;
+-- its only in-app caller (get_rep_issue_alignment) is authenticated. Drop the
+-- anon direct-execute grant AND the implicit PUBLIC execute grant that Postgres
+-- auto-assigns to every function at creation time (anon inherits EXECUTE through
+-- PUBLIC, so revoking from anon alone leaves anon able to execute). authenticated
+-- + service_role keep their explicit grants; the internal definer call is unaffected.
+revoke execute on function public.rep_stance_score(uuid, jsonb) from anon, public;
+
+-- A4: pin search_path on touch_updated_at (the only public fn missing it).
+-- Body unchanged from 0001; now hardened against search_path manipulation.
+create or replace function public.touch_updated_at()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin new.updated_at := now(); return new; end;
+$$;
