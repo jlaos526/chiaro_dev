@@ -12,3 +12,13 @@ create policy "user_districts_select_self"
   for select
   to authenticated
   using (user_id = (select auth.uid()));
+
+-- A3: enforce the app-layer (Zod) bounds at the DB so a direct RPC caller can't
+-- store out-of-range values that skew get_rep_issue_alignment's agreement math.
+alter table public.user_issue_selections
+  add constraint user_issue_selections_position_check
+  check (position is null or position between 0 and 100);
+
+alter table public.user_issue_selections
+  add constraint user_issue_selections_importance_check
+  check (importance in (1, 2));
