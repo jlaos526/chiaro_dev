@@ -1,5 +1,5 @@
 begin;
-select plan(4);
+select plan(5);
 
 -- Seed a user (mirrors apply_calibration.test.sql auth.users column set) + a
 -- minimal catalog (one topic, one lens) so the composite FK on
@@ -33,6 +33,15 @@ set local "request.jwt.claims" to '{"sub":"00000000-0000-0000-0000-000000000a52"
 select public.save_user_issue_selections('[]'::jsonb);
 reset role;
 select is((select count(*)::int from public.user_issue_selections), 0, 'empty payload clears selections');
+
+-- A5: auth guard — RPC raises when there is no authenticated user (null auth.uid()).
+set local role authenticated;
+set local "request.jwt.claims" to '{}';
+select throws_like(
+  $$ select public.save_user_issue_selections('[]'::jsonb) $$,
+  '%not authenticated%',
+  'save_user_issue_selections raises when unauthenticated');
+reset role;
 
 select * from finish();
 rollback;
