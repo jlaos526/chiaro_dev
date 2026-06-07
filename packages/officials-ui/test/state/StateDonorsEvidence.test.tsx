@@ -41,6 +41,16 @@ describe('StateDonorsEvidence', () => {
     fireEvent.click(getByText(/show more \(2 more\)/i))
     expect(getByText(/Donor 7/)).toBeTruthy()
   })
+
+  it('expand toggle exposes aria-expanded that flips on press (C2)', () => {
+    const donors = Array.from({ length: 7 }, (_, i) => makeDonor(i + 1))
+    const { getByText } = render(<StateDonorsEvidence donors={donors} />)
+    const toggle = getByText(/show more/i).closest('[aria-expanded]') as HTMLElement
+    expect(toggle).not.toBeNull()
+    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(toggle)
+    expect(toggle.getAttribute('aria-expanded')).toBe('true')
+  })
 })
 
 import { createElement, type ReactNode } from 'react'

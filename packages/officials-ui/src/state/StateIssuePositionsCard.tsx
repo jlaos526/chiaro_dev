@@ -126,7 +126,13 @@ export function StateIssuePositionsCard({
   // behavior stays identical across both.
   const renderRatingRow = (r: StateScorecardRatingWithOrg, isPriority: boolean) => (
     <View key={r.id} style={ratingRowStyle}>
-      <Pressable onPress={() => toggle(r.id)} style={styles.ratingButton}>
+      <Pressable
+        onPress={() => toggle(r.id)}
+        style={styles.ratingButton}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: expanded.has(r.id) }}
+        aria-expanded={expanded.has(r.id)}
+      >
         <View style={{ flex: 1 }}>
           {isPriority && <IssuePriorityTag />}
           <Text style={orgNameStyle}>{r.org.name}</Text>
