@@ -85,14 +85,17 @@ describe('calibrate-location Edge Function (live GeocodIO)', () => {
     expect(data ?? []).toEqual([])
   })
 
-  it('user A CAN SELECT user B user_districts (Q6c — public-readable)', async () => {
+  it('user A cannot SELECT user B user_districts row (RLS)', async () => {
+    // Slice 56 (migration 0060) scoped user_districts SELECT to the owning user.
+    // Pre-0060 this asserted the inverse ("Q6c — public-readable"), which locked
+    // in the cross-user location leak. See CLAUDE.md Gotcha #32.
     const { client: clientA } = await makeAuthedUser('pub-a')
     const { client: clientB, userId: bId } = await makeAuthedUser('pub-b')
     await clientB.functions.invoke('calibrate-location', { body: { address: URBAN_ADDRESS } })
 
     const { data, error } = await clientA.from('user_districts').select('*').eq('user_id', bId)
     expect(error).toBeNull()
-    expect((data ?? []).length).toBeGreaterThan(0)
+    expect(data ?? []).toEqual([])
   })
 
   it('Edge Function unauthenticated → 401', async () => {
