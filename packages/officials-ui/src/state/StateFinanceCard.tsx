@@ -118,7 +118,7 @@ export function StateFinanceCard({
         />
       </View>
 
-      <Text style={[styles.donorsHeading, titleColor]}>
+      <Text style={[styles.donorsHeading, titleColor]} accessibilityRole="header" accessibilityLevel={3}>
         Top donors ({donorsQ.data?.length ?? 0})
       </Text>
       <StateDonorsEvidence donors={donorsQ.data ?? []} />
