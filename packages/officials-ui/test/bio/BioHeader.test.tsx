@@ -106,6 +106,13 @@ describe('BioHeader', () => {
     expect(screen.queryByText('@SpeakerPelosi')).toBeNull()
   })
 
+  it('renders the official name as an h1-equivalent heading (C1/C4)', () => {
+    render(<BioHeader {...PELOSI} />)
+    const name = screen.getByText(PELOSI.fullName)
+    expect(name.getAttribute('role')).toBe('heading')
+    expect(name.getAttribute('aria-level')).toBe('1')
+  })
+
   it('outer container has aria-label "<name> bio" for landmark navigation', () => {
     const { container } = render(<BioHeader {...PELOSI} />)
     const labeled = container.querySelector('[aria-label="Nancy Pelosi bio"]')
