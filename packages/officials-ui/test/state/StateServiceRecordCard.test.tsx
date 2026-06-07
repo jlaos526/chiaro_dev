@@ -102,6 +102,41 @@ describe('StateServiceRecordCard', () => {
     expect(getByText('Committee chair seats')).toBeTruthy()
   })
 
+  it('renders static sub-section headings as h3 (C1)', () => {
+    useMetricsMock.mockReturnValue({
+      data: {
+        bills_sponsored_count: 3,
+        bills_cosponsored_count: 5,
+        votes_voted_count: 100,
+        votes_missed_count: 4,
+        attendance_pct: 96,
+        party_unity_state: 80,
+        bills_passed_count: 2,
+        hearings_held_count: 4,
+        subject_breadth: 7,
+        bill_passage_rate: 50,
+        fiscal_impact_per_dollar_raised: 1.23,
+        committee_chair_count: 2,
+      },
+      isLoading: false,
+    })
+    useSponsoredMock.mockReturnValue({ data: [], isLoading: false })
+    useVotesMock.mockReturnValue({ data: [], isLoading: false })
+    const { getByText } = wrap(<StateServiceRecordCard official={stateOfficial} />)
+
+    const perf = getByText('Performance metrics')
+    expect(perf.getAttribute('role')).toBe('heading')
+    expect(perf.getAttribute('aria-level')).toBe('3')
+
+    const sponsored = getByText(/View sponsored bills/i)
+    expect(sponsored.getAttribute('role')).toBe('heading')
+    expect(sponsored.getAttribute('aria-level')).toBe('3')
+
+    const voteRecord = getByText(/View vote record/i)
+    expect(voteRecord.getAttribute('role')).toBe('heading')
+    expect(voteRecord.getAttribute('aria-level')).toBe('3')
+  })
+
   it('hides committee chair row when null', () => {
     useMetricsMock.mockReturnValue({
       data: {

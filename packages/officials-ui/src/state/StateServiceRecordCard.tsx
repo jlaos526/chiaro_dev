@@ -108,7 +108,7 @@ export function StateServiceRecordCard({
         <ScalarRow label="Party unity" value={partyUnity} labelColor={rowLabelColor} valueColor={rowValueColor} />
       </View>
 
-      <Text style={[styles.subheading, headingStyle]}>Performance metrics</Text>
+      <Text style={[styles.subheading, headingStyle]} accessibilityRole="header" accessibilityLevel={3}>Performance metrics</Text>
       <View style={{ marginTop: 8, gap: 8 }}>
         <ScalarRow label="Bills passed" value={fmtCount(m?.bills_passed_count)} labelColor={rowLabelColor} valueColor={rowValueColor} />
         <ScalarRow label="Hearings held" value={fmtCount(m?.hearings_held_count)} labelColor={rowLabelColor} valueColor={rowValueColor} />
@@ -126,14 +126,14 @@ export function StateServiceRecordCard({
       </View>
 
       <View style={{ marginTop: 12 }}>
-        <Text style={[styles.evidenceHeading, headingStyle]}>
+        <Text style={[styles.evidenceHeading, headingStyle]} accessibilityRole="header" accessibilityLevel={3}>
           View sponsored bills ({sponsored.data?.length ?? 0})
         </Text>
         <StateBillsEvidence bills={sponsored.data ?? []} />
       </View>
 
       <View style={{ marginTop: 8 }}>
-        <Text style={[styles.evidenceHeading, headingStyle]}>
+        <Text style={[styles.evidenceHeading, headingStyle]} accessibilityRole="header" accessibilityLevel={3}>
           View vote record ({votes.data?.length ?? 0})
         </Text>
         <StateVotesEvidence votes={votes.data ?? []} />
