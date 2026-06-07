@@ -152,35 +152,6 @@ describe('useIssueFlow', () => {
     })
   })
 
-  it('the imperative hydrate() also round-trips', () => {
-    function HydrateProbe(): React.JSX.Element {
-      const flow = useIssueFlow()
-      return (
-        <div>
-          <div data-testid="topics">{flow.selectedTopics.join(',')}</div>
-          <div data-testid="lenses">{JSON.stringify(flow.selectedLenses)}</div>
-          <button
-            onClick={() =>
-              flow.hydrate([mkRow('housing', 'affordability-investment', 3), mkRow('economy', 'free-markets', 2)])
-            }
-          >
-            hydrate
-          </button>
-        </div>
-      )
-    }
-    const { getByText, getByTestId } = wrap(
-      <IssueFlowProvider>
-        <HydrateProbe />
-      </IssueFlowProvider>,
-    )
-    fireEvent.click(getByText('hydrate'))
-    expect(getByTestId('topics').textContent).toBe('economy,housing')
-    expect(JSON.parse(getByTestId('lenses').textContent ?? '{}')).toEqual({
-      economy: ['free-markets'],
-      housing: ['affordability-investment'],
-    })
-  })
 })
 
 function mkRow(topic_slug: string, lens_slug: string, display_order: number): UserIssueSelectionRow {

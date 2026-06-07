@@ -16,7 +16,6 @@ export { CardSubsection, type CardSubsectionProps } from './cards/CardSubsection
 export { ComingSoonCard, type ComingSoonCardProps, type ComingSoonCategory } from './cards/ComingSoonCard.tsx'
 export { ComplianceIcon, type ComplianceIconProps } from './cards/ComplianceIcon.tsx'
 export { DistrictBadge, type DistrictBadgeProps } from './cards/DistrictBadge.tsx'
-export { EvidenceExpand, type EvidenceExpandProps } from './cards/EvidenceExpand.tsx'
 export { MetricCardShell, type MetricCardShellProps } from './cards/MetricCardShell.tsx'
 export { PillChevron, type PillChevronProps } from './cards/PillChevron.tsx'
 
