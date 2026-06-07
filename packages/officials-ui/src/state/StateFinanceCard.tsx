@@ -58,6 +58,15 @@ export function StateFinanceCard({
   const rowLabelColor = { color: semantic.text.muted }
   const rowValueColor = { color: semantic.text.primary }
 
+  if (summaryQ.isLoading) {
+    return (
+      <View style={[styles.card, cardColors]}>
+        <Text style={[styles.title, titleColor]}>Finance</Text>
+        <Text style={[styles.emptyMuted, mutedColor]}>Loading finance…</Text>
+      </View>
+    )
+  }
+
   const summary = summaryQ.data
   if (!summary) {
     return (

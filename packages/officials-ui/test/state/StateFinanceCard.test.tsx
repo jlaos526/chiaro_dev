@@ -63,6 +63,14 @@ describe('StateFinanceCard', () => {
     expect(getByText(/No state finance data/i)).toBeTruthy()
   })
 
+  it('shows a loading branch while the summary query is in flight (B5)', () => {
+    useSummaryMock.mockReturnValue({ data: undefined, isLoading: true })
+    useDonorsMock.mockReturnValue({ data: undefined, isLoading: true })
+    const { getByText, queryByText } = wrap(<StateFinanceCard official={stateOfficial} />)
+    expect(getByText(/loading finance/i)).toBeTruthy()
+    expect(queryByText(/no state finance data yet/i)).toBeNull()
+  })
+
   it('renders summary + source pill', () => {
     useSummaryMock.mockReturnValue({
       data: {
