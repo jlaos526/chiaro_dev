@@ -41,7 +41,7 @@ export function FederalCommunityPresenceCard({
   if (offices.isLoading || halls.isLoading) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle}>Community Presence</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Community Presence</Text>
         <Text style={mutedStyle}>Loading community presence…</Text>
       </View>
     )
@@ -55,7 +55,7 @@ export function FederalCommunityPresenceCard({
   if (allEmpty) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle}>Community Presence</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Community Presence</Text>
         <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No community-presence data available for this legislator yet.
         </Text>
@@ -65,7 +65,7 @@ export function FederalCommunityPresenceCard({
 
   return (
     <View style={cardStyle}>
-      <Text style={titleStyle}>Community Presence</Text>
+      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Community Presence</Text>
       <Text style={summaryStyle}>
         {`${hallsCount} town hall${hallsCount === 1 ? '' : 's'}`}
         {' · '}

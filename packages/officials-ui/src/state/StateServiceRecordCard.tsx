@@ -59,7 +59,7 @@ export function StateServiceRecordCard({
         testID="state-service-record-card"
         style={[styles.card, { backgroundColor: semantic.bg.app, borderColor: semantic.border.default }]}
       >
-        <Text style={[styles.title, { color: semantic.text.primary }]}>Service Record</Text>
+        <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>Service Record</Text>
         <Text style={[styles.subtitle, { color: semantic.text.muted, marginTop: 8 }]}>Loading service record…</Text>
       </View>
     )
@@ -83,7 +83,7 @@ export function StateServiceRecordCard({
       ]}
     >
       <View style={{ marginBottom: 12 }}>
-        <Text style={[styles.title, headingStyle]}>Service Record</Text>
+        <Text style={[styles.title, headingStyle]} accessibilityRole="header" accessibilityLevel={2}>Service Record</Text>
         <View
           style={{
             flexDirection: 'row',

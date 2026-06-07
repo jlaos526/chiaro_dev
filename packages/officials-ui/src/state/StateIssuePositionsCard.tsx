@@ -90,7 +90,7 @@ export function StateIssuePositionsCard({
   if (isLoading) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle}>Issue Positions</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Issue Positions</Text>
         <Text style={mutedStyle}>Loading issue positions…</Text>
       </View>
     )
@@ -98,7 +98,7 @@ export function StateIssuePositionsCard({
   if (!data || data.length === 0) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle}>Issue Positions</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Issue Positions</Text>
         {flagsSection}
         <Text style={[mutedStyle, { fontStyle: 'italic' }]}>
           No issue-position ratings available for this legislator yet.
@@ -154,7 +154,7 @@ export function StateIssuePositionsCard({
     const ordered = sortPriorityFirst(data, r => r.org.slug, priorityOrgSlugs)
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle}>Issue Positions</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Issue Positions</Text>
         {flagsSection}
         {ordered.map(r => renderRatingRow(r, priorityOrgSlugs.has(r.org.slug)))}
       </View>
@@ -169,7 +169,7 @@ export function StateIssuePositionsCard({
 
   return (
     <View style={cardStyle}>
-      <Text style={titleStyle}>Issue Positions</Text>
+      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Issue Positions</Text>
       {flagsSection}
       {orderedLeans.map(lean => (
         <View key={lean} style={{ marginBottom: 12 }}>

@@ -61,7 +61,7 @@ export function StateFinanceCard({
   if (summaryQ.isLoading) {
     return (
       <View style={[styles.card, cardColors]}>
-        <Text style={[styles.title, titleColor]}>Finance</Text>
+        <Text style={[styles.title, titleColor]} accessibilityRole="header" accessibilityLevel={2}>Finance</Text>
         <Text style={[styles.emptyMuted, mutedColor]}>Loading finance…</Text>
       </View>
     )
@@ -71,7 +71,7 @@ export function StateFinanceCard({
   if (!summary) {
     return (
       <View style={[styles.card, cardColors]}>
-        <Text style={[styles.title, titleColor]}>Finance</Text>
+        <Text style={[styles.title, titleColor]} accessibilityRole="header" accessibilityLevel={2}>Finance</Text>
         <Text style={[styles.emptyMuted, mutedColor]}>
           No state finance data yet for this legislator.
         </Text>
@@ -85,7 +85,7 @@ export function StateFinanceCard({
     <View style={[styles.card, cardColors]}>
       <View style={styles.header}>
         <View>
-          <Text style={[styles.title, titleColor]}>Finance</Text>
+          <Text style={[styles.title, titleColor]} accessibilityRole="header" accessibilityLevel={2}>Finance</Text>
           <Text style={[styles.subtitle, mutedColor]}>{summary.cycle} cycle</Text>
         </View>
         <Text style={[styles.sourcePill, sourcePillColors]}>{sourceLabel}</Text>
