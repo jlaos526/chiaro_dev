@@ -1,8 +1,13 @@
-import { fireEvent, render } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
+import { Linking } from 'react-native'
 import { StateVotesEvidence } from '../../src/state/StateVotesEvidence.tsx'
 
-function makeVote(id: string, position: 'yes' | 'no' | 'not_voting' = 'yes'): never {
+function makeVote(
+  id: string,
+  position: 'yes' | 'no' | 'not_voting' = 'yes',
+  sourceUrl: string | null = `https://x/${id}`,
+): never {
   return {
     vote: {
       id,
@@ -10,7 +15,7 @@ function makeVote(id: string, position: 'yes' | 'no' | 'not_voting' = 'yes'): ne
       vote_date: '2026-03-15',
       result: 'pass',
       party_vote_split: null,
-      source_url: `https://x/${id}`,
+      source_url: sourceUrl,
     },
     position,
   } as never
@@ -40,6 +45,28 @@ describe('StateVotesEvidence', () => {
     expect(queryByText(/Question v6/)).toBeNull()
     fireEvent.click(getByText(/show more \(2 more\)/i))
     expect(getByText(/Question v6/)).toBeTruthy()
+  })
+
+  it('does not call openURL for a null source_url row, does for a valid one (B6)', () => {
+    const spy = vi.spyOn(Linking, 'openURL').mockResolvedValue(true)
+    const { unmount } = render(<StateVotesEvidence votes={[makeVote('nullrow', 'yes', null)]} />)
+    fireEvent.click(screen.getByText(/Question nullrow/))
+    expect(spy).not.toHaveBeenCalled()
+    unmount()
+    spy.mockClear()
+    render(<StateVotesEvidence votes={[makeVote('validrow', 'yes', 'https://x')]} />)
+    fireEvent.click(screen.getByText(/Question validrow/))
+    expect(spy).toHaveBeenCalledWith('https://x')
+    spy.mockRestore()
+  })
+
+  it('show-more toggle exposes aria-expanded that flips on press (C2)', () => {
+    const votes = Array.from({ length: 7 }, (_, i) => makeVote(`v${i}`))
+    render(<StateVotesEvidence votes={votes} />)
+    const toggle = screen.getByText(/show more/i).closest('[aria-expanded]') as HTMLElement
+    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(toggle)
+    expect(toggle.getAttribute('aria-expanded')).toBe('true')
   })
 })
 
