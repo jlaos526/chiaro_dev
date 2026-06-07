@@ -32,7 +32,7 @@ export function StateFinancialActivityCard({
   if (disclosures.isLoading) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle}>Financial Disclosures</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Financial Disclosures</Text>
         <Text style={mutedStyle}>Loading financial disclosures…</Text>
       </View>
     )
@@ -44,7 +44,7 @@ export function StateFinancialActivityCard({
   if (discCount === 0) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle}>Financial Disclosures</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Financial Disclosures</Text>
         <Text style={[mutedStyle, { fontStyle: 'italic' }]}>
           No financial-disclosure records on file for this legislator.
         </Text>
@@ -54,7 +54,7 @@ export function StateFinancialActivityCard({
 
   return (
     <View style={cardStyle}>
-      <Text style={titleStyle}>Financial Disclosures</Text>
+      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Financial Disclosures</Text>
       <Text style={summaryStyle}>
         {discCount != null
           ? `${discCount} disclosure${discCount === 1 ? '' : 's'}${latestYear ? ` (latest ${latestYear})` : ''}`

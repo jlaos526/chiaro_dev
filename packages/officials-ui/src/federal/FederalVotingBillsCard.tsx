@@ -49,7 +49,7 @@ export function FederalVotingBillsCard({
           { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
         ]}
       >
-        <Text style={[styles.title, { color: semantic.text.primary }]}>
+        <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>
           Voting & Bills ({congress}th Congress)
         </Text>
         <Text style={[styles.muted, { color: semantic.text.muted }]}>Loading voting & bills…</Text>
@@ -71,7 +71,7 @@ export function FederalVotingBillsCard({
           { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
         ]}
       >
-        <Text style={[styles.title, { color: semantic.text.primary }]}>
+        <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>
           Voting & Bills ({congress}th Congress)
         </Text>
         <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
@@ -88,7 +88,7 @@ export function FederalVotingBillsCard({
         { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
       ]}
     >
-      <Text style={[styles.title, { color: semantic.text.primary }]}>
+      <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>
         Voting & Bills ({congress}th Congress)
       </Text>
       <Text style={[styles.summary, { color: semantic.text.muted }]}>

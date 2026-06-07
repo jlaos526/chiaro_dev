@@ -1,5 +1,6 @@
-import { render } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
+import { Linking } from 'react-native'
 import { StateOfficialEventsList } from '../../src/state/StateOfficialEventsList.tsx'
 
 describe('StateOfficialEventsList', () => {
@@ -31,6 +32,27 @@ describe('StateOfficialEventsList', () => {
     }] as never[]
     const { getByText } = render(<StateOfficialEventsList rows={rows} />)
     expect(getByText(/Censure/)).toBeTruthy()
+  })
+
+  it('does not call openURL for a null source_url row, does for a valid one (B6)', () => {
+    const spy = vi.spyOn(Linking, 'openURL').mockResolvedValue(true)
+    const nullRows = [{
+      id: 'e1', event_date: '2026-03-01', event_type: 'censure',
+      summary: 'Null summary', outcome: null, source_url: null,
+    }] as never[]
+    const { unmount } = render(<StateOfficialEventsList rows={nullRows} />)
+    fireEvent.click(screen.getByText(/Null summary/))
+    expect(spy).not.toHaveBeenCalled()
+    unmount()
+    spy.mockClear()
+    const validRows = [{
+      id: 'e2', event_date: '2026-03-01', event_type: 'censure',
+      summary: 'Valid summary', outcome: null, source_url: 'https://x',
+    }] as never[]
+    render(<StateOfficialEventsList rows={validRows} />)
+    fireEvent.click(screen.getByText(/Valid summary/))
+    expect(spy).toHaveBeenCalledWith('https://x')
+    spy.mockRestore()
   })
 })
 

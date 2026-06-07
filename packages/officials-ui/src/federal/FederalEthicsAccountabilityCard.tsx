@@ -52,7 +52,7 @@ export function FederalEthicsAccountabilityCard({
   if (metrics.isLoading || stock.isLoading || holdings.isLoading || other.isLoading) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle}>Ethics & Accountability</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Ethics & Accountability</Text>
         <Text style={mutedStyle}>Loading ethics & accountability…</Text>
       </View>
     )
@@ -70,7 +70,7 @@ export function FederalEthicsAccountabilityCard({
   if (allEmpty) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle}>Ethics & Accountability</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Ethics & Accountability</Text>
         <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No stock-trade or STOCK-Act-compliance records on file.
         </Text>
@@ -82,7 +82,7 @@ export function FederalEthicsAccountabilityCard({
 
   return (
     <View style={cardStyle}>
-      <Text style={titleStyle}>Ethics & Accountability</Text>
+      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Ethics & Accountability</Text>
       <Text style={summaryStyle}>
         {`${stockCount} stock trade${stockCount === 1 ? '' : 's'}`}
         {' · '}

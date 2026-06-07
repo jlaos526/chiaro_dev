@@ -41,7 +41,7 @@ export function FederalFinanceCard({
           { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
         ]}
       >
-        <Text style={[styles.title, { color: semantic.text.primary }]}>Finance ({cycle})</Text>
+        <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>Finance ({cycle})</Text>
         <Text style={[styles.muted, { color: semantic.text.muted }]}>Loading finance…</Text>
       </View>
     )
@@ -56,7 +56,7 @@ export function FederalFinanceCard({
           { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
         ]}
       >
-        <Text style={[styles.title, { color: semantic.text.primary }]}>Finance ({cycle})</Text>
+        <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>Finance ({cycle})</Text>
         <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No finance data available for this legislator and cycle.
         </Text>
@@ -75,7 +75,7 @@ export function FederalFinanceCard({
         { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
       ]}
     >
-      <Text style={[styles.title, { color: semantic.text.primary }]}>Finance ({cycle})</Text>
+      <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>Finance ({cycle})</Text>
       <Text style={[styles.summary, { color: semantic.text.muted }]}>
         {fmtAmount(totalRaised)} raised
         {' · '}

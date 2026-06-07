@@ -1,5 +1,6 @@
-import { render } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
+import { Linking } from 'react-native'
 import { createElement, type ReactNode } from 'react'
 import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 import { StateTownHallsList } from '../../src/state/StateTownHallsList.tsx'
@@ -34,6 +35,27 @@ describe('StateTownHallsList', () => {
     }] as never[]
     const { getByText } = render(<StateTownHallsList rows={rows} />)
     expect(getByText(/Format n\/a/)).toBeTruthy()
+  })
+
+  it('does not call openURL for a null source_url row, does for a valid one (B6)', () => {
+    const spy = vi.spyOn(Linking, 'openURL').mockResolvedValue(true)
+    const nullRows = [{
+      id: 't1', event_date: '2026-03-15', city: null, state: 'CA',
+      format: null, attendance_estimate: null, source_url: null,
+    }] as never[]
+    const { unmount } = render(<StateTownHallsList rows={nullRows} />)
+    fireEvent.click(screen.getByText(/2026-03-15/))
+    expect(spy).not.toHaveBeenCalled()
+    unmount()
+    spy.mockClear()
+    const validRows = [{
+      id: 't2', event_date: '2026-04-20', city: null, state: 'CA',
+      format: null, attendance_estimate: null, source_url: 'https://x',
+    }] as never[]
+    render(<StateTownHallsList rows={validRows} />)
+    fireEvent.click(screen.getByText(/2026-04-20/))
+    expect(spy).toHaveBeenCalledWith('https://x')
+    spy.mockRestore()
   })
 })
 

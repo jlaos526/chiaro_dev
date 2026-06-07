@@ -63,6 +63,14 @@ describe('StateFinanceCard', () => {
     expect(getByText(/No state finance data/i)).toBeTruthy()
   })
 
+  it('shows a loading branch while the summary query is in flight (B5)', () => {
+    useSummaryMock.mockReturnValue({ data: undefined, isLoading: true })
+    useDonorsMock.mockReturnValue({ data: undefined, isLoading: true })
+    const { getByText, queryByText } = wrap(<StateFinanceCard official={stateOfficial} />)
+    expect(getByText(/loading finance/i)).toBeTruthy()
+    expect(queryByText(/no state finance data yet/i)).toBeNull()
+  })
+
   it('renders summary + source pill', () => {
     useSummaryMock.mockReturnValue({
       data: {
@@ -83,6 +91,28 @@ describe('StateFinanceCard', () => {
     expect(getByText('$1,250,000')).toBeTruthy()
     expect(getByText('12.5%')).toBeTruthy()
     expect(getByText('90%')).toBeTruthy()
+  })
+
+  it('renders the "Top donors" sub-heading as h3 (C1)', () => {
+    useSummaryMock.mockReturnValue({
+      data: {
+        source: 'ca-cal-access',
+        cycle: '2023-2024',
+        total_raised: 1_250_000,
+        total_disbursed: 800_000,
+        small_donor_pct: 12.5,
+        in_state_pct: 90,
+      },
+      isLoading: false,
+    })
+    useDonorsMock.mockReturnValue({
+      data: [{ id: 'd1', donor_name: 'Acme PAC', amount: 5000 }],
+      isLoading: false,
+    })
+    const { getByText } = wrap(<StateFinanceCard official={stateOfficial} />)
+    const h = getByText(/top donors/i)
+    expect(h.getAttribute('role')).toBe('heading')
+    expect(h.getAttribute('aria-level')).toBe('3')
   })
 
   it('falls back to raw source when label missing', () => {

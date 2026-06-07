@@ -33,22 +33,32 @@ export function StateBillsEvidence({ bills }: StateBillsEvidenceProps): React.JS
   const hasMore = bills.length > INITIAL_ROW_COUNT
   return (
     <View testID="state-bills-evidence">
-      {visible.map(b => (
-        <Pressable
-          key={b.id}
-          onPress={() => Linking.openURL(b.source_url).catch(() => {})}
-          style={rowStyle}
-        >
-          <Text style={titleStyle}>
-            {b.bill_type} {b.number}: {b.title}
-          </Text>
-          <Text style={metaStyle}>
-            {b.status_substage ?? b.status ?? '—'} · {b.latest_action_date}
-          </Text>
-        </Pressable>
-      ))}
+      {visible.map(b => {
+        const url = b.source_url ?? null
+        const Row = url ? Pressable : View
+        return (
+          <Row
+            key={b.id}
+            {...(url ? { onPress: () => Linking.openURL(url).catch(() => {}) } : {})}
+            style={rowStyle}
+          >
+            <Text style={titleStyle}>
+              {b.bill_type} {b.number}: {b.title}
+            </Text>
+            <Text style={metaStyle}>
+              {b.status_substage ?? b.status ?? '—'} · {b.latest_action_date}
+            </Text>
+          </Row>
+        )
+      })}
       {hasMore && (
-        <Pressable onPress={() => setExpanded(e => !e)} style={moreButtonStyle}>
+        <Pressable
+          onPress={() => setExpanded(e => !e)}
+          accessibilityRole="button"
+          accessibilityState={{ expanded }}
+          aria-expanded={expanded}
+          style={moreButtonStyle}
+        >
           <Text style={moreTextStyle}>
             {expanded ? 'show less' : `show more (${bills.length - INITIAL_ROW_COUNT} more)`}
           </Text>

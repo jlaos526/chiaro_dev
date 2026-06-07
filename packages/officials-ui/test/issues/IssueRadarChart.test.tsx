@@ -1,5 +1,5 @@
 import { createElement, type ReactNode } from 'react'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import { IssueRadarChart } from '../../src/issues/IssueRadarChart.tsx'
 import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
@@ -80,7 +80,20 @@ describe('IssueRadarChart', () => {
       <IssueRadarChart axes={SIX} userValues={[1, 0.5, 0.5, 0.5, 0.5, 0.5]} />,
       { wrapper: lightWrapper },
     )
-    expect(container.querySelector('[aria-label="Issue priorities radar chart"]')).not.toBeNull()
+    const root = container.querySelector('[aria-label]') as HTMLElement
+    expect(root).not.toBeNull()
+    expect(root.getAttribute('aria-label')).toMatch(/Issue priorities radar/)
+  })
+
+  it('renders each axis label and lists values in the accessibilityLabel (C3)', () => {
+    const axes = ['Environment', 'Economy', 'Health']
+    const { container } = render(<IssueRadarChart axes={axes} userValues={[0.9, 0.4, 0.6]} />, {
+      wrapper: lightWrapper,
+    })
+    for (const a of axes) expect(screen.getByText(a)).toBeTruthy()
+    const root = container.querySelector('[aria-label]') as HTMLElement
+    expect(root.getAttribute('aria-label')).toMatch(/Environment 90%/)
+    expect(root.getAttribute('aria-label')).toMatch(/Economy 40%/)
   })
 
   it('renders under both light and dark wrappers without throwing', () => {

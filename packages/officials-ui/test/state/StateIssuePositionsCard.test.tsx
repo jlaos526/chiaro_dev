@@ -173,6 +173,33 @@ describe('StateIssuePositionsCard', () => {
     // Evidence panel mounts and renders empty-state message.
     expect(getByText(/No matching votes for this subject/i)).toBeTruthy()
   })
+
+  it('per-row expand control exposes aria-expanded that flips on press (C2)', () => {
+    useRatingsMock.mockReturnValue({
+      data: [
+        {
+          id: 'r1',
+          official_id: 'oid',
+          score: 85,
+          org: {
+            id: 'org1',
+            name: 'Sierra Club',
+            issue_area: 'environment',
+            lean: 'progressive',
+            scoring_max: 100,
+          },
+        },
+      ],
+      isLoading: false,
+    })
+    useVotesOnSubjectMock.mockReturnValue({ data: [], isLoading: false })
+    const { getByText } = wrap(<StateIssuePositionsCard officialId="oid" />)
+    const toggle = getByText('Sierra Club').closest('[aria-expanded]') as HTMLElement
+    expect(toggle).not.toBeNull()
+    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(toggle)
+    expect(toggle.getAttribute('aria-expanded')).toBe('true')
+  })
 })
 
 // NRA (conservative) listed BEFORE Sierra Club (progressive). In the default

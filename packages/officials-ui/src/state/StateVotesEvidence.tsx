@@ -49,15 +49,17 @@ export function StateVotesEvidence({ votes }: StateVotesEvidenceProps): React.JS
     <View testID="state-votes-evidence">
       {visible.map(v => {
         const split = v.vote.party_vote_split as Record<string, number> | null
+        const url = v.vote.source_url ?? null
+        const Question = url ? Pressable : View
         return (
           <View key={v.vote.id} style={rowStyle}>
             <View style={styles.headerRow}>
-              <Pressable
-                onPress={() => Linking.openURL(v.vote.source_url).catch(() => {})}
+              <Question
+                {...(url ? { onPress: () => Linking.openURL(url).catch(() => {}) } : {})}
                 style={{ flexShrink: 1, paddingRight: 8 }}
               >
                 <Text style={questionStyle}>{v.vote.question}</Text>
-              </Pressable>
+              </Question>
               <View style={chipStyle}>
                 <Text style={chipTextStyle}>{positionLabel(v.position)}</Text>
               </View>
@@ -75,7 +77,13 @@ export function StateVotesEvidence({ votes }: StateVotesEvidenceProps): React.JS
         )
       })}
       {hasMore && (
-        <Pressable onPress={() => setExpanded(e => !e)} style={moreButtonStyle}>
+        <Pressable
+          onPress={() => setExpanded(e => !e)}
+          accessibilityRole="button"
+          accessibilityState={{ expanded }}
+          aria-expanded={expanded}
+          style={moreButtonStyle}
+        >
           <Text style={moreTextStyle}>
             {expanded ? 'show less' : `show more (${votes.length - INITIAL_ROW_COUNT} more)`}
           </Text>

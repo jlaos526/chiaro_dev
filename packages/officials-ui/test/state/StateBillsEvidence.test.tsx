@@ -1,5 +1,6 @@
-import { fireEvent, render } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
+import { Linking } from 'react-native'
 import { StateBillsEvidence } from '../../src/state/StateBillsEvidence.tsx'
 
 function makeBill(id: string, overrides: Partial<Record<string, unknown>> = {}): never {
@@ -39,6 +40,28 @@ describe('StateBillsEvidence', () => {
     fireEvent.click(getByText(/show more \(3 more\)/i))
     expect(getByText(/AB 101: Title b7/)).toBeTruthy()
     expect(getByText(/show less/i)).toBeTruthy()
+  })
+
+  it('does not call openURL for a null source_url row, does for a valid one (B6)', () => {
+    const spy = vi.spyOn(Linking, 'openURL').mockResolvedValue(true)
+    const { unmount } = render(<StateBillsEvidence bills={[makeBill('nullrow', { source_url: null })]} />)
+    fireEvent.click(screen.getByText(/AB 101: Title nullrow/))
+    expect(spy).not.toHaveBeenCalled()
+    unmount()
+    spy.mockClear()
+    render(<StateBillsEvidence bills={[makeBill('validrow', { source_url: 'https://x' })]} />)
+    fireEvent.click(screen.getByText(/AB 101: Title validrow/))
+    expect(spy).toHaveBeenCalledWith('https://x')
+    spy.mockRestore()
+  })
+
+  it('show-more toggle exposes aria-expanded that flips on press (C2)', () => {
+    const bills = Array.from({ length: 8 }, (_, i) => makeBill(`b${i}`))
+    render(<StateBillsEvidence bills={bills} />)
+    const toggle = screen.getByText(/show more/i).closest('[aria-expanded]') as HTMLElement
+    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(toggle)
+    expect(toggle.getAttribute('aria-expanded')).toBe('true')
   })
 })
 

@@ -44,10 +44,12 @@ export function StateOfficialEventsList({
     <View style={styles.list}>
       {rows.map(r => {
         const color = typeColor(r.event_type, semantic)
+        const url = r.source_url ?? null
+        const Row = url ? Pressable : View
         return (
-          <Pressable
+          <Row
             key={r.id}
-            onPress={() => Linking.openURL(r.source_url).catch(() => {})}
+            {...(url ? { onPress: () => Linking.openURL(url).catch(() => {}) } : {})}
             style={rowStyle}
           >
             <View style={styles.headerRow}>
@@ -58,7 +60,7 @@ export function StateOfficialEventsList({
             </View>
             <Text style={summaryStyle}>{r.summary}</Text>
             {r.outcome && <Text style={outcomeStyle}>{r.outcome}</Text>}
-          </Pressable>
+          </Row>
         )
       })}
     </View>

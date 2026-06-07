@@ -40,7 +40,7 @@ export function FederalServiceRecordCard({
   if (metrics.isLoading || leadership.isLoading) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle}>Service Record</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Service Record</Text>
         <Text style={mutedStyle}>Loading service record…</Text>
       </View>
     )
@@ -53,7 +53,7 @@ export function FederalServiceRecordCard({
   if (allEmpty) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle}>Service Record</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Service Record</Text>
         <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No service record data on file for this legislator.
         </Text>
@@ -67,7 +67,7 @@ export function FederalServiceRecordCard({
 
   return (
     <View style={cardStyle}>
-      <Text style={titleStyle}>Service Record</Text>
+      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Service Record</Text>
       <Text style={summaryStyle}>
         {sponsored != null ? `${sponsored} bill${sponsored === 1 ? '' : 's'} sponsored` : '—'}
         {' · '}

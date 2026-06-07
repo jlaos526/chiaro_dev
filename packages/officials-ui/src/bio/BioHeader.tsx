@@ -36,7 +36,7 @@ export function BioHeader(p: BioHeaderProps): React.JSX.Element {
   const innerContent = (
     <>
       <BioPortrait fullName={p.fullName} portraitUrl={p.portraitUrl} size={72} />
-      <Text style={{ fontSize: 24, fontWeight: '700', color: semantic.text.primary }}>{p.fullName}</Text>
+      <Text accessibilityRole="header" accessibilityLevel={1} style={{ fontSize: 24, fontWeight: '700', color: semantic.text.primary }}>{p.fullName}</Text>
       <BioIdentityRow
         party={p.party}
         chamber={p.chamber}

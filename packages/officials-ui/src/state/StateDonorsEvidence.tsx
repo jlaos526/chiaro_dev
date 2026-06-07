@@ -63,7 +63,13 @@ export function StateDonorsEvidence({ donors }: StateDonorsEvidenceProps): React
         )
       })}
       {hasMore && (
-        <Pressable onPress={() => setExpanded(e => !e)} style={moreButtonStyle}>
+        <Pressable
+          onPress={() => setExpanded(e => !e)}
+          style={moreButtonStyle}
+          accessibilityRole="button"
+          accessibilityState={{ expanded }}
+          aria-expanded={expanded}
+        >
           <Text style={moreTextStyle}>
             {expanded ? 'show less' : `show more (${donors.length - INITIAL_ROW_COUNT} more)`}
           </Text>
