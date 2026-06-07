@@ -11,9 +11,6 @@ export type StateFinanceSummaryRow =
 export type StateFinanceIndividualDonorRow =
   Database['public']['Tables']['state_finance_individual_donors']['Row']
 
-export type StateCommitteeMembershipRow =
-  Database['public']['Tables']['state_committee_memberships']['Row']
-
 export type StateScorecardOrgRow =
   Database['public']['Tables']['state_scorecard_orgs']['Row']
 

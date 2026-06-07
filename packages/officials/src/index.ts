@@ -6,7 +6,6 @@ export type {
   Party,
   StateFinanceSummaryRow,
   StateFinanceIndividualDonorRow,
-  StateCommitteeMembershipRow,
   StateScorecardOrgRow,
   StateScorecardRatingRow,
   StateScorecardRatingWithOrg,
