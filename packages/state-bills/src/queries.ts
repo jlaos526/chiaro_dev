@@ -2,7 +2,6 @@ import type { ChiaroClient } from '@chiaro/supabase-client'
 import type {
   StateBillRow,
   StateBillWithSponsors,
-  StateVoteRow,
   StateVoteWithBill,
   StateVoteWithPosition,
   StateVotePositionRow,
@@ -55,19 +54,6 @@ export async function fetchOfficialCosponsoredStateBills(
     .order('latest_action_date', { ascending: false })
   if (error) throw error
   return (data ?? []).map(row => normalizeBill(row as never)) as StateBillWithSponsors[]
-}
-
-export async function fetchStateBill(
-  client: ChiaroClient,
-  billId: string,
-): Promise<StateBillWithSponsors> {
-  const { data, error } = await client
-    .from('state_bills')
-    .select(SELECT_BILL_WITH_SPONSORS)
-    .eq('id', billId)
-    .single()
-  if (error) throw error
-  return normalizeBill(data as never) as StateBillWithSponsors
 }
 
 export async function fetchOfficialStateVotes(
@@ -152,19 +138,6 @@ export async function fetchOfficialStateVotesOnSubject(
   }))
   rows.sort((a, b) => (b.vote.vote_date < a.vote.vote_date ? -1 : 1))
   return rows as StateVoteWithPosition[]
-}
-
-export async function fetchStateBillVotes(
-  client: ChiaroClient,
-  billId: string,
-): Promise<StateVoteRow[]> {
-  const { data, error } = await client
-    .from('state_votes')
-    .select('*')
-    .eq('bill_id', billId)
-    .order('vote_date', { ascending: false })
-  if (error) throw error
-  return (data ?? []) as StateVoteRow[]
 }
 
 // Internal helper: normalize the joined Supabase result into StateBillWithSponsors shape.

@@ -8,8 +8,6 @@ export const stateBillsKeys = {
     ['state-bills', 'byOfficialVotes', officialId] as const,
   byOfficialMissedVotes: (officialId: string) =>
     ['state-bills', 'byOfficialMissedVotes', officialId] as const,
-  byId: (billId: string) =>
-    ['state-bills', 'byId', billId] as const,
   officialStateVotesOnSubject: (officialId: string, subjects: string[]) =>
     ['state-bills', 'officialStateVotesOnSubject', officialId, [...subjects].sort().join(',')] as const,
 } as const
