@@ -26,22 +26,26 @@ export function StateTownHallsList({ rows }: StateTownHallsListProps): React.JSX
   }
   return (
     <View style={styles.list}>
-      {rows.map(r => (
-        <Pressable
-          key={r.id}
-          onPress={() => Linking.openURL(r.source_url).catch(() => {})}
-          style={[styles.row, { backgroundColor: semantic.bg.elevated }]}
-        >
-          <Text style={[styles.title, { color: semantic.text.primary }]}>
-            {r.event_date}
-            {r.city ? ` · ${r.city}, ${r.state}` : ` · ${r.state}`}
-          </Text>
-          <Text style={[styles.meta, { color: semantic.text.muted }]}>
-            {r.format ? FORMAT_LABEL[r.format] ?? r.format : 'Format n/a'}
-            {r.attendance_estimate != null && ` · ~${r.attendance_estimate} attendees`}
-          </Text>
-        </Pressable>
-      ))}
+      {rows.map(r => {
+        const url = r.source_url ?? null
+        const Row = url ? Pressable : View
+        return (
+          <Row
+            key={r.id}
+            {...(url ? { onPress: () => Linking.openURL(url).catch(() => {}) } : {})}
+            style={[styles.row, { backgroundColor: semantic.bg.elevated }]}
+          >
+            <Text style={[styles.title, { color: semantic.text.primary }]}>
+              {r.event_date}
+              {r.city ? ` · ${r.city}, ${r.state}` : ` · ${r.state}`}
+            </Text>
+            <Text style={[styles.meta, { color: semantic.text.muted }]}>
+              {r.format ? FORMAT_LABEL[r.format] ?? r.format : 'Format n/a'}
+              {r.attendance_estimate != null && ` · ~${r.attendance_estimate} attendees`}
+            </Text>
+          </Row>
+        )
+      })}
     </View>
   )
 }
