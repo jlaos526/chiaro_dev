@@ -53,6 +53,18 @@ export function StateServiceRecordCard({
 
   if (!isStateLevel(official.chamber)) return null
 
+  if (metrics.isLoading || sponsored.isLoading || votes.isLoading) {
+    return (
+      <View
+        testID="state-service-record-card"
+        style={[styles.card, { backgroundColor: semantic.bg.app, borderColor: semantic.border.default }]}
+      >
+        <Text style={[styles.title, { color: semantic.text.primary }]}>Service Record</Text>
+        <Text style={[styles.subtitle, { color: semantic.text.muted, marginTop: 8 }]}>Loading service record…</Text>
+      </View>
+    )
+  }
+
   const m = metrics.data
   const partyUnity = m?.party_unity_state == null ? 'Not yet computed' : `${m.party_unity_state}%`
   const attendance = m?.attendance_pct == null ? '—' : `${m.attendance_pct}%`
@@ -88,10 +100,10 @@ export function StateServiceRecordCard({
       </View>
 
       <View style={{ gap: 8 }}>
-        <ScalarRow label="Bills sponsored" value={m?.bills_sponsored_count ?? 0} labelColor={rowLabelColor} valueColor={rowValueColor} />
-        <ScalarRow label="Bills cosponsored" value={m?.bills_cosponsored_count ?? 0} labelColor={rowLabelColor} valueColor={rowValueColor} />
-        <ScalarRow label="Votes voted" value={m?.votes_voted_count ?? 0} labelColor={rowLabelColor} valueColor={rowValueColor} />
-        <ScalarRow label="Votes missed" value={m?.votes_missed_count ?? 0} labelColor={rowLabelColor} valueColor={rowValueColor} />
+        <ScalarRow label="Bills sponsored" value={fmtCount(m?.bills_sponsored_count)} labelColor={rowLabelColor} valueColor={rowValueColor} />
+        <ScalarRow label="Bills cosponsored" value={fmtCount(m?.bills_cosponsored_count)} labelColor={rowLabelColor} valueColor={rowValueColor} />
+        <ScalarRow label="Votes voted" value={fmtCount(m?.votes_voted_count)} labelColor={rowLabelColor} valueColor={rowValueColor} />
+        <ScalarRow label="Votes missed" value={fmtCount(m?.votes_missed_count)} labelColor={rowLabelColor} valueColor={rowValueColor} />
         <ScalarRow label="Attendance" value={attendance} labelColor={rowLabelColor} valueColor={rowValueColor} />
         <ScalarRow label="Party unity" value={partyUnity} labelColor={rowLabelColor} valueColor={rowValueColor} />
       </View>

@@ -125,6 +125,40 @@ describe('StateServiceRecordCard', () => {
     const { queryByText } = wrap(<StateServiceRecordCard official={stateOfficial} />)
     expect(queryByText('Committee chair seats')).toBeNull()
   })
+
+  it('renders "—" not "0" for NULL top-row metrics (B3)', () => {
+    useMetricsMock.mockReturnValue({
+      data: {
+        bills_sponsored_count: null,
+        bills_cosponsored_count: null,
+        votes_voted_count: null,
+        votes_missed_count: null,
+        attendance_pct: null,
+        party_unity_state: null,
+        bills_passed_count: null,
+        hearings_held_count: null,
+        subject_breadth: null,
+        bill_passage_rate: null,
+        fiscal_impact_per_dollar_raised: null,
+        committee_chair_count: null,
+      },
+      isLoading: false,
+    })
+    useSponsoredMock.mockReturnValue({ data: [], isLoading: false })
+    useVotesMock.mockReturnValue({ data: [], isLoading: false })
+    const { getByText, queryByText } = wrap(<StateServiceRecordCard official={stateOfficial} />)
+    expect(getByText('Bills sponsored').parentElement?.textContent).toContain('—')
+    expect(queryByText('0')).toBeNull()
+  })
+
+  it('shows a loading branch while queries are in flight (B4)', () => {
+    useMetricsMock.mockReturnValue({ data: undefined, isLoading: true })
+    useSponsoredMock.mockReturnValue({ data: undefined, isLoading: true })
+    useVotesMock.mockReturnValue({ data: undefined, isLoading: true })
+    const { getByText, queryByText } = wrap(<StateServiceRecordCard official={stateOfficial} />)
+    expect(getByText(/loading service record/i)).toBeTruthy()
+    expect(queryByText('Bills sponsored')).toBeNull()
+  })
 })
 
 import { createElement, type ReactNode } from 'react'
