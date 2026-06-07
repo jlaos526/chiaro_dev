@@ -54,7 +54,7 @@ export function StateCommunityPresenceCard({
   const officeCount = offices.data?.length ?? null
   const hearingCount = hearings.data?.length ?? null
 
-  const allEmpty = hallCount === 0 && officeCount === 0 && hearingCount === 0
+  const allEmpty = (hallCount ?? 0) === 0 && (officeCount ?? 0) === 0 && (hearingCount ?? 0) === 0
 
   if (allEmpty) {
     return (

@@ -50,6 +50,15 @@ describe('StateConductCard', () => {
     expect(getByText(/No ethics complaints or conduct events/i)).toBeTruthy()
   })
 
+  it('shows the empty state when all counts are NULL (B9)', () => {
+    // data: undefined → counts derive to null (data not ingested).
+    // NULL should route to the empty state, not the populated "—" layout.
+    useComplaintsMock.mockReturnValue({ data: undefined, isLoading: false })
+    useEventsMock.mockReturnValue({ data: undefined, isLoading: false })
+    const { getByText } = wrap(<StateConductCard officialId="oid" />)
+    expect(getByText(/No ethics complaints or conduct events/i)).toBeTruthy()
+  })
+
   it('renders summary with counts including open complaints', () => {
     useComplaintsMock.mockReturnValue({
       data: [

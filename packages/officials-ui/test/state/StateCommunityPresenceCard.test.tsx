@@ -56,6 +56,16 @@ describe('StateCommunityPresenceCard', () => {
     expect(getByText(/No community-presence data available/i)).toBeTruthy()
   })
 
+  it('shows the empty state when all counts are NULL (B9)', () => {
+    // data: undefined → counts derive to null (data not ingested).
+    // NULL should route to the empty state, not the populated "—" layout.
+    useHallsMock.mockReturnValue({ data: undefined, isLoading: false })
+    useOfficesMock.mockReturnValue({ data: undefined, isLoading: false })
+    useHearingsMock.mockReturnValue({ data: undefined, isLoading: false })
+    const { getByText } = wrap(<StateCommunityPresenceCard officialId="oid" />)
+    expect(getByText(/No community-presence data available/i)).toBeTruthy()
+  })
+
   it('renders summary counts', () => {
     useHallsMock.mockReturnValue({
       data: [{ id: 'h1' }, { id: 'h2' }],

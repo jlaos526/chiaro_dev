@@ -49,7 +49,7 @@ export function StateConductCard({
   const complaintCount = complaints.data?.length ?? null
   const openCount = complaints.data?.filter(r => r.status === 'open').length ?? 0
   const eventCount = events.data?.length ?? null
-  const allEmpty = complaintCount === 0 && eventCount === 0
+  const allEmpty = (complaintCount ?? 0) === 0 && (eventCount ?? 0) === 0
 
   if (allEmpty) {
     return (
