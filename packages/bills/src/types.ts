@@ -8,13 +8,3 @@ export type VotePosition       = Database['public']['Tables']['vote_positions'][
 export type BillType           = BillRow['bill_type']
 export type BillStatus         = BillRow['status']
 export type VotePositionEnum   = VotePosition['position']
-
-export interface BillWithSubjectsAndSponsors extends BillRow {
-  subjects: string[]
-  sponsors: Array<{ official_id: string; role: BillSponsor['role']; added_date: BillSponsor['added_date'] }>
-}
-
-export interface VoteWithBillAndPositions extends VoteRow {
-  bill: BillRow | null
-  positions: Array<{ official_id: string; position: VotePositionEnum }>
-}

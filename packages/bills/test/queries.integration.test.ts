@@ -2,8 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@chiaro/db'
 import {
-  fetchBills, fetchBill, fetchBillVotes,
-  fetchOfficialSponsoredBills, fetchOfficialMissedVotes, fetchOfficialVotesOnSubject,
+  fetchOfficialSponsoredBills, fetchOfficialMissedVotes,
 } from '../src/queries.ts'
 
 const URL  = 'http://127.0.0.1:54321'
@@ -87,37 +86,6 @@ afterAll(async () => {
   await svc.from('districts').delete().eq('id', districtId)
 })
 
-describe('fetchBills', () => {
-  it('returns bills filtered by congress', async () => {
-    const bills = await fetchBills(anon, { congress: '119' })
-    expect(bills.length).toBeGreaterThanOrEqual(2)
-    expect(bills.find((b) => b.id === billA)).toBeDefined()
-  })
-
-  it('filters by subject', async () => {
-    const bills = await fetchBills(anon, { congress: '119', subject: 'Environmental protection' })
-    expect(bills.find((b) => b.id === billA)).toBeDefined()
-    expect(bills.find((b) => b.id === billB)).toBeUndefined()
-  })
-})
-
-describe('fetchBill', () => {
-  it('returns one bill with subjects + sponsors', async () => {
-    const bill = await fetchBill(anon, billA)
-    expect(bill.subjects).toContain('Environmental protection')
-    expect(bill.sponsors).toHaveLength(1)
-    expect(bill.sponsors[0]!.role).toBe('sponsor')
-  })
-})
-
-describe('fetchBillVotes', () => {
-  it('returns all votes on a bill with rep positions', async () => {
-    const votes = await fetchBillVotes(anon, billA)
-    expect(votes).toHaveLength(1)
-    expect(votes[0]!.positions[0]!.position).toBe('yes')
-  })
-})
-
 describe('fetchOfficialSponsoredBills', () => {
   it('returns only sponsored (not cosponsored)', async () => {
     const bills = await fetchOfficialSponsoredBills(anon, officialId, '119')
@@ -143,13 +111,5 @@ describe('fetchOfficialMissedVotes', () => {
 
     await svc.from('vote_positions').delete().eq('vote_id', v2!.id)
     await svc.from('votes').delete().eq('id', v2!.id)
-  })
-})
-
-describe('fetchOfficialVotesOnSubject', () => {
-  it('joins via bill_subjects and returns rep positions on tagged bills', async () => {
-    const rows = await fetchOfficialVotesOnSubject(anon, officialId, 'Environmental protection')
-    expect(rows.length).toBeGreaterThanOrEqual(1)
-    expect(rows[0]!.position).toBe('yes')
   })
 })
