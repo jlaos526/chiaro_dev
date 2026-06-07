@@ -24,6 +24,10 @@ interface BaseProps {
   y1?: number | string
   x2?: number | string
   y2?: number | string
+  x?: number | string
+  y?: number | string
+  fontSize?: number | string
+  textAnchor?: string
 }
 
 function Svg({ children, width, height, viewBox, fill }: BaseProps): React.JSX.Element {
@@ -63,5 +67,9 @@ function Line({ x1, y1, x2, y2, stroke, strokeWidth }: BaseProps): React.JSX.Ele
   return createElement('line', { x1, y1, x2, y2, stroke, strokeWidth })
 }
 
+function Text({ x, y, fill, fontSize, textAnchor, children }: BaseProps): React.JSX.Element {
+  return createElement('text', { x, y, fill, fontSize, textAnchor }, children)
+}
+
 export default Svg
-export { Svg, Path, Polyline, Polygon, Line }
+export { Svg, Path, Polyline, Polygon, Line, Text }
