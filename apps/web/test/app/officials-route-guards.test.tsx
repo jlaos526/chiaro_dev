@@ -10,7 +10,9 @@ describe('chamber-based route guards', () => {
     expect(isStateLevel('state_legislature')).toBe(true)
   })
 
-  // Full route redirect-flow tests against real Next routes belong in an e2e
-  // suite (Playwright). For the MVP we keep coverage at the predicate level
-  // + manual smoke verification.
+  // The page-level cross-route redirect flows (state↔federal mismatch and the
+  // not-found → '/' guard) are exercised directly against the async server
+  // components in `officials-detail-page.test.tsx` +
+  // `state-officials-detail-page.test.tsx`. This file keeps the predicate-level
+  // coverage that those page tests build on.
 })
