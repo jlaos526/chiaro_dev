@@ -37,6 +37,7 @@ export {
   fetchOfficialMetrics, fetchOfficialScorecardRatings, fetchOfficialFinance,
   fetchOfficialDistrictOffices, fetchOfficialTownHalls, fetchOfficialStockTransactions,
   fetchOfficialLeadershipHistory,
+  fetchOfficialStateFinanceSummary, fetchOfficialStateDonors,
   fetchOfficialStateScorecardRatings,
   fetchOfficialStateTownHalls, fetchOfficialStateDistrictOffices,
   fetchOfficialStateCommitteeHearings,
