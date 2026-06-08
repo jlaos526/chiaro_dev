@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { CalibrateScreen } from '@chiaro/officials-ui'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { addressInputSchema } from '@chiaro/location'
+import { mapCalibrateError } from '@/lib/calibrate-error'
 
 export default function CalibratePage(): React.JSX.Element {
   const router = useRouter()
@@ -18,10 +19,7 @@ export default function CalibratePage(): React.JSX.Element {
     })
     if (invokeErr) {
       const status = (invokeErr as { context?: { status?: number } }).context?.status
-      if (status === 400) throw new Error("We couldn't find that address. Double-check spelling.")
-      if (status === 422) throw new Error("We can't resolve districts for that location yet.")
-      if (status === 502) throw new Error("Address lookup is temporarily unavailable. Try again.")
-      throw new Error("Something went wrong saving your location. Try again.")
+      throw new Error(mapCalibrateError(status))
     }
     router.push('/')
     router.refresh()

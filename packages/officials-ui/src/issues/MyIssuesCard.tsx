@@ -1,11 +1,13 @@
 'use client'
 
-import { StyleSheet, View } from 'react-native'
+import { Platform, StyleSheet, View } from 'react-native'
+import type { ReactNode } from 'react'
 import type { IssueTopic, UserIssueSelectionRow } from '@chiaro/issues'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { BrandHeading } from '../primitives/BrandHeading.tsx'
 import { BrandBodyText } from '../primitives/BrandBodyText.tsx'
 import { BrandButton } from '../primitives/BrandButton.tsx'
+import { SmartAnchor } from '../primitives/SmartAnchor.tsx'
 import { IssueRadarChart } from './IssueRadarChart.tsx'
 
 export interface MyIssuesCardProps {
@@ -15,6 +17,13 @@ export interface MyIssuesCardProps {
   catalog: IssueTopic[]
   /** Enter / re-enter the issue-priorities flow (edit mode). */
   onEdit: () => void
+  /**
+   * Web: rendered as `href` on a real `<a>` wrapping the edit/setup CTA.
+   * Preserves middle-click / Cmd-click → "open in new tab", status-bar URL
+   * preview, browser history. Plain left-click still routes via `onEdit`.
+   * Native (or web without it): the plain `<BrandButton onPress={onEdit}>`.
+   */
+  editHref?: string
 }
 
 /** Resolve a lens's type from the catalog ('stance' | 'watchlist' | undefined). */
@@ -79,8 +88,30 @@ function buildRadar(
  * `useIssueCatalog` and passes the rows + catalog + nav callback. Mode-aware
  * via `useBrandTokens()`.
  */
-export function MyIssuesCard({ selections, catalog, onEdit }: MyIssuesCardProps): React.JSX.Element {
+export function MyIssuesCard({ selections, catalog, onEdit, editHref }: MyIssuesCardProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
+
+  // Web smart-anchor wrapper for the edit/setup CTA: a real <a href> with
+  // modifier-key passthrough; plain left-click still dispatches to onEdit. The
+  // inner BrandButton's onPress is a no-op in this path so the click fires once
+  // (via the anchor). Native (or web without editHref) → the plain button.
+  const wrapCta = (label: string, button: ReactNode): ReactNode => {
+    if (Platform.OS === 'web' && editHref) {
+      return (
+        <SmartAnchor
+          href={editHref}
+          onPress={onEdit}
+          accessibilityLabel={label}
+          style={{ display: 'inline-block', cursor: 'pointer' }}
+        >
+          {button}
+        </SmartAnchor>
+      )
+    }
+    return button
+  }
+
+  const ctaOnPress = Platform.OS === 'web' && editHref ? () => {} : onEdit
 
   if (selections.length === 0) {
     return (
@@ -93,9 +124,12 @@ export function MyIssuesCard({ selections, catalog, onEdit }: MyIssuesCardProps)
           Tell us what you care about and we&apos;ll show how your officials line up.
         </BrandBodyText>
         <View style={styles.cta}>
-          <BrandButton onPress={onEdit} size="default" accessibilityLabel="Set your issue priorities">
-            Set your issue priorities
-          </BrandButton>
+          {wrapCta(
+            'Set your issue priorities',
+            <BrandButton onPress={ctaOnPress} size="default" accessibilityLabel="Set your issue priorities">
+              Set your issue priorities
+            </BrandButton>,
+          )}
         </View>
       </View>
     )
@@ -113,14 +147,17 @@ export function MyIssuesCard({ selections, catalog, onEdit }: MyIssuesCardProps)
         <IssueRadarChart axes={labels} userValues={values} size={170} />
       </View>
       <View style={styles.cta}>
-        <BrandButton
-          onPress={onEdit}
-          variant="secondary"
-          size="sm"
-          accessibilityLabel="Edit your issue priorities"
-        >
-          Edit priorities
-        </BrandButton>
+        {wrapCta(
+          'Edit your issue priorities',
+          <BrandButton
+            onPress={ctaOnPress}
+            variant="secondary"
+            size="sm"
+            accessibilityLabel="Edit your issue priorities"
+          >
+            Edit priorities
+          </BrandButton>,
+        )}
       </View>
     </View>
   )

@@ -18,6 +18,7 @@ export function RepAlignmentSectionClient({
       officialId={officialId}
       {...(repName ? { repName } : {})}
       onSetup={() => router.push('/issues')}
+      setupHref="/issues"
     />
   )
 }

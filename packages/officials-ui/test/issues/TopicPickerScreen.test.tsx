@@ -120,6 +120,19 @@ describe('TopicPickerScreen', () => {
     expect(topicCards(getAllByRole('button')).length).toBe(8)
   })
 
+  it('the progress counter is an aria-live=polite region (C6)', () => {
+    const { container } = wrap(
+      <IssueFlowProvider>
+        <TopicPickerScreen topics={TOPICS} onNext={() => {}} />
+      </IssueFlowProvider>,
+    )
+    // The counter carries the accessibilityLabel "0 of 6 topics selected" →
+    // rendered as aria-label; assert aria-live is on that same element.
+    const counter = container.querySelector('[aria-label="0 of 6 topics selected"]')
+    expect(counter).not.toBeNull()
+    expect(counter?.getAttribute('aria-live')).toBe('polite')
+  })
+
   it('renders under a dark wrapper without throwing', () => {
     const darkWrapper = ({ children }: { children: ReactNode }) =>
       createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)

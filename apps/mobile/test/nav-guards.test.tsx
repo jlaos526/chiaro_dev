@@ -1,3 +1,4 @@
+import { ActivityIndicator } from 'react-native'
 import { render, waitFor } from '@testing-library/react-native'
 
 // Navigation-guard tests for the two mobile route guards.
@@ -153,6 +154,18 @@ describe('app calibration gate — (app)/_layout', () => {
     mockSegmentsValue = ['(app)', 'officials']
     const { getByText } = render(<AppLayout />)
     await waitFor(() => expect(getByText('BrandDrawer')).toBeTruthy())
+    expect(mockRedirectHref).toBeNull()
+  })
+
+  it('renders a loading gate (no app chrome, no redirect) while calibration status is unknown', async () => {
+    // Keep the async check() pending so status stays 'unknown': getItem never
+    // resolves. Assert the synchronous initial render before flushing effects.
+    mockGetItem.mockReturnValue(new Promise(() => {}))
+    mockSegmentsValue = ['(app)', 'officials']
+    const { UNSAFE_getByType, queryByText } = render(<AppLayout />)
+    expect(UNSAFE_getByType(ActivityIndicator)).toBeTruthy()
+    expect(queryByText('BrandDrawer')).toBeNull()
+    expect(queryByText('Redirect:/calibrate')).toBeNull()
     expect(mockRedirectHref).toBeNull()
   })
 })

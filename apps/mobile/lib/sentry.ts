@@ -25,6 +25,21 @@ export function scrubAddressInPlace(event: any): void {
   event?.breadcrumbs?.forEach((b: any) => scrub(b?.data, seen))
 }
 
+/**
+ * Sentry `beforeSend` hook. Scrubs address fields in place. If scrubbing throws,
+ * returns a minimal stripped event (message + level only) rather than `null` —
+ * dropping the whole event would lose all telemetry signal. `any` mirrors the
+ * spec's decision to avoid pulling Sentry types into mobile.
+ */
+export function beforeSend(event: any): any {
+  try {
+    scrubAddressInPlace(event)
+  } catch {
+    return { message: event?.message, level: event?.level }
+  }
+  return event
+}
+
 let initialized = false
 export function initSentry(): void {
   if (initialized) return
@@ -34,14 +49,7 @@ export function initSentry(): void {
     dsn,
     tracesSampleRate: 0,
     enableAutoSessionTracking: false,
-    beforeSend(event) {
-      try {
-        scrubAddressInPlace(event)
-      } catch {
-        return null
-      }
-      return event
-    },
+    beforeSend,
   })
   initialized = true
 }

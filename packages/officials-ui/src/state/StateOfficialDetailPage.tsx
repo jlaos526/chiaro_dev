@@ -24,6 +24,12 @@ export interface StateOfficialDetailPageProps {
    * unit tests that don't exercise alignment) it is skipped entirely.
    */
   onSetupIssues?: () => void
+  /**
+   * Web: `href` for the alignment strip's setup CTA so it renders a real `<a>`
+   * (middle-click → new tab etc.). Plain left-click still routes via
+   * `onSetupIssues`. Omitted on native → the `<Pressable>` CTA.
+   */
+  setupIssuesHref?: string
 }
 
 // State-officials detail-page redesign closed (slice 5I) — all 6 categories
@@ -42,6 +48,7 @@ export function StateOfficialDetailPage({
   official,
   offices,
   onSetupIssues,
+  setupIssuesHref,
 }: StateOfficialDetailPageProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const districtCode = official.district?.code ?? official.district_code ?? ''
@@ -85,6 +92,7 @@ export function StateOfficialDetailPage({
             officialId={official.id}
             repName={official.full_name}
             onSetup={onSetupIssues}
+            {...(setupIssuesHref ? { setupHref: setupIssuesHref } : {})}
           />
         </View>
       )}

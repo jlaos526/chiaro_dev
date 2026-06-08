@@ -8,7 +8,13 @@ import { AuthCrossLink } from './AuthCrossLink.tsx'
 
 export interface AuthFormProps {
   mode: 'sign-in' | 'sign-up'
-  onSubmit: (vals: { email: string; password: string }) => Promise<void>
+  /**
+   * Resolve with `{ notice }` to surface a neutral/success message (e.g. the
+   * "check your email" confirmation path) in the status banner; resolve with
+   * `void` for the silent happy path (caller navigates away). A thrown error
+   * populates the red error banner.
+   */
+  onSubmit: (vals: { email: string; password: string }) => Promise<void | { notice: string }>
   onCrossLinkPress: () => void
   /** Web a11y: real `<a href>` on the cross-link. Native ignores. */
   crossLinkHref?: string
@@ -43,14 +49,18 @@ const COPY = {
  *     Validation failures set the form-level error banner (field-level errors
  *     deferred to a future polish slice; banner copy is precise per failure).
  *   - `onSubmit` is awaited in a try/catch — caught errors populate the
- *     form-level error banner with the thrown Error.message.
+ *     form-level error banner with the thrown Error.message. A resolved
+ *     `{ notice }` result instead populates the neutral status banner (e.g.
+ *     the "check your email to confirm" sign-up path) — distinct from errors.
  *   - During submission, all inputs + CTA disable; CTA text swaps to the
  *     mode-specific loading copy.
  *
  * Three error UX levels per spec:
  *   1. Field-level (per-input `error` prop on AuthInput — currently unused
  *      in v1; reserved for future server-side per-field errors).
- *   2. Form-level banner (accessibilityRole="alert" → ARIA live region on web).
+ *   2. Form-level banner (accessibilityRole="alert" → ARIA live region on web)
+ *      for errors; a separate role="status" + aria-live="polite" banner for
+ *      notices (announced politely, not as an alert).
  *   3. Disabled CTA + inputs during pending submission.
  */
 export function AuthForm(props: AuthFormProps): React.JSX.Element {
@@ -59,10 +69,12 @@ export function AuthForm(props: AuthFormProps): React.JSX.Element {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   async function handleSubmit(): Promise<void> {
     setError(null)
+    setNotice(null)
     if (props.mode === 'sign-up') {
       if (password.length < 8) {
         setError('Password must be at least 8 characters')
@@ -75,7 +87,10 @@ export function AuthForm(props: AuthFormProps): React.JSX.Element {
     }
     setSubmitting(true)
     try {
-      await props.onSubmit({ email, password })
+      const result = await props.onSubmit({ email, password })
+      if (result && typeof result === 'object' && 'notice' in result) {
+        setNotice(result.notice)
+      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'An error occurred. Please try again.')
     } finally {
@@ -130,6 +145,21 @@ export function AuthForm(props: AuthFormProps): React.JSX.Element {
         </View>
       ) : null}
 
+      {notice ? (
+        <View
+          style={[
+            styles.noticeBanner,
+            { backgroundColor: semantic.alert.success.bg, borderColor: semantic.alert.success.border },
+          ]}
+          role="status"
+          aria-live="polite"
+          accessibilityLiveRegion="polite"
+          testID="auth-notice"
+        >
+          <Text style={[styles.noticeBannerText, { color: semantic.alert.success.fg }]}>{notice}</Text>
+        </View>
+      ) : null}
+
       <Pressable
         onPress={handleSubmit}
         disabled={submitting}
@@ -172,6 +202,17 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   errorBannerText: {
+    fontSize: 12,
+  },
+  // Notice banner — neutral/success tone, distinct from the red error banner.
+  // backgroundColor + borderColor lifted inline (mode-aware via useBrandTokens).
+  noticeBanner: {
+    borderRadius: 8,
+    borderWidth: 1,
+    padding: 10,
+    marginTop: 8,
+  },
+  noticeBannerText: {
     fontSize: 12,
   },
   cta: {

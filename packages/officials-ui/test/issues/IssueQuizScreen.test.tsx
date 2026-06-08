@@ -200,6 +200,22 @@ describe('IssueQuizScreen', () => {
     expect(agreeBtn).toBeTruthy()
   })
 
+  it('the progress counter is an aria-live=polite region (C6)', () => {
+    const { getByText, container } = wrap(
+      <IssueFlowProvider>
+        <Harness lenses={{ environment: ['conservation'] }}>
+          <IssueQuizScreen catalog={CATALOG} onFinish={() => {}} />
+        </Harness>
+      </IssueFlowProvider>,
+    )
+    fireEvent.click(getByText('seed'))
+    // The counter carries the accessibilityLabel "0 of 2 questions answered" →
+    // rendered as aria-label; assert aria-live is on that same element.
+    const counter = container.querySelector('[aria-label="0 of 2 questions answered"]')
+    expect(counter).not.toBeNull()
+    expect(counter?.getAttribute('aria-live')).toBe('polite')
+  })
+
   it('renders under a dark wrapper without throwing', () => {
     const darkWrapper = ({ children }: { children: ReactNode }) =>
       createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)

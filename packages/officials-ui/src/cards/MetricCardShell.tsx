@@ -10,6 +10,11 @@ import {
 interface BaseProps {
   value: ReactNode
   label: string
+  /**
+   * Screen-reader text for `value` when it isn't a plain string/number (e.g. a
+   * ReactNode). Falls back to '' so the accessibilityLabel reads "Label: ".
+   */
+  valueLabel?: string
   caption?: ReactNode
   categoryId: CategoryId
   placeholder?: boolean
@@ -110,9 +115,12 @@ export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element 
         padding: 12,
       }
 
+  const valueText =
+    props.valueLabel ?? (typeof value === 'string' || typeof value === 'number' ? String(value) : '')
+
   return (
     <View
-      accessibilityLabel={`${renderedLabel}: ${typeof value === 'string' ? value : ''}`}
+      accessibilityLabel={`${renderedLabel}: ${valueText}`}
       style={cardStyle}
     >
       <Text style={valueStyle}>{value}</Text>

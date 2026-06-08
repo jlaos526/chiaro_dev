@@ -11,8 +11,9 @@ export default function SignUpPage(): React.JSX.Element {
     const { data, error } = await supabase.auth.signUp({ email, password })
     if (error) throw new Error(error.message)
     if (!data.session) {
-      // Email confirmation required (production); surface via thrown error so AuthForm displays it.
-      throw new Error('Check your email to confirm your account.')
+      // Email confirmation required (production); surface via the neutral notice
+      // channel (not the red error banner — this is the happy path).
+      return { notice: 'Check your email to confirm your account.' }
     }
     router.push('/')
     router.refresh()

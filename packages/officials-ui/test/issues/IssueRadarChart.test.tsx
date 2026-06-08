@@ -109,6 +109,31 @@ describe('IssueRadarChart', () => {
     ).not.toThrow()
   })
 
+  it('renders an empty-state message (no polygon) when axes is empty (B11)', () => {
+    const { container } = render(<IssueRadarChart axes={[]} userValues={[]} />, {
+      wrapper: lightWrapper,
+    })
+    expect(screen.getByText('No issue data yet.')).toBeTruthy()
+    expect(container.querySelectorAll('polygon').length).toBe(0)
+    const root = container.querySelector('[aria-label]') as HTMLElement
+    expect(root.getAttribute('aria-label')).toMatch(/no data/)
+  })
+
+  it('does not throw when axes is empty (B11)', () => {
+    expect(() =>
+      render(<IssueRadarChart axes={[]} userValues={[]} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+  })
+
+  it('renders a single-axis radar (n=1) without crashing (B11)', () => {
+    const { container } = render(<IssueRadarChart axes={['Solo']} userValues={[0.5]} />, {
+      wrapper: lightWrapper,
+    })
+    // grid + user polygon present; single spoke line drawn
+    expect(container.querySelectorAll('polygon').length).toBe(2)
+    expect(container.querySelectorAll('line').length).toBe(1)
+  })
+
   it('uses mode-aware grid color (light vs dark differ)', () => {
     const light = render(<IssueRadarChart axes={SIX} userValues={[1, 1, 1, 1, 1, 1]} />, {
       wrapper: lightWrapper,

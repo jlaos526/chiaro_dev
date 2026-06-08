@@ -81,7 +81,7 @@ export async function fetchOfficialStateVotes(
     vote: (row as { vote: StateVoteWithBill }).vote,
     position: (row as { position: StateVotePositionRow['position'] }).position,
   }))
-  rows.sort((a, b) => (b.vote.vote_date < a.vote.vote_date ? -1 : 1))
+  rows.sort((a, b) => (b.vote.vote_date ?? '').localeCompare(a.vote.vote_date ?? ''))
   return rows as StateVoteWithPosition[]
 }
 
@@ -141,7 +141,7 @@ export async function fetchOfficialStateVotesOnSubject(
     vote: (row as { vote: StateVoteWithBill }).vote,
     position: (row as { position: StateVotePositionRow['position'] }).position,
   }))
-  rows.sort((a, b) => (b.vote.vote_date < a.vote.vote_date ? -1 : 1))
+  rows.sort((a, b) => (b.vote.vote_date ?? '').localeCompare(a.vote.vote_date ?? ''))
   return rows as StateVoteWithPosition[]
 }
 

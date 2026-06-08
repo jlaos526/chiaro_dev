@@ -3,6 +3,7 @@
 **Trigger:** User request after the issue-priorities feature track (slices 52–54) + the TIGER-cache CI fix (slice 55) completed, with no single obvious queued slice remaining.
 **Method:** 6 parallel read-only auditors (Opus 4.8) — one per surface: web app, mobile app, `officials-ui` detail cards, `officials-ui` foundation, domain packages, DB layer. Findings deduped below. The 3 DB security/data-integrity headlines (A1–A3) were hand-verified against the migrations before this doc was written.
 **Status:** Findings doc. Remediation tracks proposed at the end; the controller picks fix order with the user.
+**Status update (2026-06-08): ALL 6 remediation tracks shipped — T1 slice 56, T2 slice 57, T3 slice 58, T4 slice 60, T5 slice 59, T6 slice 61. Audit closed.**
 
 ---
 
@@ -116,7 +117,7 @@ Net read: the app is **structurally healthy** (clean RSC/island separation, univ
 | **T3 — Dead-code purge** | D1–D7 (+ E10) | Compressed Slice | ✅ SHIPPED (slice 58). Low-risk deletion; reduces surface (slice-49 precedent). Verify zero consumers per symbol first (Gotcha #20 discipline). |
 | **T4 — Dark-mode residue + token hygiene** | E1, E2, E3, E4, E11 | Compressed Slice | ✅ SHIPPED (slice 60). Closes the last `COLORS.*`/inline-hex app residue + the `as never` cast. |
 | **T5 — Route bug-fixes + test coverage** | B1, B2, B13, F1–F6 | Mega Slice | ✅ SHIPPED (slice 59). Fixes the two HIGH route bugs + back-fills the missing render/guard tests. |
-| **T6 — Consistency & polish batch** | B7, B8, B10, B11, B12, C5, C6, C7, E5–E9, F7 | Compressed Slice | Remaining low-severity correctness + consistency. |
+| **T6 — Consistency & polish batch** | B7, B8, B10, B11, B12, C5, C6, C7, E5–E9, F7 | Compressed Slice | ✅ SHIPPED (slice 61). Remaining low-severity correctness + consistency. |
 
 Tracks are independent and can ship in any order; T1 → T2 → T3 is the recommended sequence (security first, then the biggest quality lift, then the cleanup).
 

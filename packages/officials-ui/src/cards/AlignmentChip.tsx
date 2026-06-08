@@ -2,6 +2,7 @@ import { createElement } from 'react'
 import { Platform, Pressable, Text, View } from 'react-native'
 import { type AlignmentTier } from '@chiaro/ui-tokens'
 import { useAlignmentChipColors } from '../brand-hooks.ts'
+import { SmartAnchor } from '../primitives/SmartAnchor.tsx'
 
 export interface AlignmentChipProps {
   label: string
@@ -54,21 +55,29 @@ export function AlignmentChip({
     )
   }
 
-  // Web smart-anchor case: real <a href> with intercepted plain left-click.
+  // Web smart-anchor case (href + onPress): real <a href> with intercepted
+  // plain left-click + modifier-key passthrough, via the shared primitive.
+  if (Platform.OS === 'web' && href && onPress) {
+    return (
+      <SmartAnchor
+        href={href}
+        onPress={onPress}
+        accessibilityLabel={`View ${label} positions`}
+        style={{ ...chipStyle, display: 'inline-block', cursor: 'pointer' }}
+      >
+        {createElement('span', { style: textStyle }, label)}
+      </SmartAnchor>
+    )
+  }
+
+  // Web href WITHOUT onPress: a plain anchor so default browser nav (full page
+  // load) handles the click — SmartAnchor always intercepts, so it isn't used
+  // here.
   if (Platform.OS === 'web' && href) {
     return createElement(
       'a',
       {
         href,
-        onClick: (e: MouseEvent) => {
-          // Honor modifier-key + middle-click → browser default (new tab etc.).
-          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return
-          if (onPress) {
-            e.preventDefault()
-            onPress()
-          }
-          // If onPress is absent, default browser nav (full page load) handles it.
-        },
         'aria-label': `View ${label} positions`,
         style: {
           ...chipStyle,

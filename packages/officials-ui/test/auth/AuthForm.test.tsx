@@ -127,6 +127,76 @@ describe('AuthForm', () => {
     expect(alert!.textContent).toContain('Invalid login credentials')
   })
 
+  it('notice channel: onSubmit resolving { notice } renders in the status banner, NOT the danger alert', async () => {
+    const onSubmit = vi.fn(async () => ({ notice: 'Check your email to confirm your account.' }))
+    const { container } = render(
+      <AuthForm
+        mode="sign-up"
+        onSubmit={onSubmit}
+        onCrossLinkPress={() => {}}
+      />,
+    )
+    const inputs = container.querySelectorAll('input')
+    fireEvent.change(inputs[0]!, { target: { value: 'a@b.com' } })
+    fireEvent.change(inputs[1]!, { target: { value: 'password123' } })
+    fireEvent.change(inputs[2]!, { target: { value: 'password123' } })
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button'))
+      await flush()
+    })
+    expect(onSubmit).toHaveBeenCalledOnce()
+    // Notice renders in the status banner (role="status"), not the danger alert.
+    const status = container.querySelector('[role="status"]')
+    expect(status).not.toBeNull()
+    expect(status!.textContent).toContain('Check your email to confirm your account.')
+    // The danger error banner (role="alert") must NOT be present.
+    expect(container.querySelector('[role="alert"]')).toBeNull()
+  })
+
+  it('notice channel: void resolution renders no status banner', async () => {
+    const onSubmit = vi.fn(async () => {})
+    const { container } = render(
+      <AuthForm
+        mode="sign-in"
+        onSubmit={onSubmit}
+        onCrossLinkPress={() => {}}
+      />,
+    )
+    const inputs = container.querySelectorAll('input')
+    fireEvent.change(inputs[0]!, { target: { value: 'a@b.com' } })
+    fireEvent.change(inputs[1]!, { target: { value: 'password123' } })
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button'))
+      await flush()
+    })
+    expect(container.querySelector('[role="status"]')).toBeNull()
+  })
+
+  it('thrown error still renders in the danger banner, not the status banner', async () => {
+    const onSubmit = vi.fn(async () => {
+      throw new Error('Email already registered')
+    })
+    const { container } = render(
+      <AuthForm
+        mode="sign-up"
+        onSubmit={onSubmit}
+        onCrossLinkPress={() => {}}
+      />,
+    )
+    const inputs = container.querySelectorAll('input')
+    fireEvent.change(inputs[0]!, { target: { value: 'a@b.com' } })
+    fireEvent.change(inputs[1]!, { target: { value: 'password123' } })
+    fireEvent.change(inputs[2]!, { target: { value: 'password123' } })
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button'))
+      await flush()
+    })
+    const alert = container.querySelector('[role="alert"]')
+    expect(alert).not.toBeNull()
+    expect(alert!.textContent).toContain('Email already registered')
+    expect(container.querySelector('[role="status"]')).toBeNull()
+  })
+
   it('disabled-during-submit: inputs + CTA disabled while onSubmit pending', async () => {
     let resolveSubmit!: () => void
     const submitPromise = new Promise<void>(resolve => {
