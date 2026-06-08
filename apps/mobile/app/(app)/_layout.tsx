@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { ActivityIndicator, View } from 'react-native'
 import { Redirect, useSegments } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { BrandDrawer } from '@chiaro/officials-ui/src/nav/BrandDrawer.tsx'
@@ -31,6 +32,14 @@ export default function AppLayout() {
     check()
     return () => { mounted = false }
   }, [])
+
+  if (calibrationStatus === 'unknown') {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator />
+      </View>
+    )
+  }
 
   const segmentList = segments as readonly string[]
   const onCalibrate = segmentList[segmentList.length - 1] === 'calibrate'
