@@ -43,6 +43,8 @@ export function TopicPickerScreen({ topics, onNext }: TopicPickerScreenProps): R
           <View style={styles.counterRow}>
             <Text
               accessibilityLabel={`${selectedTopics.length} of ${MAX_TOPICS} topics selected`}
+              aria-live="polite"
+              accessibilityLiveRegion="polite"
               style={[styles.counter, { color: atCap ? semantic.accent.primary : semantic.text.muted }]}
             >
               {selectedTopics.length} / {MAX_TOPICS}

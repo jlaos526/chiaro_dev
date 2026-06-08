@@ -85,6 +85,46 @@ describe('MetricCardShell', () => {
     expect(style).toMatch(/border-top-width:\s*3px/)
   })
 
+  it('coerces a numeric value into the accessibilityLabel (C7)', () => {
+    const { container } = render(
+      <MetricCardShell
+        value={42}
+        label="Bills Passed"
+        categoryId="voting-bills"
+        onExpand={() => {}}
+      />,
+    )
+    const outer = container.firstElementChild as HTMLElement | null
+    expect(outer?.getAttribute('aria-label')).toBe('Bills Passed: 42')
+  })
+
+  it('uses valueLabel for a ReactNode value in the accessibilityLabel (C7)', () => {
+    const { container } = render(
+      <MetricCardShell
+        value={<span>fancy</span>}
+        valueLabel="custom"
+        label="Score"
+        categoryId="voting-bills"
+        onExpand={() => {}}
+      />,
+    )
+    const outer = container.firstElementChild as HTMLElement | null
+    expect(outer?.getAttribute('aria-label')).toBe('Score: custom')
+  })
+
+  it('falls back to empty value text for a ReactNode value without valueLabel (C7)', () => {
+    const { container } = render(
+      <MetricCardShell
+        value={<span>fancy</span>}
+        label="Score"
+        categoryId="voting-bills"
+        onExpand={() => {}}
+      />,
+    )
+    const outer = container.firstElementChild as HTMLElement | null
+    expect(outer?.getAttribute('aria-label')).toBe('Score: ')
+  })
+
   it('placeholder variant suppresses CTA', () => {
     const onExpand = vi.fn()
     const { queryByText } = render(

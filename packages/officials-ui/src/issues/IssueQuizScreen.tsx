@@ -124,6 +124,8 @@ export function IssueQuizScreen({ catalog, onFinish }: IssueQuizScreenProps): Re
           <View style={styles.progressRow}>
             <Text
               accessibilityLabel={`${answered} of ${total} questions answered`}
+              aria-live="polite"
+              accessibilityLiveRegion="polite"
               style={[
                 styles.progress,
                 { color: canFinish ? semantic.accent.primary : semantic.text.muted },
