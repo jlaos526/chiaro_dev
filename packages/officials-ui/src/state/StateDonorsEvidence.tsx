@@ -50,10 +50,10 @@ export function StateDonorsEvidence({ donors }: StateDonorsEvidenceProps): React
   const hasMore = donors.length > INITIAL_ROW_COUNT
   return (
     <View testID="state-donors-evidence">
-      {visible.map(d => {
+      {visible.map((d, i) => {
         const secondary = secondaryLine(d)
         return (
-          <View key={d.rank} style={rowStyle}>
+          <View key={`${d.donor_name}-${d.rank}-${i}`} style={rowStyle}>
             <View style={styles.headerRow}>
               <Text style={donorNameStyle}>{d.donor_name}</Text>
               <Text style={amountStyle}>{fmtAmount(Number(d.amount))}</Text>

@@ -76,6 +76,8 @@ export const ALIGNMENT_DOT_DARK: Record<AlignmentDotLevel, string> = {
 
 export const RADAR = {
   grid:        '#e2ddd3',
+  // The rep polygon is stroke-only / dashed by design (see IssueRadarOverlay) —
+  // there is intentionally no `repFill`; the asymmetry is deliberate, not an omission.
   userFill:    'rgba(91,108,255,0.28)',
   userStroke:  '#5b6cff',
   repStroke:   '#c46a2a',

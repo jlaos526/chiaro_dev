@@ -17,4 +17,20 @@ describe('WatchlistFlag', () => {
     expect(getByText(/Industry Donor Recipients/i)).toBeTruthy()
     expect(getByText(/Oil & Gas/i)).toBeTruthy()
   })
+
+  it('formats a sub-$1k total without the "k" suffix', () => {
+    const { getByText } = wrap(
+      <WatchlistFlag flag={{ topicSlug: 'environment', lensSlug: 'industry-donor-recipients',
+        label: 'Industry Donor Recipients', category: 'fossil-fuel', totalAmount: 950,
+        evidence: [{ industry: 'Oil & Gas', amount: 950 }] }} />)
+    expect(getByText(/\$950 from/)).toBeTruthy()
+  })
+
+  it('formats a >= $1k total with the compact "k" suffix', () => {
+    const { getByText } = wrap(
+      <WatchlistFlag flag={{ topicSlug: 'environment', lensSlug: 'industry-donor-recipients',
+        label: 'Industry Donor Recipients', category: 'fossil-fuel', totalAmount: 42000,
+        evidence: [{ industry: 'Oil & Gas', amount: 42000 }] }} />)
+    expect(getByText(/\$42k from/)).toBeTruthy()
+  })
 })

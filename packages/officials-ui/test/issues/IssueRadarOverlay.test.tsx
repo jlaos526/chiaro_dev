@@ -31,4 +31,11 @@ describe('IssueRadarOverlay', () => {
   it('does not throw when a rep position is null', () => {
     expect(() => wrap(<IssueRadarOverlay alignment={alignment} repName="Jane Doe" />)).not.toThrow()
   })
+  it('still renders the radar polygons when a rep position is null (vertex drawn at center)', () => {
+    // The Gun Policy axis has repPos: null — the rep vertex collapses to center
+    // per the geometry, but the chart + both polygons must still render.
+    const { container } = wrap(<IssueRadarOverlay alignment={alignment} repName="Jane Doe" />)
+    expect(container.querySelector('svg')).toBeTruthy()
+    expect(container.querySelectorAll('polygon').length).toBeGreaterThanOrEqual(3)
+  })
 })
