@@ -13,7 +13,12 @@ export default async function StateOfficialPage(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/sign-in')
 
-  const official = await fetchOfficial(supabase, id)
+  let official
+  try {
+    official = await fetchOfficial(supabase, id)
+  } catch {
+    redirect('/')
+  }
   // Cross-route guard: federal IDs land on /officials/[id]
   if (!isStateLevel(official.chamber)) {
     redirect(`/officials/${id}`)
