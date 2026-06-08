@@ -40,13 +40,6 @@ export interface IssueFlowState {
   setAnswer: (a: QuizAnswer) => void
   /** Clear all wizard state. */
   reset: () => void
-  /**
-   * Pre-load existing selections (topics + lenses) for edit mode. Derives
-   * `selectedTopics` (distinct topic_slugs ordered by `display_order`) and
-   * `selectedLenses` from the rows. Quiz answers aren't reconstructed (stance
-   * positions are already saved); the user re-runs the quiz to change them.
-   */
-  hydrate: (selections: UserIssueSelectionRow[]) => void
 }
 
 const IssueFlowContext = createContext<IssueFlowState | null>(null)
@@ -137,12 +130,6 @@ export function IssueFlowProvider({
     setAnswers([])
   }, [])
 
-  const hydrate = useCallback((selections: UserIssueSelectionRow[]) => {
-    const { topics, lenses } = deriveFromSelections(selections)
-    setSelectedTopics(topics)
-    setSelectedLenses(lenses)
-  }, [])
-
   const value = useMemo<IssueFlowState>(
     () => ({
       selectedTopics,
@@ -152,9 +139,8 @@ export function IssueFlowProvider({
       answers,
       setAnswer,
       reset,
-      hydrate,
     }),
-    [selectedTopics, toggleTopic, selectedLenses, toggleLens, answers, setAnswer, reset, hydrate],
+    [selectedTopics, toggleTopic, selectedLenses, toggleLens, answers, setAnswer, reset],
   )
 
   return <IssueFlowContext.Provider value={value}>{children}</IssueFlowContext.Provider>

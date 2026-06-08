@@ -3,11 +3,9 @@ export { stateBillsKeys } from './keys.ts'
 export {
   fetchOfficialSponsoredStateBills,
   fetchOfficialCosponsoredStateBills,
-  fetchStateBill,
   fetchOfficialStateVotes,
   fetchOfficialMissedStateVotes,
   fetchOfficialStateVotesOnSubject,
-  fetchStateBillVotes,
 } from './queries.ts'
 export {
   useOfficialSponsoredStateBills,
@@ -15,8 +13,6 @@ export {
   useOfficialStateVotes,
   useOfficialMissedStateVotes,
   useOfficialStateVotesOnSubject,
-  useStateBill,
-  useStateBillVotes,
 } from './hooks.ts'
 export {
   OpenStatesBillSchema,

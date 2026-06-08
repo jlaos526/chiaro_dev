@@ -6,11 +6,9 @@ import type { ReactNode } from 'react'
 vi.mock('../src/queries.ts', () => ({
   fetchOfficialSponsoredStateBills: vi.fn(),
   fetchOfficialCosponsoredStateBills: vi.fn(),
-  fetchStateBill: vi.fn(),
   fetchOfficialStateVotes: vi.fn(),
   fetchOfficialMissedStateVotes: vi.fn(),
   fetchOfficialStateVotesOnSubject: vi.fn(),
-  fetchStateBillVotes: vi.fn(),
 }))
 
 import { useOfficialSponsoredStateBills, useOfficialStateVotesOnSubject } from '../src/hooks.ts'

@@ -113,7 +113,7 @@ Net read: the app is **structurally healthy** (clean RSC/island separation, univ
 |---|---|---|---|
 | **T1 — Security & data-integrity hardening** | A1–A5 | Compressed Slice | ✅ SHIPPED (slice 56). 1 append-only migration + pgTAP + revoke + 2 CHECKs + search_path. **Recommended first** — verified, small, security. |
 | **T2 — State-card correctness + detail-page a11y** | B3, B4, B5, B6, B9, C1, C2, C3, C4 | Mega Slice | ✅ SHIPPED (slice 57). The state-card NULL/loading bugs + the project-wide card-heading gap. Highest user-facing quality lift. |
-| **T3 — Dead-code purge** | D1–D7 (+ E10) | Compressed Slice | Low-risk deletion; reduces surface (slice-49 precedent). Verify zero consumers per symbol first (Gotcha #20 discipline). |
+| **T3 — Dead-code purge** | D1–D7 (+ E10) | Compressed Slice | ✅ SHIPPED (slice 58). Low-risk deletion; reduces surface (slice-49 precedent). Verify zero consumers per symbol first (Gotcha #20 discipline). |
 | **T4 — Dark-mode residue + token hygiene** | E1, E2, E3, E4, E11 | Compressed Slice | Closes the last `COLORS.*`/inline-hex app residue + the `as never` cast. |
 | **T5 — Route bug-fixes + test coverage** | B1, B2, B13, F1–F6 | Mega Slice | Fixes the two HIGH route bugs + back-fills the missing render/guard tests. |
 | **T6 — Consistency & polish batch** | B7, B8, B10, B11, B12, C5, C6, C7, E5–E9, F7 | Compressed Slice | Remaining low-severity correctness + consistency. |
