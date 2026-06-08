@@ -9,6 +9,8 @@ import {
   CATEGORY_ACCENT_DARK,
   CATEGORY_CARD_BG,
   CATEGORY_CARD_BG_DARK,
+  DISTRICT_TIER_COLOR,
+  DISTRICT_TIER_COLOR_DARK,
   FINANCE_SUB_SECTION_SHADES,
   FINANCE_SUB_SECTION_SHADES_DARK,
   MAP_COLORS,
@@ -25,6 +27,7 @@ import {
   useBrandTokens,
   useCategoryAccent,
   useCategoryCardBg,
+  useDistrictTierColors,
   useFinanceSubSectionShade,
   useMapColors,
   usePartyColor,
@@ -178,6 +181,24 @@ describe('useMapColors', () => {
     const { result: dark } = renderHook(() => useMapColors(), { wrapper: wrapper('dark') })
     expect(light.current.districtStroke).not.toBe(dark.current.districtStroke)
     expect(light.current.districtFill).not.toBe(dark.current.districtFill)
+  })
+})
+
+describe('useDistrictTierColors (slice 60)', () => {
+  it('returns light tier palette when mode is light', () => {
+    const { result } = renderHook(() => useDistrictTierColors(), { wrapper: wrapper('light') })
+    expect(result.current).toEqual(DISTRICT_TIER_COLOR)
+    expect(result.current.federal_house).toBe(DISTRICT_TIER_COLOR.federal_house)
+  })
+  it('returns dark tier palette when mode is dark', () => {
+    const { result } = renderHook(() => useDistrictTierColors(), { wrapper: wrapper('dark') })
+    expect(result.current).toEqual(DISTRICT_TIER_COLOR_DARK)
+    expect(result.current.federal_house).toBe(DISTRICT_TIER_COLOR_DARK.federal_house)
+  })
+  it('lightens federal_house between modes', () => {
+    const { result: light } = renderHook(() => useDistrictTierColors(), { wrapper: wrapper('light') })
+    const { result: dark } = renderHook(() => useDistrictTierColors(), { wrapper: wrapper('dark') })
+    expect(light.current.federal_house).not.toBe(dark.current.federal_house)
   })
 })
 

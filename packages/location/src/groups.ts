@@ -9,15 +9,6 @@ export const TIER_LABEL: Record<DistrictTier, string> = {
   place: 'City',
 }
 
-export const TIER_COLOR: Record<DistrictTier, string> = {
-  federal_house: '#5b6cff',
-  federal_senate: '#1f9b88',
-  state_senate: '#9c64b9',
-  state_house: '#7e54a8',
-  county: '#7a8d4b',
-  place: '#c9a84c',
-}
-
 export type DistrictGroup = { heading: string; tiers: DistrictTier[] }
 
 // Federal is Senate-before-House so the two senators sort above the

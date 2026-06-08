@@ -7,10 +7,11 @@ import {
   useMyDistricts,
   useMyHomePoint,
 } from '@chiaro/location'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '@chiaro/officials-ui'
 import { DistrictMap, type DistrictMapDistrict } from './DistrictMap'
 
 export function DistrictPanel() {
+  const { semantic } = useBrandTokens()
   const districtsQ = useMyDistricts(supabase)
   const homePointQ = useMyHomePoint(supabase)
 
@@ -20,9 +21,9 @@ export function DistrictPanel() {
   const rows = districtsQ.data ?? []
   if (rows.length === 0) {
     return (
-      <View style={styles.banner}>
+      <View style={[styles.banner, { backgroundColor: semantic.bg.subtle }]}>
         <Text>You haven't calibrated yet.</Text>
-        <Link href="/calibrate"><Text style={styles.link}>Calibrate to see your reps</Text></Link>
+        <Link href="/calibrate"><Text style={[styles.link, { color: semantic.link.fg }]}>Calibrate to see your reps</Text></Link>
       </View>
     )
   }
@@ -42,7 +43,7 @@ export function DistrictPanel() {
         if (inGroup.length === 0) return null
         return (
           <View key={group.heading} style={styles.groupSection}>
-            <Text style={styles.groupHeading}>{group.heading}</Text>
+            <Text style={[styles.groupHeading, { color: semantic.text.muted }]}>{group.heading}</Text>
             {inGroup.map(d => (
               <Text key={d.id} style={styles.row}>
                 <Text style={{ fontWeight: '700' }}>{TIER_LABEL[d.tier]}</Text> · {d.code} · {d.name}
@@ -52,7 +53,7 @@ export function DistrictPanel() {
         )
       })}
       <DistrictMap districts={districts} homePoint={homePointQ.data ?? null} />
-      <Link href="/settings/address"><Text style={styles.link}>Edit address</Text></Link>
+      <Link href="/settings/address"><Text style={[styles.link, { color: semantic.link.fg }]}>Edit address</Text></Link>
     </View>
   )
 }
@@ -63,11 +64,10 @@ const styles = StyleSheet.create({
   groupHeading: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.neutral.textMuted,
     letterSpacing: 1,
     marginBottom: 4,
   },
   row: { marginVertical: 1 },
-  link: { color: COLORS.brand.primary },
-  banner: { padding: 16, backgroundColor: COLORS.neutral.surfaceAlt, borderRadius: 8, gap: 8 },
+  link: {},
+  banner: { padding: 16, borderRadius: 8, gap: 8 },
 })

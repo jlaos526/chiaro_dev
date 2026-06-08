@@ -19,6 +19,8 @@ import {
   CATEGORY_ACCENT_DARK,
   CATEGORY_CARD_BG,
   CATEGORY_CARD_BG_DARK,
+  DISTRICT_TIER_COLOR,
+  DISTRICT_TIER_COLOR_DARK,
   FINANCE_SUB_SECTION_SHADES,
   FINANCE_SUB_SECTION_SHADES_DARK,
   MAP_COLORS,
@@ -35,6 +37,7 @@ import {
   type BrandMode,
   type BrandSemantic,
   type CategoryId,
+  type DistrictTierKey,
   type FinanceSubSectionShade,
   type PartyCode,
   type ScorecardLean,
@@ -139,6 +142,17 @@ export function useFinanceSubSectionShade(category: string): FinanceSubSectionSh
 export function useMapColors(): { districtStroke: string; districtFill: string } {
   const { mode } = useBrandTokens()
   return mode === 'dark' ? MAP_COLORS_DARK : MAP_COLORS
+}
+
+/**
+ * Returns the per-district-tier accent color table for the active brand mode
+ * (slice 60). Consumed by the map legend + polygon strokes/fills (web Leaflet +
+ * RN react-native-maps) — replaces the slice-2 location `TIER_COLOR` import so
+ * district tiers lighten automatically in dark mode.
+ */
+export function useDistrictTierColors(): Record<DistrictTierKey, string> {
+  const { mode } = useBrandTokens()
+  return mode === 'dark' ? DISTRICT_TIER_COLOR_DARK : DISTRICT_TIER_COLOR
 }
 
 /**

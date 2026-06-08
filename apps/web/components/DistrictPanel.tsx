@@ -8,7 +8,7 @@ import {
   useMyDistricts,
   useMyHomePoint,
 } from '@chiaro/location'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useBrandTokens } from '@chiaro/officials-ui'
 import type { DistrictMapDistrict } from './DistrictMap'
 
 const client = createSupabaseBrowserClient()
@@ -21,6 +21,7 @@ const DistrictMap = dynamic(
 )
 
 export function DistrictPanel() {
+  const { semantic } = useBrandTokens()
   const districtsQ = useMyDistricts(client)
   const homePointQ = useMyHomePoint(client)
 
@@ -55,7 +56,7 @@ export function DistrictPanel() {
         if (inGroup.length === 0) return null
         return (
           <section key={group.heading} style={{ marginTop: 12 }}>
-            <h3 style={{ fontSize: '0.95rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: COLORS.neutral.textMuted }}>
+            <h3 style={{ fontSize: '0.95rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: semantic.text.muted }}>
               {group.heading}
             </h3>
             <ul>

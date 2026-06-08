@@ -13,6 +13,11 @@ const SELECT_BILL_WITH_SPONSORS = `
   subjects:state_bill_subjects(subject)
 `
 
+type StateBillJoinRow = StateBillRow & {
+  sponsors: unknown[]
+  subjects: { subject: string }[]
+}
+
 export async function fetchOfficialSponsoredStateBills(
   client: ChiaroClient,
   officialId: string,
@@ -32,7 +37,7 @@ export async function fetchOfficialSponsoredStateBills(
     .in('id', bsRows.map(r => r.bill_id))
     .order('latest_action_date', { ascending: false })
   if (error) throw error
-  return (data ?? []).map(row => normalizeBill(row as never)) as StateBillWithSponsors[]
+  return (data ?? []).map(row => normalizeBill(row as StateBillJoinRow)) as StateBillWithSponsors[]
 }
 
 export async function fetchOfficialCosponsoredStateBills(
@@ -53,7 +58,7 @@ export async function fetchOfficialCosponsoredStateBills(
     .in('id', bsRows.map(r => r.bill_id))
     .order('latest_action_date', { ascending: false })
   if (error) throw error
-  return (data ?? []).map(row => normalizeBill(row as never)) as StateBillWithSponsors[]
+  return (data ?? []).map(row => normalizeBill(row as StateBillJoinRow)) as StateBillWithSponsors[]
 }
 
 export async function fetchOfficialStateVotes(
@@ -141,10 +146,7 @@ export async function fetchOfficialStateVotesOnSubject(
 }
 
 // Internal helper: normalize the joined Supabase result into StateBillWithSponsors shape.
-function normalizeBill(row: StateBillRow & {
-  sponsors: unknown[]
-  subjects: { subject: string }[]
-}): StateBillWithSponsors {
+function normalizeBill(row: StateBillJoinRow): StateBillWithSponsors {
   return {
     ...row,
     sponsors: row.sponsors as StateBillWithSponsors['sponsors'],
