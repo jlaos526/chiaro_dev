@@ -1,6 +1,6 @@
 'use client'
 
-import { View } from 'react-native'
+import { Text, View } from 'react-native'
 import Svg, { Polygon, Line, Text as SvgText } from 'react-native-svg'
 import { useRadarColors } from '../brand-hooks.ts'
 import { radarPoint, radarPolygon } from './radar-geometry.ts'
@@ -36,6 +36,14 @@ export function IssueRadarChart({
   const cx = size / 2
   const cy = size / 2
   const n = axes.length
+
+  if (n === 0) {
+    return (
+      <View accessibilityLabel="Issue priorities radar: no data">
+        <Text style={{ color: c.grid, fontSize: 12 }}>No issue data yet.</Text>
+      </View>
+    )
+  }
 
   const axisSummary = axes
     .map((a, i) => `${a} ${Math.round((userValues[i] ?? 0) * 100)}%`)
