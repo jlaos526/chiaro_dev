@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import MapView, { Polygon, Marker, PROVIDER_DEFAULT } from 'react-native-maps'
-import { TIER_COLOR, TIER_LABEL, DISTRICT_GROUPS, type DistrictTier } from '@chiaro/location'
-import { useMapColors } from '@chiaro/officials-ui'
+import { TIER_LABEL, DISTRICT_GROUPS, type DistrictTier } from '@chiaro/location'
+import { useMapColors, useDistrictTierColors } from '@chiaro/officials-ui'
 import { COLORS } from '@chiaro/ui-tokens'
 
 export type DistrictMapDistrict = {
@@ -21,6 +21,7 @@ export function DistrictMap({
   homePoint?: { lat: number; lng: number } | null
 }) {
   const mapColors = useMapColors()
+  const tierColors = useDistrictTierColors()
   // U.S. Senate tiers default to off — both seats represent the entire state,
   // so their boundaries dominate the view and obscure local context.
   const [enabled, setEnabled] = useState<Record<string, boolean>>(
@@ -50,7 +51,7 @@ export function DistrictMap({
                 {inGroup.map(d => (
                   <Pressable
                     key={d.id}
-                    style={[styles.toggle, enabled[d.id] && { backgroundColor: TIER_COLOR[d.tier] }]}
+                    style={[styles.toggle, enabled[d.id] && { backgroundColor: tierColors[d.tier] }]}
                     onPress={() => setEnabled(prev => ({ ...prev, [d.id]: !prev[d.id] }))}
                   >
                     <Text style={[styles.toggleText, enabled[d.id] && { color: 'white' }]}>
@@ -68,9 +69,9 @@ export function DistrictMap({
           <Polygon
             key={`${d.id}-${i}`}
             coordinates={coords}
-            strokeColor={TIER_COLOR[d.tier]}
+            strokeColor={tierColors[d.tier]}
             strokeWidth={1.5}
-            fillColor={TIER_COLOR[d.tier] + '26'}              // ~15% alpha
+            fillColor={tierColors[d.tier] + '26'}              // ~15% alpha
           />
         )))}
         {homePoint && (

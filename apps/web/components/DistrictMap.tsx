@@ -2,9 +2,8 @@
 import { useState } from 'react'
 import { MapContainer, TileLayer, GeoJSON, CircleMarker, Tooltip } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
-import { TIER_COLOR, TIER_LABEL, DISTRICT_GROUPS, type DistrictTier } from '@chiaro/location'
-import { useMapColors } from '@chiaro/officials-ui'
-import { COLORS } from '@chiaro/ui-tokens'
+import { TIER_LABEL, DISTRICT_GROUPS, type DistrictTier } from '@chiaro/location'
+import { useMapColors, useDistrictTierColors, useBrandTokens } from '@chiaro/officials-ui'
 
 export type DistrictMapDistrict = {
   id: string
@@ -22,6 +21,8 @@ export function DistrictMap({
   homePoint?: { lat: number; lng: number } | null
 }) {
   const mapColors = useMapColors()
+  const tierColors = useDistrictTierColors()
+  const { semantic } = useBrandTokens()
   // U.S. Senate tiers default to off — both seats represent the entire state,
   // so their boundaries dominate the view and obscure local context.
   const [enabled, setEnabled] = useState<Record<string, boolean>>(
@@ -53,7 +54,7 @@ export function DistrictMap({
                   fontSize: '0.75rem',
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
-                  color: COLORS.neutral.textMuted,
+                  color: semantic.text.muted,
                   minWidth: 56,
                 }}
               >
@@ -67,7 +68,7 @@ export function DistrictMap({
                       checked={!!enabled[d.id]}
                       onChange={e => setEnabled(prev => ({ ...prev, [d.id]: e.target.checked }))}
                     />
-                    <span style={{ color: TIER_COLOR[d.tier] }}>{TIER_LABEL[d.tier]}</span>
+                    <span style={{ color: tierColors[d.tier] }}>{TIER_LABEL[d.tier]}</span>
                     <span>{d.code}</span>
                   </label>
                 ))}
@@ -89,7 +90,7 @@ export function DistrictMap({
           <GeoJSON
             key={d.id}
             data={d.geometry as GeoJSON.GeoJsonObject}
-            style={{ color: TIER_COLOR[d.tier], weight: 1.5, fillOpacity: 0.15 }}
+            style={{ color: tierColors[d.tier], weight: 1.5, fillOpacity: 0.15 }}
           />
         ))}
         {homePoint && (
