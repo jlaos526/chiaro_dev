@@ -15,6 +15,7 @@ import {
   FederalIssuePositionsCard,
   FederalEthicsAccountabilityCard,
   FederalVotingBillsCard,
+  useBrandTokens,
 } from '@chiaro/officials-ui'
 import { BackButton } from '@chiaro/officials-ui/src/nav/BackButton.tsx'
 
@@ -37,6 +38,7 @@ export default function OfficialDetailScreen() {
   const officialQ = useOfficial(supabase, officialId)
   const leadershipQ = useOfficialLeadershipHistory(supabase, officialId)
   const scorecardsQ = useOfficialScorecardRatings(supabase, officialId)
+  const { semantic } = useBrandTokens()
 
   if (officialQ.isLoading) return <Text>Loading…</Text>
   if (!officialQ.data) return <Text>Not found</Text>
@@ -64,7 +66,7 @@ export default function OfficialDetailScreen() {
           headerLeft: () => <BackButton />,
         }}
       />
-      <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#fff' }}>
+      <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: semantic.bg.app }}>
       <ScrollView>
         <BioHeader
           officialId={official.id}
