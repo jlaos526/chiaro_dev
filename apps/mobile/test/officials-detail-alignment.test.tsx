@@ -50,6 +50,7 @@ jest.mock('@chiaro/officials-ui', () => {
   const { Text } = require('react-native')
   const stub = (label: string) => () => React.createElement(Text, null, label)
   return {
+    useBrandTokens: () => ({ semantic: { bg: { app: '#fff' } } }),
     BioHeader: stub('BioHeader'),
     FederalServiceRecordCard: stub('svc'),
     FederalCommunityPresenceCard: stub('comm'),

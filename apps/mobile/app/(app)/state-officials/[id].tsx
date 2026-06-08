@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { Text } from 'react-native'
 import { useLocalSearchParams, Redirect, useRouter } from 'expo-router'
 import { useOfficial, useOfficialDistrictOffices, isStateLevel } from '@chiaro/officials'
-import { StateOfficialDetailPage } from '@chiaro/officials-ui'
+import { StateOfficialDetailPage, useBrandTokens } from '@chiaro/officials-ui'
 import { BackButton } from '@chiaro/officials-ui/src/nav/BackButton.tsx'
 import { supabase } from '@/lib/supabase'
 
@@ -13,6 +13,7 @@ export default function StateOfficialDetailScreen() {
   const officialId = id ?? ''
   const officialQ = useOfficial(supabase, officialId)
   const officesQ = useOfficialDistrictOffices(supabase, officialId)
+  const { semantic } = useBrandTokens()
 
   if (officialQ.isLoading) return <Text>Loading…</Text>
   if (!officialQ.data) return <Text>Not found</Text>
@@ -31,7 +32,7 @@ export default function StateOfficialDetailScreen() {
           headerLeft: () => <BackButton />,
         }}
       />
-      <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: '#fff' }}>
+      <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: semantic.bg.app }}>
         <StateOfficialDetailPage
           official={officialQ.data}
           offices={officesQ.data ?? []}

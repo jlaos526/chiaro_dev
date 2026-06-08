@@ -5,6 +5,12 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabase/env'
 
 type CookieToSet = { name: string; value: string; options: CookieOptions }
 
+const ALLOW_LIST = ['/calibrate', '/sign-out', '/profile/edit', '/settings', '/settings/address', '/issues', '/legal']
+
+export function isAllowlisted(path: string): boolean {
+  return ALLOW_LIST.some(p => path === p || path.startsWith(p + '/'))
+}
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request })
 
@@ -32,9 +38,8 @@ export async function middleware(request: NextRequest) {
 
   if (user) {
     const path = request.nextUrl.pathname
-    const allowList = ['/calibrate', '/sign-out', '/profile/edit', '/settings', '/settings/address']
 
-    if (!allowList.some(p => path === p || path.startsWith(p + '/'))) {
+    if (!isAllowlisted(path)) {
       const skip = request.cookies.get('chiaro_skip_calibrate')?.value === '1'
       if (!skip) {
         // Cheapest possible existence probe — head select with exact count
