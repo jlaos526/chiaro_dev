@@ -6,8 +6,9 @@ export async function fetchOfficialSponsoredBills(
   officialId: string,
   congress: string,
 ): Promise<BillRow[]> {
-  const { data: ids } = await client.from('bill_sponsors')
+  const { data: ids, error: idsErr } = await client.from('bill_sponsors')
     .select('bill_id').eq('official_id', officialId).eq('role', 'sponsor')
+  if (idsErr) throw idsErr
   const billIds = (ids ?? []).map((r: { bill_id: string }) => r.bill_id)
   if (billIds.length === 0) return []
   const { data, error } = await client.from('bills')
@@ -22,8 +23,9 @@ export async function fetchOfficialCosponsoredBills(
   officialId: string,
   congress: string,
 ): Promise<BillRow[]> {
-  const { data: ids } = await client.from('bill_sponsors')
+  const { data: ids, error: idsErr } = await client.from('bill_sponsors')
     .select('bill_id').eq('official_id', officialId).eq('role', 'cosponsor')
+  if (idsErr) throw idsErr
   const billIds = (ids ?? []).map((r: { bill_id: string }) => r.bill_id)
   if (billIds.length === 0) return []
   const { data, error } = await client.from('bills')
@@ -38,7 +40,8 @@ export async function fetchOfficialMissedVotes(
   officialId: string,
   congress: string,
 ): Promise<Array<{ vote_id: string; position: VotePositionEnum; vote: VoteRow }>> {
-  const { data: votes } = await client.from('votes').select('id, congress, chamber, session, roll_call, vote_date, question, result, bill_id, source_url, ingested_at').eq('congress', congress)
+  const { data: votes, error: votesErr } = await client.from('votes').select('id, congress, chamber, session, roll_call, vote_date, question, result, bill_id, source_url, ingested_at').eq('congress', congress)
+  if (votesErr) throw votesErr
   const voteIds = (votes ?? []).map((v: VoteRow) => v.id)
   if (voteIds.length === 0) return []
   const { data: positions, error } = await client.from('vote_positions')
