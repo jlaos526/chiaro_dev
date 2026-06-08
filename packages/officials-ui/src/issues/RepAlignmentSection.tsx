@@ -14,6 +14,12 @@ export interface RepAlignmentSectionProps {
   repName?: string
   /** Navigate into the `/issues` flow (the strip's CTA + empty-state). */
   onSetup: () => void
+  /**
+   * Web: `href` for the strip's setup CTA so it renders a real `<a>` (preserves
+   * middle-click → new tab etc.). Plain left-click still routes via `onSetup`.
+   * Omitted on native → the strip's `<Pressable>` CTA.
+   */
+  setupHref?: string
 }
 
 /**
@@ -32,6 +38,7 @@ export function RepAlignmentSection({
   officialId,
   repName,
   onSetup,
+  setupHref,
 }: RepAlignmentSectionProps): React.JSX.Element {
   const client = useChiaroClient()
   const { data: alignment = null } = useRepAlignment(client, officialId)
@@ -45,6 +52,7 @@ export function RepAlignmentSection({
         alignment={alignment}
         hasSelections={hasSelections}
         onSetup={onSetup}
+        {...(setupHref ? { setupHref } : {})}
         onExpand={() => setExpanded((e) => !e)}
         expanded={expanded}
       />

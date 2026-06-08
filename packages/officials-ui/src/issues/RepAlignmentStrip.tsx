@@ -1,8 +1,9 @@
 'use client'
 
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
 import type { RepAlignment } from '@chiaro/issues'
 import { useAlignmentDotColor, useBrandTokens } from '../brand-hooks.ts'
+import { SmartAnchor } from '../primitives/SmartAnchor.tsx'
 
 export interface RepAlignmentStripProps {
   /** Per-issue alignment for this rep, or `null` while loading / unselected. */
@@ -11,6 +12,13 @@ export interface RepAlignmentStripProps {
   hasSelections: boolean
   /** Tapped the "set your issue priorities" CTA (route → the flow). */
   onSetup: () => void
+  /**
+   * Web: rendered as `href` on a real `<a>` for the setup CTA (state 1).
+   * Preserves middle-click / Cmd-click → "open in new tab", status-bar URL
+   * preview, browser history. Plain left-click still routes via `onSetup`.
+   * Native (or web without it): the existing `<Pressable onPress={onSetup}>`.
+   */
+  setupHref?: string
   /** Tapped the strip to open the radar overlay. */
   onExpand: () => void
   /** Whether the overlay is currently open (drives aria-expanded + chevron). */
@@ -35,6 +43,7 @@ export function RepAlignmentStrip({
   alignment,
   hasSelections,
   onSetup,
+  setupHref,
   onExpand,
   expanded = false,
 }: RepAlignmentStripProps): React.JSX.Element {
@@ -42,16 +51,37 @@ export function RepAlignmentStrip({
 
   // State 1 — no selections yet: invite the user into the flow.
   if (!hasSelections) {
+    const stripStyle = [
+      styles.strip,
+      { backgroundColor: semantic.bg.subtle, borderColor: semantic.border.default },
+    ]
+    const ctaContent = (
+      <Text style={[styles.ctaText, { color: semantic.link.fg }]} numberOfLines={2}>
+        Set your issue priorities to see how they align →
+      </Text>
+    )
+    // Web smart-anchor: real <a href> with modifier-key passthrough; plain
+    // left-click still dispatches to onSetup (client-side router.push).
+    if (Platform.OS === 'web' && setupHref) {
+      return (
+        <SmartAnchor
+          href={setupHref}
+          onPress={onSetup}
+          accessibilityLabel="Set your issue priorities"
+          style={StyleSheet.flatten([...stripStyle, { display: 'flex', cursor: 'pointer' }])}
+        >
+          {ctaContent}
+        </SmartAnchor>
+      )
+    }
     return (
       <Pressable
         onPress={onSetup}
         accessibilityRole="button"
         accessibilityLabel="Set your issue priorities"
-        style={[styles.strip, { backgroundColor: semantic.bg.subtle, borderColor: semantic.border.default }]}
+        style={stripStyle}
       >
-        <Text style={[styles.ctaText, { color: semantic.link.fg }]} numberOfLines={2}>
-          Set your issue priorities to see how they align →
-        </Text>
+        {ctaContent}
       </Pressable>
     )
   }

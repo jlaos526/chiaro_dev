@@ -1,6 +1,6 @@
-import { createElement } from 'react'
-import { Linking, Platform, Pressable, Text, View } from 'react-native'
+import { Linking, Text, View } from 'react-native'
 import { useBrandTokens } from '../brand-hooks.ts'
+import { SmartAnchor } from '../primitives/SmartAnchor.tsx'
 
 export interface BioContactLinksProps {
   officialUrl: string | null
@@ -24,42 +24,7 @@ function openUrl(url: string): void {
   Linking.openURL(url).catch(() => {})
 }
 
-interface SmartLinkProps {
-  href: string
-  onPress: () => void
-  children: React.ReactNode
-}
-
-function SmartLink({ href, onPress, children }: SmartLinkProps): React.JSX.Element {
-  // Web smart-anchor case: real <a href> with intercepted plain left-click.
-  if (Platform.OS === 'web') {
-    return createElement(
-      'a',
-      {
-        href,
-        onClick: (e: MouseEvent) => {
-          // Honor modifier-key + middle-click → browser default (new tab etc.).
-          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return
-          e.preventDefault()
-          onPress()
-        },
-        style: {
-          textDecoration: 'none',
-          cursor: 'pointer',
-          display: 'inline-block',
-        },
-      },
-      children,
-    )
-  }
-
-  // Native fallback.
-  return (
-    <Pressable accessibilityRole="link" onPress={onPress}>
-      {children}
-    </Pressable>
-  )
-}
+const LINK_ANCHOR_STYLE = { cursor: 'pointer', display: 'inline-block' } as const
 
 export function BioContactLinks({
   officialUrl,
@@ -74,21 +39,23 @@ export function BioContactLinks({
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
       {officialUrl ? (
-        <SmartLink
+        <SmartAnchor
           href={officialHref ?? officialUrl}
           onPress={() => openUrl(officialUrl)}
+          style={LINK_ANCHOR_STYLE}
         >
           <Text style={linkStyle}>{officialUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')}</Text>
-        </SmartLink>
+        </SmartAnchor>
       ) : null}
       {officialUrl && twitterHandle ? <Text style={{ color: semantic.border.default }}>·</Text> : null}
       {twitterHandle ? (
-        <SmartLink
+        <SmartAnchor
           href={twitterHref ?? `https://twitter.com/${twitterHandle}`}
           onPress={() => openUrl(`https://twitter.com/${twitterHandle}`)}
+          style={LINK_ANCHOR_STYLE}
         >
           <Text style={linkStyle}>@{twitterHandle}</Text>
-        </SmartLink>
+        </SmartAnchor>
       ) : null}
     </View>
   )

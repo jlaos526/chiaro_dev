@@ -264,6 +264,8 @@ export { BrandButton, type BrandButtonProps } from './primitives/BrandButton.tsx
 export { BrandHeading, type BrandHeadingProps } from './primitives/BrandHeading.tsx'
 export { BrandBodyText, type BrandBodyTextProps } from './primitives/BrandBodyText.tsx'
 export { BrandLink, type BrandLinkProps } from './primitives/BrandLink.tsx'
+// Slice 61 — behavior-only smart anchor (style-agnostic; caller owns visuals).
+export { SmartAnchor, type SmartAnchorProps } from './primitives/SmartAnchor.tsx'
 export {
   BrandAlert,
   type BrandAlertProps,

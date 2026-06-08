@@ -1,9 +1,10 @@
 'use client'
 
-import { createElement, useState } from 'react'
-import { Linking, Platform, Pressable, Text, View } from 'react-native'
+import { useState } from 'react'
+import { Pressable, Text, View } from 'react-native'
 import { useBrandTokens, useCategoryAccent, useCategoryCardBg } from '../brand-hooks.ts'
 import { PillChevron } from '../cards/PillChevron.tsx'
+import { SmartAnchor } from '../primitives/SmartAnchor.tsx'
 
 export interface TopAmountRow {
   label: string
@@ -118,40 +119,23 @@ export function TopAmountBreakdown({
         </Pressable>
       ) : null}
       {sourceUrl ? (
-        Platform.OS === 'web' ? (
-          createElement(
-            'a',
-            {
-              href: sourceUrl,
-              onClick: (e: MouseEvent) => {
-                // Honor modifier-key + middle-click → browser default (new tab etc.).
-                if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return
-                e.preventDefault()
-                Linking.openURL(sourceUrl).catch(() => {})
-              },
-              style: {
-                marginTop: 12,
-                fontSize: 12,
-                color: semantic.link.fg,
-                textDecoration: 'underline',
-                cursor: 'pointer',
-                display: 'inline-block',
-              },
-            },
-            '→ full breakdown on OpenSecrets',
-          )
-        ) : (
-          <Pressable
-            accessibilityRole="link"
-            onPress={() => Linking.openURL(sourceUrl).catch(() => {})}
+        <SmartAnchor
+          href={sourceUrl}
+          style={{
+            marginTop: 12,
+            fontSize: 12,
+            color: semantic.link.fg,
+            textDecoration: 'underline',
+            cursor: 'pointer',
+            display: 'inline-block',
+          }}
+        >
+          <Text
+            style={{ fontSize: 12, color: semantic.link.fg, textDecorationLine: 'underline' }}
           >
-            <Text
-              style={{ marginTop: 12, fontSize: 12, color: semantic.link.fg, textDecorationLine: 'underline' }}
-            >
-              → full breakdown on OpenSecrets
-            </Text>
-          </Pressable>
-        )
+            → full breakdown on OpenSecrets
+          </Text>
+        </SmartAnchor>
       ) : null}
     </View>
   )

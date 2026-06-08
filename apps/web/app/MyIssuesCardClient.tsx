@@ -16,6 +16,7 @@ export function MyIssuesCardClient(): React.JSX.Element {
       selections={selections}
       catalog={catalog}
       onEdit={() => router.push('/issues')}
+      editHref="/issues"
     />
   )
 }
