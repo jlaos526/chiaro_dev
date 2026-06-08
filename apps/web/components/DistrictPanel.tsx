@@ -13,7 +13,7 @@ import type { DistrictMapDistrict } from './DistrictMap'
 
 const client = createSupabaseBrowserClient()
 
-// Defer Leaflet to client-only — react-leaflet 4 + React 19 strict-mode
+// Defer Leaflet to client-only — react-leaflet 5 + React 19 strict-mode
 // double-mount triggers "Map container is already initialized" otherwise.
 const DistrictMap = dynamic(
   () => import('./DistrictMap').then(m => m.DistrictMap),

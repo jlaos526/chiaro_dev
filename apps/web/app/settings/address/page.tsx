@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { addressInputSchema, getMyLocation } from '@chiaro/location'
+import { mapCalibrateError } from '@/lib/calibrate-error'
 import {
   BrandFormScreen,
   BrandTextInput,
@@ -46,9 +47,7 @@ export default function EditAddressPage(): React.JSX.Element {
     setLoading(false)
     if (invokeErr) {
       const status = (invokeErr as { context?: { status?: number } }).context?.status
-      if (status === 400) setError("We couldn't find that address.")
-      else if (status === 502) setError('Address lookup is temporarily unavailable. Try again.')
-      else setError('Could not save. Try again.')
+      setError(mapCalibrateError(status))
       return
     }
     router.push('/settings')
