@@ -1,6 +1,11 @@
 export { COLORS, type BrandColor } from './colors.ts'
 export { MAP_COLORS, MAP_COLORS_DARK, type MapColor } from './map-colors.ts'
 export {
+  DISTRICT_TIER_COLOR,
+  DISTRICT_TIER_COLOR_DARK,
+  type DistrictTierKey,
+} from './district-tier.ts'
+export {
   type PartyCode,
   PARTY_COLOR,
   PARTY_COLOR_DARK,
