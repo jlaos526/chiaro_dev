@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import MapView, { Polygon, Marker, PROVIDER_DEFAULT } from 'react-native-maps'
 import { TIER_LABEL, DISTRICT_GROUPS, type DistrictTier } from '@chiaro/location'
-import { useMapColors, useDistrictTierColors } from '@chiaro/officials-ui'
-import { COLORS } from '@chiaro/ui-tokens'
+import { useMapColors, useDistrictTierColors, useBrandTokens } from '@chiaro/officials-ui'
 
 export type DistrictMapDistrict = {
   id: string
@@ -22,6 +21,7 @@ export function DistrictMap({
 }) {
   const mapColors = useMapColors()
   const tierColors = useDistrictTierColors()
+  const { semantic } = useBrandTokens()
   // U.S. Senate tiers default to off — both seats represent the entire state,
   // so their boundaries dominate the view and obscure local context.
   const [enabled, setEnabled] = useState<Record<string, boolean>>(
@@ -46,12 +46,12 @@ export function DistrictMap({
           if (inGroup.length === 0) return null
           return (
             <View key={group.heading} style={styles.groupRow}>
-              <Text style={styles.groupHeading}>{group.heading}</Text>
+              <Text style={[styles.groupHeading, { color: semantic.text.muted }]}>{group.heading}</Text>
               <View style={styles.toggleRow}>
                 {inGroup.map(d => (
                   <Pressable
                     key={d.id}
-                    style={[styles.toggle, enabled[d.id] && { backgroundColor: tierColors[d.tier] }]}
+                    style={[styles.toggle, { borderColor: semantic.border.default }, enabled[d.id] && { backgroundColor: tierColors[d.tier] }]}
                     onPress={() => setEnabled(prev => ({ ...prev, [d.id]: !prev[d.id] }))}
                   >
                     <Text style={[styles.toggleText, enabled[d.id] && { color: 'white' }]}>
@@ -120,12 +120,11 @@ const styles = StyleSheet.create({
   groupHeading: {
     fontSize: 11,
     fontWeight: '700',
-    color: COLORS.neutral.textMuted,
     letterSpacing: 1,
     minWidth: 56,
     paddingTop: 6,
   },
   toggleRow: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  toggle: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, borderWidth: 1, borderColor: COLORS.neutral.outline },
+  toggle: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, borderWidth: 1 },
   toggleText: { fontSize: 11, fontWeight: '700' },
 })
