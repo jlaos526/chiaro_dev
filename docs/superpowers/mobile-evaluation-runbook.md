@@ -23,6 +23,30 @@
   and dev-client is the production-equivalent runtime. Use it only for throwaway UI
   checks.
 
+## Fast path: let Claude set the machine up
+
+The repo ships a project skill (`.claude/skills/eval-machine-setup/SKILL.md`)
+that drives this entire runbook interactively — platform detection, tool
+installs, backend bootstrap, `.env` with the platform-correct URL, dev-client
+build, and a guided smoke. On a **fresh machine**:
+
+1. Install [Claude Code](https://claude.com/claude-code) and sign in.
+2. Paste this into a Claude Code session opened anywhere:
+
+   > Set up this machine for Chiaro mobile evaluation. Clone
+   > `git@github.com:jlaos526/chiaro_dev.git` into a folder of my choice first
+   > (install git/node if needed), then open the repo and follow the
+   > `eval-machine-setup` skill in `.claude/skills/` end-to-end. This machine is
+   > for **[Android emulator / iOS Simulator / physical device]**. Ask me for
+   > API keys when you need them.
+
+3. Have ready: your `GEOCODIO_KEY` and `CONGRESS_GOV_API_KEY` (free signups —
+   Claude will offer the URLs), and be prepared to click through the two things
+   Claude can't do itself: Android Studio's first-run SDK wizard (Windows) or
+   the App Store Xcode install + license (macOS).
+
+The manual path follows below — same steps, human-driven.
+
 ## 0. Common prerequisites (both machines)
 
 | Tool | Version | Notes |
