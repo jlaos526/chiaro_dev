@@ -15,9 +15,24 @@ vi.mock('@chiaro/officials', async () => {
   }
 })
 
+import { BRAND_SEMANTIC } from '@chiaro/ui-tokens'
 import { ChiaroClientProvider } from '../src/client-context.tsx'
 import { OfficialsList } from '../src/OfficialsList.tsx'
 import { BrandModeOverrideContext } from '../src/brand-hooks.ts'
+
+// RNW StyleSheet normalizes hex colors to rgb(R, G, B) form in inline styles
+// (see Gotcha #19 / slice 39 RNW pattern findings). Accept either form.
+function hexToRgb(hex: string): string {
+  const cleaned = hex.replace('#', '')
+  const r = parseInt(cleaned.slice(0, 2), 16)
+  const g = parseInt(cleaned.slice(2, 4), 16)
+  const b = parseInt(cleaned.slice(4, 6), 16)
+  return `rgb(${r}, ${g}, ${b})`
+}
+
+function styleContainsColor(style: string, hex: string): boolean {
+  return style.includes(hex) || style.includes(hexToRgb(hex))
+}
 
 const mockClient = { from: () => {} } as unknown as ChiaroClient
 
@@ -57,6 +72,20 @@ describe('OfficialsList', () => {
     useMyOfficialsMock.mockReturnValue({ data: null, isLoading: true, error: null })
     const { getByText } = wrap(<OfficialsList onSelect={vi.fn()} onCalibrate={vi.fn()} />)
     expect(getByText(/Loading/i)).toBeTruthy()
+  })
+
+  it('error branch renders a Retry affordance that calls refetch (audit U2-rider)', () => {
+    const refetch = vi.fn()
+    useMyOfficialsMock.mockReturnValue({
+      data: null,
+      isLoading: false,
+      error: new Error('boom'),
+      refetch,
+    })
+    const { getByText } = wrap(<OfficialsList onSelect={vi.fn()} onCalibrate={vi.fn()} />)
+    expect(getByText("Couldn't load officials.")).toBeTruthy()
+    fireEvent.click(getByText('Retry'))
+    expect(refetch).toHaveBeenCalledTimes(1)
   })
 
   it('shows calibrate prompt when no officials and invokes onCalibrate', () => {
@@ -240,5 +269,32 @@ describe('OfficialsList — mode awareness', () => {
     expect(() =>
       wrapWithMode(<OfficialsList onSelect={vi.fn()} onCalibrate={vi.fn()} />, 'dark'),
     ).not.toThrow()
+  })
+
+  it('colors names + section titles with the dark text.primary token in dark mode (audit U3)', () => {
+    useMyOfficialsMock.mockReturnValue({
+      data: [mkOfficial('federal_house', 'Pelosi', 'oid-pelosi')],
+      isLoading: false,
+      error: null,
+    })
+    const { getByText } = wrapWithMode(
+      <OfficialsList onSelect={vi.fn()} onCalibrate={vi.fn()} />,
+      'dark',
+    )
+    const darkPrimary = BRAND_SEMANTIC.dark.text.primary
+    const nameStyle = getByText('Pelosi').getAttribute('style') ?? ''
+    expect(styleContainsColor(nameStyle, darkPrimary)).toBe(true)
+    const titleStyle = getByText('House').getAttribute('style') ?? ''
+    expect(styleContainsColor(titleStyle, darkPrimary)).toBe(true)
+  })
+
+  it('colors the loading state with the dark text.muted token in dark mode (audit U3)', () => {
+    useMyOfficialsMock.mockReturnValue({ data: null, isLoading: true, error: null })
+    const { getByText } = wrapWithMode(
+      <OfficialsList onSelect={vi.fn()} onCalibrate={vi.fn()} />,
+      'dark',
+    )
+    const loadingStyle = getByText('Loading…').getAttribute('style') ?? ''
+    expect(styleContainsColor(loadingStyle, BRAND_SEMANTIC.dark.text.muted)).toBe(true)
   })
 })

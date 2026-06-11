@@ -1,5 +1,7 @@
 import { Drawer } from 'expo-router/drawer'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { RefreshControl } from 'react-native'
+import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
 import { supabase } from '@/lib/supabase'
 import { getMyProfile } from '@chiaro/profile'
@@ -37,6 +39,18 @@ export default function Home() {
   const { data: issueSelections = [] } = useMySelections(supabase)
   const { data: issueCatalog = [] } = useIssueCatalog(supabase)
 
+  // Pull-to-refresh (audit U2-rider): broad invalidation is acceptable v1.
+  const queryClient = useQueryClient()
+  const [refreshing, setRefreshing] = useState(false)
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    try {
+      await queryClient.invalidateQueries()
+    } finally {
+      setRefreshing(false)
+    }
+  }, [queryClient])
+
   const greetingName = profile?.display_name ?? profile?.username ?? null
   const greeting = greetingName ? `Welcome, ${greetingName}` : 'Welcome'
 
@@ -44,7 +58,9 @@ export default function Home() {
     <>
       <Drawer.Screen options={{ title: 'Home' }} />
       {loaded ? (
-        <BrandPageScreen>
+        <BrandPageScreen
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        >
           <Logo variant="lockup" size={24} wordmarkSize={28} />
           <BrandHeading level={1}>{greeting}</BrandHeading>
           {!profile?.completed ? (

@@ -1,11 +1,13 @@
 import { Text } from 'react-native'
 import type { OfficialWithDistrict } from '@chiaro/officials'
+import { useBrandTokens } from './brand-hooks.ts'
 
 export interface OfficialMetaProps {
   official: OfficialWithDistrict
 }
 
 export function OfficialMeta({ official }: OfficialMetaProps): React.JSX.Element {
+  const { semantic } = useBrandTokens()
   const chamberLabel = official.chamber === 'federal_house' ? 'House' : 'Senate'
   const districtSuffix =
     official.chamber === 'federal_house'
@@ -18,7 +20,7 @@ export function OfficialMeta({ official }: OfficialMetaProps): React.JSX.Element
       })}`
     : ''
   return (
-    <Text>
+    <Text style={{ color: semantic.text.muted }}>
       {chamberLabel}
       {districtSuffix}
       {term}

@@ -22,6 +22,12 @@ jest.mock('@/lib/supabase', () => ({ supabase: {} }))
 jest.mock('@/lib/derivations/alignment', () => ({ selectTopAlignmentChips: () => [] }))
 jest.mock('@/lib/derivations/service-record', () => ({ firstElectedYear: () => null }))
 
+// The screen wires pull-to-refresh via useQueryClient (slice 65 U2-rider); no
+// QueryClientProvider in this mock-heavy test, so stub the hook.
+jest.mock('@tanstack/react-query', () => ({
+  useQueryClient: () => ({ invalidateQueries: jest.fn().mockResolvedValue(undefined) }),
+}))
+
 jest.mock('@chiaro/officials', () => ({
   isStateLevel: () => false,
   STATE_NAMES: { CA: 'California' },

@@ -28,6 +28,12 @@ jest.mock('@chiaro/issues', () => ({
   useIssueCatalog: () => ({ data: [] }),
 }))
 
+// Home wires pull-to-refresh via useQueryClient (slice 65 U2-rider); no
+// QueryClientProvider in this mock-heavy test, so stub the hook.
+jest.mock('@tanstack/react-query', () => ({
+  useQueryClient: () => ({ invalidateQueries: jest.fn().mockResolvedValue(undefined) }),
+}))
+
 type SelectArg = { officialId: string; subCascadeSlug?: string }
 let capturedOnSelect: ((arg: SelectArg) => void) | null = null
 jest.mock('@chiaro/officials-ui', () => {

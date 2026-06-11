@@ -7,6 +7,7 @@ import { BrandHeading } from '../primitives/BrandHeading.tsx'
 import { BrandBodyText } from '../primitives/BrandBodyText.tsx'
 import { BrandLink } from '../primitives/BrandLink.tsx'
 import { WEB_VIEWPORT_FILL } from './_viewport-fill.ts'
+import { NativeFormShell } from './_native-form-shell.tsx'
 
 export interface BrandFormScreenProps {
   /** Required h1 page title. */
@@ -45,6 +46,30 @@ export function BrandFormScreen({
   children,
 }: BrandFormScreenProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
+
+  const card = (
+    <View style={[styles.card, { backgroundColor: semantic.bg.elevated }]}>
+      {backHref && backLabel ? (
+        <View style={styles.backLinkWrap}>
+          <BrandLink href={backHref}>{backLabel}</BrandLink>
+        </View>
+      ) : null}
+      <BrandHeading level={1}>{title}</BrandHeading>
+      {subtitle ? (
+        <View style={styles.subtitleWrap}>
+          <BrandBodyText size="sm" muted>{subtitle}</BrandBodyText>
+        </View>
+      ) : null}
+      <View style={styles.formChildrenWrap}>{children}</View>
+    </View>
+  )
+
+  // Native: scroll + keyboard avoidance for the centered form card
+  // (audit U0/C8 + U5). Web keeps the plain-View path byte-identical below.
+  if (Platform.OS !== 'web') {
+    return <NativeFormShell backgroundColor={semantic.bg.app}>{card}</NativeFormShell>
+  }
+
   return (
     <View
       style={[
@@ -54,20 +79,7 @@ export function BrandFormScreen({
         WEB_RAIL_AWARE_PADDING,
       ]}
     >
-      <View style={[styles.card, { backgroundColor: semantic.bg.elevated }]}>
-        {backHref && backLabel ? (
-          <View style={styles.backLinkWrap}>
-            <BrandLink href={backHref}>{backLabel}</BrandLink>
-          </View>
-        ) : null}
-        <BrandHeading level={1}>{title}</BrandHeading>
-        {subtitle ? (
-          <View style={styles.subtitleWrap}>
-            <BrandBodyText size="sm" muted>{subtitle}</BrandBodyText>
-          </View>
-        ) : null}
-        <View style={styles.formChildrenWrap}>{children}</View>
-      </View>
+      {card}
     </View>
   )
 }

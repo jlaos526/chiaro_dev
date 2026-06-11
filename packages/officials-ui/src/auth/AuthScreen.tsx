@@ -1,8 +1,9 @@
 'use client'
 
-import { StyleSheet, View } from 'react-native'
+import { Platform, StyleSheet, View } from 'react-native'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { WEB_VIEWPORT_FILL } from '../screens/_viewport-fill.ts'
+import { NativeFormShell } from '../screens/_native-form-shell.tsx'
 import { AuthForm, type AuthFormProps } from './AuthForm.tsx'
 import { AuthWordmark } from './AuthWordmark.tsx'
 
@@ -14,16 +15,27 @@ export interface AuthScreenProps extends AuthFormProps {
 
 export function AuthScreen({ showBranding = true, ...formProps }: AuthScreenProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
+
+  const card = (
+    <View style={[styles.card, { backgroundColor: semantic.bg.elevated }]}>
+      {showBranding && (
+        <View style={styles.wordmarkWrap}>
+          <AuthWordmark size="md" />
+        </View>
+      )}
+      <AuthForm {...formProps} />
+    </View>
+  )
+
+  // Native: scroll + keyboard avoidance for the centered card (audit U0/C8
+  // + U5). Web keeps the plain-View path byte-identical below.
+  if (Platform.OS !== 'web') {
+    return <NativeFormShell backgroundColor={semantic.bg.app}>{card}</NativeFormShell>
+  }
+
   return (
     <View style={[styles.outer, { backgroundColor: semantic.bg.app }, WEB_VIEWPORT_FILL]}>
-      <View style={[styles.card, { backgroundColor: semantic.bg.elevated }]}>
-        {showBranding && (
-          <View style={styles.wordmarkWrap}>
-            <AuthWordmark size="md" />
-          </View>
-        )}
-        <AuthForm {...formProps} />
-      </View>
+      {card}
     </View>
   )
 }
