@@ -7,12 +7,20 @@ const config: ExpoConfig = {
   version: '0.0.0',
   orientation: 'portrait',
   newArchEnabled: true,
+  // Splash is a flat brand-cream screen for now (BRAND surface.base light);
+  // real splash/icon artwork is design-track work (audit C14) — evaluation
+  // builds show the default Expo icon, which is cosmetic and accepted.
+  splash: {
+    backgroundColor: '#efece5',
+  },
   ios: {
     supportsTablet: false,
     bundleIdentifier: 'com.chiaro.app',
     infoPlist: {
-      NSLocationWhenInUseUsageDescription:
-        'Chiaro uses your location to find the elected officials representing your address.',
+      // GPS calibrate is foreground-only; no background location, no
+      // encryption beyond HTTPS (audit C53 — keeps App Store submission
+      // from prompting for export-compliance answers every build).
+      ITSAppUsesNonExemptEncryption: false,
     },
   },
   android: {
@@ -22,10 +30,14 @@ const config: ExpoConfig = {
   plugins: [
     'expo-router',
     [
+      // WhenInUse ONLY (audit C53): the GPS path (calibrate "Use my current
+      // location") is foreground-only. The previous config requested
+      // Always-and-WhenInUse and ALSO duplicated the WhenInUse string in
+      // ios.infoPlist — the plugin is now the single source of truth.
       'expo-location',
       {
-        locationAlwaysAndWhenInUsePermission:
-          'Allow Chiaro to use your location to find your elected officials.',
+        locationWhenInUsePermission:
+          'Chiaro uses your location to find the elected officials representing your address.',
       },
     ],
     [

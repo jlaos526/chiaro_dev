@@ -1,39 +1,35 @@
 # Mobile On-Device DoD Checklist
 
-> Slice 2.5 / 3.5 follow-up. Run once per significant mobile-touching slice.
-> Last updated: 2026-05-18 (covers slices 1–3 + 4 + 4.5 + 5A redesigns + 5B telemetry coverage).
+> Run once per significant mobile-touching slice.
+> Last updated: 2026-06-11 (slice 64 — covers slices 1–61; added state-officials +
+> issue-priorities sections; build path switched to local dev clients).
+> Known pre-existing failures are listed in the evaluation runbook §5 — check there
+> before triaging a failure as new.
 
-## Build the APK
+## Get a build running
 
-Prerequisites:
-- [Expo account](https://expo.dev/) (free tier sufficient)
-- `eas-cli` installed locally (`npm i -g eas-cli`)
-- Logged in: `eas login`
-- Linked to the project: `cd apps/mobile && eas init` (or verify `extra.eas.projectId` matches `f4d18da9-9c95-4c6a-8a34-c77189eca749`)
+**Primary path (slice 64): local dev-client builds** — Android Studio emulator/USB
+device on a Windows PC, Xcode Simulator/free-team iPhone on a Mac. Full setup
+(toolchains, per-machine backend, env gotchas like Android's `10.0.2.2`, Edge
+Function serving) lives in `docs/superpowers/mobile-evaluation-runbook.md`. Short
+version once set up:
 
-Build command:
 ```bash
 cd apps/mobile
-eas build --profile development --platform android
+npx expo run:android     # or: npx expo run:ios
 ```
 
-This produces an APK with the development client (Metro can connect). Build
-queues on Expo's free tier may take 15–45 minutes. The CLI prints a build URL;
-the APK download link appears there when ready.
+**Alternative: EAS cloud APK** (no local toolchain needed; free-tier queue
+15–45 min). `EXPO_TOKEN` is set as a repo secret; locally: `eas login`, then:
 
-iOS device builds need Apple Developer credentials and an interactive
-provisioning step; defer until a paid Apple account is available.
+```bash
+cd apps/mobile
+eas build --profile development --platform android      # APK for device/emulator
+eas build --profile development-simulator --platform ios # iOS Simulator build
+```
 
-## Install on device
-
-1. Enable "Install from unknown sources" on the Android device (Settings →
-   Security → Install unknown apps → allow your file manager / browser).
-2. Download the APK from the EAS build URL on the device's browser.
-3. Open the APK → Install.
-4. Start Metro from dev machine: `pnpm --filter @chiaro/mobile dev` (or
-   `cd apps/mobile && npx expo start --dev-client`).
-5. Open the installed Chiaro app on the device → tap "Enter URL manually"
-   if needed and paste the Metro URL printed in the terminal.
+Install the APK via download-on-device (enable "Install unknown apps") or
+`adb install`, then connect to Metro: `npx expo start --dev-client`.
 
 ## Smoke checklist
 
@@ -303,6 +299,39 @@ the user was on the calibrate flow.
 - [ ] Keyboard does not push drawer off-screen
 - [ ] /officials/[id] + /state-officials/[id] hidden from drawer menu + back-arrow returns to officials list
 - [ ] /calibrate hidden from drawer menu (pre-calibration redirect still works)
+
+## Slices 5C–5I — State officials surfaces
+
+> Prereq: `pnpm seed:state-officials` (+ optionally `seed:state-bills-full`,
+> `seed:state-finance` for fuller cards). Calibrate to an address in CA/NY/FL/TX/MI
+> for the richest data.
+
+- [ ] Home shows state legislators (state house + senate) alongside federal
+- [ ] Tap a state official → `/state-officials/[id]` detail renders
+- [ ] Cards present: Service Record (incl. Performance metrics subsection),
+      Community Presence (3 subsections), Finance, Issue Positions,
+      Financial Disclosures, Conduct
+- [ ] NULL metrics render "—" (not 0); all-NULL reps show empty states (slice 57)
+- [ ] Cross-route guard: a federal id under /state-officials redirects (and vice versa)
+- [ ] NE unicameral official (if seeded) labels as "State Senator"
+
+## Slices 52–54 — Issue priorities + alignment
+
+> Prereq: `pnpm seed:issue-catalog`. Signed-in + calibrated user.
+
+- [ ] Settings → "Issue priorities" row opens the flow; home MyIssuesCard CTA too
+- [ ] 5-step flow: Welcome → topic picker (≤6) → lens picker → quiz
+      (Disagree/Agree/Skip + ★ importance) → radar result
+- [ ] Quiz progress counter announces via screen reader (aria-live, slice 61)
+- [ ] Save → home MyIssuesCard shows the radar summary
+- [ ] Federal official detail: RepAlignmentStrip shows overall % + per-axis dots
+- [ ] Tap strip → two-polygon you-vs-rep radar overlay (filled you, dashed rep;
+      legend ▰ You / ▱ rep; slice 54)
+- [ ] State official detail: strip present; "Set up" CTA when no selections
+- [ ] ★ priority tags on matching scorecard rows (Issue Positions card)
+- [ ] ⚑ watchlist flags on federal reps matching donor watchlists (slice 53;
+      federal-only by design — state reps never flag)
+- [ ] Logged-out / uncalibrated: cards byte-identical to pre-slice-52 (no flags)
 
 ## After the run
 
