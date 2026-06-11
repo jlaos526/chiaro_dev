@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { WEB_VIEWPORT_FILL } from '../screens/_viewport-fill.ts'
+import { NativeFormShell } from '../screens/_native-form-shell.tsx'
 import { BrandTextInput } from '../inputs/BrandTextInput.tsx'
 
 export interface CalibrateScreenProps {
@@ -66,50 +67,60 @@ export function CalibrateScreen({
     }
   }
 
-  return (
-    <View style={[styles.outer, { backgroundColor: semantic.bg.app }, WEB_VIEWPORT_FILL]}>
-      <View style={[styles.card, { backgroundColor: semantic.bg.elevated }]}>
-        <Text style={[styles.title, { color: semantic.text.primary }]}>{title}</Text>
-        <Text style={[styles.description, { color: semantic.text.muted }]}>{description}</Text>
-        {onGpsSubmit ? (
-          <Pressable
-            onPress={loading ? undefined : handleGps}
-            accessibilityRole="button"
-            accessibilityState={{ disabled: loading }}
-            aria-disabled={loading}
-            style={[styles.gpsButton, { borderColor: semantic.accent.primary, opacity: loading ? 0.6 : 1 }]}
-          >
-            <Text style={[styles.gpsButtonText, { color: semantic.accent.primary }]}>
-              {loading ? gpsLoadingLabel : gpsLabel}
-            </Text>
-          </Pressable>
-        ) : null}
-        <BrandTextInput
-          label="Address"
-          value={address}
-          onChangeText={setAddress}
-          placeholder="123 Main St, Brooklyn, NY 11201"
-        />
-        {error ? (
-          <Text role="alert" style={[styles.error, { color: semantic.alert.danger.fg }]}>{error}</Text>
-        ) : null}
+  const card = (
+    <View style={[styles.card, { backgroundColor: semantic.bg.elevated }]}>
+      <Text style={[styles.title, { color: semantic.text.primary }]}>{title}</Text>
+      <Text style={[styles.description, { color: semantic.text.muted }]}>{description}</Text>
+      {onGpsSubmit ? (
         <Pressable
-          onPress={loading ? undefined : handleSubmit}
+          onPress={loading ? undefined : handleGps}
           accessibilityRole="button"
           accessibilityState={{ disabled: loading }}
           aria-disabled={loading}
-          style={[styles.cta, { backgroundColor: semantic.accent.primary, opacity: loading ? 0.6 : 1 }]}
+          style={[styles.gpsButton, { borderColor: semantic.accent.primary, opacity: loading ? 0.6 : 1 }]}
         >
-          <Text style={[styles.ctaText, { color: semantic.text.onAccent }]}>
-            {loading ? loadingLabel : submitLabel}
+          <Text style={[styles.gpsButtonText, { color: semantic.accent.primary }]}>
+            {loading ? gpsLoadingLabel : gpsLabel}
           </Text>
         </Pressable>
-        {onSkip ? (
-          <Pressable onPress={onSkip} accessibilityRole="button" style={styles.skip}>
-            <Text style={[styles.skipText, { color: semantic.text.muted }]}>Skip for now</Text>
-          </Pressable>
-        ) : null}
-      </View>
+      ) : null}
+      <BrandTextInput
+        label="Address"
+        value={address}
+        onChangeText={setAddress}
+        placeholder="123 Main St, Brooklyn, NY 11201"
+      />
+      {error ? (
+        <Text role="alert" style={[styles.error, { color: semantic.alert.danger.fg }]}>{error}</Text>
+      ) : null}
+      <Pressable
+        onPress={loading ? undefined : handleSubmit}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: loading }}
+        aria-disabled={loading}
+        style={[styles.cta, { backgroundColor: semantic.accent.primary, opacity: loading ? 0.6 : 1 }]}
+      >
+        <Text style={[styles.ctaText, { color: semantic.text.onAccent }]}>
+          {loading ? loadingLabel : submitLabel}
+        </Text>
+      </Pressable>
+      {onSkip ? (
+        <Pressable onPress={onSkip} accessibilityRole="button" style={styles.skip}>
+          <Text style={[styles.skipText, { color: semantic.text.muted }]}>Skip for now</Text>
+        </Pressable>
+      ) : null}
+    </View>
+  )
+
+  // Native: scroll + keyboard avoidance for the centered card (audit U0/C8
+  // + U5). Web keeps the plain-View path byte-identical below.
+  if (Platform.OS !== 'web') {
+    return <NativeFormShell backgroundColor={semantic.bg.app}>{card}</NativeFormShell>
+  }
+
+  return (
+    <View style={[styles.outer, { backgroundColor: semantic.bg.app }, WEB_VIEWPORT_FILL]}>
+      {card}
     </View>
   )
 }

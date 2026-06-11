@@ -19,6 +19,7 @@ jest.mock('@chiaro/officials-ui/src/nav/BackButton.tsx', () => ({ BackButton: ()
 jest.mock('@react-native-async-storage/async-storage', () => ({
   setItem: jest.fn().mockResolvedValue(undefined),
   getItem: jest.fn().mockResolvedValue(null),
+  removeItem: jest.fn().mockResolvedValue(undefined),
 }))
 
 const mockInvoke = jest.fn()
@@ -76,6 +77,10 @@ describe('mobile /calibrate route handlers', () => {
       expect(mockInvoke).toHaveBeenCalledWith('calibrate-location', {
         body: { address: VALID_ADDRESS },
       })
+      // Successful calibration clears any earlier "Skip for now" flag so the
+      // slice-65 layout re-probe lands on 'calibrated' (review catch).
+      const AsyncStorage = jest.requireMock('@react-native-async-storage/async-storage')
+      expect(AsyncStorage.removeItem).toHaveBeenCalledWith('chiaro_skip_calibrate')
       expect(mockReplace).toHaveBeenCalledWith('/')
     })
 

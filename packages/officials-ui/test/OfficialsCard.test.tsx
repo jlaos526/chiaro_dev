@@ -69,6 +69,24 @@ describe('OfficialsCard', () => {
     expect(getByText(/Loading/i)).toBeTruthy()
   })
 
+  it('error branch renders a Retry affordance that calls refetch (audit U2-rider)', () => {
+    const refetch = vi.fn()
+    useMyOfficialsMock.mockReturnValue({
+      data: null,
+      isLoading: false,
+      error: new Error('boom'),
+      refetch,
+    })
+    useScorecardsMock.mockReturnValue({ data: [] })
+    useMetricsMock.mockReturnValue({ data: null })
+    const { getByText } = wrap(
+      <OfficialsCard onSelect={vi.fn()} onSeeAll={vi.fn()} onCalibrate={vi.fn()} />,
+    )
+    expect(getByText("Couldn't load officials.")).toBeTruthy()
+    fireEvent.click(getByText('Retry'))
+    expect(refetch).toHaveBeenCalledTimes(1)
+  })
+
   it('shows calibrate prompt when no officials and invokes onCalibrate', () => {
     useMyOfficialsMock.mockReturnValue({ data: [], isLoading: false, error: null })
     useScorecardsMock.mockReturnValue({ data: [] })

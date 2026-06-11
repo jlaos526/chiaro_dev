@@ -1,6 +1,6 @@
 'use client'
 
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useBrandTokens } from '../brand-hooks.ts'
 
 export type RailRouteKey = 'home' | 'officials' | 'settings'
@@ -23,6 +23,11 @@ const NAV_ITEMS: Array<{ key: RailRouteKey; label: string }> = [
   { key: 'officials', label: 'Officials' },
   { key: 'settings',  label: 'Settings' },
 ]
+
+// Native: bump rows from ~30px (7+7 padding + ~16px line) to a ≥44px
+// effective touch target (audit U5): 14+14 padding + ~16px line = 44px.
+// Web keeps the denser 7px padding (pointer input; rail density intentional).
+const NATIVE_NAV_ITEM_TOUCH = Platform.OS === 'web' ? null : { paddingVertical: 14 }
 
 export function BrandNavRailBody({
   user,
@@ -56,6 +61,7 @@ export function BrandNavRailBody({
               dataSet={{ active: active ? 'true' : 'false' } as Record<string, string>}
               style={[
                 styles.navItem,
+                NATIVE_NAV_ITEM_TOUCH,
                 { backgroundColor: active ? semantic.bg.elevated : 'transparent' },
               ]}
             >
@@ -67,7 +73,12 @@ export function BrandNavRailBody({
         })}
       </View>
       <View style={{ flex: 1 }} />
-      <Pressable accessibilityRole="button" accessibilityLabel="Sign out" onPress={onSignOut} style={styles.navItem}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Sign out"
+        onPress={onSignOut}
+        style={[styles.navItem, NATIVE_NAV_ITEM_TOUCH]}
+      >
         <Text style={[styles.navItemText, { color: semantic.alert.danger.fg, fontWeight: '600' }]}>Sign out</Text>
       </Pressable>
     </View>

@@ -32,10 +32,11 @@ function Section({
   onSelect: (target: { officialId: string }) => void
   getHref?: (target: { officialId: string }) => string
 }): React.JSX.Element | null {
+  const { semantic } = useBrandTokens()
   if (items.length === 0) return null
   return (
     <View accessibilityLabel={title} style={{ marginBottom: 24 }}>
-      <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8 }}>{title}</Text>
+      <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, color: semantic.text.primary }}>{title}</Text>
       <View style={{ gap: 12 }}>
         {items.map(o => {
           const handlePress = () => onSelect({ officialId: o.id })
@@ -45,7 +46,7 @@ function Section({
             <>
               <OfficialAvatar fullName={o.full_name} portraitUrl={o.portrait_url} size={48} />
               <View style={{ flex: 1 }}>
-                <Text style={{ fontWeight: '600' }}>{o.full_name}</Text>
+                <Text style={{ fontWeight: '600', color: semantic.text.primary }}>{o.full_name}</Text>
                 <PartyBadge party={o.party as Party} />
                 <OfficialMeta official={o} />
               </View>
@@ -106,10 +107,19 @@ export function OfficialsList({
 }: OfficialsListProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const client = useChiaroClient()
-  const { data, isLoading, error } = useMyOfficials(client)
+  const { data, isLoading, error, refetch } = useMyOfficials(client)
 
-  if (isLoading) return <Text>Loading…</Text>
-  if (error) return <Text>Couldn&apos;t load officials.</Text>
+  if (isLoading) return <Text style={{ color: semantic.text.muted }}>Loading…</Text>
+  if (error) {
+    return (
+      <View style={{ gap: 8 }}>
+        <Text style={{ color: semantic.text.muted }}>Couldn&apos;t load officials.</Text>
+        <Pressable onPress={() => { void refetch() }} accessibilityRole="button">
+          <Text style={{ color: semantic.accent.primary, fontWeight: '600' }}>Retry</Text>
+        </Pressable>
+      </View>
+    )
+  }
   if (!data || data.length === 0) {
     const calibrateContent = (
       <Text style={{ color: semantic.accent.primary }}>

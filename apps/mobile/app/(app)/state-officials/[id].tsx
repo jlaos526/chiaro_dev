@@ -1,6 +1,8 @@
 import { Drawer } from 'expo-router/drawer'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Text } from 'react-native'
+import { RefreshControl, Text } from 'react-native'
+import { useCallback, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useLocalSearchParams, Redirect, useRouter } from 'expo-router'
 import { useOfficial, useOfficialDistrictOffices, isStateLevel } from '@chiaro/officials'
 import { StateOfficialDetailPage, useBrandTokens } from '@chiaro/officials-ui'
@@ -15,8 +17,38 @@ export default function StateOfficialDetailScreen() {
   const officesQ = useOfficialDistrictOffices(supabase, officialId)
   const { semantic } = useBrandTokens()
 
-  if (officialQ.isLoading) return <Text>Loading…</Text>
-  if (!officialQ.data) return <Text>Not found</Text>
+  // Pull-to-refresh (audit U2-rider): broad invalidation is acceptable v1.
+  const queryClient = useQueryClient()
+  const [refreshing, setRefreshing] = useState(false)
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    try {
+      await queryClient.invalidateQueries()
+    } finally {
+      setRefreshing(false)
+    }
+  }, [queryClient])
+
+  // Audit U3: loading / not-found branches render inside the same SafeAreaView
+  // + brand-bg + header shell as the loaded branch (were bare <Text> under the
+  // notch, unreadable in dark mode, with no way to navigate back).
+  const statusShell = (message: string) => (
+    <>
+      <Drawer.Screen
+        options={{
+          title: 'State official',
+          drawerItemStyle: { display: 'none' },
+          headerLeft: () => <BackButton />,
+        }}
+      />
+      <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: semantic.bg.app }}>
+        <Text style={{ padding: 16, color: semantic.text.muted }}>{message}</Text>
+      </SafeAreaView>
+    </>
+  )
+
+  if (officialQ.isLoading) return statusShell('Loading…')
+  if (!officialQ.data) return statusShell('Not found')
 
   // Cross-route guard: federal IDs land on /officials/[id]
   if (!isStateLevel(officialQ.data.chamber)) {
@@ -37,6 +69,7 @@ export default function StateOfficialDetailScreen() {
           official={officialQ.data}
           offices={officesQ.data ?? []}
           onSetupIssues={() => router.push('/issues' as never)}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         />
       </SafeAreaView>
     </>

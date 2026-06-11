@@ -9,9 +9,13 @@ export default function SignUp() {
     const { data, error } = await supabase.auth.signUp({ email, password })
     if (error) throw new Error(error.message)
     if (!data.session) {
-      throw new Error('Check your email to confirm your account.')
+      // Email confirmation required (production); surface via the neutral
+      // notice channel (slice 61 E8) — this is the happy path, not an error
+      // (audit U6). Mirrors apps/web/app/sign-up/page.tsx.
+      return { notice: 'Check your email to confirm your account.' }
     }
     // expo-router auth guard at root layout handles post-auth redirect
+    return undefined
   }
 
   return (

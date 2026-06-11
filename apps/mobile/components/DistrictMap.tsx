@@ -64,7 +64,19 @@ export function DistrictMap({
           )
         })}
       </View>
-      <MapView style={styles.map} initialRegion={initialRegion} provider={PROVIDER_DEFAULT}>
+      {/* Map gestures disabled: this instance lives inside the home screen's
+          ScrollView (slice 65) — an interactive 320px map would be a scroll
+          dead-zone on iOS and a gesture-contention flake on Android.
+          Re-evaluate (tap-to-expand?) during on-device evaluation. */}
+      <MapView
+        style={styles.map}
+        initialRegion={initialRegion}
+        provider={PROVIDER_DEFAULT}
+        scrollEnabled={false}
+        zoomEnabled={false}
+        rotateEnabled={false}
+        pitchEnabled={false}
+      >
         {districts.filter(d => enabled[d.id]).flatMap(d => polygonsFromGeometry(d).map((coords, i) => (
           <Polygon
             key={`${d.id}-${i}`}

@@ -91,11 +91,15 @@ export function AlignmentChip({
   }
 
   // Native fallback (and web fallback when href is absent).
+  // hitSlop bumps the ~23px-tall chip to a ≥44px effective touch target
+  // (audit U5) with no visual change. The web smart-anchor branches above
+  // are real <a> elements and don't take hitSlop.
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="link"
       accessibilityLabel={`View ${label} positions`}
+      hitSlop={{ top: 11, bottom: 11, left: 4, right: 4 }}
       style={chipStyle}
     >
       <Text style={textStyle}>{label}</Text>

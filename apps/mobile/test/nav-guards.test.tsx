@@ -157,6 +157,26 @@ describe('app calibration gate — (app)/_layout', () => {
     expect(mockRedirectHref).toBeNull()
   })
 
+  it('re-probes after leaving the calibrate route and does not redirect once calibrated (audit U1)', async () => {
+    // Mount ON the calibrate route while uncalibrated (exempt — no redirect).
+    mockLocationCount = 0
+    mockSegmentsValue = ['(app)', 'calibrate']
+    const { getByText, queryByText, rerender } = render(<AppLayout />)
+    await waitFor(() => expect(getByText('BrandDrawer')).toBeTruthy())
+    expect(mockRedirectHref).toBeNull()
+
+    // The user calibrates (count now 1) and calibrate.tsx replaces to '/'.
+    // Same mounted layout, new segments: the stale 'uncalibrated' status must
+    // NOT redirect back to /calibrate — the layout re-probes instead.
+    mockLocationCount = 1
+    mockRedirectHref = null
+    mockSegmentsValue = ['(app)']
+    rerender(<AppLayout />)
+    await waitFor(() => expect(getByText('BrandDrawer')).toBeTruthy())
+    expect(queryByText('Redirect:/calibrate')).toBeNull()
+    expect(mockRedirectHref).toBeNull()
+  })
+
   it('renders a loading gate (no app chrome, no redirect) while calibration status is unknown', async () => {
     // Keep the async check() pending so status stays 'unknown': getItem never
     // resolves. Assert the synchronous initial render before flushing effects.

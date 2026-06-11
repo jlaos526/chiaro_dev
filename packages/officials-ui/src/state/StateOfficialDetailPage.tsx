@@ -1,6 +1,8 @@
 'use client'
 
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native'
+import type { RefreshControlProps } from 'react-native'
+import type { ReactElement } from 'react'
 import type { OfficialWithDistrict } from '@chiaro/officials'
 import type { Database } from '@chiaro/db'
 import { useBrandTokens } from '../brand-hooks.ts'
@@ -30,6 +32,12 @@ export interface StateOfficialDetailPageProps {
    * `onSetupIssues`. Omitted on native → the `<Pressable>` CTA.
    */
   setupIssuesHref?: string
+  /**
+   * Native-only: passed through to the underlying ScrollView so the host
+   * screen can wire pull-to-refresh (audit U2-rider). Never applied on web —
+   * RefreshControl is unsupported on RNW.
+   */
+  refreshControl?: ReactElement<RefreshControlProps>
 }
 
 // State-officials detail-page redesign closed (slice 5I) — all 6 categories
@@ -49,6 +57,7 @@ export function StateOfficialDetailPage({
   offices,
   onSetupIssues,
   setupIssuesHref,
+  refreshControl,
 }: StateOfficialDetailPageProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const districtCode = official.district?.code ?? official.district_code ?? ''
@@ -66,7 +75,10 @@ export function StateOfficialDetailPage({
   const officePhoneStyle = [styles.officePhone, { color: semantic.text.muted }]
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      {...(Platform.OS !== 'web' && refreshControl ? { refreshControl } : {})}
+    >
       {/* Bio header */}
       <View style={styles.bioBlock}>
         <Text style={nameStyle}>{official.full_name}</Text>

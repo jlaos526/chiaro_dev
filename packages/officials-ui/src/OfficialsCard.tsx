@@ -171,10 +171,19 @@ export function OfficialsCard({
 }: OfficialsCardProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const client = useChiaroClient()
-  const { data, isLoading, error } = useMyOfficials(client)
+  const { data, isLoading, error, refetch } = useMyOfficials(client)
 
-  if (isLoading) return <Text>Loading officials…</Text>
-  if (error) return <Text>Couldn&apos;t load officials.</Text>
+  if (isLoading) return <Text style={{ color: semantic.text.muted }}>Loading officials…</Text>
+  if (error) {
+    return (
+      <View style={{ gap: 8 }}>
+        <Text style={{ color: semantic.text.muted }}>Couldn&apos;t load officials.</Text>
+        <Pressable onPress={() => { void refetch() }} accessibilityRole="button">
+          <Text style={{ color: semantic.accent.primary, fontWeight: '600' }}>Retry</Text>
+        </Pressable>
+      </View>
+    )
+  }
   if (!data || data.length === 0) {
     const calibrateContent = (
       <Text style={{ color: semantic.accent.primary }}>
