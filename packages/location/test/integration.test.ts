@@ -2,6 +2,23 @@ import { describe, it, expect, afterAll } from 'vitest'
 import { getMyLocation, getMyDistricts } from '../src/queries.ts'
 import { makeAuthedUser, makeAnonClient, makeAdminClient, cleanupCreatedUsers } from './fixtures.ts'
 
+// Slice 63 (audit U10): skip locally when the env isn't exported instead of
+// crashing into makeAdminClient's throw. CI always runs (live = true via CI
+// env). The live-GeocodIO block is additionally gated on GEOCODIO_KEY — in CI
+// the secret reaches vitest via turbo.json test.env; locally it skips unless
+// you export a key AND serve the Edge Function.
+const live = !!process.env.SUPABASE_SERVICE_ROLE_KEY || !!process.env.CI
+const describeLive = describe.skipIf(!live)
+const describeGeocodio = describe.skipIf(!live || !process.env.GEOCODIO_KEY)
+if (!live) {
+  console.warn(
+    '[@chiaro/location] SUPABASE_SERVICE_ROLE_KEY not set — skipping integration suite. ' +
+    'Run `pnpm db:start`, then export keys from `supabase status --output env`.'
+  )
+} else if (!process.env.GEOCODIO_KEY) {
+  console.warn('[@chiaro/location] GEOCODIO_KEY not set — skipping the live-GeocodIO Edge Function block.')
+}
+
 afterAll(async () => {
   await cleanupCreatedUsers()
 })
@@ -9,7 +26,7 @@ afterAll(async () => {
 const URBAN_ADDRESS = '350 5th Ave, New York, NY 10118'
 const RURAL_ADDRESS = '1 Old Faithful Geyser Loop, Yellowstone, WY 82190'
 
-describe('location queries (pre-calibration)', () => {
+describeLive('location queries (pre-calibration)', () => {
   it('getMyLocation returns null before calibration', async () => {
     const { client } = await makeAuthedUser('loc-null')
     expect(await getMyLocation(client as never)).toBeNull()
@@ -21,7 +38,7 @@ describe('location queries (pre-calibration)', () => {
   })
 })
 
-describe('calibrate-location Edge Function (live GeocodIO)', () => {
+describeGeocodio('calibrate-location Edge Function (live GeocodIO)', () => {
   it('writes user_locations + ≥4 user_districts on first calibration', async () => {
     const { client } = await makeAuthedUser('cal-happy')
     const { data, error } = await client.functions.invoke('calibrate-location', {

@@ -9,7 +9,17 @@ const URL  = 'http://127.0.0.1:54321'
 const ANON = process.env.SUPABASE_ANON_KEY!
 const SVC  = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
-if (!SVC) throw new Error('SUPABASE_SERVICE_ROLE_KEY required')
+// Slice 63 (audit U10): skip locally when the env isn't exported instead of a
+// module-scope throw. CI always runs (live = true via CI env) and still
+// hard-fails there on a missing key.
+const live = !!process.env.SUPABASE_SERVICE_ROLE_KEY || !!process.env.CI
+const describeLive = describe.skipIf(!live)
+if (!live) {
+  console.warn(
+    '[@chiaro/bills] SUPABASE_SERVICE_ROLE_KEY not set — skipping integration suite. ' +
+    'Run `pnpm db:start`, then export keys from `supabase status --output env` (SERVICE_ROLE_KEY).'
+  )
+}
 
 let svc: SupabaseClient<Database>
 let anon: SupabaseClient<Database>
@@ -20,6 +30,7 @@ let officialId: string
 let districtId: string
 
 beforeAll(async () => {
+  if (!live) return
   svc  = createClient<Database>(URL, SVC,  { auth: { persistSession: false, storageKey: 'svc-bills-test'  } })
   anon = createClient<Database>(URL, ANON, { auth: { persistSession: false, storageKey: 'anon-bills-test' } })
 
@@ -86,14 +97,14 @@ afterAll(async () => {
   await svc.from('districts').delete().eq('id', districtId)
 })
 
-describe('fetchOfficialSponsoredBills', () => {
+describeLive('fetchOfficialSponsoredBills', () => {
   it('returns only sponsored (not cosponsored)', async () => {
     const bills = await fetchOfficialSponsoredBills(anon, officialId, '119')
     expect(bills.map((b) => b.id)).toEqual([billA])
   })
 })
 
-describe('fetchOfficialMissedVotes', () => {
+describeLive('fetchOfficialMissedVotes', () => {
   it('returns vote_positions with position = not_voting', async () => {
     // Add a missed vote
     const { data: v2 } = await svc.from('votes').insert({

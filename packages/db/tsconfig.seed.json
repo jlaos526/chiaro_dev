@@ -5,5 +5,5 @@
     "noEmit": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["supabase/seed/**/*.ts"]
+  "include": ["supabase/seed/**/*.ts", "test-global-setup.ts"]
 }
