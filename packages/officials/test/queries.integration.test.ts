@@ -11,10 +11,16 @@ const ANON = process.env.SUPABASE_ANON_KEY
   ?? 'sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH'
 const SVC  = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-if (!SVC) {
-  throw new Error(
-    'SUPABASE_SERVICE_ROLE_KEY not set — required for officials integration tests. ' +
-    'Pull it from `supabase status --output env` (SERVICE_ROLE_KEY) and export before running.'
+// Slice 63 (audit U10): skip locally when the env isn't exported instead of a
+// module-scope throw. CI always runs (live = true via CI env) and still
+// hard-fails there on a missing key, preserving slice-56-class regression
+// coverage.
+const live = !!SVC || !!process.env.CI
+const describeLive = describe.skipIf(!live)
+if (!live) {
+  console.warn(
+    '[@chiaro/officials] SUPABASE_SERVICE_ROLE_KEY not set — skipping integration suite. ' +
+    'Run `pnpm db:start`, then export keys from `supabase status --output env` (SERVICE_ROLE_KEY).'
   )
 }
 
@@ -28,12 +34,13 @@ let stateAsmId: string
 let stateFinanceSummaryId: string
 
 beforeAll(async () => {
+  if (!live) return
   // IMPORTANT: each Supabase client must use a distinct auth storage key.
   // Without this, both clients share the same default key — when `anon` signs
   // in as integration@test, it overwrites the session `svc` would use, so
   // `svc.from(...).delete()` ends up using the user's JWT and hits RLS+grant
   // denial (403). Manifests as a silent test cleanup leak.
-  svc  = createClient<Database>(URL, SVC, {
+  svc  = createClient<Database>(URL, SVC!, {
     auth: { persistSession: false, storageKey: 'svc-integration-test' },
   })
   anon = createClient<Database>(URL, ANON, {
@@ -230,7 +237,7 @@ afterAll(async () => {
   await svc.from('districts').delete().eq('source_version', 'FX')
 })
 
-describe('fetchMyOfficials', () => {
+describeLive('fetchMyOfficials', () => {
   it('returns the 3 federal officials joined via user_districts', async () => {
     const officials = await fetchMyOfficials(anon)
     // 3 federal + 1 state (Asm) = 4 total; filter to federal-only for this case
@@ -302,7 +309,7 @@ describe('fetchMyOfficials', () => {
   })
 })
 
-describe('fetchOfficial', () => {
+describeLive('fetchOfficial', () => {
   it('returns one official with district', async () => {
     const officials = await fetchMyOfficials(anon)
     const target = officials.find((o) => o.bioguide_id === 'P000145')!
@@ -318,7 +325,7 @@ describe('fetchOfficial', () => {
   })
 })
 
-describe('state_scorecard_* RLS + fetchOfficialStateScorecardRatings', () => {
+describeLive('state_scorecard_* RLS + fetchOfficialStateScorecardRatings', () => {
   let scorecardId: string
 
   beforeAll(async () => {
@@ -373,7 +380,7 @@ describe('state_scorecard_* RLS + fetchOfficialStateScorecardRatings', () => {
   })
 })
 
-describe('state_community_* RLS + 3 fetchers', () => {
+describeLive('state_community_* RLS + 3 fetchers', () => {
   let officialIdLocal: string
   let hearingId: string
   let townHallId: string
@@ -452,7 +459,7 @@ describe('state_community_* RLS + 3 fetchers', () => {
   })
 })
 
-describe('state_ethics_* RLS + 3 fetchers', () => {
+describeLive('state_ethics_* RLS + 3 fetchers', () => {
   let officialIdLocal: string
   let discId: string
   let complaintId: string
@@ -526,7 +533,7 @@ describe('state_ethics_* RLS + 3 fetchers', () => {
   })
 })
 
-describe('fetchOfficialHoldings — slice 26 federal_holdings ordering', () => {
+describeLive('fetchOfficialHoldings — slice 26 federal_holdings ordering', () => {
   let pelosiId: string
 
   beforeAll(async () => {
@@ -567,7 +574,7 @@ describe('fetchOfficialHoldings — slice 26 federal_holdings ordering', () => {
   })
 })
 
-describe('fetchOfficialDisclosureOther — slice 26 federal_disclosure_other ordering', () => {
+describeLive('fetchOfficialDisclosureOther — slice 26 federal_disclosure_other ordering', () => {
   let pelosiId: string
 
   beforeAll(async () => {

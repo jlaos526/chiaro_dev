@@ -16,8 +16,18 @@ permissions:
   contents: read
 
 jobs:
+  # Slice 63 (audit C40): the 3 jobs run fully in parallel — none consumes
+  # another's output (build uses placeholder env, test boots its own Supabase
+  # and re-seeds TIGER). Accepted trade-off: on a COLD TIGER cache both db and
+  # test fall back to restore-keys and re-download shapefiles concurrently;
+  # warm-cache runs (the norm since slice 55) are unaffected.
+  # supabase/setup-cli is pinned (audit C43/U13): `latest` caused a documented
+  # indefinite hang (Gotcha #30) and let CLI releases drift the Postgres under
+  # pgTAP between runs of the same commit. Bump deliberately in dedicated
+  # commits; keep in sync with the local CLI.
   db:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v6
@@ -27,7 +37,7 @@ jobs:
           cache: pnpm
       - uses: supabase/setup-cli@v2
         with:
-          version: latest
+          version: 2.98.1
       - run: pnpm install --frozen-lockfile
       - name: Start Supabase
         run: pnpm db:start
@@ -106,7 +116,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    needs: db
+    timeout-minutes: 20
     # next build collects page data for routes that import the Supabase client
     # wrapper, which throws on missing env. The values don't need to point at a
     # real instance — build never connects. Placeholder is fine.
@@ -134,38 +144,25 @@ jobs:
           restore-keys: |
             turbo-build-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}-
             turbo-build-${{ runner.os }}-
+      - name: Cache Next.js compiler cache
+        # turbo.json deliberately excludes .next/cache from task outputs;
+        # nothing else persisted it, so every CI build was cold (audit C40).
+        uses: actions/cache@v5
+        with:
+          path: apps/web/.next/cache
+          key: nextcache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            nextcache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
       - run: pnpm typecheck
       - run: pnpm build
 
-  functions:
-    runs-on: ubuntu-latest
-    needs: db
-    steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - uses: supabase/setup-cli@v2
-        with:
-          version: latest
-      - name: Boot Supabase
-        run: pnpm db:start
-      - uses: denoland/setup-deno@v2
-        with:
-          deno-version: v1.x
-      - name: Deno tests
-        working-directory: packages/db/supabase/functions/calibrate-location
-        run: deno test --allow-net --allow-env
-      - name: Stop Supabase
-        if: always()
-        run: pnpm db:stop
-
+  # Slice 63 (audit C40): the former standalone `functions` job (~3.3
+  # runner-minutes of checkout+install+Supabase boot wrapping a single deno
+  # test step) is folded into `test` below, which already boots Supabase and
+  # serves the same Edge Function.
   test:
     runs-on: ubuntu-latest
-    needs: [db, functions]
+    timeout-minutes: 30
     env:
       GEOCODIO_KEY: ${{ secrets.GEOCODIO_KEY }}
     steps:
@@ -177,7 +174,10 @@ jobs:
           cache: pnpm
       - uses: supabase/setup-cli@v2
         with:
-          version: latest
+          version: 2.98.1
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v1.x
       - name: Verify no legacy CLI guard patterns
         # Slice 30 task 3: fast-fail if either of the 2 known-bad CLI guard
         # patterns reappear in seed/. Catches future regressions cheaply
@@ -243,6 +243,14 @@ jobs:
           sleep 5
         env:
           GEOCODIO_KEY: ${{ secrets.GEOCODIO_KEY }}
+      - name: Deno tests (Edge Function)
+        # NOTE: deno test discovers files under cwd only — functions/_shared/
+        # sentry.test.ts is a sibling dir and has NEVER run in CI (pre-existing
+        # gap discovered in slice 63 review; the old `functions` job had the
+        # same cwd). Enabling it is a follow-up — verify it passes before
+        # adding `../_shared` here.
+        working-directory: packages/db/supabase/functions/calibrate-location
+        run: deno test --allow-net --allow-env
       - name: Run package tests
         # Runs all workspace tests through turbo, including @chiaro/officials
         # integration tests which read SUPABASE_*_KEY for the ephemeral local
@@ -252,9 +260,11 @@ jobs:
           SUPABASE_ANON_KEY: ${{ steps.supabase-status.outputs.anon_key }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ steps.supabase-status.outputs.service_role_key }}
           SUPABASE_URL: http://127.0.0.1:54321
+          # GEOCODIO_KEY gates the live-GeocodIO describe in @chiaro/location;
+          # it is declared in turbo.json test.env so strict mode passes it
+          # through to vitest. OPENSECRETS/OPENFEC were dead here — turbo
+          # stripped them and no vitest test reads them (audit C39).
           GEOCODIO_KEY: ${{ secrets.GEOCODIO_KEY }}
-          OPENSECRETS_API_KEY: ${{ secrets.OPENSECRETS_API_KEY }}
-          OPENFEC_API_KEY:     ${{ secrets.OPENFEC_API_KEY }}
         run: pnpm test
       - name: Stop Supabase
         if: always()

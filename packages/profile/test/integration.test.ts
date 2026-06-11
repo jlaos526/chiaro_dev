@@ -5,8 +5,17 @@ import { getMyProfile, updateMyProfile, ProfileError } from '../src/index.ts'
 
 const url = process.env.SUPABASE_URL ?? 'http://127.0.0.1:54321'
 const anonKey = process.env.SUPABASE_ANON_KEY
-if (!anonKey) {
-  throw new Error('Set SUPABASE_ANON_KEY for the integration test (run `supabase status`).')
+
+// Slice 63 (audit U10): skip locally when the env isn't exported instead of a
+// module-scope throw. CI always runs (live = true via CI env) and still
+// hard-fails there on a missing key.
+const live = !!anonKey || !!process.env.CI
+const describeLive = describe.skipIf(!live)
+if (!live) {
+  console.warn(
+    '[@chiaro/profile] SUPABASE_ANON_KEY not set — skipping integration suite. ' +
+    'Run `pnpm db:start`, then export keys from `supabase status --output env` (ANON_KEY).'
+  )
 }
 
 function newClient() {
@@ -52,7 +61,7 @@ afterAll(async () => {
   }
 })
 
-describe('profile integration', () => {
+describeLive('profile integration', () => {
   it('signUp + getMyProfile returns a stub row with completed=false', async () => {
     const { client } = await newSignedInUser('stub')
     const profile = await getMyProfile(client)
