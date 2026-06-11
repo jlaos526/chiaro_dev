@@ -24,6 +24,9 @@ export default function CalibratePage() {
       if (status === 502) throw new Error('Address lookup is temporarily unavailable. Try again.')
       throw new Error('Something went wrong. Try again.')
     }
+    // Clear any earlier "Skip for now" so the layout's re-probe (slice 65 U1)
+    // lands on 'calibrated', not the skip-flag early-return.
+    await AsyncStorage.removeItem('chiaro_skip_calibrate')
     router.replace('/')
   }
 
@@ -40,6 +43,7 @@ export default function CalibratePage() {
       if (status === 502) throw new Error('Location lookup is temporarily unavailable. Try again.')
       throw new Error('Something went wrong. Try again.')
     }
+    await AsyncStorage.removeItem('chiaro_skip_calibrate')
     router.replace('/')
   }
 

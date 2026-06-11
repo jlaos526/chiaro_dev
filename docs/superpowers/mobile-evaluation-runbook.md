@@ -202,19 +202,21 @@ Then run the smoke checklist: `docs/superpowers/mobile-dod-checklist.md`.
 ## 5. Known issues you WILL hit (queued fixes — don't re-triage)
 
 These are confirmed audit findings scheduled in the optimization roadmap
-(`docs/superpowers/plans/2026-06-10-optimization-roadmap.md`); expect them until
-S65/S66 land:
+(`docs/superpowers/plans/2026-06-10-optimization-roadmap.md`):
 
 | Symptom | Finding | Fix slice |
 |---|---|---|
-| After calibrating (or Skip), app bounces back to /calibrate forever — kill + relaunch to escape | U1 | S65 |
-| Home / Officials / Settings don't scroll; content below the fold unreachable | C8/U0 | S65 |
-| Officials list text is black-on-dark in dark mode | U3 | S65 |
-| Sign-up success ("check your email") renders as a red error banner | U6 | S65 |
-| Keyboard covers form inputs (no KeyboardAvoidingView) | U5 | S65 |
 | Default Expo icon + flat cream splash, then a spinner chain on cold start | C14/C10 | design track / S66 |
 | First load feels network-chatty (multi-second cold start on slow links) | C10/C18 | S66/S70+ |
 | District map polygons slow to load/render (multi-MB geometry) | C9/C16 | S67 |
+| Network failure looks like "no data" on detail cards (no per-card error state) | U2 | S80 |
+
+Fixed in **slice 65** (verify rather than expect): calibration-gate bounce (U1),
+non-scrolling Home/Officials/Settings + auth/calibrate shells (C8/U0), dark-mode
+black text on the officials list (U3), red sign-up success banner (U6), keyboard
+covering form inputs + small touch targets (U5), pull-to-refresh + Retry on
+officials surfaces (U2-rider). The home map is intentionally non-interactive
+inside the scroll view (gesture contention) — re-evaluate tap-to-expand on device.
 
 ## 6. Troubleshooting
 

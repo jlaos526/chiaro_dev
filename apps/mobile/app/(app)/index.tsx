@@ -40,12 +40,17 @@ export default function Home() {
   const { data: issueCatalog = [] } = useIssueCatalog(supabase)
 
   // Pull-to-refresh (audit U2-rider): broad invalidation is acceptable v1.
+  // The profile greeting lives in plain useState (not TanStack — migrates in
+  // S66/C15), so refresh re-fetches it explicitly alongside the invalidation.
   const queryClient = useQueryClient()
   const [refreshing, setRefreshing] = useState(false)
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
     try {
-      await queryClient.invalidateQueries()
+      await Promise.all([
+        queryClient.invalidateQueries(),
+        getMyProfile(supabase).then(setProfile),
+      ])
     } finally {
       setRefreshing(false)
     }
