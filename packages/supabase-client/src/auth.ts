@@ -29,9 +29,16 @@ export async function getSession(client: ChiaroClient) {
  * If `userId` is supplied (e.g. a web server component that already gated on a
  * validated `getUser()`), it is returned as-is. Otherwise the id is read from
  * the LOCAL session via `getSession()` — no GoTrue network call, unlike
- * `getUser()`. Safe as an `.eq` filter source because RLS enforces ownership
- * server-side (slice 56 hardened the relevant policies); the id is only used to
- * scope a query the server would scope anyway.
+ * `getUser()`.
+ *
+ * Behaviourally equivalent to the prior `getUser()` usage: both trust the
+ * session's own claimed id for an `.eq` scoping filter. For `user_locations`
+ * (0005) / `user_districts` (0060) self-scoped SELECT and the `profiles` UPDATE
+ * `with check` (0002), RLS independently enforces ownership server-side. NOTE:
+ * `profiles` SELECT is intentionally `using (true)` (authenticated-readable
+ * directory), so for `getMyProfile` this `.eq('id', uid)` filter — not RLS — is
+ * what scopes the read to the caller's own row; that's the same trust model the
+ * old `getUser()` code had, on non-sensitive directory fields.
  */
 export async function resolveUserId(
   client: ChiaroClient,
