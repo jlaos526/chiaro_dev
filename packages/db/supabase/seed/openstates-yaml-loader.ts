@@ -4,6 +4,18 @@ import { parse as parseYaml } from 'yaml'
 
 export type OpenStatesRoleType = 'upper' | 'lower' | 'legislature'
 
+// openstates/people omits roles[].title for default roles (only ~5% of the
+// live repo carries it), so requiring it would silently load 0 people — only
+// the title-bearing test fixtures pass. Derive a display title from the
+// validated chamber type instead. NE's unicameral `legislature` members are
+// "Senators" and the UI labels them "State Senator" (CLAUDE.md Gotcha #8).
+// See docs/superpowers/multi-setup-operations.md §6.
+const DEFAULT_ROLE_TITLE: Record<OpenStatesRoleType, string> = {
+  lower: 'State Representative',
+  upper: 'State Senator',
+  legislature: 'State Senator',
+}
+
 export interface OpenStatesPerson {
   id: string                    // ocd-person/<uuid>
   name: string
@@ -85,8 +97,9 @@ function normalize(raw: Record<string, unknown> | null): OpenStatesPerson | null
   const district = current.district != null ? String(current.district) : ''
   if (!district) return null
 
-  const title = typeof current.title === 'string' ? current.title : ''
-  if (!title) return null
+  const title = typeof current.title === 'string' && current.title
+    ? current.title
+    : DEFAULT_ROLE_TITLE[roleType]
 
   const offices = ((raw.offices as Array<Record<string, unknown>> | undefined) ?? []).map(o => ({
     ...(typeof o.classification === 'string' ? { classification: o.classification } : {}),
