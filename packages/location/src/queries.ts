@@ -1,9 +1,9 @@
-import type { ChiaroClient } from '@chiaro/supabase-client'
+import { resolveUserId, type ChiaroClient } from '@chiaro/supabase-client'
 import type { DistrictRow, UserLocationRow } from './types.ts'
 
-export async function getMyLocation(client: ChiaroClient): Promise<UserLocationRow | null> {
-  const { data: { user } } = await client.auth.getUser()
-  if (!user) return null
+export async function getMyLocation(client: ChiaroClient, userId?: string): Promise<UserLocationRow | null> {
+  const uid = await resolveUserId(client, userId)
+  if (!uid) return null
 
   // PostgREST returns geometry columns as PostGIS WKB hex by default. The
   // home_location column is small (a single Point), so callers that need
@@ -12,7 +12,7 @@ export async function getMyLocation(client: ChiaroClient): Promise<UserLocationR
   const { data, error } = await client
     .from('user_locations')
     .select('home_address_text, home_location, calibrated_at')
-    .eq('id', user.id)
+    .eq('id', uid)
     .maybeSingle()
   if (error) throw error
   if (!data) return null
@@ -21,9 +21,10 @@ export async function getMyLocation(client: ChiaroClient): Promise<UserLocationR
 
 export async function getMyHomePoint(
   client: ChiaroClient,
+  userId?: string,
 ): Promise<{ lat: number; lng: number } | null> {
-  const { data: { user } } = await client.auth.getUser()
-  if (!user) return null
+  const uid = await resolveUserId(client, userId)
+  if (!uid) return null
 
   // Uses the user_locations_geojson view (migration 0011) which exposes
   // home_location as a proper Point GeoJSON. Avoids parsing the geocodio
@@ -31,7 +32,7 @@ export async function getMyHomePoint(
   const { data, error } = await client
     .from('user_locations_geojson')
     .select('home_location_geojson')
-    .eq('id', user.id)
+    .eq('id', uid)
     .maybeSingle()
   if (error) throw error
   const geo = data?.home_location_geojson as
@@ -44,16 +45,16 @@ export async function getMyHomePoint(
   return { lat, lng }
 }
 
-export async function getMyDistricts(client: ChiaroClient): Promise<DistrictRow[]> {
-  const { data: { user } } = await client.auth.getUser()
-  if (!user) return []
+export async function getMyDistricts(client: ChiaroClient, userId?: string): Promise<DistrictRow[]> {
+  const uid = await resolveUserId(client, userId)
+  if (!uid) return []
 
   // Two-step: fetch user_district join keys, then bulk-load districts (avoids
   // PostgREST nested-select shape constraints with geometry columns).
   const { data: links, error: linksErr } = await client
     .from('user_districts')
     .select('district_id')
-    .eq('user_id', user.id)
+    .eq('user_id', uid)
   if (linksErr) throw linksErr
   if (!links || links.length === 0) return []
 

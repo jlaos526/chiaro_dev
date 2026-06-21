@@ -1,7 +1,14 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render } from '@testing-library/react'
 
-const { redirectMock } = vi.hoisted(() => ({ redirectMock: vi.fn() }))
+// Mirror Next's real redirect(): it THROWS a NEXT_REDIRECT control-flow error,
+// halting the rest of the server component (so `user.id` below is never reached
+// when there's no user). A no-op mock would let execution fall through.
+const { redirectMock } = vi.hoisted(() => ({
+  redirectMock: vi.fn((url: string) => {
+    throw new Error(`NEXT_REDIRECT:${url}`)
+  }),
+}))
 vi.mock('next/navigation', () => ({ redirect: redirectMock }))
 
 let mockUser: { id: string } | null = { id: 'u1' }
@@ -32,7 +39,8 @@ import Home from '../../app/page'
 describe('Home page', () => {
   it('redirects to /sign-in when no user', async () => {
     mockUser = null
-    await Home()
+    // redirect() throws (NEXT_REDIRECT) — Home() rejects, matching production.
+    await expect(Home()).rejects.toThrow('NEXT_REDIRECT:/sign-in')
     expect(redirectMock).toHaveBeenCalledWith('/sign-in')
     mockUser = { id: 'u1' }
   })

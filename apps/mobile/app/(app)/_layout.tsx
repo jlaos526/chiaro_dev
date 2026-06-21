@@ -18,13 +18,18 @@ export default function AppLayout() {
   // Probe AsyncStorage skip flag + user_locations count. Shared by the
   // mount-time check and the post-calibrate re-probe (audit U1).
   const check = useCallback(async (isActive: () => boolean) => {
-    const skip = await AsyncStorage.getItem('chiaro_skip_calibrate')
+    // Both reads are LOCAL (AsyncStorage + getSession — no network getUser),
+    // and independent, so run them in parallel (C10).
+    const [skip, sessionRes] = await Promise.all([
+      AsyncStorage.getItem('chiaro_skip_calibrate'),
+      supabase.auth.getSession(),
+    ])
     if (!isActive()) return
     if (skip === '1') {
       setCalibrationStatus('skipped')
       return
     }
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = sessionRes.data.session?.user
     if (!isActive() || !user) return
     const { count } = await supabase
       .from('user_locations')

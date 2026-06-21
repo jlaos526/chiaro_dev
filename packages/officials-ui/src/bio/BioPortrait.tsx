@@ -1,6 +1,7 @@
 import { createElement, useMemo } from 'react'
-import { Image, Platform, Text, View } from 'react-native'
+import { Platform, Text, View } from 'react-native'
 import { useBrandTokens } from '../brand-hooks.ts'
+import { useBrandImage } from '../image-context.tsx'
 
 export interface BioPortraitProps {
   fullName: string
@@ -19,6 +20,7 @@ function initials(name: string): string {
 
 export function BioPortrait({ fullName, portraitUrl, size }: BioPortraitProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
+  const Img = useBrandImage()
   // Mode-aware portrait: light = brand orange, dark = sage. Centralized
   // via semantic.portrait (slice 40) — decoupled from semantic.link.fg.
   const portraitSolid = semantic.portrait.gradient.from
@@ -29,12 +31,14 @@ export function BioPortrait({ fullName, portraitUrl, size }: BioPortraitProps): 
   )
 
   if (portraitUrl) {
+    // Injected renderer (C13) — expo-image on mobile, RN Image (→ <img>) on web.
     return (
-      <Image
-        source={{ uri: portraitUrl }}
-        style={{ width: size, height: size, borderRadius: size / 2 }}
+      <Img
+        uri={portraitUrl}
+        size={size}
+        borderRadius={size / 2}
         accessibilityLabel={`${fullName} portrait`}
-        // RN-web maps accessibilityLabel → alt; this keeps web a11y in sync.
+        recyclingKey={portraitUrl}
       />
     )
   }

@@ -1,4 +1,4 @@
-import type { ChiaroClient } from '@chiaro/supabase-client'
+import { resolveUserId, type ChiaroClient } from '@chiaro/supabase-client'
 import type { Database } from '@chiaro/db'
 import type {
   OfficialWithDistrict,
@@ -20,14 +20,15 @@ const SELECT_WITH_DISTRICT =
 
 export async function fetchMyOfficials(
   client: ChiaroClient,
+  userId?: string,
 ): Promise<OfficialWithDistrict[]> {
-  const { data: { user } } = await client.auth.getUser()
-  if (!user) return []
+  const uid = await resolveUserId(client, userId)
+  if (!uid) return []
 
   const { data: districtIds, error: dErr } = await client
     .from('user_districts')
     .select('district_id')
-    .eq('user_id', user.id)
+    .eq('user_id', uid)
   if (dErr) throw dErr
   if (!districtIds || districtIds.length === 0) return []
 

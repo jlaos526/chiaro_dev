@@ -22,3 +22,22 @@ export async function getSession(client: ChiaroClient) {
   if (error) throw error
   return data.session
 }
+
+/**
+ * Resolve the current user's id without a network round-trip.
+ *
+ * If `userId` is supplied (e.g. a web server component that already gated on a
+ * validated `getUser()`), it is returned as-is. Otherwise the id is read from
+ * the LOCAL session via `getSession()` — no GoTrue network call, unlike
+ * `getUser()`. Safe as an `.eq` filter source because RLS enforces ownership
+ * server-side (slice 56 hardened the relevant policies); the id is only used to
+ * scope a query the server would scope anyway.
+ */
+export async function resolveUserId(
+  client: ChiaroClient,
+  userId?: string,
+): Promise<string | null> {
+  if (userId) return userId
+  const { data } = await client.auth.getSession() // local read, no network
+  return data.session?.user?.id ?? null
+}

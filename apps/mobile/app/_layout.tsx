@@ -6,7 +6,8 @@ import { QueryProvider } from '@/lib/query-client'
 import { ErrorBoundary, initSentry } from '@/lib/sentry'
 import { supabase } from '@/lib/supabase'
 import { readBrandMode, writeBrandMode } from '@/lib/brand-mode-storage'
-import { BrandModeProvider, ChiaroClientProvider } from '@chiaro/officials-ui'
+import { BrandImageProvider, BrandModeProvider, ChiaroClientProvider } from '@chiaro/officials-ui'
+import { ExpoBrandImage } from '@/lib/brand-image'
 import type { Session } from '@supabase/supabase-js'
 import type { BrandMode } from '@chiaro/ui-tokens'
 
@@ -50,13 +51,15 @@ export default function RootLayout() {
       <ErrorBoundary>
         <BrandModeProvider defaultMode={null} onChange={writeBrandMode}>
           <ChiaroClientProvider client={supabase}>
-            <QueryProvider>
-              <GestureHandlerRootView style={{ flex: 1 }}>
-                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                  <ActivityIndicator />
-                </View>
-              </GestureHandlerRootView>
-            </QueryProvider>
+            <BrandImageProvider component={ExpoBrandImage}>
+              <QueryProvider>
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <ActivityIndicator />
+                  </View>
+                </GestureHandlerRootView>
+              </QueryProvider>
+            </BrandImageProvider>
           </ChiaroClientProvider>
         </BrandModeProvider>
       </ErrorBoundary>
@@ -66,11 +69,13 @@ export default function RootLayout() {
     <ErrorBoundary>
       <BrandModeProvider defaultMode={brandMode} onChange={writeBrandMode}>
         <ChiaroClientProvider client={supabase}>
-          <QueryProvider>
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <Slot />
-            </GestureHandlerRootView>
-          </QueryProvider>
+          <BrandImageProvider component={ExpoBrandImage}>
+            <QueryProvider>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <Slot />
+              </GestureHandlerRootView>
+            </QueryProvider>
+          </BrandImageProvider>
         </ChiaroClientProvider>
       </BrandModeProvider>
     </ErrorBoundary>

@@ -15,11 +15,11 @@ jest.mock('expo-router/drawer', () => ({ Drawer: { Screen: () => null } }))
 jest.mock('@/lib/supabase', () => ({ supabase: {} }))
 jest.mock('@/components/DistrictPanel', () => ({ DistrictPanel: () => null }))
 
+// Slice 66 (C15): home reads the profile via the TanStack useMyProfile hook
+// (no render gate). Mock the hook directly.
 jest.mock('@chiaro/profile', () => ({
-  getMyProfile: jest.fn().mockResolvedValue({
-    display_name: 'Ada',
-    username: 'ada',
-    completed: true,
+  useMyProfile: () => ({
+    data: { display_name: 'Ada', username: 'ada', completed: true },
   }),
 }))
 
@@ -62,7 +62,7 @@ import Home from '../app/(app)/index'
 async function mountAndCapture(): Promise<(arg: SelectArg) => void> {
   capturedOnSelect = null
   const { findByText } = render(<Home />)
-  // Home renders OfficialsCard only after getMyProfile resolves (loaded gate).
+  // Home renders OfficialsCard immediately now (no loaded gate — C15).
   await findByText('OfficialsCard')
   await waitFor(() => expect(capturedOnSelect).not.toBeNull())
   return capturedOnSelect!
