@@ -26,6 +26,15 @@ const config: ExpoConfig = {
   android: {
     package: 'com.chiaro.app',
     permissions: ['ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION'],
+    // react-native-maps on Android requires a Maps SDK for Android key.
+    // Read from GOOGLE_MAPS_API_KEY (apps/mobile/.env, gitignored) so the key
+    // never lands in committed config. Without it the home DistrictMap throws
+    // "API key not found" at mount.
+    config: {
+      googleMaps: {
+        apiKey: process.env.GOOGLE_MAPS_API_KEY,
+      },
+    },
   },
   plugins: [
     'expo-router',
@@ -49,9 +58,10 @@ const config: ExpoConfig = {
   updates: {
     url: 'https://u.expo.dev/f4d18da9-9c95-4c6a-8a34-c77189eca749',
   },
-  runtimeVersion: {
-    policy: 'appVersion',
-  },
+  // Runtime-version POLICIES are unsupported in the bare workflow that local
+  // dev-client builds run in (expo run:android generates android/). Locally
+  // use the literal version — same value the appVersion policy computes on EAS.
+  runtimeVersion: process.env.EAS_BUILD === 'true' ? { policy: 'appVersion' } : '0.0.0',
   extra: {
     eas: {
       projectId: 'f4d18da9-9c95-4c6a-8a34-c77189eca749',
