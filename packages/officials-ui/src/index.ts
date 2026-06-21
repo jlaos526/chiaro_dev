@@ -6,6 +6,17 @@ import './types/react-native-augment.ts'
 
 export { ChiaroClientProvider, useChiaroClient, type ChiaroClientProviderProps } from './client-context.tsx'
 
+// Slice 66 (audit C13) — injectable image renderer. Default = RN Image; mobile
+// injects an expo-image adapter so officials-ui stays Expo-free.
+export {
+  BrandImageProvider,
+  useBrandImage,
+  DefaultBrandImage,
+  type BrandImageProps,
+  type BrandImageComponent,
+  type BrandImageProviderProps,
+} from './image-context.tsx'
+
 // Top-level leaf primitives (Task 5)
 export { PartyBadge, type PartyBadgeProps } from './PartyBadge.tsx'
 export { OfficialAvatar, type OfficialAvatarProps } from './OfficialAvatar.tsx'

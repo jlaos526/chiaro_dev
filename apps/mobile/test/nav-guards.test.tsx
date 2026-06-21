@@ -98,7 +98,11 @@ jest.mock('react-native-gesture-handler', () => ({
 jest.mock('@chiaro/officials-ui', () => ({
   BrandModeProvider: ({ children }: { children: React.ReactNode }) => children,
   ChiaroClientProvider: ({ children }: { children: React.ReactNode }) => children,
+  BrandImageProvider: ({ children }: { children: React.ReactNode }) => children,
 }))
+// Slice 66: RootLayout imports the expo-image adapter; stub it so jest doesn't
+// load the native expo-image module.
+jest.mock('@/lib/brand-image', () => ({ ExpoBrandImage: () => null }))
 
 import AppLayout from '../app/(app)/_layout'
 import RootLayout from '../app/_layout'
@@ -108,6 +112,9 @@ describe('app calibration gate — (app)/_layout', () => {
     mockRedirectHref = null
     mockSegmentsValue = []
     mockUserResult = { data: { user: { id: 'u1' } } }
+    // Slice 66 (C10): the gate now reads the user id from the LOCAL session
+    // (getSession), not the network getUser. Drive a signed-in session.
+    mockSessionResult = { data: { session: { user: { id: 'u1' } } } }
     mockLocationCount = 0
     mockGetItem.mockClear().mockResolvedValue(null)
     mockEq.mockClear()

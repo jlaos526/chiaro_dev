@@ -1,5 +1,6 @@
-import { Image, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 import { useBrandTokens } from './brand-hooks.ts'
+import { useBrandImage } from './image-context.tsx'
 
 export interface OfficialAvatarProps {
   fullName: string
@@ -13,6 +14,7 @@ export function OfficialAvatar({
   size = 64,
 }: OfficialAvatarProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
+  const Img = useBrandImage()
   const initials = fullName
     .split(/\s+/)
     .filter(Boolean)
@@ -22,10 +24,12 @@ export function OfficialAvatar({
 
   if (portraitUrl) {
     return (
-      <Image
-        source={{ uri: portraitUrl }}
+      <Img
+        uri={portraitUrl}
+        size={size}
+        borderRadius={size / 2}
         accessibilityLabel={fullName}
-        style={{ width: size, height: size, borderRadius: size / 2 }}
+        recyclingKey={portraitUrl}
       />
     )
   }

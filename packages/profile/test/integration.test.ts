@@ -18,8 +18,25 @@ if (!live) {
   )
 }
 
+// Each test client gets an ISOLATED in-memory auth store (CLAUDE.md Gotcha #1).
+// Without this, every createChiaroClient shares the default storageKey, so a
+// later signUp leaks its session to earlier/anon clients. The slice-66 swap of
+// getUser() (network, per-client in-memory token) → getSession() (reads the
+// store) surfaced this: getMyProfile/updateMyProfile resolve the user id from
+// the session, so a shared store would hand back the wrong (or a leaked) id.
+// Production never hits this — one client per process. Mirrors the distinct
+// storage already used by the officials/bills/location integration tests.
+function makeMemoryStorage() {
+  const store = new Map<string, string>()
+  return {
+    getItem: (k: string) => store.get(k) ?? null,
+    setItem: (k: string, v: string) => { store.set(k, v) },
+    removeItem: (k: string) => { store.delete(k) },
+  }
+}
+
 function newClient() {
-  return createChiaroClient({ url, anonKey: anonKey! })
+  return createChiaroClient({ url, anonKey: anonKey!, storage: makeMemoryStorage() })
 }
 
 function uniqueEmail(label: string) {

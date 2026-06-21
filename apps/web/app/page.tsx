@@ -16,7 +16,9 @@ export default async function Home(): Promise<React.JSX.Element> {
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/sign-in')
-  const profile = await getMyProfile(supabase)
+  // Pass the already-validated id so getMyProfile skips its own getSession
+  // (avoids a redundant local read + the @supabase/ssr server-getSession advisory).
+  const profile = await getMyProfile(supabase, user.id)
 
   const greetingName = profile?.display_name ?? profile?.username ?? null
   const greeting = greetingName ? `Welcome, ${greetingName}` : 'Welcome'
