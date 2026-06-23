@@ -60,6 +60,28 @@ describe('openstates-yaml-loader', () => {
     }
   })
 
+  it('derives a default title by chamber when roles[].title is absent (live-repo shape)', async () => {
+    const tmpDir = join(__dirname, 'fixtures', 'openstates-people-notitle-tmp')
+    const { mkdir, writeFile, rm } = await import('node:fs/promises')
+    await mkdir(tmpDir, { recursive: true })
+    await writeFile(
+      join(tmpDir, 'lower.yml'),
+      `id: ocd-person/n1\nname: No Title Lower\nparty: [{name: Republican}]\nroles: [{type: lower, jurisdiction: ocd-jurisdiction/country:us/state:ut/government, district: '52', start_date: '2024-01-01', end_date: '2027-12-31'}]\n`,
+    )
+    await writeFile(
+      join(tmpDir, 'upper.yml'),
+      `id: ocd-person/n2\nname: No Title Upper\nparty: [{name: Democratic}]\nroles: [{type: upper, jurisdiction: ocd-jurisdiction/country:us/state:ut/government, district: '5', start_date: '2024-01-01', end_date: '2027-12-31'}]\n`,
+    )
+    try {
+      const people = await loadOpenStatesYamlDir(tmpDir)
+      expect(people).toHaveLength(2)
+      expect(people.find(p => p.id === 'ocd-person/n1')!.role.title).toBe('State Representative')
+      expect(people.find(p => p.id === 'ocd-person/n2')!.role.title).toBe('State Senator')
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true })
+    }
+  })
+
   it('returns empty array for empty dir', async () => {
     const tmpDir = join(__dirname, 'fixtures', 'openstates-people-empty-tmp')
     const { mkdir, rm } = await import('node:fs/promises')

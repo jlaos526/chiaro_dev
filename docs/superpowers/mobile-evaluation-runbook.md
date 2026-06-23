@@ -5,6 +5,12 @@
 > PC, and **iOS** via Xcode (Simulator or free-team iPhone) on a MacBook Pro.
 > The smoke checklist itself lives in `mobile-dod-checklist.md` — this doc gets a
 > build running and connected to a working backend.
+>
+> **Operating more than one machine?** The cross-machine conventions (shared vs
+> per-machine state, native-dir gitignore/CNG, the shared hosted Supabase backend
+> that removes per-machine seeding) live in `multi-setup-operations.md`. This
+> runbook covers the per-machine toolchain; that doc is the source of truth for
+> how the setups relate.
 
 ## Strategy
 
