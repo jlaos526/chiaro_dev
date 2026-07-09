@@ -105,22 +105,33 @@ describeLive('fetchOfficialSponsoredBills', () => {
 })
 
 describeLive('fetchOfficialMissedVotes', () => {
-  it('returns vote_positions with position = not_voting', async () => {
-    // Add a missed vote
+  it('returns vote_positions with position = not_voting, scoped to the congress', async () => {
+    // Add a missed vote in the requested congress (119)
     const { data: v2 } = await svc.from('votes').insert({
       congress: '119', chamber: 'federal_senate', session: 1, roll_call: 102,
       vote_date: '2026-01-21', question: 'On Cloture', result: 'Failed',
       bill_id: billA, source_url: 'https://congress.gov/vote/102',
     }).select().single()
+    // And a missed vote in a DIFFERENT congress (118) — must be excluded by the
+    // `vote.congress` filter (slice 67 C17 single-request inversion).
+    const { data: v3 } = await svc.from('votes').insert({
+      congress: '118', chamber: 'federal_senate', session: 2, roll_call: 55,
+      vote_date: '2024-09-10', question: 'On Passage', result: 'Passed',
+      bill_id: billA, source_url: 'https://congress.gov/vote/118-55',
+    }).select().single()
     await svc.from('vote_positions').insert([
       { vote_id: v2!.id, official_id: officialId, position: 'not_voting' },
+      { vote_id: v3!.id, official_id: officialId, position: 'not_voting' },
     ])
 
     const missed = await fetchOfficialMissedVotes(anon, officialId, '119')
     expect(missed.length).toBeGreaterThanOrEqual(1)
     expect(missed.every((m) => m.position === 'not_voting')).toBe(true)
+    // every returned vote belongs to the requested congress; the 118 row is gone
+    expect(missed.every((m) => m.vote.congress === '119')).toBe(true)
+    expect(missed.some((m) => m.vote_id === v3!.id)).toBe(false)
 
-    await svc.from('vote_positions').delete().eq('vote_id', v2!.id)
-    await svc.from('votes').delete().eq('id', v2!.id)
+    await svc.from('vote_positions').delete().in('vote_id', [v2!.id, v3!.id])
+    await svc.from('votes').delete().in('id', [v2!.id, v3!.id])
   })
 })

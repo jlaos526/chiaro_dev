@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import MapView, { Polygon, Marker, PROVIDER_DEFAULT } from 'react-native-maps'
 import { TIER_LABEL, DISTRICT_GROUPS, type DistrictTier } from '@chiaro/location'
@@ -24,17 +24,40 @@ export function DistrictMap({
   const { semantic } = useBrandTokens()
   // U.S. Senate tiers default to off — both seats represent the entire state,
   // so their boundaries dominate the view and obscure local context.
-  const [enabled, setEnabled] = useState<Record<string, boolean>>(
-    Object.fromEntries(districts.map(d => [d.id, d.tier !== 'federal_senate']))
-  )
-  if (districts.length === 0) return null
+  const [enabled, setEnabled] = useState<Record<string, boolean>>(() => defaultEnabled(districts))
+  // `districts` arrives async and can change in place on a TanStack background
+  // refetch (isFetching, not isLoading — DistrictPanel doesn't remount us). The
+  // lazy initializer only runs on mount, so re-seed the toggle map when the
+  // district *set* changes; otherwise a new set renders with every polygon off
+  // (enabled[id] === undefined). Same ids (e.g. a geometry-only refetch) keep
+  // the user's current toggles. Adjust-state-during-render is flash-free vs an
+  // effect and self-terminates once the signatures match.
+  const [districtSig, setDistrictSig] = useState<string>(() => districtIdSignature(districts))
+  const nextSig = districtIdSignature(districts)
+  if (nextSig !== districtSig) {
+    setDistrictSig(nextSig)
+    setEnabled(defaultEnabled(districts))
+  }
+  // Slice 67 (audit C9): project every district's polygon rings ONCE per
+  // districts change, not per render. A layer-toggle setState now just flips
+  // which memoized polygons render instead of reallocating a fresh
+  // {latitude,longitude} per vertex for every district on every press.
+  const polysById = useMemo(() => {
+    const m = new Map<string, Array<Array<{ latitude: number; longitude: number }>>>()
+    for (const d of districts) m.set(d.id, polygonsFromGeometry(d))
+    return m
+  }, [districts])
 
   // Initial view: zoom to the county boundary (most useful local context).
   // Falls back to the union of everything if no county was resolved.
-  const countyDistricts = districts.filter(d => d.tier === 'county')
-  const initialRegion = countyDistricts.length > 0
-    ? computeInitialRegion(countyDistricts)
-    : computeInitialRegion(districts)
+  const initialRegion = useMemo(() => {
+    const countyDistricts = districts.filter(d => d.tier === 'county')
+    return countyDistricts.length > 0
+      ? computeInitialRegion(countyDistricts)
+      : computeInitialRegion(districts)
+  }, [districts])
+
+  if (districts.length === 0) return null
 
   return (
     <View>
@@ -77,7 +100,8 @@ export function DistrictMap({
         rotateEnabled={false}
         pitchEnabled={false}
       >
-        {districts.filter(d => enabled[d.id]).flatMap(d => polygonsFromGeometry(d).map((coords, i) => (
+        {/* Deferred (S67): senate S1/S2 share geometry; view simplify neutralizes the double-transfer */}
+        {districts.filter(d => enabled[d.id]).flatMap(d => (polysById.get(d.id) ?? []).map((coords, i) => (
           <Polygon
             key={`${d.id}-${i}`}
             coordinates={coords}
@@ -96,6 +120,16 @@ export function DistrictMap({
       </MapView>
     </View>
   )
+}
+
+function defaultEnabled(districts: DistrictMapDistrict[]): Record<string, boolean> {
+  return Object.fromEntries(districts.map(d => [d.id, d.tier !== 'federal_senate']))
+}
+
+// Stable identity of the district *set* (order-independent), used to detect when
+// an in-place prop change warrants re-seeding the toggle defaults.
+function districtIdSignature(districts: DistrictMapDistrict[]): string {
+  return districts.map(d => d.id).sort().join(',')
 }
 
 function polygonsFromGeometry(d: DistrictMapDistrict): Array<Array<{ latitude: number; longitude: number }>> {
