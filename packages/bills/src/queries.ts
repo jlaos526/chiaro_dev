@@ -40,18 +40,19 @@ export async function fetchOfficialMissedVotes(
   officialId: string,
   congress: string,
 ): Promise<Array<{ vote_id: string; position: VotePositionEnum; vote: VoteRow }>> {
-  const { data: votes, error: votesErr } = await client.from('votes').select('id, congress, chamber, session, roll_call, vote_date, question, result, bill_id, source_url, ingested_at').eq('congress', congress)
-  if (votesErr) throw votesErr
-  const voteIds = (votes ?? []).map((v: VoteRow) => v.id)
-  if (voteIds.length === 0) return []
-  const { data: positions, error } = await client.from('vote_positions')
-    .select('vote_id, position')
+  // Slice 67 (audit C17): one request anchored on the indexed
+  // `vote_positions.official_id` (vote_positions_official_idx, 0016). The
+  // `votes!inner` embed + `.eq('vote.congress', congress)` constrains the parent
+  // rows server-side, so only this official's not_voting votes for the congress
+  // cross the wire — was a 2-step download of EVERY vote of the congress + a
+  // ~2000-UUID `.in()` GET (latent URL-length failure).
+  const { data, error } = await client.from('vote_positions')
+    .select('vote_id, position, vote:votes!inner(id, congress, chamber, session, roll_call, vote_date, question, result, bill_id, source_url, ingested_at)')
     .eq('official_id', officialId)
     .eq('position', 'not_voting')
-    .in('vote_id', voteIds)
+    .eq('vote.congress', congress)
   if (error) throw error
-  const voteMap = new Map<string, VoteRow>((votes as VoteRow[]).map(v => [v.id, v]))
-  return (positions ?? []).map((p: { vote_id: string; position: VotePositionEnum }) => ({
-    vote_id: p.vote_id, position: p.position, vote: voteMap.get(p.vote_id)!,
+  return ((data ?? []) as unknown as Array<{ vote_id: string; position: VotePositionEnum; vote: VoteRow }>).map((r) => ({
+    vote_id: r.vote_id, position: r.position, vote: r.vote,
   }))
 }

@@ -701,6 +701,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "official_metrics_home_district_id_fkey"
+            columns: ["home_district_id"]
+            isOneToOne: false
+            referencedRelation: "my_districts_geojson"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "official_metrics_official_id_fkey"
             columns: ["official_id"]
             isOneToOne: true
@@ -798,6 +805,13 @@ export type Database = {
             columns: ["district_id"]
             isOneToOne: false
             referencedRelation: "districts_geojson"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "officials_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "my_districts_geojson"
             referencedColumns: ["id"]
           },
         ]
@@ -1951,6 +1965,13 @@ export type Database = {
             referencedRelation: "districts_geojson"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_districts_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "my_districts_geojson"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_issue_selections: {
@@ -2176,6 +2197,17 @@ export type Database = {
           f_table_schema?: unknown
           srid?: number | null
           type?: string | null
+        }
+        Relationships: []
+      }
+      my_districts_geojson: {
+        Row: {
+          code: string | null
+          geometry: Json | null
+          id: string | null
+          name: string | null
+          state: string | null
+          tier: Database["public"]["Enums"]["district_tier"] | null
         }
         Relationships: []
       }

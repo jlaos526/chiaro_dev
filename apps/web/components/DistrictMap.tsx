@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { MapContainer, TileLayer, GeoJSON, CircleMarker, Tooltip } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import { TIER_LABEL, DISTRICT_GROUPS, type DistrictTier } from '@chiaro/location'
@@ -25,18 +25,33 @@ export function DistrictMap({
   const { semantic } = useBrandTokens()
   // U.S. Senate tiers default to off — both seats represent the entire state,
   // so their boundaries dominate the view and obscure local context.
-  const [enabled, setEnabled] = useState<Record<string, boolean>>(
-    Object.fromEntries(districts.map(d => [d.id, d.tier !== 'federal_senate']))
-  )
-
-  if (districts.length === 0) return null
+  const [enabled, setEnabled] = useState<Record<string, boolean>>(() => defaultEnabled(districts))
+  // `districts` arrives async and can change in place on a TanStack background
+  // refetch (isFetching, not isLoading — DistrictPanel doesn't remount us). The
+  // lazy initializer only runs on mount, so re-seed the toggle map when the
+  // district *set* changes; otherwise a new set renders with every polygon off
+  // (enabled[id] === undefined). Same ids (e.g. a geometry-only refetch) keep
+  // the user's current toggles. Adjust-state-during-render is flash-free vs an
+  // effect and self-terminates once the signatures match.
+  const [districtSig, setDistrictSig] = useState<string>(() => districtIdSignature(districts))
+  const nextSig = districtIdSignature(districts)
+  if (nextSig !== districtSig) {
+    setDistrictSig(nextSig)
+    setEnabled(defaultEnabled(districts))
+  }
 
   // Initial view: zoom to the county boundary if present (most useful local
   // context). Falls back to the union of everything if no county was resolved.
-  const countyDistricts = districts.filter(d => d.tier === 'county')
-  const bounds = countyDistricts.length > 0
-    ? computeBounds(countyDistricts)
-    : computeBounds(districts)
+  // Slice 67 (audit C9): memoize the bounds walk so layer-toggle setState
+  // doesn't re-iterate every vertex; <GeoJSON data> already gets a stable ref.
+  const bounds = useMemo(() => {
+    const countyDistricts = districts.filter(d => d.tier === 'county')
+    return countyDistricts.length > 0
+      ? computeBounds(countyDistricts)
+      : computeBounds(districts)
+  }, [districts])
+
+  if (districts.length === 0) return null
 
   return (
     <div>
@@ -105,6 +120,16 @@ export function DistrictMap({
       </MapContainer>
     </div>
   )
+}
+
+function defaultEnabled(districts: DistrictMapDistrict[]): Record<string, boolean> {
+  return Object.fromEntries(districts.map(d => [d.id, d.tier !== 'federal_senate']))
+}
+
+// Stable identity of the district *set* (order-independent), used to detect when
+// an in-place prop change warrants re-seeding the toggle defaults.
+function districtIdSignature(districts: DistrictMapDistrict[]): string {
+  return districts.map(d => d.id).sort().join(',')
 }
 
 function computeBounds(districts: DistrictMapDistrict[]): [[number, number], [number, number]] {
