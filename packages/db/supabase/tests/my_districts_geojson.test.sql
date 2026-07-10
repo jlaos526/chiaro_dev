@@ -32,9 +32,14 @@ begin
           '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated');
 
   -- Two senate rows sharing identical geometry (the whole-state outline).
+  -- Codes are test-suffixed (NOT the real CA-S1/CA-S2) so they don't collide
+  -- with the TIGER-seeded senate rows on districts' unique (tier, code) when
+  -- this runs after seed:tiger in CI. Same (state, tier) so the view's
+  -- row_number() partition still groups them — that's what drives the dedupe,
+  -- not the code string.
   insert into public.districts (tier, state, code, name, geometry, source_version) values
-    ('federal_senate', 'CA', 'CA-S1', 'CA U.S. Senate (Class 1)', v_geo, 'FX-geojson-view'),
-    ('federal_senate', 'CA', 'CA-S2', 'CA U.S. Senate (Class 2)', v_geo, 'FX-geojson-view'),
+    ('federal_senate', 'CA', 'CA-S1-GJTEST', 'CA U.S. Senate (Class 1) [test]', v_geo, 'FX-geojson-view'),
+    ('federal_senate', 'CA', 'CA-S2-GJTEST', 'CA U.S. Senate (Class 2) [test]', v_geo, 'FX-geojson-view'),
     ('county',         'CA', 'CA-COUNTY-GJ', 'GeoJSON view test county',
        ST_GeomFromText('MULTIPOLYGON(((-122 37, -121 37, -121 38, -122 38, -122 37)))', 4326)::geography,
        'FX-geojson-view');
