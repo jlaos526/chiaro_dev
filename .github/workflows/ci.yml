@@ -21,13 +21,23 @@ jobs:
   # and re-seeds TIGER). Accepted trade-off: on a COLD TIGER cache both db and
   # test fall back to restore-keys and re-download shapefiles concurrently;
   # warm-cache runs (the norm since slice 55) are unaffected.
+  # The TIGER cache save key is suffixed with ${{ github.job }} (…-db / …-test):
+  # db and test ran in parallel writing the SAME run-scoped key and raced
+  # ("Unable to reserve cache … another job may be creating this cache"), so
+  # neither saved and master never warmed. Per-job keys let both save; both
+  # still restore the newest via the shared `tiger-2024-v1-` prefix.
   # supabase/setup-cli is pinned (audit C43/U13): `latest` caused a documented
   # indefinite hang (Gotcha #30) and let CLI releases drift the Postgres under
   # pgTAP between runs of the same commit. Bump deliberately in dedicated
   # commits; keep in sync with the local CLI.
   db:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # 45m (was 30): a COLD TIGER seed (no restorable cache — Actions caches are
+    # branch-scoped, so master can't see feature-branch caches) does a full
+    # ~150-shapefile Census download that ran right up to the old 30m cap and
+    # got killed mid-seed (a timeout surfaces as a "cancelled" job). 45m lets a
+    # cold seed finish so it can SAVE a cache; warm runs still finish in ~10m.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v6
@@ -63,7 +73,7 @@ jobs:
         uses: actions/cache/restore@v5
         with:
           path: ~/.cache/tiger
-          key: tiger-2024-v1-${{ github.run_id }}
+          key: tiger-2024-v1-${{ github.run_id }}-${{ github.job }}
           restore-keys: |
             tiger-2024-v1-
       - name: Seed districts (TIGER 2024)
@@ -75,7 +85,7 @@ jobs:
         uses: actions/cache/save@v5
         with:
           path: ~/.cache/tiger
-          key: tiger-2024-v1-${{ github.run_id }}
+          key: tiger-2024-v1-${{ github.run_id }}-${{ github.job }}
       - name: Run state-officials ingest (fixture mode)
         run: pnpm seed:state-officials --fixture-mode
         env:
@@ -162,7 +172,9 @@ jobs:
   # serves the same Edge Function.
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # 50m (was 30): same cold-TIGER-seed headroom as `db`, plus this job also
+    # runs the full workspace + live integration suites after seeding.
+    timeout-minutes: 50
     env:
       GEOCODIO_KEY: ${{ secrets.GEOCODIO_KEY }}
     steps:
@@ -211,7 +223,7 @@ jobs:
         uses: actions/cache/restore@v5
         with:
           path: ~/.cache/tiger
-          key: tiger-2024-v1-${{ github.run_id }}
+          key: tiger-2024-v1-${{ github.run_id }}-${{ github.job }}
           restore-keys: |
             tiger-2024-v1-
       - name: Seed TIGER
@@ -223,7 +235,7 @@ jobs:
         uses: actions/cache/save@v5
         with:
           path: ~/.cache/tiger
-          key: tiger-2024-v1-${{ github.run_id }}
+          key: tiger-2024-v1-${{ github.run_id }}-${{ github.job }}
       - name: Capture anon key + service role key for integration tests
         id: supabase-status
         working-directory: packages/db
