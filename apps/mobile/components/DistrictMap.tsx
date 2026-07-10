@@ -100,7 +100,9 @@ export function DistrictMap({
         rotateEnabled={false}
         pitchEnabled={false}
       >
-        {/* Deferred (S67): senate S1/S2 share geometry; view simplify neutralizes the double-transfer */}
+        {/* S1/S2 dedupe (S67) lives in my_districts_geojson (0062) + getMyDistricts:
+            the shared senate geometry crosses the wire once and is re-attached,
+            so both seats still render here. */}
         {districts.filter(d => enabled[d.id]).flatMap(d => (polysById.get(d.id) ?? []).map((coords, i) => (
           <Polygon
             key={`${d.id}-${i}`}

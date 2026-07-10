@@ -45,24 +45,33 @@ export async function getMyHomePoint(
   return { lat, lng }
 }
 
-export async function getMyDistricts(client: ChiaroClient, userId?: string): Promise<DistrictRow[]> {
-  const uid = await resolveUserId(client, userId)
-  if (!uid) return []
-
-  // Two-step: fetch user_district join keys, then bulk-load districts (avoids
-  // PostgREST nested-select shape constraints with geometry columns).
-  const { data: links, error: linksErr } = await client
-    .from('user_districts')
-    .select('district_id')
-    .eq('user_id', uid)
-  if (linksErr) throw linksErr
-  if (!links || links.length === 0) return []
-
-  const ids = links.map((l: { district_id: string }) => l.district_id)
+export async function getMyDistricts(client: ChiaroClient): Promise<DistrictRow[]> {
+  // Single round-trip against the my_districts_geojson view (migration 0062):
+  // it self-scopes by auth.uid() (logged out -> no rows -> []) and pre-joins
+  // user_districts -> districts_geojson, so no user-id resolution is needed.
+  // Unlike the other @chiaro/location fetchers (slice 66 resolveUserId + a
+  // userId? param), this one takes no id — the view's auth.uid() filter IS the
+  // scoping. The view also emits the shared federal_senate whole-state geometry
+  // once (S1/S2 dedupe); shareDedupedGeometry re-attaches it so both seats keep
+  // rendering and the returned rows are unchanged for consumers.
   const { data, error } = await client
-    .from('districts_geojson')
+    .from('my_districts_geojson')
     .select('id, tier, state, code, name, geometry')
-    .in('id', ids)
   if (error) throw error
-  return (data ?? []) as unknown as DistrictRow[]
+  return shareDedupedGeometry((data ?? []) as unknown as DistrictRow[])
+}
+
+// The my_districts_geojson view NULLs the geometry of rows that duplicate an
+// earlier row's (state, tier) — federal_senate S1/S2 share one whole-state
+// polygon — so it crosses the wire once. Re-attach the shared geometry object
+// to the deduped sibling so every returned DistrictRow carries geometry and
+// downstream consumers (DistrictPanel list + DistrictMap) see no shape change.
+function shareDedupedGeometry(rows: DistrictRow[]): DistrictRow[] {
+  const geomByKey = new Map<string, DistrictRow['geometry']>()
+  for (const r of rows) {
+    if (r.geometry) geomByKey.set(`${r.state}:${r.tier}`, r.geometry)
+  }
+  return rows.map(r =>
+    r.geometry ? r : { ...r, geometry: geomByKey.get(`${r.state}:${r.tier}`)! },
+  )
 }
