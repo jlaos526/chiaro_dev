@@ -6,7 +6,7 @@ import {
   inferChamberFromTitle,
   deriveFormat,
 } from './mobilize-helpers.ts'
-import { resolveOfficialByName, type Chamber } from '../../shared/officials.ts'
+import { resolveOpenstatesPersonId, type Chamber } from '../../shared/officials.ts'
 import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const ALL_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY']
@@ -129,8 +129,10 @@ export async function parseMobilizeEvents(
       continue
     }
 
-    // Resolve openstates_person_id via shared helper.
-    const officialId = await resolveOfficialByName(client, {
+    // Resolve openstates_person_id via shared helper. The pushed row MUST
+    // carry official_openstates_person_id — upsertTownHall drops any row
+    // without it (audit C31: resolving purely as a gate produced 0 rows).
+    const personId = await resolveOpenstatesPersonId(client, {
       full_name: name,
       state,
       chamber,
@@ -141,7 +143,7 @@ export async function parseMobilizeEvents(
         reason: 'ambiguous full_name match (2+ in-office officials)',
       }),
     })
-    if (!officialId) {
+    if (!personId) {
       onSkip?.({
         adapter: 'mobilize',
         stage: 'resolve',
@@ -166,6 +168,7 @@ export async function parseMobilizeEvents(
 
     const city = event.location?.locality
     out.push({
+      official_openstates_person_id: personId,
       legislator_name: name,
       event_date: eventDate,
       ...(city !== undefined ? { city } : {}),

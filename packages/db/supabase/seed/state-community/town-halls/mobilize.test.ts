@@ -1,8 +1,10 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { Client } from 'pg'
 import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { mobilize, parseMobilizeEvents } from './mobilize.ts'
+import { upsertTownHall, type NormalizedTownHall } from '../shared.ts'
 import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -12,9 +14,14 @@ interface FakeClient {
   query: ReturnType<typeof vi.fn>
 }
 
-function mkClient(officialId: string | null): FakeClient {
+// After C31 the adapter resolves via resolveOpenstatesPersonId, which selects
+// `openstates_person_id` — the mock must return that column (not `id`).
+function mkClient(personId: string | null): FakeClient {
   return {
-    query: vi.fn().mockResolvedValue({ rows: officialId ? [{ id: officialId }] : [], rowCount: officialId ? 1 : 0 }),
+    query: vi.fn().mockResolvedValue({
+      rows: personId ? [{ openstates_person_id: personId }] : [],
+      rowCount: personId ? 1 : 0,
+    }),
   }
 }
 
@@ -27,13 +34,15 @@ describe('mobilize adapter', () => {
 
   it('happy path: fixture injection returns parsed NormalizedTownHall[]', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
-    const client = mkClient('oid-mock') as never  // every name resolves
+    const client = mkClient('ocd-person/mock') as never  // every name resolves
     const events = await parseMobilizeEvents(fixture.data, client)
     // 5 fixture events: 3 state-legislator (CO/CA/MD) + 1 federal (skip) + 1 vague (skip) = 3 emitted
     expect(events).toHaveLength(3)
     expect(events[0]!.state).toBe('CO')
     expect(events[0]!.source).toBe('mobilize')
     expect(events[0]!.external_id).toBe('mobilize-100001')
+    // C31: the row MUST carry official_openstates_person_id or upsertTownHall drops it.
+    expect(events[0]!.official_openstates_person_id).toBe('ocd-person/mock')
   })
 
   it('classifies CA hybrid event correctly (zoom URL + venue → hybrid)', async () => {
@@ -137,5 +146,84 @@ describe('mobilize onSkip instrumentation (slice 23)', () => {
     // No onSkip passed — must not throw.
     const events = await parseMobilizeEvents(fixture.data, client)
     expect(events).toEqual([])
+  })
+})
+
+// Audit C31: the interface contract that must never silently regress.
+// Pre-fix the adapter resolved the official only as a gate and DISCARDED the
+// id — the pushed row carried no official_openstates_person_id, so
+// upsertTownHall returned false and every mobilize row was dropped ("0 rows /
+// ok"). Push a mobilize-shaped row through the REAL upsertTownHall + assert it
+// lands.
+describe('C31 regression: mobilize row lands via real upsertTownHall', () => {
+  const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+  const SV = 'FX-mob-c31'
+  const PID = 'ocd-person/fx-mob-c31'
+  let dbClient: Client
+  let officialId: string
+
+  beforeEach(async () => {
+    dbClient = new Client({ connectionString: DB_URL })
+    await dbClient.connect()
+    await dbClient.query(`
+      insert into public.districts (tier, state, code, name, geometry, source_version)
+      values ('state_house', 'CA', 'CA-MOB-C31', 'CA MOB C31',
+        st_geogfromtext('MULTIPOLYGON(((-120 35,-119 35,-119 36,-120 36,-120 35)))'),
+        $1)
+      on conflict (tier, code) do nothing
+    `, [SV])
+    const o = await dbClient.query<{ id: string }>(`
+      insert into public.officials (openstates_person_id, full_name, first_name, last_name,
+        chamber, party, state, district_id, in_office, source_version)
+      select $2, 'Mobilize Test C31', 'Mobilize', 'Test', 'state_house', 'D', 'CA',
+        d.id, true, $1
+      from public.districts d where d.code = 'CA-MOB-C31'
+      returning id
+    `, [SV, PID])
+    officialId = o.rows[0]!.id
+  })
+
+  afterEach(async () => {
+    await dbClient.query('delete from public.state_town_halls where official_id = $1', [officialId])
+    await dbClient.query('delete from public.officials where source_version = $1', [SV])
+    await dbClient.query('delete from public.districts where source_version = $1', [SV])
+    await dbClient.end()
+  })
+
+  it('a mobilize row carrying official_openstates_person_id is written', async () => {
+    const row: NormalizedTownHall = {
+      official_openstates_person_id: PID,
+      legislator_name: 'Mobilize Test C31',
+      event_date: '2026-05-01',
+      state: 'CA',
+      format: 'in_person',
+      source_url: 'https://www.mobilize.us/events/999001/',
+      source: 'mobilize',
+      external_id: 'mobilize-999001',
+    }
+    const ok = await upsertTownHall(dbClient, row)
+    expect(ok).toBe(true)
+    const r = await dbClient.query<{ c: number; source: string }>(
+      'select count(*)::int as c, max(source) as source from public.state_town_halls where official_id = $1',
+      [officialId])
+    expect(r.rows[0]!.c).toBe(1)
+    expect(r.rows[0]!.source).toBe('mobilize')
+  })
+
+  it('the same row WITHOUT official_openstates_person_id is dropped (the pre-C31 bug)', async () => {
+    const badRow = {
+      legislator_name: 'Mobilize Test C31',
+      event_date: '2026-05-01',
+      state: 'CA',
+      source_url: 'https://www.mobilize.us/events/999002/',
+      source: 'mobilize',
+      external_id: 'mobilize-999002',
+    } as NormalizedTownHall
+    const ok = await upsertTownHall(dbClient, badRow)
+    expect(ok).toBe(false)
+    const r = await dbClient.query<{ c: number }>(
+      'select count(*)::int as c from public.state_town_halls where official_id = $1',
+      [officialId])
+    expect(r.rows[0]!.c).toBe(0)
   })
 })
