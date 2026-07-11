@@ -60,5 +60,9 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  // `monitoring` = the Sentry tunnelRoute (next.config.mjs, audit C51):
+  // beacons are fire-and-forget POSTs — running auth (a getUser network
+  // round-trip) on them is waste, and an authenticated-but-uncalibrated
+  // user's error beacons would 307 to /calibrate and be dropped.
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|monitoring|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 }

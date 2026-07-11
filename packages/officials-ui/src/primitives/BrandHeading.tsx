@@ -3,6 +3,7 @@
 import { createElement, type ReactNode } from 'react'
 import { Platform, Text } from 'react-native'
 import { useBrandTokens } from '../brand-hooks.ts'
+import { PRIMITIVE_FONT_FAMILY } from './font.ts'
 
 export interface BrandHeadingProps {
   children: ReactNode
@@ -39,7 +40,7 @@ export function BrandHeading({ children, level, color }: BrandHeadingProps): Rea
           letterSpacing: `${LEVEL_STYLES[level].letterSpacing}px`,
           fontWeight: 700,
           color: finalColor,
-          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+          fontFamily: PRIMITIVE_FONT_FAMILY,
           margin: 0,
         },
       },
@@ -54,7 +55,7 @@ export function BrandHeading({ children, level, color }: BrandHeadingProps): Rea
       style={{
         ...LEVEL_STYLES[level],
         color: finalColor,
-        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        fontFamily: PRIMITIVE_FONT_FAMILY,
       }}
     >
       {children}

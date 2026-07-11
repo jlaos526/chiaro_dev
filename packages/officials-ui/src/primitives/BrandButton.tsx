@@ -3,6 +3,7 @@
 import { Pressable, Text } from 'react-native'
 import { type ReactNode } from 'react'
 import { useBrandTokens } from '../brand-hooks.ts'
+import { PRIMITIVE_FONT_FAMILY } from './font.ts'
 
 export interface BrandButtonProps {
   children: ReactNode
@@ -69,7 +70,7 @@ export function BrandButton({
           color: textColor,
           fontSize: dims.fontSize,
           fontWeight: '600',
-          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+          fontFamily: PRIMITIVE_FONT_FAMILY,
         }}
       >
         {children}

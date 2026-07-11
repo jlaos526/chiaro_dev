@@ -1,14 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render } from '@testing-library/react'
 
-// Stub the rail mount so we can assert it renders without exercising its full surface
-vi.mock('@chiaro/officials-ui', async (importOriginal) => {
-  const actual = await importOriginal() as Record<string, unknown>
-  return {
-    ...actual,
-    BrandNavRailMount: () => <div data-testid="rail-mount-stub">RAIL</div>,
-  }
-})
+// Stub the rail mount so we can assert it renders without exercising its full
+// surface. Slice 70 (audit C2) switched query-client.tsx to DEEP imports so
+// the root layout stops pulling the whole officials-ui barrel — the mock must
+// target the deep module path, not the barrel.
+vi.mock('@chiaro/officials-ui/src/nav/BrandNavRailMount.tsx', () => ({
+  BrandNavRailMount: () => <div data-testid="rail-mount-stub">RAIL</div>,
+}))
 
 // Stub the browser supabase client factory
 vi.mock('@/lib/supabase/client', () => ({

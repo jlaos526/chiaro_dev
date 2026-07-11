@@ -483,9 +483,6 @@ importers:
       '@chiaro/issues':
         specifier: workspace:*
         version: link:../issues
-      '@chiaro/location':
-        specifier: workspace:*
-        version: link:../location
       '@chiaro/officials':
         specifier: workspace:*
         version: link:../officials

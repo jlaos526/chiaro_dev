@@ -3,6 +3,7 @@
 import { Text } from 'react-native'
 import { type ReactNode } from 'react'
 import { useBrandTokens } from '../brand-hooks.ts'
+import { PRIMITIVE_FONT_FAMILY } from './font.ts'
 
 export interface BrandBodyTextProps {
   children: ReactNode
@@ -31,7 +32,7 @@ export function BrandBodyText({ children, size = 'default', muted = false, testI
         fontSize: dims.fontSize,
         lineHeight: dims.lineHeight,
         color,
-        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        fontFamily: PRIMITIVE_FONT_FAMILY,
       }}
       testID={testID}
     >

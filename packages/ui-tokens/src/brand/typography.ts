@@ -3,6 +3,16 @@
 
 export const BRAND_TYPE_FAMILY = 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
 
+/**
+ * Web-only variant (slice 70, audit C6): consumes the next/font-hosted Inter
+ * via the CSS variable the web root layout declares (`--font-inter`).
+ * next/font scopes its generated @font-face under a hashed family name, so a
+ * plain 'Inter' string only matches a locally-installed Inter — the variable
+ * is the contract between the app and shared components. Falls back to local
+ * Inter, then the system stack. NOT for native — RN cannot parse var().
+ */
+export const BRAND_TYPE_FAMILY_WEB = 'var(--font-inter, Inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+
 export const BRAND_TYPE = {
   display: { sizePx: 40,   sizeRem: 2.5,    lineHeight: 1.15, tracking: '-0.02em',  weight: 700 },
   h1:      { sizePx: 28,   sizeRem: 1.75,   lineHeight: 1.2,  tracking: '-0.015em', weight: 700 },

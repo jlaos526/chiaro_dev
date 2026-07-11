@@ -25,7 +25,10 @@ function scrubEvent(event: any): any {
     event?.breadcrumbs?.forEach((b: any) => scrub(b?.data, seen))
     return event
   } catch {
-    return null
+    // Slice 61 B10 parity (audit C52): a scrub-throw returns a minimal
+    // stripped event rather than null — dropping the whole event would
+    // lose all telemetry signal.
+    return { message: event?.message, level: event?.level }
   }
 }
 
