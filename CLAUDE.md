@@ -163,8 +163,8 @@ Specs live in `docs/superpowers/specs/`. Plans in `docs/superpowers/plans/`. Aud
 | `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `apps/web` build | Build collects page data even without a live backend; placeholder strings are fine. |
 | `NEXT_PUBLIC_SITE_URL` | `apps/web` sign-out redirect | Optional; falls back to request origin. |
 | `AUDIT_TARGET_BIOGUIDE` | `pnpm seed:audit-fixture-attach` | Optional; defaults to `P000197`. |
-| `SENTRY_AUTH_TOKEN` | Web + mobile CI source-map upload | GitHub secret currently UNSET (audit C39); EAS project secret set. Wiring is ready — turbo `build.passThroughEnv` passes it through (slice 63); uploads start the day the secret is set. Caveat: passThroughEnv is excluded from the turbo cache hash, so after setting the secret, bump the `turbo-build` cache key (or land any source change) to avoid replaying a tokenless cached build. SDK no-ops without it. |
-| `NEXT_PUBLIC_SENTRY_DSN_WEB` | Web Sentry init (browser + server + edge runtimes) | Public-by-design. SDK no-ops if absent. |
+| `SENTRY_AUTH_TOKEN` | Web + mobile CI source-map upload | GitHub secret SET 2026-07-11 (closes audit C39; `turbo-build` cache key bumped to v2 in the same change — passThroughEnv is excluded from the turbo cache hash, so pre-token cached builds would otherwise replay via restore-keys). Also a Vercel env var alongside the DSN (deployed-build uploads). Sentry org `chiaro` / project `chiaro-web` (API-verified — matches next.config.mjs). EAS project secret set (mobile). |
+| `NEXT_PUBLIC_SENTRY_DSN_WEB` | Web Sentry init (browser + server + edge runtimes) | Public-by-design. SDK no-ops if absent. Set on Vercel (staging) 2026-07-11. |
 | `EXPO_PUBLIC_SENTRY_DSN_MOBILE` | Mobile Sentry init | Public-by-design. Active in dev-client / preview / production builds, NOT Expo Go. |
 | `SENTRY_DSN_EDGE` | Edge Function Sentry init via `withSentry` wrapper | Set as Supabase secret. SDK no-ops if absent. |
 | `NY_SENATE_API_KEY` | `pnpm seed:state-bills-enrich` (NY adapter) | Free signup at legislation.nysenate.gov/keyOptions. Server-side only. Optional — NY augment skipped gracefully without it. |
