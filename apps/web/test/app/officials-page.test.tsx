@@ -5,11 +5,15 @@ const redirectMock = vi.fn()
 vi.mock('next/navigation', () => ({ redirect: redirectMock }))
 
 let mockUser: { id: string } | null = { id: 'u1' }
-vi.mock('@/lib/supabase/server', () => ({
-  createSupabaseServerClient: vi.fn(async () => ({
+vi.mock('@/lib/supabase/server', () => {
+  const stub = () => ({
     auth: { getUser: vi.fn(async () => ({ data: { user: mockUser } })) },
-  })),
-}))
+  })
+  return {
+    createSupabaseServerClient: vi.fn(async () => stub()),
+    getAuthenticatedUser: vi.fn(async () => ({ supabase: stub(), user: mockUser })),
+  }
+})
 
 vi.mock('../../app/officials/OfficialsListClient', () => ({
   OfficialsListClient: () => <div data-testid="officials-list">officials list</div>,
