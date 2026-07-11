@@ -150,10 +150,14 @@ jobs:
             .turbo
             apps/*/.turbo
             packages/*/.turbo
-          key: turbo-build-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}-${{ github.sha }}
+          # v2 (2026-07-11): SENTRY_AUTH_TOKEN secret was set. passThroughEnv is
+          # excluded from turbo's task hash, so pre-token cached builds (which
+          # never uploaded source maps) would replay forever via restore-keys
+          # without this bump (audit C39 closeout).
+          key: turbo-build-v2-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}-${{ github.sha }}
           restore-keys: |
-            turbo-build-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}-
-            turbo-build-${{ runner.os }}-
+            turbo-build-v2-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'turbo.json') }}-
+            turbo-build-v2-${{ runner.os }}-
       - name: Cache Next.js compiler cache
         # turbo.json deliberately excludes .next/cache from task outputs;
         # nothing else persisted it, so every CI build was cold (audit C40).
