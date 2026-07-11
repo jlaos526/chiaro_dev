@@ -6,6 +6,7 @@ import {
   type StateCommunityStats,
   upsertTownHall,
   upsertDistrictOffice,
+  clearDistrictOfficesFor,
   upsertCommitteeHearing,
   type NormalizedTownHall,
   type NormalizedDistrictOffice,
@@ -104,6 +105,15 @@ export async function ingestStateCommunity(
           ...(opts.session !== undefined ? { session: opts.session } : {}),
           ...(onSkip ? { onSkip } : {}),
         })
+        // Offices idempotency (audit C33): upsertDistrictOffice is a bare INSERT,
+        // so delete this adapter's officials' offices before re-inserting. Heals
+        // pre-existing duplicates for every official the adapter still emits.
+        if (!opts.noApply && adapter.component === 'offices') {
+          const personIds = [...new Set(
+            (events as NormalizedDistrictOffice[]).map(e => e.official_openstates_person_id),
+          )]
+          await clearDistrictOfficesFor(client, personIds)
+        }
         for (const event of events) {
           if (opts.noApply) {
             // Dry-run: skip DB writes; count would-upsert rows for visibility.

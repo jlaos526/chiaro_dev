@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { Client } from 'pg'
 import { ingestStateCommunity } from './state-community-ingest.ts'
-import type { StateCommunityAdapter } from './state-community/shared.ts'
+import type { StateCommunityAdapter, NormalizedDistrictOffice } from './state-community/shared.ts'
 
 const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 let client: Client
@@ -81,5 +81,94 @@ describe('ingestStateCommunity', () => {
     ]
     await ingestStateCommunity({ client, component: 'all', adapters })
     expect(calls).toEqual(['a', 'b', 'c'])
+  })
+})
+
+// Audit C33 vector (a): upsertDistrictOffice is a bare INSERT, so the
+// orchestrator delete-before-inserts each offices adapter's officials to stay
+// idempotent + heal pre-existing duplicates.
+describe('ingestStateCommunity offices idempotency (C33)', () => {
+  const SV = 'FX-off-c33'
+  const PID = 'ocd-person/fx-off-c33'
+  let officialId: string
+
+  beforeEach(async () => {
+    await client.query(`
+      insert into public.districts (tier, state, code, name, geometry, source_version)
+      values ('state_house', 'CA', 'CA-OFF-C33', 'CA OFF C33',
+        st_geogfromtext('MULTIPOLYGON(((-120 35,-119 35,-119 36,-120 36,-120 35)))'),
+        $1)
+      on conflict (tier, code) do nothing
+    `, [SV])
+    const o = await client.query<{ id: string }>(`
+      insert into public.officials (openstates_person_id, full_name, first_name, last_name,
+        chamber, party, state, district_id, in_office, source_version)
+      select $2, 'Office Twice C33', 'Office', 'Twice', 'state_house', 'D', 'CA',
+        d.id, true, $1
+      from public.districts d where d.code = 'CA-OFF-C33'
+      returning id
+    `, [SV, PID])
+    officialId = o.rows[0]!.id
+  })
+
+  afterEach(async () => {
+    await client.query('delete from public.state_district_offices where official_id = $1', [officialId])
+    await client.query('delete from public.officials where source_version = $1', [SV])
+    await client.query('delete from public.districts where source_version = $1', [SV])
+  })
+
+  function officesAdapter(): StateCommunityAdapter {
+    return mkAdapter({
+      slug: 'off-c33',
+      component: 'offices',
+      covered_states: ['CA'],
+      async fetchEvents(): Promise<NormalizedDistrictOffice[]> {
+        return [
+          { official_openstates_person_id: PID, kind: 'district', street_1: '1 A St', city: 'San Jose', state: 'CA', source_url: 'https://x/1' },
+          { official_openstates_person_id: PID, kind: 'capitol', street_1: '2 B St', city: 'Sacramento', state: 'CA', source_url: 'https://x/2' },
+        ]
+      },
+    })
+  }
+
+  it('running the offices ingest twice keeps exactly 2 rows (no duplication)', async () => {
+    await ingestStateCommunity({ client, adapters: [officesAdapter()] })
+    await ingestStateCommunity({ client, adapters: [officesAdapter()] })
+    const r = await client.query<{ c: number }>(
+      'select count(*)::int as c from public.state_district_offices where official_id = $1',
+      [officialId])
+    expect(r.rows[0]!.c).toBe(2)
+  })
+
+  it('delete-before-insert heals pre-existing duplicate rows', async () => {
+    // Simulate 3 stray rows left by a prior non-idempotent run.
+    for (let i = 0; i < 3; i++) {
+      await client.query(
+        `insert into public.state_district_offices (official_id, kind, street_1, city, state, source_url)
+         values ($1, 'district', '999 STRAY', 'San Jose', 'CA', 'https://stray')`,
+        [officialId])
+    }
+    await ingestStateCommunity({ client, adapters: [officesAdapter()] })
+    const r = await client.query<{ c: number }>(
+      'select count(*)::int as c from public.state_district_offices where official_id = $1',
+      [officialId])
+    expect(r.rows[0]!.c).toBe(2)  // 3 strays cleared + 2 fresh inserted
+    const stray = await client.query<{ c: number }>(
+      `select count(*)::int as c from public.state_district_offices
+        where official_id = $1 and street_1 = '999 STRAY'`,
+      [officialId])
+    expect(stray.rows[0]!.c).toBe(0)
+  })
+
+  it('dry-run (noApply) does NOT clear existing rows', async () => {
+    await client.query(
+      `insert into public.state_district_offices (official_id, kind, street_1, city, state, source_url)
+       values ($1, 'district', '1 A St', 'San Jose', 'CA', 'https://x/1')`,
+      [officialId])
+    await ingestStateCommunity({ client, adapters: [officesAdapter()], noApply: true })
+    const r = await client.query<{ c: number }>(
+      'select count(*)::int as c from public.state_district_offices where official_id = $1',
+      [officialId])
+    expect(r.rows[0]!.c).toBe(1)  // untouched: dry-run skips both clear + insert
   })
 })

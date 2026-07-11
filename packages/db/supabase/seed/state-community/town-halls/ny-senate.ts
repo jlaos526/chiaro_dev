@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import * as cheerio from 'cheerio'
 import type { StateCommunityAdapter, NormalizedTownHall } from '../shared.ts'
 import { resolveOpenstatesPersonId } from '../../shared/officials.ts'
@@ -5,6 +6,23 @@ import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const SOURCE_URL = 'https://www.nysenate.gov/events?event-type=town_hall'
 const FETCH_TIMEOUT_MS = 5000
+
+/**
+ * Derive a stable external_id from an event detail URL (audit C33 vector c).
+ * Strip trailing slashes first, then take the last path segment; a detail URL
+ * ending in '/' would otherwise yield '' from split('/').pop(), causing the
+ * old conditional-spread to OMIT external_id — and NULL external_ids are
+ * distinct per Postgres, so every re-ingest inserts a fresh duplicate
+ * (Gotcha #13). When the segment is still empty (URL was all slashes) fall
+ * back to a deterministic sha1 hash. external_id is NEVER omitted for a row
+ * that has a source URL.
+ */
+export function deriveExternalId(url: string): string {
+  const slug = url.replace(/\/+$/, '').split('/').pop() ?? ''
+  if (slug) return slug
+  const hash = createHash('sha1').update(url).digest('hex').slice(0, 12)
+  return `ny-senate-urlhash-${hash}`
+}
 
 export interface ParsedNysenateEvent {
   full_name: string         // senator name from byline
@@ -132,7 +150,6 @@ export const nySenateTownHalls: StateCommunityAdapter<NormalizedTownHall> = {
         continue
       }
 
-      const externalId = p.detail_url.split('/').pop()
       const row: NormalizedTownHall = {
         official_openstates_person_id: openstates_person_id,
         event_date: p.event_date,
@@ -140,7 +157,7 @@ export const nySenateTownHalls: StateCommunityAdapter<NormalizedTownHall> = {
         format: p.format,
         source_url: p.detail_url,
         source: 'ny-senate',
-        ...(externalId !== undefined && externalId !== '' ? { external_id: externalId } : {}),
+        external_id: deriveExternalId(p.detail_url),
       }
       if (p.city) row.city = p.city
       out.push(row)

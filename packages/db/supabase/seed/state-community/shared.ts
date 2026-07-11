@@ -115,10 +115,36 @@ export async function upsertTownHall(
 }
 
 /**
+ * Delete every state_district_offices row belonging to the officials named by
+ * `personIds` (openstates_person_ids). The orchestrator calls this ONCE per
+ * offices adapter before the insert loop so the ingest is idempotent.
+ *
+ * upsertDistrictOffice is a bare INSERT (audit C33): migration 0043 has no
+ * unique constraint and natural keys founder on NULL street_1 variants, so a
+ * re-run would duplicate every ~450 CA/NY/FL/MI office row. Delete-before-
+ * insert also HEALS pre-existing duplicates for every official the adapter
+ * still emits ("row repair" — no cleanup migration needed since no production
+ * DB exists yet). Single query via = any($1).
+ */
+export async function clearDistrictOfficesFor(
+  client: Client,
+  personIds: string[],
+): Promise<void> {
+  if (personIds.length === 0) return
+  await client.query(
+    `delete from public.state_district_offices
+      where official_id in (
+        select id from public.officials where openstates_person_id = any($1)
+      )`,
+    [personIds],
+  )
+}
+
+/**
  * UPSERT a district office row. Returns true on success, false when
  * the official is unknown.
  * No natural dedup key (offices rarely change ids across scrapes);
- * caller is responsible for clearing/recomputing per re-ingest run.
+ * caller clears via clearDistrictOfficesFor before re-inserting per run.
  */
 export async function upsertDistrictOffice(
   client: Client,
@@ -174,15 +200,28 @@ export async function upsertCommitteeHearing(
       hearingId = ins.rows[0]!.id
     }
   } else {
-    const ins = await client.query<{ id: string }>(`
-      insert into public.state_committee_hearings (
-        openstates_committee_id, state, session, hearing_date,
-        location, agenda_topic, source_url
-      ) values (null, $1, $2, $3, $4, $5, $6)
-      returning id
-    `, [h.state, h.session, h.hearing_date,
-        h.location ?? null, h.agenda_topic ?? null, h.source_url])
-    hearingId = ins.rows[0]!.id
+    // openstates_committee_id is null so the committee-id probe can't apply;
+    // dedup by (state, hearing_date, source_url) instead. Without it a re-run
+    // inserts a fresh duplicate every time (audit C33).
+    const existing = await client.query<{ id: string }>(
+      `select id from public.state_committee_hearings
+        where openstates_committee_id is null
+          and state = $1 and hearing_date = $2 and source_url = $3`,
+      [h.state, h.hearing_date, h.source_url],
+    )
+    if ((existing.rowCount ?? 0) > 0) {
+      hearingId = existing.rows[0]!.id
+    } else {
+      const ins = await client.query<{ id: string }>(`
+        insert into public.state_committee_hearings (
+          openstates_committee_id, state, session, hearing_date,
+          location, agenda_topic, source_url
+        ) values (null, $1, $2, $3, $4, $5, $6)
+        returning id
+      `, [h.state, h.session, h.hearing_date,
+          h.location ?? null, h.agenda_topic ?? null, h.source_url])
+      hearingId = ins.rows[0]!.id
+    }
   }
 
   let matched = 0
