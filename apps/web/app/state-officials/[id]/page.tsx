@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { fetchOfficial, fetchOfficialDistrictOffices, isStateLevel } from '@chiaro/officials'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { getAuthenticatedUser } from '@/lib/supabase/server'
 import { StateOfficialDetailClient } from './StateOfficialDetailClient'
 
 interface Params {
@@ -13,10 +13,7 @@ export default async function StateOfficialPage({
   params: Promise<Params>
 }): Promise<React.JSX.Element> {
   const { id } = await params
-  const supabase = await createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { supabase, user } = await getAuthenticatedUser()
   if (!user) redirect('/sign-in')
 
   let official

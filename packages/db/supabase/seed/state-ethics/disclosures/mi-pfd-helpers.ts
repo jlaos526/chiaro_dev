@@ -112,7 +112,6 @@ export function parseMiPfdText(text: string): ParsedMiPfdLineItem[] {
       const high = parseAmount(rangeMatch[2]!)
       if (Number.isFinite(low) && Number.isFinite(high)) {
         out.push({ income_source, income_kind, amount_range_low: low, amount_range_high: high })
-        continue
       }
     }
 

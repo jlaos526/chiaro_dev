@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { getAuthenticatedUser } from '@/lib/supabase/server'
 import { getMyProfile } from '@chiaro/profile'
 import { redirect } from 'next/navigation'
 import { BrandPageScreen, BrandHeading, BrandAlert, BrandLink, Logo } from '@chiaro/officials-ui'
@@ -7,10 +7,7 @@ import { OfficialsCardClient } from './OfficialsCardClient'
 import { MyIssuesCardClient } from './MyIssuesCardClient'
 
 export default async function Home(): Promise<React.JSX.Element> {
-  const supabase = await createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { supabase, user } = await getAuthenticatedUser()
   if (!user) redirect('/sign-in')
   // Pass the already-validated id so getMyProfile skips its own getSession
   // (avoids a redundant local read + the @supabase/ssr server-getSession advisory).

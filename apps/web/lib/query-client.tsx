@@ -32,12 +32,18 @@ function getQueryClient() {
 
 const chiaroClient = createSupabaseBrowserClient()
 
-export function QueryProvider({ children }: { children: React.ReactNode }) {
+export function QueryProvider({
+  children,
+  initialHasUser,
+}: {
+  children: React.ReactNode
+  initialHasUser?: boolean
+}) {
   const [qc] = React.useState(getQueryClient)
   return (
     <ChiaroClientProvider client={chiaroClient}>
       <QueryClientProvider client={qc}>
-        <BrandNavRailMount />
+        <BrandNavRailMount initialHasUser={initialHasUser} />
         {children}
       </QueryClientProvider>
     </ChiaroClientProvider>

@@ -30,4 +30,13 @@ describe('POST /sign-out', () => {
     )
     expect(res.headers.get('location')).toBe('https://chiaro.example.com/sign-in')
   })
+
+  it('clears the chiaro_calibrated positive-cache cookie (slice 74)', async () => {
+    const res = await POST(
+      new Request('https://chiaro-dev-web.vercel.app/sign-out', { method: 'POST' }),
+    )
+    const setCookie = res.headers.get('set-cookie') ?? ''
+    expect(setCookie).toContain('chiaro_calibrated=')
+    expect(setCookie).toMatch(/Max-Age=0|Expires=Thu, 01 Jan 1970/i)
+  })
 })

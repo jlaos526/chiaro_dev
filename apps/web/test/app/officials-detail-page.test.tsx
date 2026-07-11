@@ -36,12 +36,17 @@ function makeQuery(table: string) {
   return builder
 }
 
-vi.mock('@/lib/supabase/server', () => ({
-  createSupabaseServerClient: vi.fn(async () => ({
+vi.mock('@/lib/supabase/server', () => {
+  const stub = () => ({
     auth: { getUser: vi.fn(async () => ({ data: { user: mockUser } })) },
     from: (table: string) => makeQuery(table),
-  })),
-}))
+  })
+  return {
+    createSupabaseServerClient: vi.fn(async () => stub()),
+    // Slice 74: pages consume the cache()-deduped helper instead of their own getUser.
+    getAuthenticatedUser: vi.fn(async () => ({ supabase: stub(), user: mockUser })),
+  }
+})
 
 // Client islands → marker divs.
 vi.mock('../../app/officials/[id]/BioHeaderClient', () => ({

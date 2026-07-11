@@ -1,4 +1,5 @@
 import { Inter } from 'next/font/google'
+import { cookies } from 'next/headers'
 import { getSemantic, BRAND_TYPE_FAMILY_WEB } from '@chiaro/ui-tokens'
 import { QueryProvider } from '@/lib/query-client'
 import { readBrandModeCookie } from '@/lib/brand-mode-cookie'
@@ -30,8 +31,20 @@ export default async function RootLayout({
   // frame of light before the client effect snaps to dark.
   const effectiveMode = defaultMode ?? 'light'
   const semantic = getSemantic(effectiveMode)
+  // Auth hint for the nav rail (slice 74, audit C5): the PRESENCE of the
+  // Supabase auth cookie (sb-<ref>-auth-token, possibly chunked) lets the
+  // rail + its 200px CSS var render on first paint instead of after a client
+  // auth round-trip — the old flow shifted all page content 200px right on
+  // every authenticated desktop hard load. Presence is optimistic (expired
+  // sessions correct client-side via a LOCAL getSession read).
+  const cookieStore = await cookies()
+  const initialHasUser = cookieStore.getAll().some((c) => /^sb-.*-auth-token/.test(c.name))
   return (
-    <html lang="en" className={inter.variable} style={{ colorScheme: effectiveMode }}>
+    <html
+      lang="en"
+      className={`${inter.variable}${initialHasUser ? ' chiaro-authed' : ''}`}
+      style={{ colorScheme: effectiveMode }}
+    >
       <body
         style={{
           backgroundColor: semantic.bg.app,
@@ -40,8 +53,13 @@ export default async function RootLayout({
           fontFamily: BRAND_TYPE_FAMILY_WEB,
         }}
       >
+        {/* Server-side default for the rail width so the FIRST paint is
+            already laid out; BrandNavRailMount's useLayoutEffect takes over
+            for route exclusions + client-side auth transitions (its inline
+            documentElement.style wins over this stylesheet default). */}
+        <style>{`@media (min-width: 768px) { html.chiaro-authed { --chiaro-rail-width: 200px; } }`}</style>
         <ClientBrandModeWiring defaultMode={defaultMode}>
-          <QueryProvider>{children}</QueryProvider>
+          <QueryProvider initialHasUser={initialHasUser}>{children}</QueryProvider>
         </ClientBrandModeWiring>
       </body>
     </html>

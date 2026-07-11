@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { getAuthenticatedUser } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import {
   FederalServiceRecordCard,
@@ -81,10 +81,7 @@ export default async function OfficialPage({
   params: Promise<Params>
 }): Promise<React.JSX.Element> {
   const { id } = await params
-  const supabase = await createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { supabase, user } = await getAuthenticatedUser()
   if (!user) redirect('/sign-in')
 
   const { data: official } = await supabase
