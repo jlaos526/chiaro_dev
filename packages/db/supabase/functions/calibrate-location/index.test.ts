@@ -127,6 +127,43 @@ Deno.test('throttle: read error fails OPEN (RPC remains the authority)', async (
   assertEquals(supabase.rpcCalls.length, 1)
 })
 
+// --- CORS + input validation (audit C48, slice 71) -------------------------
+
+Deno.test('OPTIONS preflight returns 204 with CORS headers (no auth required)', async () => {
+  const res = await handle(new Request('http://stub/calibrate-location', { method: 'OPTIONS' }))
+  assertEquals(res.status, 204)
+  assertEquals(res.headers.get('access-control-allow-origin'), '*')
+  assertEquals(
+    res.headers.get('access-control-allow-headers'),
+    'authorization, x-client-info, apikey, content-type',
+  )
+  assertEquals(res.headers.get('access-control-allow-methods'), 'POST, OPTIONS')
+})
+
+Deno.test('every JSON response carries access-control-allow-origin (401 path)', async () => {
+  const res = await handle(makeRequest({ address: '350 5th Ave NY' }, false))
+  assertEquals(res.status, 401)
+  assertEquals(res.headers.get('access-control-allow-origin'), '*')
+})
+
+Deno.test('NaN lat/lng is rejected 400 before any GeocodIO spend', async () => {
+  const supabase = makeSupabaseStub({})
+  const geocodio = makeGeocodioStub()
+  const res = await handle(makeRequest({ lat: NaN, lng: -74 }), depsFor(supabase, geocodio))
+  assertEquals(res.status, 400)
+  assertEquals(geocodio.calls.length, 0)
+})
+
+Deno.test('out-of-range coordinates are rejected 400 before any GeocodIO spend', async () => {
+  const supabase = makeSupabaseStub({})
+  const geocodio = makeGeocodioStub()
+  for (const body of [{ lat: 91, lng: 0 }, { lat: -91, lng: 0 }, { lat: 0, lng: 181 }, { lat: 0, lng: -181 }]) {
+    const res = await handle(makeRequest(body), depsFor(supabase, geocodio))
+    assertEquals(res.status, 400)
+  }
+  assertEquals(geocodio.calls.length, 0)
+})
+
 // Note: deeper coverage (GeocodIO error paths, DB writes, RLS) lives in
 // packages/location/test/integration.test.ts (Task 9). That suite hits real
 // local Supabase + live GeocodIO via the deployed Edge Function.

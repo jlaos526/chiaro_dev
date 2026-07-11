@@ -1,14 +1,17 @@
 import * as Sentry from '@sentry/react-native'
 import Constants from 'expo-constants'
 
-const ADDRESS_KEY = /^address/i
+// Sensitive-key list (slice 5B: address*; slice 71 / audit U21: issue
+// selections — political-opinion data, GDPR Art. 9). Keep in sync with the
+// web + edge scrubber copies (duplicated by design per slice 5B).
+const SENSITIVE_KEY = /^address|^(p_)?selections$|^topic_slug$|^lens_slug$|^position$|^importance$/i
 
 function scrub(obj: unknown, seen: WeakSet<object>): void {
   if (!obj || typeof obj !== 'object') return
   if (seen.has(obj as object)) return
   seen.add(obj as object)
   for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
-    if (ADDRESS_KEY.test(k)) {
+    if (SENSITIVE_KEY.test(k)) {
       ;(obj as Record<string, unknown>)[k] = '[scrubbed]'
     } else if (v && typeof v === 'object') {
       scrub(v, seen)

@@ -13,10 +13,22 @@ const GEOCODIO_KEY = Deno.env.get('GEOCODIO_KEY')!
 // pre-check always uses the 60s default.
 const CALIBRATE_THROTTLE_MS = 60_000
 
+// CORS (slice 71, audit C48): Edge Functions do NOT get CORS headers from the
+// Supabase gateway (verified live 2026-07-11 — a browser preflight OPTIONS
+// reached this function and got the bare 405). supabase-js functions.invoke
+// always sends Authorization + apikey, which forces a preflight, so browser
+// calibrate breaks without this. '*' is the Supabase-docs pattern: auth is a
+// Bearer header (not cookies), so a foreign origin can't ride a user session.
+const CORS_HEADERS = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-headers': 'authorization, x-client-info, apikey, content-type',
+  'access-control-allow-methods': 'POST, OPTIONS',
+} as const
+
 function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', ...CORS_HEADERS },
   })
 }
 
@@ -24,6 +36,7 @@ export async function handle(
   req: Request,
   deps?: { geocodio?: GeocodioClient; supabase?: any },
 ): Promise<Response> {
+  if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS })
   if (req.method !== 'POST') return jsonResponse(405, { error: 'method_not_allowed' })
 
   const auth = req.headers.get('Authorization') ?? ''
@@ -49,7 +62,13 @@ export async function handle(
     const body = await req.json()
     if (typeof body?.address === 'string' && body.address.trim().length >= 5) {
       input = { address: body.address.trim() }
-    } else if (typeof body?.lat === 'number' && typeof body?.lng === 'number') {
+    } else if (
+      // C48 adjunct: typeof NaN === 'number', so the old gate admitted
+      // NaN/Infinity/out-of-range coords and burned a GeocodIO call on them.
+      Number.isFinite(body?.lat) && Number.isFinite(body?.lng) &&
+      body.lat >= -90 && body.lat <= 90 &&
+      body.lng >= -180 && body.lng <= 180
+    ) {
       input = { lat: body.lat, lng: body.lng }
     } else {
       return jsonResponse(400, { error: 'invalid_input' })
