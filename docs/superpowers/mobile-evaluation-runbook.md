@@ -208,21 +208,33 @@ Then run the smoke checklist: `docs/superpowers/mobile-dod-checklist.md`.
 ## 5. Known issues you WILL hit (queued fixes — don't re-triage)
 
 These are confirmed audit findings scheduled in the optimization roadmap
-(`docs/superpowers/plans/2026-06-10-optimization-roadmap.md`):
+(`docs/superpowers/plans/2026-06-10-optimization-roadmap.md`). Updated
+2026-07-11 after slices 65–67 merged — most of the original table is now
+FIXED; see the verify list below.
 
 | Symptom | Finding | Fix slice |
 |---|---|---|
-| Default Expo icon + flat cream splash, then a spinner chain on cold start | C14/C10 | design track / S66 |
-| First load feels network-chatty (multi-second cold start on slow links) | C10/C18 | S66/S70+ |
-| District map polygons slow to load/render (multi-MB geometry) | C9/C16 | S67 |
+| Default Expo icon + placeholder flat-cream splash (artwork, not behavior) | C14 | design track |
+| Detail pages fire many sequential requests (slow on weak links) | C18/C4 | S79 |
+| Detail sub-lists fetch unbounded rows (long-serving reps feel slow) | C11/C12 | S75 |
 | Network failure looks like "no data" on detail cards (no per-card error state) | U2 | S80 |
 
-Fixed in **slice 65** (verify rather than expect): calibration-gate bounce (U1),
-non-scrolling Home/Officials/Settings + auth/calibrate shells (C8/U0), dark-mode
-black text on the officials list (U3), red sign-up success banner (U6), keyboard
-covering form inputs + small touch targets (U5), pull-to-refresh + Retry on
-officials surfaces (U2-rider). The home map is intentionally non-interactive
-inside the scroll view (gesture contention) — re-evaluate tap-to-expand on device.
+Fixed in **slices 65–67** — VERIFY these on hardware rather than expecting the
+old symptoms; if one recurs, that's a real regression, record it:
+
+- **s65:** calibration-gate bounce (U1), non-scrolling Home/Officials/Settings +
+  auth/calibrate shells (C8/U0), dark-mode black text on the officials list (U3),
+  red sign-up success banner (U6), keyboard covering form inputs + small touch
+  targets (U5), pull-to-refresh + Retry on officials surfaces (U2-rider). The
+  home map is intentionally non-interactive inside the scroll view (gesture
+  contention) — re-evaluate tap-to-expand on device.
+- **s66:** cold start no longer chains a spinner sequence — the calibration gate
+  is one network round-trip and home renders immediately from TanStack cache
+  (C10/C15); official portraits are disk-cached via expo-image (C13).
+- **s67:** district-map polygons load ~10–50× less geometry (simplified view +
+  senate S1/S2 deduped) and layer toggles no longer re-project every vertex
+  (C1/C16/C9); an official's missed-votes list loads via one indexed query
+  instead of a congress-wide download (C17).
 
 ## 6. Troubleshooting
 
