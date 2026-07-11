@@ -22,7 +22,9 @@ export function derivePositions(
         return (agree && dir === 1) || (!agree && dir === -1) ? 1 : 0
       })
     const position =
-      scored.length === 0 ? null : Math.round((scored.reduce((s, v) => s + v, 0) / scored.length) * 100)
+      scored.length === 0
+        ? null
+        : Math.round((scored.reduce((s, v) => s + v, 0) / scored.length) * 100)
     const importance: 1 | 2 = group.some((a) => a.starred) ? 2 : 1
     out.push({ topicSlug, lensSlug, position, importance })
   }

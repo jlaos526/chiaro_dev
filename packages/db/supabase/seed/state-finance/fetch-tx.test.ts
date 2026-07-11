@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url'
 import { fetchTexas } from './fetch-tx.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DB_URL    = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
-const FIXTURE   = join(__dirname, '..', 'fixtures', 'state-finance', 'tx-sample.json')
+const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const FIXTURE = join(__dirname, '..', 'fixtures', 'state-finance', 'tx-sample.json')
 
 let client: Client
 let repId: string
@@ -49,7 +49,8 @@ describe('fetchTexas', () => {
   it('happy path: 1 filing → 1 summary + 2 donors', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     const stats = await fetchTexas.fetch({
-      client, cycle: '2023-2024',
+      client,
+      cycle: '2023-2024',
       fetcher: async () => fixture.filings,
     } as never)
     expect(stats.errors).toEqual([])
@@ -61,7 +62,8 @@ describe('fetchTexas', () => {
   it('source slug is tx-ethics', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     await fetchTexas.fetch({
-      client, cycle: '2023-2024',
+      client,
+      cycle: '2023-2024',
       fetcher: async () => fixture.filings,
     } as never)
     const row = await client.query<{ source: string }>(
@@ -74,13 +76,17 @@ describe('fetchTexas', () => {
   it('partial pct fields: small_donor_pct=12.0, in_state_pct=null', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     await fetchTexas.fetch({
-      client, cycle: '2023-2024',
+      client,
+      cycle: '2023-2024',
       fetcher: async () => fixture.filings,
     } as never)
-    const row = await client.query<{ small_donor_pct: string | null; in_state_pct: string | null }>(`
+    const row = await client.query<{ small_donor_pct: string | null; in_state_pct: string | null }>(
+      `
       select small_donor_pct, in_state_pct
         from public.state_finance_summaries where official_id = $1
-    `, [repId])
+    `,
+      [repId],
+    )
     expect(Number(row.rows[0]!.small_donor_pct)).toBe(12.0)
     expect(row.rows[0]!.in_state_pct).toBeNull()
   })
@@ -97,17 +103,22 @@ describe('fetchTexas', () => {
       [repId],
     )
     expect(c.rows[0]!.c).toBe(1)
-    const d = await client.query<{ c: number }>(`
+    const d = await client.query<{ c: number }>(
+      `
       select count(*)::int as c from public.state_finance_individual_donors svp
         join public.state_finance_summaries s on s.id = svp.state_finance_summary_id
         where s.official_id = $1
-    `, [repId])
+    `,
+      [repId],
+    )
     expect(d.rows[0]!.c).toBe(2)
   })
 
   it('reports state TX', async () => {
     const stats = await fetchTexas.fetch({
-      client, cycle: '2023-2024', fetcher: async () => [],
+      client,
+      cycle: '2023-2024',
+      fetcher: async () => [],
     } as never)
     expect(stats.state).toBe('TX')
   })

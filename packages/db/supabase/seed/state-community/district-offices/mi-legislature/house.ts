@@ -20,7 +20,8 @@ export interface ParsedMiRepProfile {
 export function deriveMiRepUrl(full_name: string): string {
   const slug = full_name
     .toLowerCase()
-    .normalize('NFD').replace(/\p{Diacritic}/gu, '')
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
   return `https://house.mi.gov/representative-${slug}`

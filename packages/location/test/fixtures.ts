@@ -2,8 +2,8 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@chiaro/db'
 
 const SUPABASE_URL = process.env.SUPABASE_URL ?? 'http://127.0.0.1:54321'
-const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_ANON_KEY
-  ?? 'sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH'
+const SUPABASE_PUBLISHABLE_KEY =
+  process.env.SUPABASE_ANON_KEY ?? 'sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH'
 
 export type TestClient = SupabaseClient<Database>
 
@@ -16,7 +16,7 @@ export function makeAdminClient(): TestClient {
   if (!key) {
     throw new Error(
       'SUPABASE_SERVICE_ROLE_KEY not set — required for admin operations in integration tests. ' +
-      'Pull it from `supabase status` (Secret key) and add to .env.local.'
+        'Pull it from `supabase status` (Secret key) and add to .env.local.',
     )
   }
   return createClient<Database>(SUPABASE_URL, key, {
@@ -28,7 +28,9 @@ export function makeAdminClient(): TestClient {
 // Cascades to user_locations + user_districts (both `references auth.users(id) on delete cascade`).
 const createdUserIds = new Set<string>()
 
-export async function makeAuthedUser(suffix = ''): Promise<{ client: TestClient; userId: string; email: string }> {
+export async function makeAuthedUser(
+  suffix = '',
+): Promise<{ client: TestClient; userId: string; email: string }> {
   const email = `loc-test-${Date.now()}-${suffix}-${Math.random().toString(36).slice(2, 7)}@example.com`
   const client = makeAnonClient()
   const { data, error } = await client.auth.signUp({ email, password: 'testpassword123' })

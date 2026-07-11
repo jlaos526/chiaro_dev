@@ -4,15 +4,15 @@
 export const BRAND_SHADOW = {
   sm: {
     light: '0 1px 2px rgba(58,40,24,0.06)',
-    dark:  '0 1px 2px rgba(0,0,0,0.4)',
+    dark: '0 1px 2px rgba(0,0,0,0.4)',
   },
   md: {
     light: '0 2px 4px rgba(58,40,24,0.08), 0 1px 2px rgba(58,40,24,0.06)',
-    dark:  '0 2px 4px rgba(0,0,0,0.5)',
+    dark: '0 2px 4px rgba(0,0,0,0.5)',
   },
   lg: {
     light: '0 8px 16px rgba(58,40,24,0.10), 0 2px 4px rgba(58,40,24,0.08)',
-    dark:  '0 8px 16px rgba(0,0,0,0.6)',
+    dark: '0 8px 16px rgba(0,0,0,0.6)',
   },
 } as const
 

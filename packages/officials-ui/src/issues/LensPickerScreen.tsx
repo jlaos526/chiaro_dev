@@ -51,8 +51,8 @@ export function LensPickerScreen({ catalog, onNext }: LensPickerScreenProps): Re
         <View style={styles.column}>
           <BrandHeading level={1}>Pick your lenses</BrandHeading>
           <BrandBodyText muted>
-            For each issue, choose the angles you care about. Stance lenses ask a few quick questions
-            next; watchlists just track an official&apos;s record.
+            For each issue, choose the angles you care about. Stance lenses ask a few quick
+            questions next; watchlists just track an official&apos;s record.
           </BrandBodyText>
 
           {topics.map((topic) => {
@@ -79,7 +79,9 @@ export function LensPickerScreen({ catalog, onNext }: LensPickerScreenProps): Re
                           styles.lensRow,
                           {
                             backgroundColor: selected ? semantic.accent.bg : semantic.bg.card,
-                            borderColor: selected ? semantic.accent.primary : semantic.border.default,
+                            borderColor: selected
+                              ? semantic.accent.primary
+                              : semantic.border.default,
                             borderWidth: selected ? 2 : 1,
                           },
                         ]}
@@ -96,15 +98,21 @@ export function LensPickerScreen({ catalog, onNext }: LensPickerScreenProps): Re
                           style={[
                             styles.badge,
                             {
-                              backgroundColor: isWatchlist ? semantic.bg.subtle : semantic.accent.bg,
-                              borderColor: isWatchlist ? semantic.border.default : semantic.accent.primary,
+                              backgroundColor: isWatchlist
+                                ? semantic.bg.subtle
+                                : semantic.accent.bg,
+                              borderColor: isWatchlist
+                                ? semantic.border.default
+                                : semantic.accent.primary,
                             },
                           ]}
                         >
                           <Text
                             style={[
                               styles.badgeText,
-                              { color: isWatchlist ? semantic.text.muted : semantic.accent.primary },
+                              {
+                                color: isWatchlist ? semantic.text.muted : semantic.accent.primary,
+                              },
                             ]}
                           >
                             {badgeLabel(lens.lens_type)}

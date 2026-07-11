@@ -38,10 +38,7 @@ export async function getSession(client: ChiaroClient) {
  * ownership server-side — the `.eq` filter is a narrowing convenience, not
  * the security boundary.
  */
-export async function resolveUserId(
-  client: ChiaroClient,
-  userId?: string,
-): Promise<string | null> {
+export async function resolveUserId(client: ChiaroClient, userId?: string): Promise<string | null> {
   if (userId) return userId
   const { data } = await client.auth.getSession() // local read, no network
   return data.session?.user?.id ?? null

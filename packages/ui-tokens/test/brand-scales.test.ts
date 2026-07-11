@@ -6,9 +6,17 @@ import { BRAND_SHADOW } from '../src/brand/shadow.ts'
 
 describe('BRAND_TYPE scale', () => {
   it('contains all 9 type tokens', () => {
-    expect(Object.keys(BRAND_TYPE).sort()).toEqual(
-      ['body', 'bodySm', 'display', 'h1', 'h2', 'h3', 'h4', 'label', 'micro']
-    )
+    expect(Object.keys(BRAND_TYPE).sort()).toEqual([
+      'body',
+      'bodySm',
+      'display',
+      'h1',
+      'h2',
+      'h3',
+      'h4',
+      'label',
+      'micro',
+    ])
   })
 
   it('display is 40px / 1.15 / -0.02em / 700', () => {
@@ -48,8 +56,11 @@ describe('BRAND_SPACE scale', () => {
   })
 
   it('exposes the documented stops', () => {
-    expect(Object.keys(BRAND_SPACE).map(Number).sort((a, b) => a - b))
-      .toEqual([0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 16])
+    expect(
+      Object.keys(BRAND_SPACE)
+        .map(Number)
+        .sort((a, b) => a - b),
+    ).toEqual([0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 16])
   })
 
   it('reset is 0', () => {
@@ -76,13 +87,13 @@ describe('BRAND_SHADOW scale', () => {
 
   it('md shadow uses 2-layer warm-brown in light mode', () => {
     expect(BRAND_SHADOW.md.light).toBe(
-      '0 2px 4px rgba(58,40,24,0.08), 0 1px 2px rgba(58,40,24,0.06)'
+      '0 2px 4px rgba(58,40,24,0.08), 0 1px 2px rgba(58,40,24,0.06)',
     )
   })
 
   it('lg shadow uses 2-layer warm-brown with larger first layer in light mode', () => {
     expect(BRAND_SHADOW.lg.light).toBe(
-      '0 8px 16px rgba(58,40,24,0.10), 0 2px 4px rgba(58,40,24,0.08)'
+      '0 8px 16px rgba(58,40,24,0.10), 0 2px 4px rgba(58,40,24,0.08)',
     )
   })
 

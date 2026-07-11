@@ -45,7 +45,10 @@ export function TopicPickerScreen({ topics, onNext }: TopicPickerScreenProps): R
               accessibilityLabel={`${selectedTopics.length} of ${MAX_TOPICS} topics selected`}
               aria-live="polite"
               accessibilityLiveRegion="polite"
-              style={[styles.counter, { color: atCap ? semantic.accent.primary : semantic.text.muted }]}
+              style={[
+                styles.counter,
+                { color: atCap ? semantic.accent.primary : semantic.text.muted },
+              ]}
             >
               {selectedTopics.length} / {MAX_TOPICS}
             </Text>
@@ -85,7 +88,10 @@ export function TopicPickerScreen({ topics, onNext }: TopicPickerScreenProps): R
                     {topic.display_name}
                   </Text>
                   {topic.description ? (
-                    <Text numberOfLines={2} style={[styles.cardDesc, { color: semantic.text.muted }]}>
+                    <Text
+                      numberOfLines={2}
+                      style={[styles.cardDesc, { color: semantic.text.muted }]}
+                    >
                       {topic.description}
                     </Text>
                   ) : null}

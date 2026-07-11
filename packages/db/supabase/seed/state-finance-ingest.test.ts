@@ -15,16 +15,31 @@ afterEach(async () => {
   await client.end()
 })
 
-function mkStats(state: StateFinanceStats['state'], overrides: Partial<StateFinanceStats> = {}): StateFinanceStats {
+function mkStats(
+  state: StateFinanceStats['state'],
+  overrides: Partial<StateFinanceStats> = {},
+): StateFinanceStats {
   return {
-    state, summariesUpserted: 1, donorsUpserted: 3,
-    officialsMatched: 1, officialsUnmatched: [], errors: [],
+    state,
+    summariesUpserted: 1,
+    donorsUpserted: 3,
+    officialsMatched: 1,
+    officialsUnmatched: [],
+    errors: [],
     ...overrides,
   }
 }
 
-function mkAdapter(state: StateFinanceStats['state'], impl: () => Promise<StateFinanceStats>): StateFinanceAdapter {
-  return { state, async fetch() { return impl() } }
+function mkAdapter(
+  state: StateFinanceStats['state'],
+  impl: () => Promise<StateFinanceStats>,
+): StateFinanceAdapter {
+  return {
+    state,
+    async fetch() {
+      return impl()
+    },
+  }
 }
 
 describe('ingestStateFinance', () => {
@@ -50,10 +65,18 @@ describe('ingestStateFinance', () => {
   it('--state filter dispatches only the requested adapter', async () => {
     const calls: string[] = []
     const stats = await ingestStateFinance({
-      cycle: '2024', client, state: 'CA',
+      cycle: '2024',
+      client,
+      state: 'CA',
       adapters: [
-        mkAdapter('CA', async () => { calls.push('CA'); return mkStats('CA') }),
-        mkAdapter('NY', async () => { calls.push('NY'); return mkStats('NY') }),
+        mkAdapter('CA', async () => {
+          calls.push('CA')
+          return mkStats('CA')
+        }),
+        mkAdapter('NY', async () => {
+          calls.push('NY')
+          return mkStats('NY')
+        }),
       ],
     })
     expect(calls).toEqual(['CA'])
@@ -62,32 +85,44 @@ describe('ingestStateFinance', () => {
 
   it('one adapter throwing → others still run with skipOnError', async () => {
     const stats = await ingestStateFinance({
-      cycle: '2024', client, skipOnError: true,
+      cycle: '2024',
+      client,
+      skipOnError: true,
       adapters: [
-        mkAdapter('CA', async () => { throw new Error('CA blew up') }),
+        mkAdapter('CA', async () => {
+          throw new Error('CA blew up')
+        }),
         mkAdapter('NY', async () => mkStats('NY', { summariesUpserted: 1 })),
       ],
     })
     expect(stats.statesOk).toBe(1)
-    expect(stats.byState.find(s => s.state === 'CA')!.errors).toContain('CA blew up')
-    expect(stats.byState.find(s => s.state === 'NY')!.summariesUpserted).toBe(1)
+    expect(stats.byState.find((s) => s.state === 'CA')!.errors).toContain('CA blew up')
+    expect(stats.byState.find((s) => s.state === 'NY')!.summariesUpserted).toBe(1)
   })
 
   it('default (no skipOnError): adapter throw aborts orchestrator', async () => {
-    await expect(ingestStateFinance({
-      cycle: '2024', client,
-      adapters: [
-        mkAdapter('CA', async () => { throw new Error('CA blew up') }),
-        mkAdapter('NY', async () => mkStats('NY')),
-      ],
-    })).rejects.toThrow(/CA blew up/)
+    await expect(
+      ingestStateFinance({
+        cycle: '2024',
+        client,
+        adapters: [
+          mkAdapter('CA', async () => {
+            throw new Error('CA blew up')
+          }),
+          mkAdapter('NY', async () => mkStats('NY')),
+        ],
+      }),
+    ).rejects.toThrow(/CA blew up/)
   })
 
   it('aggregates officialsUnmatched across adapters', async () => {
     const stats = await ingestStateFinance({
-      cycle: '2024', client,
+      cycle: '2024',
+      client,
       adapters: [
-        mkAdapter('CA', async () => mkStats('CA', { officialsUnmatched: ['John Doe', 'Jane Roe'] })),
+        mkAdapter('CA', async () =>
+          mkStats('CA', { officialsUnmatched: ['John Doe', 'Jane Roe'] }),
+        ),
         mkAdapter('NY', async () => mkStats('NY', { officialsUnmatched: ['Sam Smith'] })),
       ],
     })
@@ -95,9 +130,13 @@ describe('ingestStateFinance', () => {
   })
 
   it('--state with unknown state code throws', async () => {
-    await expect(ingestStateFinance({
-      cycle: '2024', client, state: 'ZZ' as never,
-      adapters: [mkAdapter('CA', async () => mkStats('CA'))],
-    })).rejects.toThrow(/unknown state code/)
+    await expect(
+      ingestStateFinance({
+        cycle: '2024',
+        client,
+        state: 'ZZ' as never,
+        adapters: [mkAdapter('CA', async () => mkStats('CA'))],
+      }),
+    ).rejects.toThrow(/unknown state code/)
   })
 })

@@ -12,8 +12,14 @@ const { redirectMock } = vi.hoisted(() => ({
 vi.mock('next/navigation', () => ({ redirect: redirectMock }))
 
 let mockUser: { id: string } | null = { id: 'u1' }
-let mockProfile: { display_name: string | null; username: string | null; completed: boolean } | null = {
-  display_name: 'Sarah', username: 'sarah', completed: true,
+let mockProfile: {
+  display_name: string | null
+  username: string | null
+  completed: boolean
+} | null = {
+  display_name: 'Sarah',
+  username: 'sarah',
+  completed: true,
 }
 
 vi.mock('@/lib/supabase/server', () => ({
@@ -51,8 +57,9 @@ describe('Home page', () => {
     const { container } = render(el)
     const h1 = container.querySelector('h1')
     expect(h1?.textContent).toBe('Welcome, Sarah')
-    const wordmark = Array.from(container.querySelectorAll('*'))
-      .find(el => el.textContent === 'CHIARO')
+    const wordmark = Array.from(container.querySelectorAll('*')).find(
+      (el) => el.textContent === 'CHIARO',
+    )
     expect(wordmark).toBeTruthy()
   })
 

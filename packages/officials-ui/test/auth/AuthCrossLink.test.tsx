@@ -27,9 +27,7 @@ describe('AuthCrossLink', () => {
 
   it('calls onPress on plain left-click (preventDefault intercept)', () => {
     const onPress = vi.fn()
-    const { container } = render(
-      <AuthCrossLink mode="sign-in" onPress={onPress} href="/sign-up" />,
-    )
+    const { container } = render(<AuthCrossLink mode="sign-in" onPress={onPress} href="/sign-up" />)
     const a = container.querySelector('a')!
     fireEvent.click(a, { button: 0, metaKey: false, ctrlKey: false, shiftKey: false })
     expect(onPress).toHaveBeenCalledOnce()
@@ -37,9 +35,7 @@ describe('AuthCrossLink', () => {
 
   it('does NOT call onPress on Ctrl-click (lets browser open new tab)', () => {
     const onPress = vi.fn()
-    const { container } = render(
-      <AuthCrossLink mode="sign-in" onPress={onPress} href="/sign-up" />,
-    )
+    const { container } = render(<AuthCrossLink mode="sign-in" onPress={onPress} href="/sign-up" />)
     const a = container.querySelector('a')!
     fireEvent.click(a, { button: 0, ctrlKey: true })
     expect(onPress).not.toHaveBeenCalled()

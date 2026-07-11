@@ -11,7 +11,8 @@ const VIOLATION_HEADER_RE = /^(VIOLATION|ALLEGATION|FINDING)S?:\s*$/m
 const PENALTY_HEADER_RE = /^(CIVIL PENALTY|PENALTY ASSESSED|FINE):\s*\$?([\d,]+(?:\.\d{1,2})?)/im
 const OUTCOME_HEADER_RE = /^(DISPOSITION|ORDER):\s*$/m
 
-const SECTION_END_RE = /^(VIOLATION|ALLEGATION|FINDING|CIVIL PENALTY|PENALTY ASSESSED|FINE|DISPOSITION|ORDER|RESPONDENT|RECEIVED|RESPECTFULLY)S?:?\s*$/m
+const SECTION_END_RE =
+  /^(VIOLATION|ALLEGATION|FINDING|CIVIL PENALTY|PENALTY ASSESSED|FINE|DISPOSITION|ORDER|RESPONDENT|RECEIVED|RESPECTFULLY)S?:?\s*$/m
 
 function extractSectionBody(text: string, headerRe: RegExp): string | undefined {
   const match = text.match(headerRe)
@@ -31,7 +32,7 @@ function parsePenaltyAmount(text: string): number | undefined {
   const numStr = match[2]!.replace(/,/g, '')
   const parsed = Number.parseFloat(numStr)
   if (!Number.isFinite(parsed)) return undefined
-  return Math.trunc(parsed)  // Integer dollar amount; cents truncated
+  return Math.trunc(parsed) // Integer dollar amount; cents truncated
 }
 
 /**

@@ -6,7 +6,15 @@ import { parseNyAssemblyDirectoryHtml, fetchAssemblyOffices } from './assembly.t
 import type { SkipReason } from '../../../shared/instrumentation.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const FIXTURE = join(__dirname, '..', '..', '..', 'fixtures', 'state-community', 'ny-assembly-mem.html')
+const FIXTURE = join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'fixtures',
+  'state-community',
+  'ny-assembly-mem.html',
+)
 
 describe('parseNyAssemblyDirectoryHtml', () => {
   it('extracts 3 members (skips malformed district + empty addresses)', async () => {
@@ -14,13 +22,13 @@ describe('parseNyAssemblyDirectoryHtml', () => {
     const parsed = parseNyAssemblyDirectoryHtml(html)
     // 5 cards: 3 valid (Jane, Alex, Maria), 1 malformed district (Bob), 1 no addresses (Pat)
     expect(parsed).toHaveLength(3)
-    expect(parsed.map(m => m.full_name)).toEqual(['Jane Doe', 'Alex Smith', 'Maria Chen'])
+    expect(parsed.map((m) => m.full_name)).toEqual(['Jane Doe', 'Alex Smith', 'Maria Chen'])
   })
 
   it('parses both Albany + district address when present', async () => {
     const html = await readFile(FIXTURE, 'utf8')
     const parsed = parseNyAssemblyDirectoryHtml(html)
-    const jane = parsed.find(m => m.full_name === 'Jane Doe')!
+    const jane = parsed.find((m) => m.full_name === 'Jane Doe')!
     expect(jane.albany_office).toContain('LOB 901')
     expect(jane.albany_office).toContain('Albany')
     expect(jane.district_office).toContain('123 Main Street')
@@ -30,7 +38,7 @@ describe('parseNyAssemblyDirectoryHtml', () => {
   it('handles Albany-only AM (no district address)', async () => {
     const html = await readFile(FIXTURE, 'utf8')
     const parsed = parseNyAssemblyDirectoryHtml(html)
-    const alex = parsed.find(m => m.full_name === 'Alex Smith')!
+    const alex = parsed.find((m) => m.full_name === 'Alex Smith')!
     expect(alex.albany_office).toBeTruthy()
     expect(alex.district_office).toBeUndefined()
   })
@@ -38,8 +46,8 @@ describe('parseNyAssemblyDirectoryHtml', () => {
   it('extracts district number as string from "District N"', async () => {
     const html = await readFile(FIXTURE, 'utf8')
     const parsed = parseNyAssemblyDirectoryHtml(html)
-    expect(parsed.find(m => m.full_name === 'Jane Doe')!.district_no).toBe('5')
-    expect(parsed.find(m => m.full_name === 'Maria Chen')!.district_no).toBe('100')
+    expect(parsed.find((m) => m.full_name === 'Jane Doe')!.district_no).toBe('5')
+    expect(parsed.find((m) => m.full_name === 'Maria Chen')!.district_no).toBe('100')
   })
 })
 
@@ -72,8 +80,8 @@ describe('fetchAssemblyOffices', () => {
       }),
     }
     const rows = await fetchAssemblyOffices(client as never, { fetcher: async () => html })
-    expect(rows.filter(r => r.kind === 'capitol').length).toBe(3)
-    expect(rows.filter(r => r.kind === 'district').length).toBe(2)
+    expect(rows.filter((r) => r.kind === 'capitol').length).toBe(3)
+    expect(rows.filter((r) => r.kind === 'district').length).toBe(2)
   })
 
   it('returns [] when no AM can be resolved', async () => {
@@ -91,8 +99,12 @@ describe('fetchAssemblyOffices onSkip instrumentation (slice 23)', () => {
     const client = { query: vi.fn() }
     const skips: SkipReason[] = []
     const rows = await fetchAssemblyOffices(client as never, {
-      fetcher: async () => { throw new Error('directory unreachable') },
-      onSkip: (r) => { skips.push(r) },
+      fetcher: async () => {
+        throw new Error('directory unreachable')
+      },
+      onSkip: (r) => {
+        skips.push(r)
+      },
     })
     expect(rows).toEqual([])
     expect(skips).toHaveLength(1)
@@ -111,13 +123,15 @@ describe('fetchAssemblyOffices onSkip instrumentation (slice 23)', () => {
     const skips: SkipReason[] = []
     const rows = await fetchAssemblyOffices(client as never, {
       fetcher: async () => html,
-      onSkip: (r) => { skips.push(r) },
+      onSkip: (r) => {
+        skips.push(r)
+      },
     })
     expect(rows).toEqual([])
     // Fixture parses 3 valid members (Jane, Alex, Maria) — all unresolved.
     expect(skips).toHaveLength(3)
-    expect(skips.every(s => s.adapter === 'ny-senate' && s.stage === 'resolve')).toBe(true)
-    expect(skips.map(s => s.legislator)).toEqual(['Jane Doe', 'Alex Smith', 'Maria Chen'])
+    expect(skips.every((s) => s.adapter === 'ny-senate' && s.stage === 'resolve')).toBe(true)
+    expect(skips.map((s) => s.legislator)).toEqual(['Jane Doe', 'Alex Smith', 'Maria Chen'])
   })
 
   it('emits parse-stage skip when parseAddressText returns null for albany office', async () => {
@@ -140,7 +154,9 @@ describe('fetchAssemblyOffices onSkip instrumentation (slice 23)', () => {
     const skips: SkipReason[] = []
     const rows = await fetchAssemblyOffices(client as never, {
       fetcher: async () => badHtml,
-      onSkip: (r) => { skips.push(r) },
+      onSkip: (r) => {
+        skips.push(r)
+      },
     })
     expect(rows).toEqual([])
     expect(skips).toHaveLength(1)

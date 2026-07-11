@@ -22,7 +22,10 @@ export function useBreakpoint(minWidthPx: number): boolean {
           mql.addEventListener('change', handler)
           return () => mql.removeEventListener('change', handler)
         },
-    () => (typeof window === 'undefined' ? false : window.matchMedia(`(min-width: ${minWidthPx}px)`).matches),
+    () =>
+      typeof window === 'undefined'
+        ? false
+        : window.matchMedia(`(min-width: ${minWidthPx}px)`).matches,
     () => false,
   )
 }

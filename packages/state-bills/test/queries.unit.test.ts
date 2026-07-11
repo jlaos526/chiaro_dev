@@ -29,7 +29,14 @@ function voteRow(id: string, vote_date: string | null) {
       source_url: 'https://x',
       party_vote_split: null,
       created_at: '2025-03-01',
-      bill: { id: 'b1', state: 'CA', session: '20252026', bill_type: 'SB', number: 100, title: 'Env' },
+      bill: {
+        id: 'b1',
+        state: 'CA',
+        session: '20252026',
+        bill_type: 'SB',
+        number: 100,
+        title: 'Env',
+      },
     },
   }
 }
@@ -44,12 +51,9 @@ describe('B8: fetchOfficialStateVotes sort is transitive + null-safe', () => {
       voteRow('nullDate', null),
       voteRow('equalB', '2025-03-01'),
     ]
-    const result = await fetchOfficialStateVotes(
-      mockClient({ data: fixture, error: null }),
-      'oid',
-    )
+    const result = await fetchOfficialStateVotes(mockClient({ data: fixture, error: null }), 'oid')
 
-    const ids = result.map(r => r.vote.id)
+    const ids = result.map((r) => r.vote.id)
     // Newest (equal) dates come first (their relative order is stable for
     // localeCompare === 0), then the older date, then the null-date row last.
     expect(ids).toEqual(['equalA', 'equalB', 'older', 'nullDate'])

@@ -69,7 +69,12 @@ describe('BioContactLinks — smart-anchor (officialUrl)', () => {
       <BioContactLinks officialUrl="https://pelosi.house.gov" twitterHandle={null} />,
     )
     const anchor = container.querySelector('a')!
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, metaKey: true })
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      metaKey: true,
+    })
     const notPrevented = anchor.dispatchEvent(event)
     expect(notPrevented).toBe(true)
     expect(spy).not.toHaveBeenCalled()
@@ -104,7 +109,12 @@ describe('BioContactLinks — smart-anchor (twitterHandle)', () => {
       <BioContactLinks officialUrl={null} twitterHandle="SpeakerPelosi" />,
     )
     const anchor = container.querySelector('a')!
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, ctrlKey: true })
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      ctrlKey: true,
+    })
     const notPrevented = anchor.dispatchEvent(event)
     expect(notPrevented).toBe(true)
     expect(spy).not.toHaveBeenCalled()

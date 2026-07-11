@@ -99,7 +99,12 @@ describe('MyIssuesCard', () => {
       <MyIssuesCard
         selections={[
           row({ topic_slug: 'environment', lens_slug: 'conservation', position: 80 }),
-          row({ topic_slug: 'healthcare', lens_slug: 'public-coverage', position: 40, display_order: 1 }),
+          row({
+            topic_slug: 'healthcare',
+            lens_slug: 'public-coverage',
+            position: 40,
+            display_order: 1,
+          }),
         ]}
         catalog={CATALOG}
         onEdit={onEdit}

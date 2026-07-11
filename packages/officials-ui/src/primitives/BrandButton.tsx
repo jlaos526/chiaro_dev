@@ -15,9 +15,9 @@ export interface BrandButtonProps {
 }
 
 const SIZE_DIMS = {
-  sm:      { height: 32, paddingHorizontal: 12, fontSize: 13 },
+  sm: { height: 32, paddingHorizontal: 12, fontSize: 13 },
   default: { height: 40, paddingHorizontal: 18, fontSize: 14 },
-  lg:      { height: 48, paddingHorizontal: 22, fontSize: 15 },
+  lg: { height: 48, paddingHorizontal: 22, fontSize: 15 },
 } as const
 
 /**
@@ -38,14 +38,10 @@ export function BrandButton({
   const { semantic } = useBrandTokens()
   const dims = SIZE_DIMS[size]
 
-  const bg = variant === 'primary'
-    ? semantic.accent.primary
-    : 'transparent'
+  const bg = variant === 'primary' ? semantic.accent.primary : 'transparent'
   // Slice 47 cleanup: ternary collapsed (both branches identical).
   const borderColor = semantic.accent.primary
-  const textColor = variant === 'primary'
-    ? semantic.text.onAccent
-    : semantic.accent.primary
+  const textColor = variant === 'primary' ? semantic.text.onAccent : semantic.accent.primary
 
   return (
     <Pressable

@@ -30,7 +30,10 @@ export function BrandNavRailMount(): React.JSX.Element | null {
   const isDesktop = useBreakpoint(768)
 
   const [hasUser, setHasUser] = useState<boolean | null>(null)
-  const [profile, setProfile] = useState<{ display_name: string | null; username: string | null } | null>(null)
+  const [profile, setProfile] = useState<{
+    display_name: string | null
+    username: string | null
+  } | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
@@ -45,17 +48,22 @@ export function BrandNavRailMount(): React.JSX.Element | null {
         if (!cancelled) setProfile(p)
       }
     })()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [client])
 
   useEffect(() => {
     if (typeof document === 'undefined') return
-    const railShown = !!hasUser
-      && !EXCLUDED_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/'))
+    const railShown =
+      !!hasUser && !EXCLUDED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'))
     const desktopRail = railShown && isDesktop
     const mobileTopBar = railShown && !isDesktop
     document.documentElement.style.setProperty('--chiaro-rail-width', desktopRail ? '200px' : '0px')
-    document.documentElement.style.setProperty('--chiaro-rail-topbar', mobileTopBar ? '52px' : '0px')
+    document.documentElement.style.setProperty(
+      '--chiaro-rail-topbar',
+      mobileTopBar ? '52px' : '0px',
+    )
     return () => {
       document.documentElement.style.setProperty('--chiaro-rail-width', '0px')
       document.documentElement.style.setProperty('--chiaro-rail-topbar', '0px')
@@ -63,15 +71,17 @@ export function BrandNavRailMount(): React.JSX.Element | null {
   }, [hasUser, pathname, isDesktop])
 
   const handleNavigate = useCallback((path: string) => router.push(path), [router])
-  const handleSignOut = useCallback(() => { void signOut(router, client) }, [router, client])
+  const handleSignOut = useCallback(() => {
+    void signOut(router, client)
+  }, [router, client])
 
   if (hasUser === false || hasUser === null) return null
-  if (EXCLUDED_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/'))) return null
+  if (EXCLUDED_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'))) return null
 
   const user: RailUser = {
     displayName: profile?.display_name ?? null,
-    username:    profile?.username ?? null,
-    initial:     deriveInitial(profile),
+    username: profile?.username ?? null,
+    initial: deriveInitial(profile),
   }
 
   if (isDesktop) {

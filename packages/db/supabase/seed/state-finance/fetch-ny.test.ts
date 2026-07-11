@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url'
 import { fetchNewYork } from './fetch-ny.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DB_URL    = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
-const FIXTURE   = join(__dirname, '..', 'fixtures', 'state-finance', 'ny-sample.json')
+const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const FIXTURE = join(__dirname, '..', 'fixtures', 'state-finance', 'ny-sample.json')
 
 let client: Client
 let asmId: string
@@ -52,7 +52,10 @@ afterEach(async () => {
     'delete from public.state_finance_individual_donors where state_finance_summary_id in (select id from public.state_finance_summaries where official_id in ($1, $2))',
     [asmId, senId],
   )
-  await client.query('delete from public.state_finance_summaries where official_id in ($1, $2)', [asmId, senId])
+  await client.query('delete from public.state_finance_summaries where official_id in ($1, $2)', [
+    asmId,
+    senId,
+  ])
   await client.query('delete from public.officials where source_version = $1', ['FX-fin-ny'])
   await client.query('delete from public.districts where source_version = $1', ['FX-fin-ny'])
   await client.end()
@@ -62,7 +65,8 @@ describe('fetchNewYork', () => {
   it('happy path: 2 filings → 2 summaries + 2 donors', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     const stats = await fetchNewYork.fetch({
-      client, cycle: '2024',
+      client,
+      cycle: '2024',
       fetcher: async () => fixture.filings,
     } as never)
     expect(stats.errors).toEqual([])
@@ -73,13 +77,17 @@ describe('fetchNewYork', () => {
   it('summary with null small_donor_pct + null in_state_pct upserts as null', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     await fetchNewYork.fetch({
-      client, cycle: '2024',
+      client,
+      cycle: '2024',
       fetcher: async () => fixture.filings,
     } as never)
-    const row = await client.query<{ small_donor_pct: string | null; in_state_pct: string | null }>(`
+    const row = await client.query<{ small_donor_pct: string | null; in_state_pct: string | null }>(
+      `
       select small_donor_pct, in_state_pct
         from public.state_finance_summaries where official_id = $1
-    `, [senId])
+    `,
+      [senId],
+    )
     expect(row.rows[0]!.small_donor_pct).toBeNull()
     expect(row.rows[0]!.in_state_pct).toBeNull()
   })
@@ -87,32 +95,42 @@ describe('fetchNewYork', () => {
   it('filing with zero donors yields a summary but no donor rows', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     await fetchNewYork.fetch({
-      client, cycle: '2024',
+      client,
+      cycle: '2024',
       fetcher: async () => fixture.filings,
     } as never)
-    const donors = await client.query<{ c: number }>(`
+    const donors = await client.query<{ c: number }>(
+      `
       select count(*)::int as c from public.state_finance_individual_donors svp
         join public.state_finance_summaries s on s.id = svp.state_finance_summary_id
         where s.official_id = $1
-    `, [senId])
+    `,
+      [senId],
+    )
     expect(donors.rows[0]!.c).toBe(0)
   })
 
   it('source slug is ny-nysboe', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     await fetchNewYork.fetch({
-      client, cycle: '2024',
+      client,
+      cycle: '2024',
       fetcher: async () => fixture.filings,
     } as never)
-    const sources = await client.query<{ source: string }>(`
+    const sources = await client.query<{ source: string }>(
+      `
       select source from public.state_finance_summaries where official_id in ($1, $2)
-    `, [asmId, senId])
+    `,
+      [asmId, senId],
+    )
     for (const r of sources.rows) expect(r.source).toBe('ny-nysboe')
   })
 
   it('reports state NY', async () => {
     const stats = await fetchNewYork.fetch({
-      client, cycle: '2024', fetcher: async () => [],
+      client,
+      cycle: '2024',
+      fetcher: async () => [],
     } as never)
     expect(stats.state).toBe('NY')
   })

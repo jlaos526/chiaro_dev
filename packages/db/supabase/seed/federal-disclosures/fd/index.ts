@@ -1,5 +1,5 @@
 import type { FdAdapter } from '../shared/types.ts'
-import { houseEfdFd }    from './house-efd.ts'
+import { houseEfdFd } from './house-efd.ts'
 import { senateEfpfdFd } from './senate-efpfd.ts'
 
 /**

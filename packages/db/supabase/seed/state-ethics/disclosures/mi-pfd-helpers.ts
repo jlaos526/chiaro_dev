@@ -25,10 +25,7 @@ export interface ParsedMiPfdLineItem {
  * Accented characters folded via NFD normalization (slice 18 audit
  * Bug 1 lesson — "José" → "Jose").
  */
-export function deriveMiPfdUrl(
-  legislator: { full_name: string },
-  year: number,
-): string {
+export function deriveMiPfdUrl(legislator: { full_name: string }, year: number): string {
   const normalized = legislator.full_name
     .trim()
     .normalize('NFD')
@@ -86,7 +83,7 @@ export function parseMiPfdText(text: string): ParsedMiPfdLineItem[] {
 
   const out: ParsedMiPfdLineItem[] = []
   // Split into "1. ..." numbered entries within the Sources of Income block.
-  const lines = text.split('\n').map(l => l.trim())
+  const lines = text.split('\n').map((l) => l.trim())
   for (const line of lines) {
     if (!/^\d+\.\s/.test(line)) continue
 

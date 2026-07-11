@@ -7,7 +7,7 @@ describe('LOGO_RATIOS constants', () => {
     expect(LOGO_RATIOS.offsetYRatio).toBeCloseTo(0.25, 5)
     expect(LOGO_RATIOS.overlapWidthRatio).toBeCloseTo(0.5625, 5)
     expect(LOGO_RATIOS.overlapHeightRatio).toBeCloseTo(0.75, 5)
-    expect(LOGO_RATIOS.bracketArmRatio).toBeCloseTo(0.20, 5)
+    expect(LOGO_RATIOS.bracketArmRatio).toBeCloseTo(0.2, 5)
     expect(LOGO_RATIOS.boundingWidthRatio).toBeCloseTo(1.4375, 5)
     expect(LOGO_RATIOS.boundingHeightRatio).toBeCloseTo(1.25, 5)
   })
@@ -16,13 +16,13 @@ describe('LOGO_RATIOS constants', () => {
 describe('LOGO_FILLS gradient strings', () => {
   it('back square uses deep-orange (rgba 196,106,42) 135deg gradient', () => {
     expect(LOGO_FILLS.backSquare).toBe(
-      'linear-gradient(135deg, rgba(196,106,42,0.6) 0%, rgba(196,106,42,0.08) 100%)'
+      'linear-gradient(135deg, rgba(196,106,42,0.6) 0%, rgba(196,106,42,0.08) 100%)',
     )
   })
 
   it('front square uses light-orange (rgba 232,160,96) 135deg gradient', () => {
     expect(LOGO_FILLS.frontSquare).toBe(
-      'linear-gradient(135deg, rgba(232,160,96,0.6) 0%, rgba(232,160,96,0.08) 100%)'
+      'linear-gradient(135deg, rgba(232,160,96,0.6) 0%, rgba(232,160,96,0.08) 100%)',
     )
   })
 

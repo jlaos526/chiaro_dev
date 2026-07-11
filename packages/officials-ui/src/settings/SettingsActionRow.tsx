@@ -10,7 +10,11 @@ export interface SettingsActionRowProps {
   danger?: boolean
 }
 
-export function SettingsActionRow({ label, onPress, danger }: SettingsActionRowProps): React.JSX.Element {
+export function SettingsActionRow({
+  label,
+  onPress,
+  danger,
+}: SettingsActionRowProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const color = danger ? semantic.alert.danger.fg : semantic.text.primary
   return (

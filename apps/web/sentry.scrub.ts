@@ -13,7 +13,7 @@ function scrub(obj: unknown, seen: WeakSet<object>): void {
   seen.add(obj as object)
   for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
     if (SENSITIVE_KEY.test(k)) {
-      (obj as Record<string, unknown>)[k] = '[scrubbed]'
+      ;(obj as Record<string, unknown>)[k] = '[scrubbed]'
     } else if (v && typeof v === 'object') {
       scrub(v, seen)
     }

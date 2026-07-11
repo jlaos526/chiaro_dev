@@ -22,12 +22,13 @@ export interface BrandPageScreenProps {
 // Web: consume --chiaro-rail-width and --chiaro-rail-topbar CSS vars set by
 // BrandNavRailMount so body content shifts right of the persistent desktop rail
 // and below the fixed mobile top bar. Both default to 0 when unset.
-const WEB_RAIL_AWARE_PADDING = Platform.OS === 'web'
-  ? ({
-      paddingLeft: 'calc(16px + var(--chiaro-rail-width, 0px))' as unknown as number,
-      paddingTop: 'calc(24px + var(--chiaro-rail-topbar, 0px))' as unknown as number,
-    })
-  : null
+const WEB_RAIL_AWARE_PADDING =
+  Platform.OS === 'web'
+    ? {
+        paddingLeft: 'calc(16px + var(--chiaro-rail-width, 0px))' as unknown as number,
+        paddingTop: 'calc(24px + var(--chiaro-rail-topbar, 0px))' as unknown as number,
+      }
+    : null
 
 /**
  * Generic page shell for list / landing / error pages. Consumed by `/`,
@@ -37,7 +38,11 @@ const WEB_RAIL_AWARE_PADDING = Platform.OS === 'web'
  * - Inner column: maxWidth 560 centred, vertical gap 24.
  * - Optional title renders as BrandHeading level={1} at top of column.
  */
-export function BrandPageScreen({ title, children, refreshControl }: BrandPageScreenProps): React.JSX.Element {
+export function BrandPageScreen({
+  title,
+  children,
+  refreshControl,
+}: BrandPageScreenProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
 
   const column = (

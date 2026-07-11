@@ -10,7 +10,10 @@ export interface SettingsScreenProps {
   children: ReactNode
 }
 
-export function SettingsScreen({ title = 'Settings', children }: SettingsScreenProps): React.JSX.Element {
+export function SettingsScreen({
+  title = 'Settings',
+  children,
+}: SettingsScreenProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
 
   const column = (

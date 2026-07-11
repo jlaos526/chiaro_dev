@@ -1,7 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { ChiaroClient } from '@chiaro/supabase-client'
 import { issuesKeys } from './keys.ts'
-import { fetchCatalog, fetchMySelections, fetchRepAlignment, fetchRepWatchlistFlags } from './queries.ts'
+import {
+  fetchCatalog,
+  fetchMySelections,
+  fetchRepAlignment,
+  fetchRepWatchlistFlags,
+} from './queries.ts'
 import { saveSelections } from './mutations.ts'
 import type { SaveSelectionsPayload } from './schemas.ts'
 

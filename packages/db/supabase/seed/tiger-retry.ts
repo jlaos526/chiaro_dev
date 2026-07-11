@@ -12,8 +12,8 @@ export type FetchResult =
   | { kind: 'error'; message: string; attempts: number }
 
 const MAX_ATTEMPTS = 3
-const BASE_BACKOFF_MS = 1000        // 1s, 2s, 4s
-const REQUEST_TIMEOUT_MS = 60_000   // 60s per attempt
+const BASE_BACKOFF_MS = 1000 // 1s, 2s, 4s
+const REQUEST_TIMEOUT_MS = 60_000 // 60s per attempt
 
 function isPermanentStatus(status: number): boolean {
   // 404 — Census hasn't published this state file yet (common during the
@@ -69,14 +69,18 @@ export async function fetchWithRetry(url: string): Promise<FetchResult> {
     }
 
     if (attempt < MAX_ATTEMPTS) {
-      await new Promise(resolve => setTimeout(resolve, backoffMs(attempt)))
+      await new Promise((resolve) => setTimeout(resolve, backoffMs(attempt)))
     }
   }
   // All attempts timed out with zero bytes received — Census's upstream is
   // hung on this specific file. Functionally equivalent to a 404 gap; let
   // the rest of the ingest succeed and surface this for an operator re-run.
   if (timeoutAttempts === MAX_ATTEMPTS) {
-    return { kind: 'gap', status: 0, message: `timeout after ${MAX_ATTEMPTS} attempts: ${lastError}` }
+    return {
+      kind: 'gap',
+      status: 0,
+      message: `timeout after ${MAX_ATTEMPTS} attempts: ${lastError}`,
+    }
   }
   return { kind: 'error', message: lastError, attempts: MAX_ATTEMPTS }
 }

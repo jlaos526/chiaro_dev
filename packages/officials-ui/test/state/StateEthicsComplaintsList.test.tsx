@@ -9,13 +9,15 @@ describe('StateEthicsComplaintsList', () => {
   })
 
   it('renders complaint with status chip + summary', () => {
-    const rows = [{
-      id: 'c1',
-      complaint_date: '2026-03-01',
-      status: 'open',
-      summary: 'Failed to disclose income.',
-      disposition: null,
-    }] as never[]
+    const rows = [
+      {
+        id: 'c1',
+        complaint_date: '2026-03-01',
+        status: 'open',
+        summary: 'Failed to disclose income.',
+        disposition: null,
+      },
+    ] as never[]
     const { getByText } = render(<StateEthicsComplaintsList rows={rows} />)
     expect(getByText(/2026-03-01/)).toBeTruthy()
     expect(getByText(/Open/)).toBeTruthy()
@@ -23,10 +25,15 @@ describe('StateEthicsComplaintsList', () => {
   })
 
   it('renders disposition when present', () => {
-    const rows = [{
-      id: 'c1', complaint_date: '2026-03-01', status: 'sanctioned',
-      summary: 'X', disposition: 'Fined $1000',
-    }] as never[]
+    const rows = [
+      {
+        id: 'c1',
+        complaint_date: '2026-03-01',
+        status: 'sanctioned',
+        summary: 'X',
+        disposition: 'Fined $1000',
+      },
+    ] as never[]
     const { getByText } = render(<StateEthicsComplaintsList rows={rows} />)
     expect(getByText(/Sanctioned/)).toBeTruthy()
     expect(getByText(/Disposition: Fined \$1000/)).toBeTruthy()
@@ -43,10 +50,15 @@ const darkWrapper = ({ children }: { children: ReactNode }) =>
 
 describe('StateEthicsComplaintsList — mode awareness', () => {
   it('renders under both light and dark wrappers without throwing', () => {
-    const rows = [{
-      id: 'c1', complaint_date: '2026-03-01', status: 'open',
-      summary: 'X', disposition: null,
-    }] as never[]
+    const rows = [
+      {
+        id: 'c1',
+        complaint_date: '2026-03-01',
+        status: 'open',
+        summary: 'X',
+        disposition: null,
+      },
+    ] as never[]
     expect(() =>
       render(<StateEthicsComplaintsList rows={rows} />, { wrapper: lightWrapper }),
     ).not.toThrow()

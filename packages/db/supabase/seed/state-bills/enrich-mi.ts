@@ -1,4 +1,9 @@
-import { type StateEnrichAdapter, type EnrichStats, updateStateBillAugment, fetchWithRetry } from './shared.ts'
+import {
+  type StateEnrichAdapter,
+  type EnrichStats,
+  updateStateBillAugment,
+  fetchWithRetry,
+} from './shared.ts'
 
 interface MIBillEnvelope {
   LastAction?: string
@@ -6,16 +11,18 @@ interface MIBillEnvelope {
   FiscalImpact?: number
 }
 
-type MIBillFetcher = (
-  billRef: { bill_type: string; number: number; session: string },
-) => Promise<MIBillEnvelope | null>
+type MIBillFetcher = (billRef: {
+  bill_type: string
+  number: number
+  session: string
+}) => Promise<MIBillEnvelope | null>
 
 const defaultFetcher: MIBillFetcher = async (billRef) => {
   const url = `https://legislature.mi.gov/api/bill?billno=${billRef.bill_type}${billRef.number}&session=${billRef.session}`
   try {
     const res = await fetchWithRetry(url)
     if (!res.ok) return null
-    return await res.json() as MIBillEnvelope
+    return (await res.json()) as MIBillEnvelope
   } catch {
     return null
   }
@@ -37,17 +44,26 @@ export const enrichMichigan: StateEnrichAdapter = {
     for (const b of bills.rows) {
       try {
         const fetched = await fetcher({
-          bill_type: b.bill_type, number: b.number, session: opts.session,
+          bill_type: b.bill_type,
+          number: b.number,
+          session: opts.session,
         })
         if (!fetched) continue
-        const updated = await updateStateBillAugment(opts.client, {
-          state: 'MI', session: opts.session, bill_type: b.bill_type, number: b.number,
-        }, {
-          status_substage:      fetched.LastAction       ?? null,
-          hearing_date:         fetched.LastActionDate   ?? null,
-          fiscal_impact_amount: fetched.FiscalImpact     ?? null,
-          augmented_from:       'mi-legislature',
-        })
+        const updated = await updateStateBillAugment(
+          opts.client,
+          {
+            state: 'MI',
+            session: opts.session,
+            bill_type: b.bill_type,
+            number: b.number,
+          },
+          {
+            status_substage: fetched.LastAction ?? null,
+            hearing_date: fetched.LastActionDate ?? null,
+            fiscal_impact_amount: fetched.FiscalImpact ?? null,
+            augmented_from: 'mi-legislature',
+          },
+        )
         if (updated) stats.billsUpdated += 1
       } catch (err) {
         stats.errors.push(`MI ${b.bill_type} ${b.number}: ${(err as Error).message}`)

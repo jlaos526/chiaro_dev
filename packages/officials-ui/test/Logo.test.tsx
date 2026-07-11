@@ -28,7 +28,9 @@ describe('Logo — mark variant (default)', () => {
   })
 
   it('respects custom accessibilityLabel prop', () => {
-    const { container } = render(<Logo accessibilityLabel="Custom" />, { wrapper: withMode('light') })
+    const { container } = render(<Logo accessibilityLabel="Custom" />, {
+      wrapper: withMode('light'),
+    })
     expect(container.querySelector('[aria-label="Custom"]')).not.toBeNull()
   })
 })
@@ -40,10 +42,9 @@ describe('Logo — lockup variant', () => {
   })
 
   it('renders tagline below wordmark when provided', () => {
-    const { container } = render(
-      <Logo variant="lockup" tagline="Know who represents you." />,
-      { wrapper: withMode('light') },
-    )
+    const { container } = render(<Logo variant="lockup" tagline="Know who represents you." />, {
+      wrapper: withMode('light'),
+    })
     expect(container.textContent).toContain('CHIARO')
     expect(container.textContent).toContain('Know who represents you.')
   })
@@ -84,50 +85,45 @@ describe('wordmarkSize prop (slice 47)', () => {
   const deepestWithText = (container: HTMLElement, text: string) =>
     Array.from(container.querySelectorAll('*'))
       .reverse()
-      .find(el => el.textContent === text) as HTMLElement | undefined
+      .find((el) => el.textContent === text) as HTMLElement | undefined
 
   it('sets wordmark fontSize to the provided value when passed', () => {
-    const { container } = render(
-      <Logo variant="lockup" size={24} wordmarkSize={28} />,
-      { wrapper: withMode('light') },
-    )
+    const { container } = render(<Logo variant="lockup" size={24} wordmarkSize={28} />, {
+      wrapper: withMode('light'),
+    })
     const wordmark = deepestWithText(container, 'CHIARO')
     expect(wordmark?.getAttribute('style')).toMatch(/font-size:\s*28(px)?/i)
   })
 
   it('falls back to size * 0.65 when wordmarkSize is omitted', () => {
-    const { container } = render(
-      <Logo variant="lockup" size={32} />,
-      { wrapper: withMode('light') },
-    )
+    const { container } = render(<Logo variant="lockup" size={32} />, {
+      wrapper: withMode('light'),
+    })
     const wordmark = deepestWithText(container, 'CHIARO')
     // 32 * 0.65 = 20.8
     expect(wordmark?.getAttribute('style')).toMatch(/font-size:\s*20\.8(px)?/i)
   })
 
   it('computes gap from max(size, wordmarkSize) when wordmarkSize > size', () => {
-    const { container } = render(
-      <Logo variant="lockup" size={24} wordmarkSize={28} />,
-      { wrapper: withMode('light') },
-    )
+    const { container } = render(<Logo variant="lockup" size={24} wordmarkSize={28} />, {
+      wrapper: withMode('light'),
+    })
     const outer = container.firstChild as HTMLElement
     expect(outer?.getAttribute('style')).toMatch(/gap:\s*11\.2(px)?/i)
   })
 
   it('computes gap from max(size, wordmarkSize) when wordmarkSize < size', () => {
-    const { container } = render(
-      <Logo variant="lockup" size={48} wordmarkSize={20} />,
-      { wrapper: withMode('light') },
-    )
+    const { container } = render(<Logo variant="lockup" size={48} wordmarkSize={20} />, {
+      wrapper: withMode('light'),
+    })
     const outer = container.firstChild as HTMLElement
     expect(outer?.getAttribute('style')).toMatch(/gap:\s*19\.2(px)?/i)
   })
 
   it('derives tracking from wordmarkSize when provided', () => {
-    const { container } = render(
-      <Logo variant="lockup" size={20} wordmarkSize={28} />,
-      { wrapper: withMode('light') },
-    )
+    const { container } = render(<Logo variant="lockup" size={20} wordmarkSize={28} />, {
+      wrapper: withMode('light'),
+    })
     const wordmark = deepestWithText(container, 'CHIARO')
     // wordmarkSize 28 >= 24 → tracking = 0.07 * 28 = 1.96
     expect(wordmark?.getAttribute('style')).toMatch(/letter-spacing:\s*1\.96(px)?/i)

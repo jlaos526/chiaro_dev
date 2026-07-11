@@ -116,9 +116,7 @@ describe('FederalServiceRecordCard', () => {
       isSuccess: true,
     })
     useLeadershipMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
-    const { queryByText } = wrap(
-      <FederalServiceRecordCard officialId="oid" hideLivesInDistrict />,
-    )
+    const { queryByText } = wrap(<FederalServiceRecordCard officialId="oid" hideLivesInDistrict />)
     expect(queryByText(/Lives in district/)).toBeNull()
   })
 })

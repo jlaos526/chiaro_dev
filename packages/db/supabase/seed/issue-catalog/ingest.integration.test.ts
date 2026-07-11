@@ -6,11 +6,9 @@ import { ISSUE_CATALOG_FIXTURE } from '../fixtures/issue-catalog.fixture.ts'
 // Distinct storageKey + persistSession:false to avoid the GoTrue session
 // collision documented in CLAUDE.md Gotcha #1 when multiple createClient calls
 // share a process.
-const svc = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { persistSession: false, storageKey: 'issue-catalog-it' } },
-)
+const svc = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+  auth: { persistSession: false, storageKey: 'issue-catalog-it' },
+})
 
 describe('issue catalog integration', () => {
   beforeAll(async () => {
@@ -26,16 +24,17 @@ describe('issue catalog integration', () => {
 
   it('ingests the fixture catalog', async () => {
     await ingestIssueCatalog(svc as never, ISSUE_CATALOG_FIXTURE)
-    const { count } = await svc
-      .from('issue_topics')
-      .select('*', { count: 'exact', head: true })
+    const { count } = await svc.from('issue_topics').select('*', { count: 'exact', head: true })
     expect(count).toBe(ISSUE_CATALOG_FIXTURE.length)
   })
 
   it('persists evidence_sources on a watchlist lens', async () => {
     await ingestIssueCatalog(svc as never, ISSUE_CATALOG_FIXTURE)
-    const { data } = await svc.from('issue_lenses')
-      .select('evidence_sources').eq('slug', 'fx-for-profit-prisons').single()
+    const { data } = await svc
+      .from('issue_lenses')
+      .select('evidence_sources')
+      .eq('slug', 'fx-for-profit-prisons')
+      .single()
     expect(((data?.evidence_sources ?? []) as unknown[]).length).toBeGreaterThan(0)
   })
 })

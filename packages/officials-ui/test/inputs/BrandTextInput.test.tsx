@@ -6,9 +6,7 @@ import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 
 describe('BrandTextInput', () => {
   it('renders label + input element', () => {
-    const { container } = render(
-      <BrandTextInput label="Email" value="" onChangeText={() => {}} />,
-    )
+    const { container } = render(<BrandTextInput label="Email" value="" onChangeText={() => {}} />)
     const input = container.querySelector('input')
     expect(input).not.toBeNull()
     // <label htmlFor> is wired; visible text contains "Email".
@@ -49,12 +47,7 @@ describe('BrandTextInput', () => {
 
   it('shows error state with aria-invalid + error message', () => {
     const { container } = render(
-      <BrandTextInput
-        label="Email"
-        value=""
-        onChangeText={() => {}}
-        error="Invalid email"
-      />,
+      <BrandTextInput label="Email" value="" onChangeText={() => {}} error="Invalid email" />,
     )
     const input = container.querySelector('input')!
     // Direct DOM-attribute assertion per Gotcha #22 (RNW does not
@@ -71,12 +64,7 @@ describe('BrandTextInput', () => {
 
   it('shows disabled state via disabled attribute', () => {
     const { container } = render(
-      <BrandTextInput
-        label="Email"
-        value=""
-        onChangeText={() => {}}
-        disabled
-      />,
+      <BrandTextInput label="Email" value="" onChangeText={() => {}} disabled />,
     )
     const input = container.querySelector('input')!
     expect(input.hasAttribute('disabled')).toBe(true)
@@ -93,9 +81,7 @@ describe('BrandTextInput', () => {
   })
 
   it('empty state: input value is empty + placeholder=" " enables :placeholder-shown CSS', () => {
-    const { container } = render(
-      <BrandTextInput label="Email" value="" onChangeText={() => {}} />,
-    )
+    const { container } = render(<BrandTextInput label="Email" value="" onChangeText={() => {}} />)
     const input = container.querySelector('input')!
     expect(input.getAttribute('value')).toBe('')
     // Single-space placeholder enables the :not(:placeholder-shown) CSS

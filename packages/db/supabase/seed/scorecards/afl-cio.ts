@@ -17,6 +17,6 @@ export const aflCio: ScorecardAdapter = {
       throw new Error('AFL-CIO: live download not implemented yet; use fixturePath for slice 4.')
     }
     const csv = await readFile(opts.fixturePath, 'utf8')
-    return parseBioguideScoreCSV(csv, b => `https://aflcio.org/scorecard/${b.toLowerCase()}`)
+    return parseBioguideScoreCSV(csv, (b) => `https://aflcio.org/scorecard/${b.toLowerCase()}`)
   },
 }

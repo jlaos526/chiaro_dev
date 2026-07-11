@@ -19,7 +19,12 @@ export interface BrandLinkProps {
  * clicks (cmd/ctrl/shift/middle) fall through to browser default. Native
  * uses Pressable + Text.
  */
-export function BrandLink({ children, href, onPress, external = false }: BrandLinkProps): React.JSX.Element {
+export function BrandLink({
+  children,
+  href,
+  onPress,
+  external = false,
+}: BrandLinkProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const color = semantic.link.fg
 

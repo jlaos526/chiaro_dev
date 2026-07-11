@@ -1,11 +1,7 @@
 import { extractPdfText } from '../../shared/pdf.ts'
 import { fetchHouseDisclosureZip } from '../shared/house-zip.ts'
 import { parseFdText } from '../shared/pdf-parsers.ts'
-import type {
-  FdAdapter,
-  NormalizedDisclosureOther,
-  NormalizedHolding,
-} from '../shared/types.ts'
+import type { FdAdapter, NormalizedDisclosureOther, NormalizedHolding } from '../shared/types.ts'
 
 /**
  * House EFD annual FD adapter (slice 26 Task 4).
@@ -44,7 +40,7 @@ export const houseEfdFd: FdAdapter = {
     let manifest
     try {
       const zipOpts: Parameters<typeof fetchHouseDisclosureZip>[0] = {
-        year:     opts.year,
+        year: opts.year,
         formType: 'fd',
       }
       if (opts.fetcher) zipOpts.fetcher = opts.fetcher
@@ -52,35 +48,35 @@ export const houseEfdFd: FdAdapter = {
     } catch (err) {
       opts.onSkip?.({
         adapter: 'house-efd-fd',
-        stage:   'fetch',
-        reason:  `house-fd ZIP fetch ${opts.year} failed`,
-        detail:  err instanceof Error ? err.message : String(err),
+        stage: 'fetch',
+        reason: `house-fd ZIP fetch ${opts.year} failed`,
+        detail: err instanceof Error ? err.message : String(err),
       })
       return { holdings: [], other: [] }
     }
 
     const holdings: NormalizedHolding[] = []
-    const other:    NormalizedDisclosureOther[] = []
+    const other: NormalizedDisclosureOther[] = []
     for (const f of manifest.filings) {
       let text = ''
       try {
         text = await extractPdfText(f.pdfBytes)
       } catch (err) {
         opts.onSkip?.({
-          adapter:    'house-efd-fd',
-          stage:      'extract',
+          adapter: 'house-efd-fd',
+          stage: 'extract',
           legislator: f.fullName,
-          reason:     `house-fd ${f.filingId}: extractPdfText threw`,
-          detail:     err instanceof Error ? err.message : String(err),
+          reason: `house-fd ${f.filingId}: extractPdfText threw`,
+          detail: err instanceof Error ? err.message : String(err),
         })
         continue
       }
       if (!text) {
         opts.onSkip?.({
-          adapter:    'house-efd-fd',
-          stage:      'extract',
+          adapter: 'house-efd-fd',
+          stage: 'extract',
           legislator: f.fullName,
-          reason:     `house-fd ${f.filingId}: empty extract`,
+          reason: `house-fd ${f.filingId}: empty extract`,
         })
         continue
       }
@@ -89,7 +85,7 @@ export const houseEfdFd: FdAdapter = {
         const row: NormalizedHolding = {
           ...parsed.holdings[i]!,
           official_full_name: f.fullName,
-          external_id:        `house-fd-${f.filingId}-A-${i + 1}`,
+          external_id: `house-fd-${f.filingId}-A-${i + 1}`,
         }
         if (f.bioguideId) row.official_bioguide_id = f.bioguideId
         holdings.push(row)
@@ -99,7 +95,7 @@ export const houseEfdFd: FdAdapter = {
         const row: NormalizedDisclosureOther = {
           ...base,
           official_full_name: f.fullName,
-          external_id:        `house-fd-${f.filingId}-${schedLetterFor(base.category)}-${i + 1}`,
+          external_id: `house-fd-${f.filingId}-${schedLetterFor(base.category)}-${i + 1}`,
         }
         if (f.bioguideId) row.official_bioguide_id = f.bioguideId
         other.push(row)
@@ -112,13 +108,13 @@ export const houseEfdFd: FdAdapter = {
 /** Map category → Schedule letter for external_id traceability. */
 function schedLetterFor(cat: NormalizedDisclosureOther['category']): string {
   const map: Record<NormalizedDisclosureOther['category'], string> = {
-    liability:    'C',
-    position:     'D',
-    agreement:    'E',
+    liability: 'C',
+    position: 'D',
+    agreement: 'E',
     compensation: 'F',
-    honoraria:    'G',
-    gift:         'H',
-    travel:       'I',
+    honoraria: 'G',
+    gift: 'H',
+    travel: 'I',
   }
   return map[cat]
 }

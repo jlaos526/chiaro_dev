@@ -65,7 +65,7 @@ async function isFresh(path: string, ttlMs: number): Promise<boolean> {
 }
 
 async function sleep(ms: number): Promise<void> {
-  await new Promise(resolve => setTimeout(resolve, ms))
+  await new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function fetchPage(
@@ -213,15 +213,15 @@ export async function pruneStaleCache(cacheDir: string, ttlMs: number = TTL_MS):
 }
 
 if (isCliEntry(import.meta.url)) {
-  const state   = parseFlag('state')
+  const state = parseFlag('state')
   const session = parseFlag('session')
-  const force   = hasFlag('force')
+  const force = hasFlag('force')
   if (state === undefined || session === undefined) {
     console.error('usage: tsx openstates-v3-fetch.ts --state=XX --session=YYYY [--force]')
     process.exit(2)
   }
   fetchOpenStatesV3({ state, session, force })
-    .then(stats => {
+    .then((stats) => {
       console.log('OpenStates v3 fetch summary:')
       console.log(`  state:                ${stats.state}`)
       console.log(`  session:              ${stats.session}`)
@@ -234,5 +234,8 @@ if (isCliEntry(import.meta.url)) {
       for (const e of stats.errors) console.log(`    - ${e}`)
       process.exit(stats.errors.length > 0 ? 1 : 0)
     })
-    .catch(err => { console.error(err.message); process.exit(1) })
+    .catch((err) => {
+      console.error(err.message)
+      process.exit(1)
+    })
 }

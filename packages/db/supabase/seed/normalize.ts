@@ -30,11 +30,13 @@ export const CongressGovMemberSchema = z.object({
   district: z.number().nullable(),
   senateClass: z.number().nullable(),
   terms: z.object({
-    item: z.array(z.object({
-      chamber: z.string(),
-      startYear: z.number(),
-      endYear: z.number().nullable().optional(),
-    })),
+    item: z.array(
+      z.object({
+        chamber: z.string(),
+        startYear: z.number(),
+        endYear: z.number().nullable().optional(),
+      }),
+    ),
   }),
   officialWebsiteUrl: z.string().url().nullable(),
   nextElection: z.string().nullable(),
@@ -77,11 +79,12 @@ export function normalizeMember(raw: unknown): NormalizedMember {
     party: mapParty(m.partyName),
     state: m.stateCode,
     districtNumber: chamber === 'federal_senate' ? null : (m.district ?? null),
-    senateClass: chamber === 'federal_senate'
-      ? (m.senateClass === 1 || m.senateClass === 2 || m.senateClass === 3
+    senateClass:
+      chamber === 'federal_senate'
+        ? m.senateClass === 1 || m.senateClass === 2 || m.senateClass === 3
           ? m.senateClass
-          : null)
-      : null,
+          : null
+        : null,
     portraitUrl: buildPortraitUrl(m.bioguideId),
     officialUrl: m.officialWebsiteUrl ?? null,
     nextElection: m.nextElection ?? null,

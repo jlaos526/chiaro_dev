@@ -14,9 +14,14 @@ export const heritageAction: ScorecardAdapter = {
 
   async fetchRatings(_congress, opts) {
     if (!opts?.fixturePath) {
-      throw new Error('Heritage Action: live download not implemented yet; use fixturePath for slice 4.')
+      throw new Error(
+        'Heritage Action: live download not implemented yet; use fixturePath for slice 4.',
+      )
     }
     const csv = await readFile(opts.fixturePath, 'utf8')
-    return parseBioguideScoreCSV(csv, b => `https://heritageaction.com/scorecard/member/${b.toLowerCase()}`)
+    return parseBioguideScoreCSV(
+      csv,
+      (b) => `https://heritageaction.com/scorecard/member/${b.toLowerCase()}`,
+    )
   },
 }

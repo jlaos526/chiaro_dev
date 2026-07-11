@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url'
 import { fetchMichigan } from './fetch-mi.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DB_URL    = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
-const FIXTURE   = join(__dirname, '..', 'fixtures', 'state-finance', 'mi-sample.json')
+const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const FIXTURE = join(__dirname, '..', 'fixtures', 'state-finance', 'mi-sample.json')
 
 let client: Client
 let repId: string
@@ -52,7 +52,10 @@ afterEach(async () => {
     'delete from public.state_finance_individual_donors where state_finance_summary_id in (select id from public.state_finance_summaries where official_id in ($1, $2))',
     [repId, senId],
   )
-  await client.query('delete from public.state_finance_summaries where official_id in ($1, $2)', [repId, senId])
+  await client.query('delete from public.state_finance_summaries where official_id in ($1, $2)', [
+    repId,
+    senId,
+  ])
   await client.query('delete from public.officials where source_version = $1', ['FX-fin-mi'])
   await client.query('delete from public.districts where source_version = $1', ['FX-fin-mi'])
   await client.end()
@@ -62,7 +65,8 @@ describe('fetchMichigan', () => {
   it('happy path: 2 filings → 2 summaries + 3 donors', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     const stats = await fetchMichigan.fetch({
-      client, cycle: '2023-2024',
+      client,
+      cycle: '2023-2024',
       fetcher: async () => fixture.filings,
     } as never)
     expect(stats.errors).toEqual([])
@@ -74,25 +78,33 @@ describe('fetchMichigan', () => {
   it('source slug is mi-boe', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     await fetchMichigan.fetch({
-      client, cycle: '2023-2024',
+      client,
+      cycle: '2023-2024',
       fetcher: async () => fixture.filings,
     } as never)
-    const sources = await client.query<{ source: string }>(`
+    const sources = await client.query<{ source: string }>(
+      `
       select source from public.state_finance_summaries where official_id in ($1, $2)
-    `, [repId, senId])
+    `,
+      [repId, senId],
+    )
     for (const r of sources.rows) expect(r.source).toBe('mi-boe')
   })
 
   it('both pct fields preserved (small_donor_pct + in_state_pct)', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     await fetchMichigan.fetch({
-      client, cycle: '2023-2024',
+      client,
+      cycle: '2023-2024',
       fetcher: async () => fixture.filings,
     } as never)
-    const row = await client.query<{ small_donor_pct: string | null; in_state_pct: string | null }>(`
+    const row = await client.query<{ small_donor_pct: string | null; in_state_pct: string | null }>(
+      `
       select small_donor_pct, in_state_pct
         from public.state_finance_summaries where official_id = $1
-    `, [repId])
+    `,
+      [repId],
+    )
     expect(Number(row.rows[0]!.small_donor_pct)).toBe(28.0)
     expect(Number(row.rows[0]!.in_state_pct)).toBe(92.0)
   })
@@ -100,7 +112,8 @@ describe('fetchMichigan', () => {
   it("biennial cycle string '2023-2024' preserved verbatim", async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     await fetchMichigan.fetch({
-      client, cycle: '2023-2024',
+      client,
+      cycle: '2023-2024',
       fetcher: async () => fixture.filings,
     } as never)
     const row = await client.query<{ cycle: string }>(
@@ -112,7 +125,9 @@ describe('fetchMichigan', () => {
 
   it('reports state MI', async () => {
     const stats = await fetchMichigan.fetch({
-      client, cycle: '2023-2024', fetcher: async () => [],
+      client,
+      cycle: '2023-2024',
+      fetcher: async () => [],
     } as never)
     expect(stats.state).toBe('MI')
   })

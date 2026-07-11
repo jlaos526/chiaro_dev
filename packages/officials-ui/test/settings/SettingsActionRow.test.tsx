@@ -27,30 +27,27 @@ function styleContainsColor(style: string, hex: string): boolean {
 describe('SettingsActionRow', () => {
   it('renders label and calls onPress when clicked', () => {
     const onPress = vi.fn()
-    const { getByText } = render(
-      <SettingsActionRow label="Sign out" onPress={onPress} />,
-      { wrapper: withMode('light') },
-    )
+    const { getByText } = render(<SettingsActionRow label="Sign out" onPress={onPress} />, {
+      wrapper: withMode('light'),
+    })
     expect(getByText('Sign out')).toBeTruthy()
     fireEvent.click(getByText('Sign out'))
     expect(onPress).toHaveBeenCalled()
   })
 
   it('non-danger uses text.primary color', () => {
-    const { getByText } = render(
-      <SettingsActionRow label="Sign out" onPress={() => {}} />,
-      { wrapper: withMode('light') },
-    )
+    const { getByText } = render(<SettingsActionRow label="Sign out" onPress={() => {}} />, {
+      wrapper: withMode('light'),
+    })
     const text = getByText('Sign out')
     const inlineStyle = text.getAttribute('style') ?? ''
     expect(styleContainsColor(inlineStyle, BRAND_SEMANTIC.light.text.primary)).toBe(true)
   })
 
   it('danger variant uses alert.danger.fg color', () => {
-    const { getByText } = render(
-      <SettingsActionRow label="Sign out" danger onPress={() => {}} />,
-      { wrapper: withMode('light') },
-    )
+    const { getByText } = render(<SettingsActionRow label="Sign out" danger onPress={() => {}} />, {
+      wrapper: withMode('light'),
+    })
     const text = getByText('Sign out')
     const inlineStyle = text.getAttribute('style') ?? ''
     expect(styleContainsColor(inlineStyle, BRAND_SEMANTIC.light.alert.danger.fg)).toBe(true)

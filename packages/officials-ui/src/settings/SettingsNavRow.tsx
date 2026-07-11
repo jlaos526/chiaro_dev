@@ -12,7 +12,12 @@ export interface SettingsNavRowProps {
   href?: string
 }
 
-export function SettingsNavRow({ label, value, onPress, href }: SettingsNavRowProps): React.JSX.Element {
+export function SettingsNavRow({
+  label,
+  value,
+  onPress,
+  href,
+}: SettingsNavRowProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const content = (
     <>

@@ -15,9 +15,7 @@ describe('OfficialAvatar', () => {
   })
 
   it('renders initials fallback when portraitUrl is null', () => {
-    const { getByText } = render(
-      <OfficialAvatar fullName="Jane Doe" portraitUrl={null} />,
-    )
+    const { getByText } = render(<OfficialAvatar fullName="Jane Doe" portraitUrl={null} />)
     expect(getByText('JD')).toBeTruthy()
   })
 
@@ -29,9 +27,7 @@ describe('OfficialAvatar', () => {
   })
 
   it('exposes accessibility label with full name (initials fallback)', () => {
-    const { container } = render(
-      <OfficialAvatar fullName="John Smith" portraitUrl={null} />,
-    )
+    const { container } = render(<OfficialAvatar fullName="John Smith" portraitUrl={null} />)
     expect(container.querySelector('[aria-label="John Smith"]')).not.toBeNull()
   })
 })

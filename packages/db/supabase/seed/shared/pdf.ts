@@ -31,10 +31,7 @@ export async function extractPdfText(buffer: Buffer): Promise<string> {
  * Throws on network failure or non-2xx response; callers wrap in
  * try/catch + silently skip.
  */
-export async function fetchPdf(
-  url: string,
-  opts: { timeoutMs?: number } = {},
-): Promise<Buffer> {
+export async function fetchPdf(url: string, opts: { timeoutMs?: number } = {}): Promise<Buffer> {
   const res = await fetch(url, {
     signal: AbortSignal.timeout(opts.timeoutMs ?? DEFAULT_TIMEOUT_MS),
   })

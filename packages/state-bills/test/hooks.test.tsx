@@ -22,7 +22,14 @@ function wrap({ children }: { children: ReactNode }) {
 beforeEach(() => {
   // Re-establish mock implementations after vitest's restoreMocks resets them.
   vi.mocked(queries.fetchOfficialSponsoredStateBills).mockResolvedValue([
-    { id: 'b1', title: 'Mock Bill', state: 'CA', session: '20252026', sponsors: [], subjects: [] } as never,
+    {
+      id: 'b1',
+      title: 'Mock Bill',
+      state: 'CA',
+      session: '20252026',
+      sponsors: [],
+      subjects: [],
+    } as never,
   ])
   vi.mocked(queries.fetchOfficialCosponsoredStateBills).mockResolvedValue([])
   vi.mocked(queries.fetchOfficialStateVotes).mockResolvedValue([])
@@ -32,10 +39,9 @@ beforeEach(() => {
 describe('useOfficialSponsoredStateBills', () => {
   it('returns data from fetchOfficialSponsoredStateBills', async () => {
     const fakeClient = { from: vi.fn() } as never
-    const { result } = renderHook(
-      () => useOfficialSponsoredStateBills(fakeClient, 'oid-1'),
-      { wrapper: wrap },
-    )
+    const { result } = renderHook(() => useOfficialSponsoredStateBills(fakeClient, 'oid-1'), {
+      wrapper: wrap,
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(result.current.data).toHaveLength(1)
     expect(result.current.data![0]!.title).toBe('Mock Bill')
@@ -43,10 +49,9 @@ describe('useOfficialSponsoredStateBills', () => {
 
   it('reaches success state without errors', async () => {
     const fakeClient = { from: vi.fn() } as never
-    const { result } = renderHook(
-      () => useOfficialSponsoredStateBills(fakeClient, 'oid-1'),
-      { wrapper: wrap },
-    )
+    const { result } = renderHook(() => useOfficialSponsoredStateBills(fakeClient, 'oid-1'), {
+      wrapper: wrap,
+    })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(result.current.dataUpdatedAt).toBeGreaterThan(0)
   })
@@ -58,12 +63,26 @@ describe('useOfficialStateVotesOnSubject', () => {
       {
         position: 'yes',
         vote: {
-          id: 'v1', openstates_vote_id: 'ocd-vote/x', bill_id: 'b1',
-          state: 'CA', session: '20252026', chamber: 'state_senate',
-          vote_date: '2025-03-01', question: 'On Passage', result: 'passed',
-          source_url: 'https://x', party_vote_split: null,
+          id: 'v1',
+          openstates_vote_id: 'ocd-vote/x',
+          bill_id: 'b1',
+          state: 'CA',
+          session: '20252026',
+          chamber: 'state_senate',
+          vote_date: '2025-03-01',
+          question: 'On Passage',
+          result: 'passed',
+          source_url: 'https://x',
+          party_vote_split: null,
           created_at: '2025-03-01',
-          bill: { id: 'b1', state: 'CA', session: '20252026', bill_type: 'SB', number: 100, title: 'Env Test' },
+          bill: {
+            id: 'b1',
+            state: 'CA',
+            session: '20252026',
+            bill_type: 'SB',
+            number: 100,
+            title: 'Env Test',
+          },
         },
       },
     ] as never)
@@ -80,10 +99,9 @@ describe('useOfficialStateVotesOnSubject', () => {
   })
 
   it('disabled when subjects array is empty', () => {
-    const { result } = renderHook(
-      () => useOfficialStateVotesOnSubject({} as never, 'oid', []),
-      { wrapper: wrap },
-    )
+    const { result } = renderHook(() => useOfficialStateVotesOnSubject({} as never, 'oid', []), {
+      wrapper: wrap,
+    })
     expect(result.current.fetchStatus).toBe('idle')
   })
 

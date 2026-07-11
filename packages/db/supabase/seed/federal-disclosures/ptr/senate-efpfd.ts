@@ -39,9 +39,9 @@ export const senateEfpfdPtr: PtrAdapter = {
     } catch (err) {
       opts.onSkip?.({
         adapter: 'senate-efpfd-ptr',
-        stage:   'fetch',
-        reason:  'senate agreement gate failed',
-        detail:  err instanceof Error ? err.message : String(err),
+        stage: 'fetch',
+        reason: 'senate agreement gate failed',
+        detail: err instanceof Error ? err.message : String(err),
       })
       return []
     }
@@ -51,16 +51,16 @@ export const senateEfpfdPtr: PtrAdapter = {
       const searchOpts: Parameters<typeof searchSenateEfpfd>[0] = {
         session,
         reportType: '7c',
-        year:       opts.year,
+        year: opts.year,
       }
       if (opts.fetcher) searchOpts.fetcher = opts.fetcher
       results = await searchSenateEfpfd(searchOpts)
     } catch (err) {
       opts.onSkip?.({
         adapter: 'senate-efpfd-ptr',
-        stage:   'fetch',
-        reason:  `senate ptr search ${opts.year} failed`,
-        detail:  err instanceof Error ? err.message : String(err),
+        stage: 'fetch',
+        reason: `senate ptr search ${opts.year} failed`,
+        detail: err instanceof Error ? err.message : String(err),
       })
       return []
     }
@@ -73,11 +73,11 @@ export const senateEfpfdPtr: PtrAdapter = {
         pdfBytes = await fetchPdf(r.pdfUrl)
       } catch (err) {
         opts.onSkip?.({
-          adapter:    'senate-efpfd-ptr',
-          stage:      'fetch',
+          adapter: 'senate-efpfd-ptr',
+          stage: 'fetch',
           legislator: r.fullName,
-          reason:     `senate-ptr ${r.filingId}: pdf fetch failed`,
-          detail:     err instanceof Error ? err.message : String(err),
+          reason: `senate-ptr ${r.filingId}: pdf fetch failed`,
+          detail: err instanceof Error ? err.message : String(err),
         })
         continue
       }
@@ -86,30 +86,30 @@ export const senateEfpfdPtr: PtrAdapter = {
         text = await extractPdfText(pdfBytes)
       } catch (err) {
         opts.onSkip?.({
-          adapter:    'senate-efpfd-ptr',
-          stage:      'extract',
+          adapter: 'senate-efpfd-ptr',
+          stage: 'extract',
           legislator: r.fullName,
-          reason:     `senate-ptr ${r.filingId}: extract failed`,
-          detail:     err instanceof Error ? err.message : String(err),
+          reason: `senate-ptr ${r.filingId}: extract failed`,
+          detail: err instanceof Error ? err.message : String(err),
         })
         continue
       }
       if (!text) {
         opts.onSkip?.({
-          adapter:    'senate-efpfd-ptr',
-          stage:      'extract',
+          adapter: 'senate-efpfd-ptr',
+          stage: 'extract',
           legislator: r.fullName,
-          reason:     `senate-ptr ${r.filingId}: empty extract`,
+          reason: `senate-ptr ${r.filingId}: empty extract`,
         })
         continue
       }
       const { trades } = parsePtrText(text, { filing_year: opts.year, source_url: r.pdfUrl })
       if (trades.length === 0) {
         opts.onSkip?.({
-          adapter:    'senate-efpfd-ptr',
-          stage:      'parse',
+          adapter: 'senate-efpfd-ptr',
+          stage: 'parse',
           legislator: r.fullName,
-          reason:     `senate-ptr ${r.filingId}: zero trades`,
+          reason: `senate-ptr ${r.filingId}: zero trades`,
         })
         continue
       }
@@ -117,12 +117,12 @@ export const senateEfpfdPtr: PtrAdapter = {
         out.push({
           ...trades[i]!,
           official_full_name: r.fullName,
-          external_id:        `senate-ptr-${r.filingId}-${i + 1}`,
+          external_id: `senate-ptr-${r.filingId}-${i + 1}`,
         })
       }
       // Throttle between filings (skip after last per audit M5 pattern).
       if (n + 1 < results.length) {
-        await new Promise(resolve => setTimeout(resolve, THROTTLE_MS))
+        await new Promise((resolve) => setTimeout(resolve, THROTTLE_MS))
       }
     }
     return out

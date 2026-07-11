@@ -10,7 +10,17 @@ describe('nyJcopeComplaints adapter', () => {
   })
 
   it('injected fetcher short-circuits adapter dispatch', async () => {
-    const fixture = [{ official_openstates_person_id: 'x', complaint_date: '2024-01-01', status: 'open', summary: 's', state: 'NY', source_url: 'u', source: 'ny-jcope' }]
+    const fixture = [
+      {
+        official_openstates_person_id: 'x',
+        complaint_date: '2024-01-01',
+        status: 'open',
+        summary: 's',
+        state: 'NY',
+        source_url: 'u',
+        source: 'ny-jcope',
+      },
+    ]
     const result = await nyJcopeComplaints.fetchEvents({
       fetcher: async () => fixture as never,
     } as never)

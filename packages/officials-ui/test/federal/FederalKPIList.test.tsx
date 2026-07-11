@@ -12,8 +12,10 @@ describe('FederalKPIList', () => {
 
   it('renders 5 tiles for House member', () => {
     const metrics = {
-      bills_sponsored_count: 12, bills_cosponsored_count: 45,
-      attendance_pct: 96, subject_breadth: 8,
+      bills_sponsored_count: 12,
+      bills_cosponsored_count: 45,
+      attendance_pct: 96,
+      subject_breadth: 8,
       lives_in_district: true,
     } as never
     const { getByText } = render(<FederalKPIList metrics={metrics} />)
@@ -25,8 +27,11 @@ describe('FederalKPIList', () => {
 
   it('hides lives_in_district tile when hideLivesInDistrict=true (Senate)', () => {
     const metrics = {
-      bills_sponsored_count: 1, bills_cosponsored_count: 1,
-      attendance_pct: 95, subject_breadth: 1, lives_in_district: null,
+      bills_sponsored_count: 1,
+      bills_cosponsored_count: 1,
+      attendance_pct: 95,
+      subject_breadth: 1,
+      lives_in_district: null,
     } as never
     const { queryByText } = render(<FederalKPIList metrics={metrics} hideLivesInDistrict />)
     expect(queryByText(/Lives in district/)).toBeNull()
@@ -34,8 +39,11 @@ describe('FederalKPIList', () => {
 
   it('em-dash NULL convention for unset metrics', () => {
     const metrics = {
-      bills_sponsored_count: null, bills_cosponsored_count: null,
-      attendance_pct: null, subject_breadth: null, lives_in_district: null,
+      bills_sponsored_count: null,
+      bills_cosponsored_count: null,
+      attendance_pct: null,
+      subject_breadth: null,
+      lives_in_district: null,
     } as never
     const { getAllByText } = render(<FederalKPIList metrics={metrics} />)
     expect(getAllByText('—').length).toBeGreaterThanOrEqual(4)
@@ -50,10 +58,17 @@ const darkWrapper = ({ children }: { children: ReactNode }) =>
 describe('FederalKPIList — mode awareness', () => {
   it('renders under both light and dark wrappers without throwing', () => {
     const metrics = {
-      bills_sponsored_count: 12, bills_cosponsored_count: 45,
-      attendance_pct: 96, subject_breadth: 8, lives_in_district: true,
+      bills_sponsored_count: 12,
+      bills_cosponsored_count: 45,
+      attendance_pct: 96,
+      subject_breadth: 8,
+      lives_in_district: true,
     } as never
-    expect(() => render(<FederalKPIList metrics={metrics} />, { wrapper: lightWrapper })).not.toThrow()
-    expect(() => render(<FederalKPIList metrics={metrics} />, { wrapper: darkWrapper })).not.toThrow()
+    expect(() =>
+      render(<FederalKPIList metrics={metrics} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<FederalKPIList metrics={metrics} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
   })
 })

@@ -11,11 +11,18 @@ describe('FederalDistrictOfficesList', () => {
   })
 
   it('renders address + city/state + phone', () => {
-    const rows = [{
-      id: 'o1', official_id: 'oid',
-      address: '123 Main St', city: 'San Jose', state: 'CA', zip: '95110',
-      phone: '408-555-1212', source_url: 'https://x',
-    }] as never[]
+    const rows = [
+      {
+        id: 'o1',
+        official_id: 'oid',
+        address: '123 Main St',
+        city: 'San Jose',
+        state: 'CA',
+        zip: '95110',
+        phone: '408-555-1212',
+        source_url: 'https://x',
+      },
+    ] as never[]
     const { getByText } = render(<FederalDistrictOfficesList rows={rows} />)
     expect(getByText(/District Office · San Jose, CA/)).toBeTruthy()
     expect(getByText(/123 Main St/)).toBeTruthy()
@@ -23,11 +30,18 @@ describe('FederalDistrictOfficesList', () => {
   })
 
   it('omits phone block when null', () => {
-    const rows = [{
-      id: 'o1', official_id: 'oid',
-      address: '123 Main St', city: 'Reno', state: 'NV', zip: null,
-      phone: null, source_url: 'https://x',
-    }] as never[]
+    const rows = [
+      {
+        id: 'o1',
+        official_id: 'oid',
+        address: '123 Main St',
+        city: 'Reno',
+        state: 'NV',
+        zip: null,
+        phone: null,
+        source_url: 'https://x',
+      },
+    ] as never[]
     const { getByText, queryByText } = render(<FederalDistrictOfficesList rows={rows} />)
     expect(getByText(/Reno, NV/)).toBeTruthy()
     expect(queryByText(/408-555-1212/)).toBeNull()
@@ -47,11 +61,18 @@ describe('FederalDistrictOfficesList — mode awareness', () => {
     expect(() =>
       render(<FederalDistrictOfficesList rows={[]} />, { wrapper: darkWrapper }),
     ).not.toThrow()
-    const sampleRows = [{
-      id: 'o1', official_id: 'oid',
-      address: '123 Main St', city: 'San Jose', state: 'CA', zip: '95110',
-      phone: '408-555-1212', source_url: 'https://x',
-    }] as never[]
+    const sampleRows = [
+      {
+        id: 'o1',
+        official_id: 'oid',
+        address: '123 Main St',
+        city: 'San Jose',
+        state: 'CA',
+        zip: '95110',
+        phone: '408-555-1212',
+        source_url: 'https://x',
+      },
+    ] as never[]
     expect(() =>
       render(<FederalDistrictOfficesList rows={sampleRows} />, { wrapper: lightWrapper }),
     ).not.toThrow()

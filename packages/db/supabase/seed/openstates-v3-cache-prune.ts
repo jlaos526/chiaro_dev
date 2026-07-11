@@ -9,8 +9,8 @@ const DEFAULT_TTL_DAYS = 7
 
 if (isCliEntry(import.meta.url)) {
   const cacheDir = parseFlag('cache-dir') ?? DEFAULT_CACHE_DIR
-  const ttlRaw   = parseFlag('ttl-days')
-  const ttlDays  = ttlRaw !== undefined ? Number(ttlRaw) : DEFAULT_TTL_DAYS
+  const ttlRaw = parseFlag('ttl-days')
+  const ttlDays = ttlRaw !== undefined ? Number(ttlRaw) : DEFAULT_TTL_DAYS
 
   if (!Number.isFinite(ttlDays) || ttlDays < 0) {
     console.error(`invalid --ttl-days value (got '${ttlRaw}'); must be a non-negative number`)
@@ -19,11 +19,11 @@ if (isCliEntry(import.meta.url)) {
   const ttlMs = ttlDays * 24 * 60 * 60 * 1000
 
   pruneStaleCache(cacheDir, ttlMs)
-    .then(removed => {
+    .then((removed) => {
       console.log(`Pruned ${removed} stale cache file(s) older than ${ttlDays}d from ${cacheDir}`)
       process.exit(0)
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err.message)
       process.exit(1)
     })

@@ -65,6 +65,8 @@ describe('mobile /sign-up handleSubmit', () => {
   it('resolves silently (no notice) when a session is returned', async () => {
     mockSignUp.mockResolvedValue({ data: { session: { user: { id: 'u1' } } }, error: null })
     const { onSubmit } = mountAndCapture()
-    await expect(onSubmit({ email: 'ada@example.com', password: 'longenough' })).resolves.toBeUndefined()
+    await expect(
+      onSubmit({ email: 'ada@example.com', password: 'longenough' }),
+    ).resolves.toBeUndefined()
   })
 })

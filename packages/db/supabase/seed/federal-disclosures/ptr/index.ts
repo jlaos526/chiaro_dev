@@ -1,5 +1,5 @@
 import type { PtrAdapter } from '../shared/types.ts'
-import { houseEfdPtr }    from './house-efd.ts'
+import { houseEfdPtr } from './house-efd.ts'
 import { senateEfpfdPtr } from './senate-efpfd.ts'
 
 /**

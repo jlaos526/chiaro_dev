@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  deriveMiPfdUrl,
-  parseMiPfdText,
-  classifyIncomeKind,
-} from './mi-pfd-helpers.ts'
+import { deriveMiPfdUrl, parseMiPfdText, classifyIncomeKind } from './mi-pfd-helpers.ts'
 
 describe('deriveMiPfdUrl', () => {
   it('builds the audit-derived URL pattern from full_name + year', () => {
@@ -95,7 +91,7 @@ Sources of Income
 `
     const items = parseMiPfdText(text)
     expect(items).toHaveLength(3)
-    expect(items.map(i => i.income_kind)).toEqual(['salary', 'consulting', 'rental'])
+    expect(items.map((i) => i.income_kind)).toEqual(['salary', 'consulting', 'rental'])
   })
 
   it('handles "Less than $X" amount form', () => {

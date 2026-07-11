@@ -16,8 +16,12 @@ describe('createChiaroClient', () => {
     const memoryStore = new Map<string, string>()
     const storage = {
       getItem: (k: string) => memoryStore.get(k) ?? null,
-      setItem: (k: string, v: string) => { memoryStore.set(k, v) },
-      removeItem: (k: string) => { memoryStore.delete(k) },
+      setItem: (k: string, v: string) => {
+        memoryStore.set(k, v)
+      },
+      removeItem: (k: string) => {
+        memoryStore.delete(k)
+      },
     }
     const client = createChiaroClient({
       url: 'http://127.0.0.1:54321',

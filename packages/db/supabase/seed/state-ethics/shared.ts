@@ -32,8 +32,14 @@ export interface NormalizedEthicsComplaint {
 export interface NormalizedOfficialEvent {
   official_openstates_person_id: string
   event_date: string
-  event_type: 'recall_attempt' | 'recall_succeeded' | 'recall_failed'
-    | 'resignation' | 'censure' | 'expulsion' | 'campaign_finance_violation'
+  event_type:
+    | 'recall_attempt'
+    | 'recall_succeeded'
+    | 'recall_failed'
+    | 'resignation'
+    | 'censure'
+    | 'expulsion'
+    | 'campaign_finance_violation'
   outcome?: string
   summary: string
   state: string
@@ -76,7 +82,8 @@ export interface StateEthicsStats {
 }
 
 async function resolveOfficial(
-  client: Client, openstates_person_id: string,
+  client: Client,
+  openstates_person_id: string,
 ): Promise<string | null> {
   const r = await client.query<{ id: string }>(
     'select id from public.officials where openstates_person_id = $1',
@@ -86,11 +93,13 @@ async function resolveOfficial(
 }
 
 export async function upsertFinancialDisclosure(
-  client: Client, d: NormalizedFinancialDisclosure,
+  client: Client,
+  d: NormalizedFinancialDisclosure,
 ): Promise<boolean> {
   const officialId = await resolveOfficial(client, d.official_openstates_person_id)
   if (!officialId) return false
-  await client.query(`
+  await client.query(
+    `
     insert into public.state_financial_disclosures (
       official_id, filing_year, filing_date, income_source, income_kind,
       amount_range_low, amount_range_high,
@@ -106,21 +115,32 @@ export async function upsertFinancialDisclosure(
       amount_range_high= excluded.amount_range_high,
       source_url       = excluded.source_url,
       ingested_at      = now()
-  `, [
-    officialId, d.filing_year, d.filing_date ?? null,
-    d.income_source ?? null, d.income_kind ?? null,
-    d.amount_range_low ?? null, d.amount_range_high ?? null,
-    d.state, d.source_url, d.source, d.external_id ?? null,
-  ])
+  `,
+    [
+      officialId,
+      d.filing_year,
+      d.filing_date ?? null,
+      d.income_source ?? null,
+      d.income_kind ?? null,
+      d.amount_range_low ?? null,
+      d.amount_range_high ?? null,
+      d.state,
+      d.source_url,
+      d.source,
+      d.external_id ?? null,
+    ],
+  )
   return true
 }
 
 export async function upsertEthicsComplaint(
-  client: Client, c: NormalizedEthicsComplaint,
+  client: Client,
+  c: NormalizedEthicsComplaint,
 ): Promise<boolean> {
   const officialId = await resolveOfficial(client, c.official_openstates_person_id)
   if (!officialId) return false
-  await client.query(`
+  await client.query(
+    `
     insert into public.state_ethics_complaints (
       official_id, complaint_date, status, disposition, summary,
       state, source_url, source, external_id
@@ -132,20 +152,30 @@ export async function upsertEthicsComplaint(
       summary     = excluded.summary,
       source_url  = excluded.source_url,
       ingested_at = now()
-  `, [
-    officialId, c.complaint_date, c.status,
-    c.disposition ?? null, c.summary,
-    c.state, c.source_url, c.source, c.external_id ?? null,
-  ])
+  `,
+    [
+      officialId,
+      c.complaint_date,
+      c.status,
+      c.disposition ?? null,
+      c.summary,
+      c.state,
+      c.source_url,
+      c.source,
+      c.external_id ?? null,
+    ],
+  )
   return true
 }
 
 export async function upsertOfficialEvent(
-  client: Client, e: NormalizedOfficialEvent,
+  client: Client,
+  e: NormalizedOfficialEvent,
 ): Promise<boolean> {
   const officialId = await resolveOfficial(client, e.official_openstates_person_id)
   if (!officialId) return false
-  await client.query(`
+  await client.query(
+    `
     insert into public.state_official_events (
       official_id, event_date, event_type, outcome, summary,
       state, source_url, source, external_id
@@ -157,10 +187,18 @@ export async function upsertOfficialEvent(
       summary     = excluded.summary,
       source_url  = excluded.source_url,
       ingested_at = now()
-  `, [
-    officialId, e.event_date, e.event_type,
-    e.outcome ?? null, e.summary,
-    e.state, e.source_url, e.source, e.external_id ?? null,
-  ])
+  `,
+    [
+      officialId,
+      e.event_date,
+      e.event_type,
+      e.outcome ?? null,
+      e.summary,
+      e.state,
+      e.source_url,
+      e.source,
+      e.external_id ?? null,
+    ],
+  )
   return true
 }

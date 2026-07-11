@@ -90,7 +90,10 @@ export function RepAlignmentStrip({
   if (alignment == null || alignment.overallPct == null) {
     return (
       <View
-        style={[styles.strip, { backgroundColor: semantic.bg.subtle, borderColor: semantic.border.default }]}
+        style={[
+          styles.strip,
+          { backgroundColor: semantic.bg.subtle, borderColor: semantic.border.default },
+        ]}
       >
         <Text style={[styles.mutedText, { color: semantic.text.muted }]} numberOfLines={2}>
           No comparable record yet on your issues
@@ -107,10 +110,15 @@ export function RepAlignmentStrip({
       accessibilityLabel={`${expanded ? 'Hide' : 'Compare'} your issue alignment, ${alignment.overallPct}% aligned`}
       accessibilityState={{ expanded }}
       aria-expanded={expanded}
-      style={[styles.strip, { backgroundColor: semantic.bg.subtle, borderColor: semantic.border.default }]}
+      style={[
+        styles.strip,
+        { backgroundColor: semantic.bg.subtle, borderColor: semantic.border.default },
+      ]}
     >
       <View style={styles.pctBlock}>
-        <Text style={[styles.pct, { color: semantic.signal.success }]}>{alignment.overallPct}%</Text>
+        <Text style={[styles.pct, { color: semantic.signal.success }]}>
+          {alignment.overallPct}%
+        </Text>
         <Text style={[styles.pctLabel, { color: semantic.text.muted }]}>aligned</Text>
       </View>
       <View style={styles.dots}>

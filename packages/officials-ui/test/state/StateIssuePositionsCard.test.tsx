@@ -22,8 +22,7 @@ vi.mock('@chiaro/state-bills', async () => {
   const actual = await vi.importActual<object>('@chiaro/state-bills')
   return {
     ...actual,
-    useOfficialStateVotesOnSubject: (...args: unknown[]) =>
-      useVotesOnSubjectMock(...args),
+    useOfficialStateVotesOnSubject: (...args: unknown[]) => useVotesOnSubjectMock(...args),
   }
 })
 
@@ -48,9 +47,7 @@ const CATALOG = [
         topic_slug: 'environment',
         slug: 'climate',
         lens_type: 'stance',
-        measurement_sources: [
-          { type: 'scorecard', weight: 1, config: { orgs: ['sierra'] } },
-        ],
+        measurement_sources: [{ type: 'scorecard', weight: 1, config: { orgs: ['sierra'] } }],
         quiz_questions: [],
       },
     ],

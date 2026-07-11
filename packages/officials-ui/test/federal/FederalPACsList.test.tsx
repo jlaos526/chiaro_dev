@@ -30,10 +30,18 @@ describe('FederalPACsList', () => {
 
   it('caps at 10 PACs', () => {
     const pacs = Array.from({ length: 15 }, (_, i) => ({
-      pac_name: `PAC ${i}`, amount: 1000,
-      finance_summary_id: 's1', pac_fec_id: null,
+      pac_name: `PAC ${i}`,
+      amount: 1000,
+      finance_summary_id: 's1',
+      pac_fec_id: null,
     }))
-    const finance = { individualDonors: [], pacs, industries: [], topOrgs: [], summary: {} } as never
+    const finance = {
+      individualDonors: [],
+      pacs,
+      industries: [],
+      topOrgs: [],
+      summary: {},
+    } as never
     const { getByText, queryByText } = render(<FederalPACsList finance={finance} />)
     expect(getByText(/PAC 9/)).toBeTruthy()
     expect(queryByText(/PAC 10/)).toBeNull()

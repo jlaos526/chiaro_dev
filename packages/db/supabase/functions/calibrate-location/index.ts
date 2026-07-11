@@ -1,6 +1,11 @@
 // deno-lint-ignore-file no-explicit-any
 import { createClient } from '@supabase/supabase-js'
-import { GeocodioHttpClient, GeocodioError, extractDistricts, type GeocodioClient } from './geocodio.ts'
+import {
+  GeocodioHttpClient,
+  GeocodioError,
+  extractDistricts,
+  type GeocodioClient,
+} from './geocodio.ts'
 import type { CalibrateInput } from './types.ts'
 import { withSentry, Sentry } from '../_shared/sentry.ts'
 
@@ -49,10 +54,12 @@ export async function handle(
   // as the authenticated user; auth.uid() inside SECURITY DEFINER resolves
   // to the JWT's subject. Used for auth verification, the throttle pre-check,
   // and the RPC call.
-  const client = deps?.supabase ?? createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
-    global: { headers: { Authorization: auth } },
-    auth: { persistSession: false, autoRefreshToken: false },
-  })
+  const client =
+    deps?.supabase ??
+    createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+      global: { headers: { Authorization: auth } },
+      auth: { persistSession: false, autoRefreshToken: false },
+    })
   const { data: userResp, error: userErr } = await client.auth.getUser(jwt)
   if (userErr || !userResp?.user) return jsonResponse(401, { error: 'unauthenticated' })
 
@@ -65,9 +72,12 @@ export async function handle(
     } else if (
       // C48 adjunct: typeof NaN === 'number', so the old gate admitted
       // NaN/Infinity/out-of-range coords and burned a GeocodIO call on them.
-      Number.isFinite(body?.lat) && Number.isFinite(body?.lng) &&
-      body.lat >= -90 && body.lat <= 90 &&
-      body.lng >= -180 && body.lng <= 180
+      Number.isFinite(body?.lat) &&
+      Number.isFinite(body?.lng) &&
+      body.lat >= -90 &&
+      body.lat <= 90 &&
+      body.lng >= -180 &&
+      body.lng <= 180
     ) {
       input = { lat: body.lat, lng: body.lng }
     } else {

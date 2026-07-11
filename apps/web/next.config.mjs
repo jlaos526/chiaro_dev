@@ -59,7 +59,10 @@ const nextConfig = {
       'react-native$': 'react-native-web',
     }
     config.resolve.extensions = [
-      '.web.tsx', '.web.ts', '.web.jsx', '.web.js',
+      '.web.tsx',
+      '.web.ts',
+      '.web.jsx',
+      '.web.js',
       ...config.resolve.extensions,
     ]
     return config

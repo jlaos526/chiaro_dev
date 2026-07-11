@@ -31,9 +31,24 @@ const PELOSI = {
 }
 
 const SAMPLE_CHIPS: AlignmentChipRow[] = [
-  { issueArea: 'environment',     displayLabel: 'Environment',     tier: 'strongly-aligned', subCascadeSlug: 'environment' },
-  { issueArea: 'civil-rights',    displayLabel: 'Civil Rights',    tier: 'mostly-aligned',   subCascadeSlug: 'civil-rights' },
-  { issueArea: 'business-policy', displayLabel: 'Business Policy', tier: 'strongly-differs', subCascadeSlug: 'business-policy' },
+  {
+    issueArea: 'environment',
+    displayLabel: 'Environment',
+    tier: 'strongly-aligned',
+    subCascadeSlug: 'environment',
+  },
+  {
+    issueArea: 'civil-rights',
+    displayLabel: 'Civil Rights',
+    tier: 'mostly-aligned',
+    subCascadeSlug: 'civil-rights',
+  },
+  {
+    issueArea: 'business-policy',
+    displayLabel: 'Business Policy',
+    tier: 'strongly-differs',
+    subCascadeSlug: 'business-policy',
+  },
 ]
 
 describe('BioHeader', () => {
@@ -127,10 +142,9 @@ describe('BioHeader', () => {
   })
 
   it('forwards chipHref builder to AlignmentChip via BioAlignmentChipRow (web smart-anchor)', () => {
-    const chipHref = (chip: AlignmentChipRow) => `/officials/X#issue-positions:${chip.subCascadeSlug}`
-    const { container } = render(
-      <BioHeader {...PELOSI} chips={SAMPLE_CHIPS} chipHref={chipHref} />
-    )
+    const chipHref = (chip: AlignmentChipRow) =>
+      `/officials/X#issue-positions:${chip.subCascadeSlug}`
+    const { container } = render(<BioHeader {...PELOSI} chips={SAMPLE_CHIPS} chipHref={chipHref} />)
     const anchors = container.querySelectorAll('a[href^="/officials/X#issue-positions:"]')
     expect(anchors.length).toBe(SAMPLE_CHIPS.length)
     expect(anchors[0]?.getAttribute('href')).toBe('/officials/X#issue-positions:environment')

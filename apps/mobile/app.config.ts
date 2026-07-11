@@ -49,10 +49,7 @@ const config: ExpoConfig = {
           'Chiaro uses your location to find the elected officials representing your address.',
       },
     ],
-    [
-      '@sentry/react-native/expo',
-      { organization: 'chiaro', project: 'chiaro-mobile' },
-    ],
+    ['@sentry/react-native/expo', { organization: 'chiaro', project: 'chiaro-mobile' }],
   ],
   experiments: { typedRoutes: true },
   updates: {

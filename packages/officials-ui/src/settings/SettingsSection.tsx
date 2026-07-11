@@ -10,7 +10,11 @@ export interface SettingsSectionProps {
   children: ReactNode
 }
 
-export function SettingsSection({ title, description, children }: SettingsSectionProps): React.JSX.Element {
+export function SettingsSection({
+  title,
+  description,
+  children,
+}: SettingsSectionProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const items = Children.toArray(children)
   return (
@@ -27,7 +31,12 @@ export function SettingsSection({ title, description, children }: SettingsSectio
       {description ? (
         <Text style={[styles.description, { color: semantic.text.muted }]}>{description}</Text>
       ) : null}
-      <View style={[styles.card, { backgroundColor: semantic.bg.card, borderColor: semantic.border.default }]}>
+      <View
+        style={[
+          styles.card,
+          { backgroundColor: semantic.bg.card, borderColor: semantic.border.default },
+        ]}
+      >
         {items.map((child, idx) => (
           <View key={idx}>
             {child}

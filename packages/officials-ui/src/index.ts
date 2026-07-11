@@ -4,7 +4,11 @@
 // Side-effect import: cross-package module augmentation for react-native AccessibilityProps.
 import './types/react-native-augment.ts'
 
-export { ChiaroClientProvider, useChiaroClient, type ChiaroClientProviderProps } from './client-context.tsx'
+export {
+  ChiaroClientProvider,
+  useChiaroClient,
+  type ChiaroClientProviderProps,
+} from './client-context.tsx'
 
 // Slice 66 (audit C13) — injectable image renderer. Default = RN Image; mobile
 // injects an expo-image adapter so officials-ui stays Expo-free.
@@ -24,7 +28,11 @@ export { OfficialMeta, type OfficialMetaProps } from './OfficialMeta.tsx'
 
 // cards/* atoms (Task 5)
 export { CardSubsection, type CardSubsectionProps } from './cards/CardSubsection.tsx'
-export { ComingSoonCard, type ComingSoonCardProps, type ComingSoonCategory } from './cards/ComingSoonCard.tsx'
+export {
+  ComingSoonCard,
+  type ComingSoonCardProps,
+  type ComingSoonCategory,
+} from './cards/ComingSoonCard.tsx'
 export { ComplianceIcon, type ComplianceIconProps } from './cards/ComplianceIcon.tsx'
 export { DistrictBadge, type DistrictBadgeProps } from './cards/DistrictBadge.tsx'
 export { MetricCardShell, type MetricCardShellProps } from './cards/MetricCardShell.tsx'
@@ -43,8 +51,14 @@ export { BioContactLinks, type BioContactLinksProps } from './bio/BioContactLink
 export { BioAlignmentChipRow, type BioAlignmentChipRowProps } from './bio/BioAlignmentChipRow.tsx'
 
 // finance/* atoms (Task 6)
-export { FinanceSubSectionHeading, type FinanceSubSectionHeadingProps } from './finance/FinanceSubSectionHeading.tsx'
-export { FinanceSummaryStrip, type FinanceSummaryStripProps } from './finance/FinanceSummaryStrip.tsx'
+export {
+  FinanceSubSectionHeading,
+  type FinanceSubSectionHeadingProps,
+} from './finance/FinanceSubSectionHeading.tsx'
+export {
+  FinanceSummaryStrip,
+  type FinanceSummaryStripProps,
+} from './finance/FinanceSummaryStrip.tsx'
 export {
   TopAmountBreakdown,
   type TopAmountBreakdownProps,
@@ -54,9 +68,18 @@ export {
 
 // federal/* lists (Task 8) — pure-display components, all data passed via props
 export { FederalKPIList, type FederalKPIListProps } from './federal/FederalKPIList.tsx'
-export { FederalLeadershipList, type FederalLeadershipListProps } from './federal/FederalLeadershipList.tsx'
-export { FederalSponsoredBillsList, type FederalSponsoredBillsListProps } from './federal/FederalSponsoredBillsList.tsx'
-export { FederalCosponsoredBillsList, type FederalCosponsoredBillsListProps } from './federal/FederalCosponsoredBillsList.tsx'
+export {
+  FederalLeadershipList,
+  type FederalLeadershipListProps,
+} from './federal/FederalLeadershipList.tsx'
+export {
+  FederalSponsoredBillsList,
+  type FederalSponsoredBillsListProps,
+} from './federal/FederalSponsoredBillsList.tsx'
+export {
+  FederalCosponsoredBillsList,
+  type FederalCosponsoredBillsListProps,
+} from './federal/FederalCosponsoredBillsList.tsx'
 export {
   FederalMissedVotesList,
   type FederalMissedVotesListProps,
@@ -243,7 +266,10 @@ export { SettingsNavRow, type SettingsNavRowProps } from './settings/SettingsNav
 export { SettingsActionRow, type SettingsActionRowProps } from './settings/SettingsActionRow.tsx'
 export { SettingsToggleRow, type SettingsToggleRowProps } from './settings/SettingsToggleRow.tsx'
 export { SettingsValueRow, type SettingsValueRowProps } from './settings/SettingsValueRow.tsx'
-export { SettingsComingSoonRow, type SettingsComingSoonRowProps } from './settings/SettingsComingSoonRow.tsx'
+export {
+  SettingsComingSoonRow,
+  type SettingsComingSoonRowProps,
+} from './settings/SettingsComingSoonRow.tsx'
 
 // Slice 39 — calibrate
 export { CalibrateScreen, type CalibrateScreenProps } from './calibrate/CalibrateScreen.tsx'
@@ -260,7 +286,11 @@ export { useBreakpoint } from './nav/useBreakpoint.ts'
 
 // Slice 48 — nav components
 // BrandNavRailBody is cross-platform (no expo-router deps — safe for web bundle)
-export { BrandNavRailBody, type BrandNavRailBodyProps, type RailRouteKey } from './nav/BrandNavRailBody.tsx'
+export {
+  BrandNavRailBody,
+  type BrandNavRailBodyProps,
+  type RailRouteKey,
+} from './nav/BrandNavRailBody.tsx'
 // BackButton, BrandDrawer, BrandDrawerContent import expo-router or expo-router/drawer
 // + @react-navigation/drawer which are mobile-only and cannot be bundled by Next.js/webpack.
 // Mobile consumers import them directly from source:
@@ -292,7 +322,11 @@ export {
   type IssueFlowProviderProps,
   type IssueFlowState,
 } from './issues/IssueFlowProvider.tsx'
-export { IssueWelcomeScreen, QUICK_START_PRESETS, type IssueWelcomeScreenProps } from './issues/IssueWelcomeScreen.tsx'
+export {
+  IssueWelcomeScreen,
+  QUICK_START_PRESETS,
+  type IssueWelcomeScreenProps,
+} from './issues/IssueWelcomeScreen.tsx'
 export { TopicPickerScreen, type TopicPickerScreenProps } from './issues/TopicPickerScreen.tsx'
 export { LensPickerScreen, type LensPickerScreenProps } from './issues/LensPickerScreen.tsx'
 export { IssueQuizScreen, type IssueQuizScreenProps } from './issues/IssueQuizScreen.tsx'
@@ -304,6 +338,9 @@ export { MyIssuesCard, type MyIssuesCardProps } from './issues/MyIssuesCard.tsx'
 export { IssueRadarChart, type IssueRadarChartProps } from './issues/IssueRadarChart.tsx'
 export { IssueRadarOverlay, type IssueRadarOverlayProps } from './issues/IssueRadarOverlay.tsx'
 export { RepAlignmentStrip, type RepAlignmentStripProps } from './issues/RepAlignmentStrip.tsx'
-export { RepAlignmentSection, type RepAlignmentSectionProps } from './issues/RepAlignmentSection.tsx'
+export {
+  RepAlignmentSection,
+  type RepAlignmentSectionProps,
+} from './issues/RepAlignmentSection.tsx'
 export { IssuePriorityTag, type IssuePriorityTagProps } from './issues/IssuePriorityTag.tsx'
 export { WatchlistFlag, type WatchlistFlagProps } from './issues/WatchlistFlag.tsx'

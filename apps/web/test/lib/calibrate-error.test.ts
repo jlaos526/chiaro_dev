@@ -15,7 +15,9 @@ describe('mapCalibrateError', () => {
   })
 
   it('other (undefined / unrecognized status) → generic fallback', () => {
-    expect(mapCalibrateError(undefined)).toBe('Something went wrong saving your location. Try again.')
+    expect(mapCalibrateError(undefined)).toBe(
+      'Something went wrong saving your location. Try again.',
+    )
     expect(mapCalibrateError(500)).toBe('Something went wrong saving your location. Try again.')
   })
 })

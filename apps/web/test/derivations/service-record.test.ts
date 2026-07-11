@@ -38,7 +38,7 @@ describe('tenureByChamber', () => {
   })
   it('sums non-overlapping closed terms per chamber', () => {
     const rows = [
-      row({ chamber: 'federal_house',  start_date: '2007-01-01', end_date: '2013-01-01' }),
+      row({ chamber: 'federal_house', start_date: '2007-01-01', end_date: '2013-01-01' }),
       row({ chamber: 'federal_senate', start_date: '2013-01-01', end_date: '2019-01-01' }),
     ]
     expect(tenureByChamber(rows)).toEqual({ house: 6, senate: 6 })
@@ -54,7 +54,9 @@ describe('tenureByChamber', () => {
     expect(house).toBeLessThanOrEqual(4.05)
   })
   it('rounds to 1 decimal place', () => {
-    const rows = [row({ chamber: 'federal_house', start_date: '2020-01-01', end_date: '2025-07-01' })]
+    const rows = [
+      row({ chamber: 'federal_house', start_date: '2020-01-01', end_date: '2025-07-01' }),
+    ]
     const { house } = tenureByChamber(rows)
     expect(house).toBeCloseTo(5.5, 1)
   })

@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url'
 import { enrichTexas } from './enrich-tx.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DB_URL    = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
-const FIXTURE   = join(__dirname, '..', 'fixtures', 'state-bills-enrich', 'tx-capitol-HB1.json')
+const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const FIXTURE = join(__dirname, '..', 'fixtures', 'state-bills-enrich', 'tx-capitol-HB1.json')
 
 let client: Client
 
@@ -22,7 +22,9 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  await client.query("delete from public.state_bills where openstates_bill_id like 'ocd-bill/test-tx-%'")
+  await client.query(
+    "delete from public.state_bills where openstates_bill_id like 'ocd-bill/test-tx-%'",
+  )
   await client.end()
 })
 
@@ -30,7 +32,8 @@ describe('enrichTexas', () => {
   it('updates augment from capitol fixture (sparse: only status + date)', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     const stats = await enrichTexas.enrich({
-      client, session: '89R',
+      client,
+      session: '89R',
       fetcher: async () => fixture,
     } as never)
     expect(stats.billsUpdated).toBe(1)
@@ -51,7 +54,9 @@ describe('enrichTexas', () => {
 
   it('null response → no update', async () => {
     const stats = await enrichTexas.enrich({
-      client, session: '89R', fetcher: async () => null,
+      client,
+      session: '89R',
+      fetcher: async () => null,
     } as never)
     expect(stats.billsUpdated).toBe(0)
   })
@@ -65,7 +70,11 @@ describe('enrichTexas', () => {
   })
 
   it('reports state TX', async () => {
-    const stats = await enrichTexas.enrich({ client, session: '89R', fetcher: async () => null } as never)
+    const stats = await enrichTexas.enrich({
+      client,
+      session: '89R',
+      fetcher: async () => null,
+    } as never)
     expect(stats.state).toBe('TX')
   })
 
@@ -73,7 +82,9 @@ describe('enrichTexas', () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     fixture.bill.fiscalNote = null
     const stats = await enrichTexas.enrich({
-      client, session: '89R', fetcher: async () => fixture,
+      client,
+      session: '89R',
+      fetcher: async () => fixture,
     } as never)
     expect(stats.billsUpdated).toBe(1)
     expect(stats.errors).toEqual([])

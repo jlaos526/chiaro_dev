@@ -37,7 +37,7 @@ describe('selectTopAlignmentChips', () => {
   it('picks highest, lowest, then next-highest when there is a strong-differs', () => {
     const ratings = [
       rating(95, 'environment', 'LCV'),
-      rating(0,  'second-amendment', 'NRA'),
+      rating(0, 'second-amendment', 'NRA'),
       rating(90, 'civil-rights', 'NAACP'),
       rating(85, 'civil-liberties', 'ACLU'),
     ]
@@ -56,7 +56,11 @@ describe('selectTopAlignmentChips', () => {
       rating(70, 'labor'),
     ]
     const picks = selectTopAlignmentChips(ratings)
-    expect(picks.map(p => p.issueArea)).toEqual(['environment', 'civil-rights', 'civil-liberties'])
+    expect(picks.map((p) => p.issueArea)).toEqual([
+      'environment',
+      'civil-rights',
+      'civil-liberties',
+    ])
   })
 
   it('returns 1 chip when only 1 rating exists', () => {
@@ -81,7 +85,7 @@ describe('selectTopAlignmentChips', () => {
       rating(0, 'second-amendment', 'NRA'),
     ]
     const picks = selectTopAlignmentChips(ratings)
-    expect(picks.filter(p => p.issueArea === 'environment')).toHaveLength(1)
+    expect(picks.filter((p) => p.issueArea === 'environment')).toHaveLength(1)
     expect(picks[0]?.tier).toBe('strongly-aligned')
   })
 })

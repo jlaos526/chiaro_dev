@@ -17,6 +17,6 @@ export const nra: ScorecardAdapter = {
       throw new Error('NRA: live download not implemented yet; use fixturePath for slice 4.')
     }
     const csv = await readFile(opts.fixturePath, 'utf8')
-    return parseBioguideScoreCSV(csv, b => `https://www.nrapvf.org/grades/${b.toLowerCase()}`)
+    return parseBioguideScoreCSV(csv, (b) => `https://www.nrapvf.org/grades/${b.toLowerCase()}`)
   },
 }

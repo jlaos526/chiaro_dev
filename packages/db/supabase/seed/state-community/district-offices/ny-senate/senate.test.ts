@@ -5,7 +5,15 @@ import { fileURLToPath } from 'node:url'
 import { parseNySenatorContactHtml, fetchSenateOffices, deriveSenatorSlug } from './senate.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const FIXTURE = join(__dirname, '..', '..', '..', 'fixtures', 'state-community', 'ny-senator-contact.html')
+const FIXTURE = join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'fixtures',
+  'state-community',
+  'ny-senator-contact.html',
+)
 
 describe('parseNySenatorContactHtml', () => {
   it('extracts both Albany + District address blocks from fixture', async () => {
@@ -67,17 +75,17 @@ describe('fetchSenateOffices', () => {
     })
     // 2 senators × 2 addresses each = 4 rows
     expect(rows).toHaveLength(4)
-    expect(rows.filter(r => r.kind === 'capitol').length).toBe(2)
-    expect(rows.filter(r => r.kind === 'district').length).toBe(2)
+    expect(rows.filter((r) => r.kind === 'capitol').length).toBe(2)
+    expect(rows.filter((r) => r.kind === 'district').length).toBe(2)
 
-    const capitolRow = rows.find(r => r.kind === 'capitol')!
+    const capitolRow = rows.find((r) => r.kind === 'capitol')!
     expect(capitolRow.street_1).toBe('Legislative Office Building')
     expect(capitolRow.city).toBe('Albany')
     expect(capitolRow.state).toBe('NY')
     expect(capitolRow.postal_code).toBe('12247')
     expect(capitolRow.phone).toBe('(518) 455-1234')
 
-    const districtRow = rows.find(r => r.kind === 'district')!
+    const districtRow = rows.find((r) => r.kind === 'district')!
     expect(districtRow.street_1).toBe('100 Senator Plaza')
     expect(districtRow.city).toBe('Manhattan')
     expect(districtRow.state).toBe('NY')

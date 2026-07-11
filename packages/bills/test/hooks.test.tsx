@@ -20,7 +20,7 @@ describe('useOfficialMissedVotes', () => {
       () => useOfficialMissedVotes({} as ChiaroClient, 'off1', '119', { enabled: false }),
       { wrapper: wrap(qc) },
     )
-    await new Promise(r => setTimeout(r, 50))
+    await new Promise((r) => setTimeout(r, 50))
     expect(spy).not.toHaveBeenCalled()
   })
 })

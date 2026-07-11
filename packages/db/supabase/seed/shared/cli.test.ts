@@ -17,7 +17,7 @@ describe('isCliEntry', () => {
 
   it('returns false when argv[1] is undefined', () => {
     const savedArgv1 = process.argv[1]!
-    process.argv = [process.argv[0]!]  // strip argv[1]
+    process.argv = [process.argv[0]!] // strip argv[1]
     expect(isCliEntry('file:///anything')).toBe(false)
     process.argv[1] = savedArgv1
   })

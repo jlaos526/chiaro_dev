@@ -161,11 +161,7 @@ export function BrandTextInput({
           'aria-invalid': error ? true : false,
           'aria-describedby': error ? errorId : undefined,
         }),
-        createElement(
-          'label',
-          { htmlFor: inputId, className: 'brand-text-input__label' },
-          label,
-        ),
+        createElement('label', { htmlFor: inputId, className: 'brand-text-input__label' }, label),
       ),
       error
         ? createElement(

@@ -44,10 +44,14 @@ export function BioContactLinks({
           onPress={() => openUrl(officialUrl)}
           style={LINK_ANCHOR_STYLE}
         >
-          <Text style={linkStyle}>{officialUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')}</Text>
+          <Text style={linkStyle}>
+            {officialUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+          </Text>
         </SmartAnchor>
       ) : null}
-      {officialUrl && twitterHandle ? <Text style={{ color: semantic.border.default }}>·</Text> : null}
+      {officialUrl && twitterHandle ? (
+        <Text style={{ color: semantic.border.default }}>·</Text>
+      ) : null}
       {twitterHandle ? (
         <SmartAnchor
           href={twitterHref ?? `https://twitter.com/${twitterHandle}`}

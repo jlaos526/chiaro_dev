@@ -19,7 +19,8 @@ beforeEach(async () => {
     returning id
   `)
   districtId = d.rows[0]!.id
-  const o = await client.query<{ id: string }>(`
+  const o = await client.query<{ id: string }>(
+    `
     insert into public.officials (
       openstates_person_id, full_name, first_name, last_name,
       chamber, party, state, district_id, in_office, source_version
@@ -29,13 +30,20 @@ beforeEach(async () => {
     on conflict (openstates_person_id) where openstates_person_id is not null
     do update set source_version = 'FX-fin'
     returning id
-  `, [districtId])
+  `,
+    [districtId],
+  )
   officialId = o.rows[0]!.id
 })
 
 afterEach(async () => {
-  await client.query('delete from public.state_finance_individual_donors where state_finance_summary_id in (select id from public.state_finance_summaries where official_id = $1)', [officialId])
-  await client.query('delete from public.state_finance_summaries where official_id = $1', [officialId])
+  await client.query(
+    'delete from public.state_finance_individual_donors where state_finance_summary_id in (select id from public.state_finance_summaries where official_id = $1)',
+    [officialId],
+  )
+  await client.query('delete from public.state_finance_summaries where official_id = $1', [
+    officialId,
+  ])
   await client.query('delete from public.officials where id = $1', [officialId])
   await client.query("delete from public.districts where source_version = 'FX-fin'")
   await client.end()
@@ -43,37 +51,69 @@ afterEach(async () => {
 
 describe('upsertStateFinance', () => {
   it('inserts a summary + N donors on first call', async () => {
-    const summaryId = await upsertStateFinance(client,
+    const summaryId = await upsertStateFinance(
+      client,
       { official_id: officialId, cycle: '2024' },
-      { total_raised: 100000, total_disbursed: 80000,
-        small_donor_pct: 25, in_state_pct: 60,
-        source: 'ca-cal-access', source_url: 'https://x' },
+      {
+        total_raised: 100000,
+        total_disbursed: 80000,
+        small_donor_pct: 25,
+        in_state_pct: 60,
+        source: 'ca-cal-access',
+        source_url: 'https://x',
+      },
       [
-        { rank: 1, donor_name: 'Alice', amount: 5000, employer: 'Acme', occupation: 'CEO', city: 'SF', donor_state: 'CA' },
+        {
+          rank: 1,
+          donor_name: 'Alice',
+          amount: 5000,
+          employer: 'Acme',
+          occupation: 'CEO',
+          city: 'SF',
+          donor_state: 'CA',
+        },
         { rank: 2, donor_name: 'Bob', amount: 3000 },
       ],
     )
     expect(typeof summaryId).toBe('string')
-    const s = await client.query<{ total_raised: string }>('select total_raised from public.state_finance_summaries where id = $1', [summaryId])
+    const s = await client.query<{ total_raised: string }>(
+      'select total_raised from public.state_finance_summaries where id = $1',
+      [summaryId],
+    )
     expect(Number(s.rows[0]!.total_raised)).toBe(100000)
-    const d = await client.query<{ rank: number; donor_name: string }>('select rank, donor_name from public.state_finance_individual_donors where state_finance_summary_id = $1 order by rank', [summaryId])
+    const d = await client.query<{ rank: number; donor_name: string }>(
+      'select rank, donor_name from public.state_finance_individual_donors where state_finance_summary_id = $1 order by rank',
+      [summaryId],
+    )
     expect(d.rows).toHaveLength(2)
     expect(d.rows[0]!.donor_name).toBe('Alice')
   })
 
   it('idempotent: second call updates summary and replaces donor list', async () => {
-    await upsertStateFinance(client,
+    await upsertStateFinance(
+      client,
       { official_id: officialId, cycle: '2024' },
-      { total_raised: 100000, total_disbursed: 80000,
-        small_donor_pct: 25, in_state_pct: 60,
-        source: 'ca-cal-access', source_url: 'https://x' },
+      {
+        total_raised: 100000,
+        total_disbursed: 80000,
+        small_donor_pct: 25,
+        in_state_pct: 60,
+        source: 'ca-cal-access',
+        source_url: 'https://x',
+      },
       [{ rank: 1, donor_name: 'Alice', amount: 5000 }],
     )
-    const newId = await upsertStateFinance(client,
+    const newId = await upsertStateFinance(
+      client,
       { official_id: officialId, cycle: '2024' },
-      { total_raised: 200000, total_disbursed: 150000,
-        small_donor_pct: 30, in_state_pct: 65,
-        source: 'ca-cal-access', source_url: 'https://x2' },
+      {
+        total_raised: 200000,
+        total_disbursed: 150000,
+        small_donor_pct: 30,
+        in_state_pct: 65,
+        source: 'ca-cal-access',
+        source_url: 'https://x2',
+      },
       [
         { rank: 1, donor_name: 'Charlie', amount: 9000 },
         { rank: 2, donor_name: 'Dana', amount: 7000 },
@@ -85,12 +125,15 @@ describe('upsertStateFinance', () => {
     )
     expect(c.rows[0]!.c).toBe(1)
     const s = await client.query<{ total_raised: string; source_url: string }>(
-      'select total_raised, source_url from public.state_finance_summaries where id = $1', [newId])
+      'select total_raised, source_url from public.state_finance_summaries where id = $1',
+      [newId],
+    )
     expect(Number(s.rows[0]!.total_raised)).toBe(200000)
     expect(s.rows[0]!.source_url).toBe('https://x2')
     const d = await client.query<{ rank: number; donor_name: string }>(
       'select rank, donor_name from public.state_finance_individual_donors where state_finance_summary_id = $1 order by rank',
-      [newId])
+      [newId],
+    )
     expect(d.rows).toHaveLength(2)
     expect(d.rows[0]!.donor_name).toBe('Charlie')
   })
@@ -99,30 +142,46 @@ describe('upsertStateFinance', () => {
 describe('resolveOfficialByName', () => {
   it('returns id for an exact name match', async () => {
     const id = await resolveOfficialByName(client, {
-      full_name: 'Test Finance Asm', state: 'CA', chamber: 'state_house',
+      full_name: 'Test Finance Asm',
+      state: 'CA',
+      chamber: 'state_house',
     })
     expect(id).toBe(officialId)
   })
 
   it('case-insensitive match', async () => {
     const id = await resolveOfficialByName(client, {
-      full_name: 'test finance asm', state: 'CA', chamber: 'state_house',
+      full_name: 'test finance asm',
+      state: 'CA',
+      chamber: 'state_house',
     })
     expect(id).toBe(officialId)
   })
 
   it('returns null when state or chamber mismatch', async () => {
-    expect(await resolveOfficialByName(client, {
-      full_name: 'Test Finance Asm', state: 'NY', chamber: 'state_house',
-    })).toBeNull()
-    expect(await resolveOfficialByName(client, {
-      full_name: 'Test Finance Asm', state: 'CA', chamber: 'state_senate',
-    })).toBeNull()
+    expect(
+      await resolveOfficialByName(client, {
+        full_name: 'Test Finance Asm',
+        state: 'NY',
+        chamber: 'state_house',
+      }),
+    ).toBeNull()
+    expect(
+      await resolveOfficialByName(client, {
+        full_name: 'Test Finance Asm',
+        state: 'CA',
+        chamber: 'state_senate',
+      }),
+    ).toBeNull()
   })
 
   it('returns null for unknown name', async () => {
-    expect(await resolveOfficialByName(client, {
-      full_name: 'Nobody', state: 'CA', chamber: 'state_house',
-    })).toBeNull()
+    expect(
+      await resolveOfficialByName(client, {
+        full_name: 'Nobody',
+        state: 'CA',
+        chamber: 'state_house',
+      }),
+    ).toBeNull()
   })
 })

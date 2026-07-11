@@ -6,7 +6,15 @@ import { parseCaSenateRosterHtml, fetchCaSenateOffices } from './senate.ts'
 import type { SkipReason } from '../../../shared/instrumentation.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const FIXTURE = join(__dirname, '..', '..', '..', 'fixtures', 'state-community', 'ca-senate-roster.html')
+const FIXTURE = join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'fixtures',
+  'state-community',
+  'ca-senate-roster.html',
+)
 
 describe('parseCaSenateRosterHtml', () => {
   it('extracts 4 senators (skips Bob with malformed district number)', async () => {
@@ -14,13 +22,18 @@ describe('parseCaSenateRosterHtml', () => {
     const parsed = parseCaSenateRosterHtml(html)
     // 5 cards; Bob's district "NaN" parses to NaN → skip → 4 emitted
     expect(parsed).toHaveLength(4)
-    expect(parsed.map(s => s.full_name)).toEqual(['Jane Doe', 'Alex Smith', 'Maria Chen', 'Pat Skip'])
+    expect(parsed.map((s) => s.full_name)).toEqual([
+      'Jane Doe',
+      'Alex Smith',
+      'Maria Chen',
+      'Pat Skip',
+    ])
   })
 
   it('captures both capitol_office + district_office when present', async () => {
     const html = await readFile(FIXTURE, 'utf8')
     const parsed = parseCaSenateRosterHtml(html)
-    const jane = parsed.find(s => s.full_name === 'Jane Doe')!
+    const jane = parsed.find((s) => s.full_name === 'Jane Doe')!
     expect(jane.capitol_office).toContain('1021 O Street')
     expect(jane.district_office).toContain('100 Main Street')
   })
@@ -28,7 +41,7 @@ describe('parseCaSenateRosterHtml', () => {
   it('handles capitol-only senator (no district_office field)', async () => {
     const html = await readFile(FIXTURE, 'utf8')
     const parsed = parseCaSenateRosterHtml(html)
-    const alex = parsed.find(s => s.full_name === 'Alex Smith')!
+    const alex = parsed.find((s) => s.full_name === 'Alex Smith')!
     expect(alex.capitol_office).toBeTruthy()
     expect(alex.district_office).toBeUndefined()
   })
@@ -36,7 +49,7 @@ describe('parseCaSenateRosterHtml', () => {
   it('handles district-only senator (no capitol_office field)', async () => {
     const html = await readFile(FIXTURE, 'utf8')
     const parsed = parseCaSenateRosterHtml(html)
-    const maria = parsed.find(s => s.full_name === 'Maria Chen')!
+    const maria = parsed.find((s) => s.full_name === 'Maria Chen')!
     expect(maria.capitol_office).toBeUndefined()
     expect(maria.district_office).toBeTruthy()
   })
@@ -69,8 +82,8 @@ describe('fetchCaSenateOffices', () => {
       }),
     }
     const rows = await fetchCaSenateOffices(client as never, { fetcher: async () => html })
-    expect(rows.filter(r => r.kind === 'capitol').length).toBeGreaterThanOrEqual(2)
-    expect(rows.filter(r => r.kind === 'district').length).toBeGreaterThanOrEqual(2)
+    expect(rows.filter((r) => r.kind === 'capitol').length).toBeGreaterThanOrEqual(2)
+    expect(rows.filter((r) => r.kind === 'district').length).toBeGreaterThanOrEqual(2)
   })
 
   it('returns [] when no senators resolve', async () => {
@@ -91,7 +104,7 @@ describe('fetchCaSenateOffices', () => {
       }),
     }
     const rows = await fetchCaSenateOffices(client as never, { fetcher: async () => html })
-    const capitolRow = rows.find(r => r.kind === 'capitol')!
+    const capitolRow = rows.find((r) => r.kind === 'capitol')!
     expect(capitolRow.city).toBe('Sacramento')
     expect(capitolRow.state).toBe('CA')
     expect(capitolRow.postal_code).toBe('95814')
@@ -104,8 +117,12 @@ describe('fetchCaSenateOffices onSkip instrumentation (slice 23)', () => {
     const client = { query: vi.fn() }
     const skips: SkipReason[] = []
     const rows = await fetchCaSenateOffices(client as never, {
-      fetcher: async () => { throw new Error('network down') },
-      onSkip: (r) => { skips.push(r) },
+      fetcher: async () => {
+        throw new Error('network down')
+      },
+      onSkip: (r) => {
+        skips.push(r)
+      },
     })
     expect(rows).toEqual([])
     expect(skips).toHaveLength(1)
@@ -124,13 +141,20 @@ describe('fetchCaSenateOffices onSkip instrumentation (slice 23)', () => {
     const skips: SkipReason[] = []
     const rows = await fetchCaSenateOffices(client as never, {
       fetcher: async () => html,
-      onSkip: (r) => { skips.push(r) },
+      onSkip: (r) => {
+        skips.push(r)
+      },
     })
     expect(rows).toEqual([])
     // Fixture has 4 parseable senators (Jane, Alex, Maria, Pat); all unresolved.
     expect(skips).toHaveLength(4)
-    expect(skips.every(s => s.adapter === 'ca-leginfo' && s.stage === 'resolve')).toBe(true)
-    expect(skips.map(s => s.legislator)).toEqual(['Jane Doe', 'Alex Smith', 'Maria Chen', 'Pat Skip'])
+    expect(skips.every((s) => s.adapter === 'ca-leginfo' && s.stage === 'resolve')).toBe(true)
+    expect(skips.map((s) => s.legislator)).toEqual([
+      'Jane Doe',
+      'Alex Smith',
+      'Maria Chen',
+      'Pat Skip',
+    ])
   })
 
   it('emits parse-stage skip when parseAddressText returns null for capitol office', async () => {
@@ -146,9 +170,11 @@ describe('fetchCaSenateOffices onSkip instrumentation (slice 23)', () => {
     const skips: SkipReason[] = []
     await fetchCaSenateOffices(client as never, {
       fetcher: async () => html,
-      onSkip: (r) => { skips.push(r) },
+      onSkip: (r) => {
+        skips.push(r)
+      },
     })
-    const patParseSkip = skips.find(s => s.legislator === 'Pat Skip' && s.stage === 'parse')
+    const patParseSkip = skips.find((s) => s.legislator === 'Pat Skip' && s.stage === 'parse')
     expect(patParseSkip).toBeDefined()
     expect(patParseSkip).toMatchObject({
       adapter: 'ca-leginfo',

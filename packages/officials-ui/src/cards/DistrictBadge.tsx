@@ -37,8 +37,8 @@ function districtLabel(p: DistrictBadgeProps): string {
 
   // State chambers — compact label for list density
   const codeForState = districtCode ?? (districtNumber != null ? String(districtNumber) : '')
-  if (chamber === 'state_house')       return `${stateAbbrev}-${codeForState}`
-  if (chamber === 'state_senate')      return `${stateAbbrev}-SD ${codeForState}`
+  if (chamber === 'state_house') return `${stateAbbrev}-${codeForState}`
+  if (chamber === 'state_senate') return `${stateAbbrev}-SD ${codeForState}`
   if (chamber === 'state_legislature') return `${stateAbbrev}-LD ${codeForState}`
   return `${stateAbbrev}-${codeForState}`
 }

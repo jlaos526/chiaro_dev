@@ -11,7 +11,9 @@ describe('isStateLegislatorEvent', () => {
     expect(isStateLegislatorEvent('Town Hall with State Senator Mike Foote', '')).toBe(true)
   })
   it('matches "Assemblymember <Name>"', () => {
-    expect(isStateLegislatorEvent('Assemblymember Emily Sirota — Community Town Hall', '')).toBe(true)
+    expect(isStateLegislatorEvent('Assemblymember Emily Sirota — Community Town Hall', '')).toBe(
+      true,
+    )
   })
   it('matches "Delegate <Name>"', () => {
     expect(isStateLegislatorEvent('Delegate Pat Smith Virtual Town Hall', '')).toBe(true)
@@ -38,7 +40,9 @@ describe('extractLegislatorName', () => {
     expect(extractLegislatorName('State Senator Maria Lopez-Garcia')).toBe('Maria Lopez-Garcia')
   })
   it('extracts from "Assemblymember <Name>"', () => {
-    expect(extractLegislatorName('Assemblymember Emily Sirota — Community Town Hall')).toBe('Emily Sirota')
+    expect(extractLegislatorName('Assemblymember Emily Sirota — Community Town Hall')).toBe(
+      'Emily Sirota',
+    )
   })
   it('extracts from "Delegate <Name>"', () => {
     expect(extractLegislatorName('Delegate Pat Smith Virtual Town Hall')).toBe('Pat Smith')
@@ -77,31 +81,39 @@ describe('deriveFormat', () => {
     expect(deriveFormat({ is_virtual: true, event_url: null, location: null })).toBe('virtual')
   })
   it('zoom URL + venue → hybrid', () => {
-    expect(deriveFormat({
-      is_virtual: false,
-      event_url: 'https://us02web.zoom.us/j/123',
-      location: { venue: 'Capitol Room 100' },
-    })).toBe('hybrid')
+    expect(
+      deriveFormat({
+        is_virtual: false,
+        event_url: 'https://us02web.zoom.us/j/123',
+        location: { venue: 'Capitol Room 100' },
+      }),
+    ).toBe('hybrid')
   })
   it('zoom URL no venue → virtual', () => {
-    expect(deriveFormat({
-      is_virtual: false,
-      event_url: 'https://us02web.zoom.us/j/123',
-      location: null,
-    })).toBe('virtual')
+    expect(
+      deriveFormat({
+        is_virtual: false,
+        event_url: 'https://us02web.zoom.us/j/123',
+        location: null,
+      }),
+    ).toBe('virtual')
   })
   it('venue only, no virtual URL → in_person', () => {
-    expect(deriveFormat({
-      is_virtual: false,
-      event_url: 'https://www.mobilize.us/event/123/',
-      location: { venue: 'Lafayette Library' },
-    })).toBe('in_person')
+    expect(
+      deriveFormat({
+        is_virtual: false,
+        event_url: 'https://www.mobilize.us/event/123/',
+        location: { venue: 'Lafayette Library' },
+      }),
+    ).toBe('in_person')
   })
   it('handles google meet URL as hybrid when venue present', () => {
-    expect(deriveFormat({
-      is_virtual: false,
-      event_url: 'https://meet.google.com/abc-defg-hij',
-      location: { venue: 'Capitol' },
-    })).toBe('hybrid')
+    expect(
+      deriveFormat({
+        is_virtual: false,
+        event_url: 'https://meet.google.com/abc-defg-hij',
+        location: { venue: 'Capitol' },
+      }),
+    ).toBe('hybrid')
   })
 })

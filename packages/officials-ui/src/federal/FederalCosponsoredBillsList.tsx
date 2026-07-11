@@ -8,7 +8,13 @@ import { useBrandTokens } from '../brand-hooks.ts'
 function statusColor(status: string | null | undefined, semantic: BrandSemantic): string {
   if (!status) return semantic.text.muted
   const s = status.toLowerCase()
-  if (s.includes('passed') || s.includes('signed') || s.includes('became law') || s.includes('enacted')) return semantic.alert.success.fg
+  if (
+    s.includes('passed') ||
+    s.includes('signed') ||
+    s.includes('became law') ||
+    s.includes('enacted')
+  )
+    return semantic.alert.success.fg
   if (s.includes('failed') || s.includes('vetoed')) return semantic.alert.danger.fg
   if (s.includes('committee') || s.includes('introduced')) return semantic.text.muted
   return semantic.text.muted
@@ -18,14 +24,16 @@ export interface FederalCosponsoredBillsListProps {
   rows: BillRow[]
 }
 
-export function FederalCosponsoredBillsList({ rows }: FederalCosponsoredBillsListProps): React.JSX.Element {
+export function FederalCosponsoredBillsList({
+  rows,
+}: FederalCosponsoredBillsListProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   if (rows.length === 0) {
     return <Text style={[styles.muted, { color: semantic.text.muted }]}>No cosponsored bills.</Text>
   }
   return (
     <View style={styles.list}>
-      {rows.slice(0, 25).map(r => {
+      {rows.slice(0, 25).map((r) => {
         const color = statusColor(r.status, semantic)
         const url = r.source_url ?? null
         const Row = url ? Pressable : View
@@ -40,17 +48,14 @@ export function FederalCosponsoredBillsList({ rows }: FederalCosponsoredBillsLis
                 {r.bill_type} {r.number}
               </Text>
               {r.status && (
-                <Text
-                  style={[
-                    styles.chip,
-                    { color, backgroundColor: `${color}22` },
-                  ]}
-                >
+                <Text style={[styles.chip, { color, backgroundColor: `${color}22` }]}>
                   {r.status}
                 </Text>
               )}
             </View>
-            <Text style={[styles.title, { color: semantic.text.primary }]}>{r.short_title ?? r.title}</Text>
+            <Text style={[styles.title, { color: semantic.text.primary }]}>
+              {r.short_title ?? r.title}
+            </Text>
           </Row>
         )
       })}

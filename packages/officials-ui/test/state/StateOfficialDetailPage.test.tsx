@@ -101,10 +101,7 @@ describe('StateOfficialDetailPage', () => {
       },
     ] as unknown as Array<{ id: string; official_id: string; address: string; phone: string }>
     const { getByText } = wrap(
-      <StateOfficialDetailPage
-        official={stateOfficial}
-        offices={offices as never}
-      />,
+      <StateOfficialDetailPage official={stateOfficial} offices={offices as never} />,
     )
     expect(getByText('Offices')).toBeTruthy()
     expect(getByText(/123 Main St/i)).toBeTruthy()
@@ -129,19 +126,13 @@ describe('StateOfficialDetailPage', () => {
 
   it('renders the rep alignment CTA when onSetupIssues is wired', () => {
     const { getByText } = wrap(
-      <StateOfficialDetailPage
-        official={stateOfficial}
-        offices={[]}
-        onSetupIssues={() => {}}
-      />,
+      <StateOfficialDetailPage official={stateOfficial} offices={[]} onSetupIssues={() => {}} />,
     )
     expect(getByText(/set your issue priorities/i)).toBeTruthy()
   })
 
   it('omits the alignment strip when onSetupIssues is not provided', () => {
-    const { queryByText } = wrap(
-      <StateOfficialDetailPage official={stateOfficial} offices={[]} />,
-    )
+    const { queryByText } = wrap(<StateOfficialDetailPage official={stateOfficial} offices={[]} />)
     expect(queryByText(/set your issue priorities/i)).toBeNull()
   })
 })

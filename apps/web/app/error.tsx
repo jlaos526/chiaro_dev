@@ -19,7 +19,9 @@ export default function RouteError({
   return (
     <BrandPageScreen title="Something went wrong">
       <BrandAlert severity="danger" title="This page hit an unexpected error">
-        {error.digest ? `Your data is fine — try again. (ref ${error.digest})` : 'Your data is fine — try again.'}
+        {error.digest
+          ? `Your data is fine — try again. (ref ${error.digest})`
+          : 'Your data is fine — try again.'}
       </BrandAlert>
       <View style={{ marginTop: 16, alignItems: 'flex-start' }}>
         <BrandButton onPress={reset}>Try again</BrandButton>

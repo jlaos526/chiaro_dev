@@ -17,6 +17,6 @@ export const ada: ScorecardAdapter = {
       throw new Error('ADA: live download not implemented yet; use fixturePath for slice 4.')
     }
     const csv = await readFile(opts.fixturePath, 'utf8')
-    return parseBioguideScoreCSV(csv, b => `https://adaction.org/scorecard/${b.toLowerCase()}`)
+    return parseBioguideScoreCSV(csv, (b) => `https://adaction.org/scorecard/${b.toLowerCase()}`)
   },
 }

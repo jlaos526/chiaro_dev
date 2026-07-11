@@ -48,7 +48,14 @@ function Path({ d, fill }: BaseProps): React.JSX.Element {
   return createElement('path', { d, fill })
 }
 
-function Polyline({ points, stroke, strokeWidth, strokeLinecap, strokeLinejoin, fill }: BaseProps): React.JSX.Element {
+function Polyline({
+  points,
+  stroke,
+  strokeWidth,
+  strokeLinecap,
+  strokeLinejoin,
+  fill,
+}: BaseProps): React.JSX.Element {
   return createElement('polyline', {
     points,
     stroke,
@@ -59,7 +66,13 @@ function Polyline({ points, stroke, strokeWidth, strokeLinecap, strokeLinejoin, 
   })
 }
 
-function Polygon({ points, fill, stroke, strokeWidth, strokeDasharray }: BaseProps): React.JSX.Element {
+function Polygon({
+  points,
+  fill,
+  stroke,
+  strokeWidth,
+  strokeDasharray,
+}: BaseProps): React.JSX.Element {
   return createElement('polygon', { points, fill, stroke, strokeWidth, strokeDasharray })
 }
 

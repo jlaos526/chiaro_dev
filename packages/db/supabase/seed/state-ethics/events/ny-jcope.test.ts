@@ -10,7 +10,17 @@ describe('nyJcopeEvents adapter', () => {
   })
 
   it('injected fetcher short-circuits adapter dispatch', async () => {
-    const fixture = [{ official_openstates_person_id: 'x', event_date: '2024-01-01', event_type: 'campaign_finance_violation', summary: 's', state: 'NY', source_url: 'u', source: 'ny-jcope' }]
+    const fixture = [
+      {
+        official_openstates_person_id: 'x',
+        event_date: '2024-01-01',
+        event_type: 'campaign_finance_violation',
+        summary: 's',
+        state: 'NY',
+        source_url: 'u',
+        source: 'ny-jcope',
+      },
+    ]
     const result = await nyJcopeEvents.fetchEvents({
       fetcher: async () => fixture as never,
     } as never)

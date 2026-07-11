@@ -16,7 +16,10 @@ import { OfficialAvatar } from './OfficialAvatar.tsx'
 import { StateOfficialsCardSection } from './state/StateOfficialsCardSection.tsx'
 import { useChiaroClient } from './client-context.tsx'
 
-function parseDistrict(code: string | null | undefined): { districtNumber: number | null; atLarge: boolean } {
+function parseDistrict(code: string | null | undefined): {
+  districtNumber: number | null
+  atLarge: boolean
+} {
   if (!code) return { districtNumber: null, atLarge: false }
   if (code.endsWith('-AL')) return { districtNumber: null, atLarge: true }
   const parts = code.split('-')
@@ -71,9 +74,12 @@ function OfficialRow({
   const stateName = STATE_NAMES[o.state] ?? o.state
   const chips = selectTopAlignmentChips(scorecards.data ?? [])
   const salaryRole = metrics.data?.salary_role
-  const currentRole = salaryRole && salaryRole !== 'Member'
-    ? salaryRole
-    : o.chamber === 'federal_house' ? 'Representative' : 'Senator'
+  const currentRole =
+    salaryRole && salaryRole !== 'Member'
+      ? salaryRole
+      : o.chamber === 'federal_house'
+        ? 'Representative'
+        : 'Senator'
   const tenure = metrics.data?.tenure_years
 
   const { districtNumber, atLarge } = parseDistrict(o.district?.code ?? null)
@@ -81,7 +87,9 @@ function OfficialRow({
   const href = rowHref?.({ officialId: o.id })
 
   const nameElement = (
-    <Text style={{ fontWeight: '600', fontSize: 15, color: semantic.text.primary }}>{o.full_name}</Text>
+    <Text style={{ fontWeight: '600', fontSize: 15, color: semantic.text.primary }}>
+      {o.full_name}
+    </Text>
   )
 
   let nameLink: React.JSX.Element
@@ -106,11 +114,7 @@ function OfficialRow({
       nameElement,
     )
   } else {
-    nameLink = (
-      <Pressable onPress={handlePress}>
-        {nameElement}
-      </Pressable>
-    )
+    nameLink = <Pressable onPress={handlePress}>{nameElement}</Pressable>
   }
 
   return (
@@ -143,12 +147,14 @@ function OfficialRow({
           </Text>
           {chips.length > 0 ? (
             <View style={{ flexDirection: 'row', gap: 5, flexWrap: 'wrap', marginTop: 8 }}>
-              {chips.map(c => (
+              {chips.map((c) => (
                 <AlignmentChip
                   key={c.issueArea}
                   label={c.displayLabel}
                   tier={c.tier}
-                  {...(chipHref ? { href: chipHref({ officialId: o.id, subCascadeSlug: c.subCascadeSlug }) } : {})}
+                  {...(chipHref
+                    ? { href: chipHref({ officialId: o.id, subCascadeSlug: c.subCascadeSlug }) }
+                    : {})}
                   onPress={() => onSelect({ officialId: o.id, subCascadeSlug: c.subCascadeSlug })}
                 />
               ))}
@@ -178,7 +184,12 @@ export function OfficialsCard({
     return (
       <View style={{ gap: 8 }}>
         <Text style={{ color: semantic.text.muted }}>Couldn&apos;t load officials.</Text>
-        <Pressable onPress={() => { void refetch() }} accessibilityRole="button">
+        <Pressable
+          onPress={() => {
+            void refetch()
+          }}
+          accessibilityRole="button"
+        >
           <Text style={{ color: semantic.accent.primary, fontWeight: '600' }}>Retry</Text>
         </Pressable>
       </View>
@@ -258,7 +269,9 @@ export function OfficialsCard({
       accessibilityLabel="Your officials"
       style={{ padding: 16, backgroundColor: semantic.bg.app, borderRadius: 8 }}
     >
-      <Text style={{ fontSize: 16, fontWeight: '700', color: semantic.text.primary, marginBottom: 10 }}>
+      <Text
+        style={{ fontSize: 16, fontWeight: '700', color: semantic.text.primary, marginBottom: 10 }}
+      >
         Your officials
       </Text>
       {federal.length > 0 ? (
@@ -274,7 +287,7 @@ export function OfficialsCard({
           >
             Federal
           </Text>
-          {federal.map(o => (
+          {federal.map((o) => (
             <OfficialRow
               key={o.id}
               o={o}
@@ -285,10 +298,7 @@ export function OfficialsCard({
           ))}
         </View>
       ) : null}
-      <StateOfficialsCardSection
-        officials={state}
-        onSelect={onSelect}
-      />
+      <StateOfficialsCardSection officials={state} onSelect={onSelect} />
       {seeAllElement}
     </View>
   )

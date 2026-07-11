@@ -15,15 +15,15 @@ function deriveInitial(p: { display_name: string | null; username: string | null
 }
 
 const ROUTE_TO_KEY: Record<string, RailRouteKey> = {
-  'index': 'home',
+  index: 'home',
   'officials/index': 'officials',
   'settings/index': 'settings',
 }
 
 const KEY_TO_ROUTE: Record<RailRouteKey, string> = {
-  'home':      'index',
-  'officials': 'officials/index',
-  'settings':  'settings/index',
+  home: 'index',
+  officials: 'officials/index',
+  settings: 'settings/index',
 }
 
 /**
@@ -35,7 +35,10 @@ const KEY_TO_ROUTE: Record<RailRouteKey, string> = {
 export function BrandDrawerContent(props: DrawerContentComponentProps): React.JSX.Element {
   const router = useRouter()
   const client = useChiaroClient()
-  const [profile, setProfile] = useState<{ display_name: string | null; username: string | null } | null>(null)
+  const [profile, setProfile] = useState<{
+    display_name: string | null
+    username: string | null
+  } | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -43,7 +46,9 @@ export function BrandDrawerContent(props: DrawerContentComponentProps): React.JS
       const p = await getMyProfile(client)
       if (!cancelled) setProfile(p)
     })()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [client])
 
   const activeRouteName = props.state.routes[props.state.index]?.name ?? ''
@@ -61,8 +66,8 @@ export function BrandDrawerContent(props: DrawerContentComponentProps): React.JS
 
   const user = {
     displayName: profile?.display_name ?? null,
-    username:    profile?.username ?? null,
-    initial:     deriveInitial(profile),
+    username: profile?.username ?? null,
+    initial: deriveInitial(profile),
   }
 
   return (

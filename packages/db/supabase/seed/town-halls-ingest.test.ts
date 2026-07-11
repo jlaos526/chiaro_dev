@@ -22,16 +22,21 @@ beforeEach(async () => {
     on conflict (tier,code) do nothing
   `)
   const d = await client.query("select id from public.districts where code='CA-11-thfix'")
-  await client.query(`
+  await client.query(
+    `
     insert into public.officials (bioguide_id, first_name, last_name, full_name,
       chamber, party, state, district_id, senate_class, source_version)
     values ('THTEST1','TH','One','TH One','federal_house','D','CA',$1::uuid,null,'119')
     on conflict (bioguide_id) do nothing
-  `, [d.rows[0].id])
+  `,
+    [d.rows[0].id],
+  )
 })
 
 afterEach(async () => {
-  await client.query("delete from public.town_halls where official_id in (select id from public.officials where bioguide_id = 'THTEST1')")
+  await client.query(
+    "delete from public.town_halls where official_id in (select id from public.officials where bioguide_id = 'THTEST1')",
+  )
   await client.query("delete from public.officials where bioguide_id = 'THTEST1'")
   await client.query("delete from public.districts where code = 'CA-11-thfix'")
   await client.end()
@@ -46,7 +51,7 @@ describe('ingestTownHalls', () => {
       fetcher: async () => events,
     })
 
-    expect(stats.eventsIngested).toBe(2)  // UNKNOWN1 skipped
+    expect(stats.eventsIngested).toBe(2) // UNKNOWN1 skipped
 
     const rows = await client.query(`
       select event_date, format, city from public.town_halls
@@ -66,7 +71,9 @@ describe('ingestTownHalls', () => {
     await ingestTownHalls({ fetcher: async () => events })
     await ingestTownHalls({ fetcher: async () => events })
 
-    const c = await client.query("select count(*)::int as c from public.town_halls where official_id = (select id from public.officials where bioguide_id = 'THTEST1')")
-    expect(c.rows[0].c).toBe(2)  // not 4
+    const c = await client.query(
+      "select count(*)::int as c from public.town_halls where official_id = (select id from public.officials where bioguide_id = 'THTEST1')",
+    )
+    expect(c.rows[0].c).toBe(2) // not 4
   })
 })

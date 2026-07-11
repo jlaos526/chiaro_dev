@@ -9,11 +9,11 @@ export type ComingSoonCategory =
   | 'Ethics & Accountability'
 
 const CATEGORY_COPY: Record<ComingSoonCategory, string> = {
-  'Service Record':         'Bills + votes — coming soon',
-  'Issue Positions':        'Scorecards — coming soon',
-  'Community Presence':     'Town halls — coming soon',
-  'Finance':                'Campaign finance — coming soon',
-  'Ethics & Accountability':'STOCK Act compliance — coming soon',
+  'Service Record': 'Bills + votes — coming soon',
+  'Issue Positions': 'Scorecards — coming soon',
+  'Community Presence': 'Town halls — coming soon',
+  Finance: 'Campaign finance — coming soon',
+  'Ethics & Accountability': 'STOCK Act compliance — coming soon',
 }
 
 export interface ComingSoonCardProps {

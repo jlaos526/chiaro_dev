@@ -86,7 +86,13 @@ function mapStatus(text: string): NormalizedEthicsComplaint['status'] {
   if (norm.includes('open') || norm.includes('pending')) return 'open'
   if (norm.includes('dismiss')) return 'dismissed'
   if (norm.includes('settle') || norm.includes('consent')) return 'settled'
-  if (norm.includes('sanction') || norm.includes('penalty') || norm.includes('imposed') || norm.includes('order')) return 'sanctioned'
+  if (
+    norm.includes('sanction') ||
+    norm.includes('penalty') ||
+    norm.includes('imposed') ||
+    norm.includes('order')
+  )
+    return 'sanctioned'
   if (norm.includes('closed') || norm.includes('no action')) return 'closed_no_action'
   // Unknown status text — bucket to closed_no_action but flag to operator triage.
   // Per slice 5I convention, status defaults to closed_no_action when unmappable.
@@ -129,8 +135,9 @@ export async function fetchEnforcementActions(
   for (const row of parsedRows) {
     if (!isStateLegislatorRow(row)) continue
 
-    const chamber: 'state_house' | 'state_senate' =
-      /Assembly/i.test(row.agency) ? 'state_house' : 'state_senate'
+    const chamber: 'state_house' | 'state_senate' = /Assembly/i.test(row.agency)
+      ? 'state_house'
+      : 'state_senate'
 
     const openstates_person_id = await resolveOpenstatesPersonId(client, {
       full_name: row.full_name,
@@ -143,9 +150,7 @@ export async function fetchEnforcementActions(
     }
 
     const idMatch = row.source_detail_url.match(/\/cases\/([^/?#]+)/)
-    const external_id = idMatch
-      ? idMatch[1]!
-      : `${row.full_name}-${row.date}`.replace(/\s+/g, '-')
+    const external_id = idMatch ? idMatch[1]! : `${row.full_name}-${row.date}`.replace(/\s+/g, '-')
 
     const status = mapStatus(row.status)
 

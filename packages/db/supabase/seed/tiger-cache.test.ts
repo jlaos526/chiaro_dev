@@ -25,29 +25,39 @@ describe('loadTigerZip', () => {
       expect(out.fromCache).toBe(false)
       const cached = await readFile(tigerCacheFile(URL1, dir))
       expect([...cached]).toEqual([1, 2, 3])
-    } finally { await rm(dir, { recursive: true, force: true }) }
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
   })
 
   it('cache hit → returns cached bytes without calling the fetcher', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'tcache-'))
     try {
       await writeFile(tigerCacheFile(URL1, dir), Buffer.from([9, 9]))
-      const fetcher = vi.fn(async (): Promise<FetchResult> => ({ kind: 'ok', body: new ArrayBuffer(0) }))
+      const fetcher = vi.fn(
+        async (): Promise<FetchResult> => ({ kind: 'ok', body: new ArrayBuffer(0) }),
+      )
       const out = await loadTigerZip(URL1, dir, fetcher)
       expect(fetcher).not.toHaveBeenCalled()
       expect(out.fromCache).toBe(true)
       if (out.kind === 'ok') expect([...new Uint8Array(out.body)]).toEqual([9, 9])
-    } finally { await rm(dir, { recursive: true, force: true }) }
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
   })
 
   it('gap/error results are not cached', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'tcache-'))
     try {
-      const fetcher = vi.fn(async (): Promise<FetchResult> => ({ kind: 'gap', status: 404, message: 'not found' }))
+      const fetcher = vi.fn(
+        async (): Promise<FetchResult> => ({ kind: 'gap', status: 404, message: 'not found' }),
+      )
       const out = await loadTigerZip(URL1, dir, fetcher)
       expect(out.kind).toBe('gap')
       expect(out.fromCache).toBe(false)
       await expect(readFile(tigerCacheFile(URL1, dir))).rejects.toThrow()
-    } finally { await rm(dir, { recursive: true, force: true }) }
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
   })
 })

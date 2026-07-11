@@ -7,7 +7,14 @@ import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const HOUSE_HTML = join(__dirname, '..', '..', 'fixtures', 'state-scorecards', 'lcv-co-house.html')
-const SENATE_HTML = join(__dirname, '..', '..', 'fixtures', 'state-scorecards', 'lcv-co-senate.html')
+const SENATE_HTML = join(
+  __dirname,
+  '..',
+  '..',
+  'fixtures',
+  'state-scorecards',
+  'lcv-co-senate.html',
+)
 
 describe('parseColoradoLcvHtml — House', () => {
   it('extracts 4 rows from fixture (5 - 1 N/A score)', async () => {
@@ -26,13 +33,13 @@ describe('parseColoradoLcvHtml — House', () => {
   it('skips rows with N/A score', async () => {
     const html = await readFile(HOUSE_HTML, 'utf8')
     const rows = parseColoradoLcvHtml(html, 'state_house')
-    expect(rows.find(r => r.full_name === 'Dana Howe')).toBeUndefined()
+    expect(rows.find((r) => r.full_name === 'Dana Howe')).toBeUndefined()
   })
 
   it('Party-District regex extracts party + district correctly', async () => {
     const html = await readFile(HOUSE_HTML, 'utf8')
     const rows = parseColoradoLcvHtml(html, 'state_house')
-    expect(rows.find(r => r.full_name === 'Morgan Flynn')).toMatchObject({
+    expect(rows.find((r) => r.full_name === 'Morgan Flynn')).toMatchObject({
       party: 'I',
       district: '50',
     })
@@ -79,14 +86,16 @@ describe('fetchColoradoRatings', () => {
         })
       }),
     }
-    const ratings = await fetchColoradoRatings(client as never, {
-      session: '2025',
-      fetcher: async (url: string) =>
-        url.includes('-house/') ? houseHtml : senateHtml,
-    } as never)
+    const ratings = await fetchColoradoRatings(
+      client as never,
+      {
+        session: '2025',
+        fetcher: async (url: string) => (url.includes('-house/') ? houseHtml : senateHtml),
+      } as never,
+    )
     // 4 House + 3 Senate = 7
     expect(ratings).toHaveLength(7)
-    expect(ratings.every(r => r.state === 'CO')).toBe(true)
+    expect(ratings.every((r) => r.state === 'CO')).toBe(true)
   })
 
   it('templates year into URL from opts.session', async () => {
@@ -94,13 +103,16 @@ describe('fetchColoradoRatings', () => {
     const client = {
       query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
     }
-    await fetchColoradoRatings(client as never, {
-      session: '2024',
-      fetcher: async (url: string) => {
-        fetched.push(url)
-        return '<html></html>'
-      },
-    } as never)
+    await fetchColoradoRatings(
+      client as never,
+      {
+        session: '2024',
+        fetcher: async (url: string) => {
+          fetched.push(url)
+          return '<html></html>'
+        },
+      } as never,
+    )
     expect(fetched).toContain('https://conservationco.org/scorecards/2024-scorecard/2024-house/')
     expect(fetched).toContain('https://conservationco.org/scorecards/2024-scorecard/2024-senate/')
   })
@@ -109,10 +121,15 @@ describe('fetchColoradoRatings', () => {
     const client = {
       query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
     }
-    const ratings = await fetchColoradoRatings(client as never, {
-      session: '2025',
-      fetcher: async () => { throw new Error('network') },
-    } as never)
+    const ratings = await fetchColoradoRatings(
+      client as never,
+      {
+        session: '2025',
+        fetcher: async () => {
+          throw new Error('network')
+        },
+      } as never,
+    )
     expect(ratings).toEqual([])
   })
 })
@@ -123,14 +140,18 @@ describe('fetchColoradoRatings onSkip instrumentation (slice 23)', () => {
     const skips: SkipReason[] = []
     await fetchColoradoRatings(client as never, {
       session: '2025',
-      fetcher: async () => { throw new Error('cloudflare blocked') },
-      onSkip: (r) => { skips.push(r) },
+      fetcher: async () => {
+        throw new Error('cloudflare blocked')
+      },
+      onSkip: (r) => {
+        skips.push(r)
+      },
     })
     // Both house + senate fetches throw → 2 fetch-stage skips
-    const fetchSkips = skips.filter(s => s.stage === 'fetch')
+    const fetchSkips = skips.filter((s) => s.stage === 'fetch')
     expect(fetchSkips).toHaveLength(2)
-    expect(fetchSkips.every(s => s.adapter === 'lcv')).toBe(true)
-    expect(fetchSkips.every(s => s.detail?.match(/cloudflare blocked/))).toBe(true)
+    expect(fetchSkips.every((s) => s.adapter === 'lcv')).toBe(true)
+    expect(fetchSkips.every((s) => s.detail?.match(/cloudflare blocked/))).toBe(true)
   })
 
   it('emits parse-stage skip for rows with N/A score (Dana Howe)', async () => {
@@ -145,11 +166,12 @@ describe('fetchColoradoRatings onSkip instrumentation (slice 23)', () => {
     const skips: SkipReason[] = []
     await fetchColoradoRatings(client as never, {
       session: '2025',
-      fetcher: async (url: string) =>
-        url.includes('-house/') ? houseHtml : senateHtml,
-      onSkip: (r) => { skips.push(r) },
+      fetcher: async (url: string) => (url.includes('-house/') ? houseHtml : senateHtml),
+      onSkip: (r) => {
+        skips.push(r)
+      },
     })
-    const danaSkip = skips.find(s => s.legislator === 'Dana Howe' && s.stage === 'parse')
+    const danaSkip = skips.find((s) => s.legislator === 'Dana Howe' && s.stage === 'parse')
     expect(danaSkip).toBeDefined()
     expect(danaSkip).toMatchObject({
       adapter: 'lcv',
@@ -168,15 +190,16 @@ describe('fetchColoradoRatings onSkip instrumentation (slice 23)', () => {
     const skips: SkipReason[] = []
     const ratings = await fetchColoradoRatings(client as never, {
       session: '2025',
-      fetcher: async (url: string) =>
-        url.includes('-house/') ? houseHtml : senateHtml,
-      onSkip: (r) => { skips.push(r) },
+      fetcher: async (url: string) => (url.includes('-house/') ? houseHtml : senateHtml),
+      onSkip: (r) => {
+        skips.push(r)
+      },
     })
     expect(ratings).toEqual([])
     // House: 4 valid + Dana Howe parse-skip; Senate: 3 valid = 7 resolve skips
-    const resolveSkips = skips.filter(s => s.stage === 'resolve')
+    const resolveSkips = skips.filter((s) => s.stage === 'resolve')
     expect(resolveSkips).toHaveLength(7)
-    expect(resolveSkips.every(s => s.adapter === 'lcv')).toBe(true)
+    expect(resolveSkips.every((s) => s.adapter === 'lcv')).toBe(true)
   })
 
   it('omitting onSkip preserves silent-skip behavior (back-compat)', async () => {
@@ -186,11 +209,13 @@ describe('fetchColoradoRatings onSkip instrumentation (slice 23)', () => {
       query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
     }
     // No onSkip — must not throw
-    const ratings = await fetchColoradoRatings(client as never, {
-      session: '2025',
-      fetcher: async (url: string) =>
-        url.includes('-house/') ? houseHtml : senateHtml,
-    } as never)
+    const ratings = await fetchColoradoRatings(
+      client as never,
+      {
+        session: '2025',
+        fetcher: async (url: string) => (url.includes('-house/') ? houseHtml : senateHtml),
+      } as never,
+    )
     expect(ratings).toEqual([])
   })
 })

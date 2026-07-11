@@ -17,15 +17,29 @@ export async function ingestIssueCatalog(
   catalog: TopicSeed[] = ISSUE_CATALOG,
 ): Promise<void> {
   const topicRows = catalog.map((t) => ({
-    slug: t.slug, display_name: t.display_name, description: t.description,
-    value_tags: t.value_tags, display_order: t.display_order, active: true }))
+    slug: t.slug,
+    display_name: t.display_name,
+    description: t.description,
+    value_tags: t.value_tags,
+    display_order: t.display_order,
+    active: true,
+  }))
   const { error: te } = await client.from('issue_topics').upsert(topicRows)
   if (te) throw new Error(`issue_topics upsert: ${te.message}`)
-  const lensRows = catalog.flatMap((t) => t.lenses.map((l) => ({
-    topic_slug: t.slug, slug: l.slug, label: l.label, lens_type: l.lens_type,
-    description: l.description ?? null, measurement_sources: l.measurement_sources,
-    evidence_sources: l.evidence_sources, quiz_questions: l.quiz_questions,
-    display_order: l.display_order, active: l.active ?? true })))
+  const lensRows = catalog.flatMap((t) =>
+    t.lenses.map((l) => ({
+      topic_slug: t.slug,
+      slug: l.slug,
+      label: l.label,
+      lens_type: l.lens_type,
+      description: l.description ?? null,
+      measurement_sources: l.measurement_sources,
+      evidence_sources: l.evidence_sources,
+      quiz_questions: l.quiz_questions,
+      display_order: l.display_order,
+      active: l.active ?? true,
+    })),
+  )
   const { error: le } = await client.from('issue_lenses').upsert(lensRows)
   if (le) throw new Error(`issue_lenses upsert: ${le.message}`)
 }

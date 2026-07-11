@@ -24,9 +24,13 @@ describe('ChiaroClientProvider', () => {
     const orig = console.error
     console.error = () => {}
     try {
-      expect(() => render(<View><Probe /></View>)).toThrow(
-        /useChiaroClient must be used inside <ChiaroClientProvider>/,
-      )
+      expect(() =>
+        render(
+          <View>
+            <Probe />
+          </View>,
+        ),
+      ).toThrow(/useChiaroClient must be used inside <ChiaroClientProvider>/)
     } finally {
       console.error = orig
     }

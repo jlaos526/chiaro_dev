@@ -31,10 +31,10 @@ function ratingToChip(r: Rating): AlignmentChipRow {
 }
 
 function tierIntensity(tier: AlignmentTier): number {
-  if (tier === 'strongly-aligned')  return 2
-  if (tier === 'mostly-aligned')    return 1
-  if (tier === 'mixed')             return 0
-  if (tier === 'mostly-differs')    return -1
+  if (tier === 'strongly-aligned') return 2
+  if (tier === 'mostly-aligned') return 1
+  if (tier === 'mixed') return 0
+  if (tier === 'mostly-differs') return -1
   return -2
 }
 
@@ -65,13 +65,13 @@ export function selectTopAlignmentChips(ratings: ReadonlyArray<Rating>): Alignme
   if (!highest) return []
 
   // 3. Look for a strong-differs / mostly-differs.
-  const lowest = byHighFirst.find(c => tierIntensity(c.tier) < 0) ?? null
+  const lowest = byHighFirst.find((c) => tierIntensity(c.tier) < 0) ?? null
 
   // 4. Third pick = next-highest excluding the two already picked.
   const picks: AlignmentChipRow[] = [highest]
   if (lowest && lowest.issueArea !== highest.issueArea) picks.push(lowest)
   for (const c of byHighFirst) {
-    if (picks.some(p => p.issueArea === c.issueArea)) continue
+    if (picks.some((p) => p.issueArea === c.issueArea)) continue
     picks.push(c)
     if (picks.length === 3) break
   }
@@ -79,13 +79,13 @@ export function selectTopAlignmentChips(ratings: ReadonlyArray<Rating>): Alignme
 }
 
 const STATE_ORDER: Record<string, number> = {
-  state_house:       0,
-  state_senate:      1,
+  state_house: 0,
+  state_senate: 1,
   state_legislature: 2,
 }
 
 const FEDERAL_ORDER: Record<string, number> = {
-  federal_house:  0,
+  federal_house: 0,
   federal_senate: 1,
 }
 
@@ -96,12 +96,12 @@ function compareByChamber(orderMap: Record<string, number>) {
 
 export interface OfficialsByLevel {
   federal: OfficialWithDistrict[]
-  state:   OfficialWithDistrict[]
+  state: OfficialWithDistrict[]
 }
 
 export function groupOfficialsByLevel(officials: OfficialWithDistrict[]): OfficialsByLevel {
   const federal: OfficialWithDistrict[] = []
-  const state:   OfficialWithDistrict[] = []
+  const state: OfficialWithDistrict[] = []
   for (const o of officials) {
     if (isFederalLevel(o.chamber)) federal.push(o)
     else if (isStateLevel(o.chamber)) state.push(o)

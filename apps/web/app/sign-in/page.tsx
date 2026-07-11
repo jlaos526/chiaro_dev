@@ -20,9 +20,7 @@ export default function SignInPage(): React.JSX.Element {
 
   return (
     <>
-      <AuthPageChrome
-        rightCrossLink={{ mode: 'sign-up', href: '/sign-up', onPress: goToSignUp }}
-      />
+      <AuthPageChrome rightCrossLink={{ mode: 'sign-up', href: '/sign-up', onPress: goToSignUp }} />
       <AuthScreen
         mode="sign-in"
         onSubmit={handleSubmit}

@@ -5,17 +5,13 @@ import { AuthForm } from '../../src/auth/AuthForm.tsx'
 import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 
 function flush(): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, 0))
+  return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
 describe('AuthForm', () => {
   it('sign-in mode renders headline + 2 inputs + CTA (no confirm field)', () => {
     const { container } = render(
-      <AuthForm
-        mode="sign-in"
-        onSubmit={async () => {}}
-        onCrossLinkPress={() => {}}
-      />,
+      <AuthForm mode="sign-in" onSubmit={async () => {}} onCrossLinkPress={() => {}} />,
     )
     expect(container.textContent).toContain('Sign in')
     expect(container.querySelectorAll('input').length).toBe(2)
@@ -23,11 +19,7 @@ describe('AuthForm', () => {
 
   it('sign-up mode renders headline + 3 inputs + CTA (with confirm field)', () => {
     const { container } = render(
-      <AuthForm
-        mode="sign-up"
-        onSubmit={async () => {}}
-        onCrossLinkPress={() => {}}
-      />,
+      <AuthForm mode="sign-up" onSubmit={async () => {}} onCrossLinkPress={() => {}} />,
     )
     expect(container.textContent).toContain('Create account')
     expect(container.querySelectorAll('input').length).toBe(3)
@@ -36,11 +28,7 @@ describe('AuthForm', () => {
   it('sign-up: password mismatch blocks submit + shows banner error', async () => {
     const onSubmit = vi.fn(async () => {})
     const { container } = render(
-      <AuthForm
-        mode="sign-up"
-        onSubmit={onSubmit}
-        onCrossLinkPress={() => {}}
-      />,
+      <AuthForm mode="sign-up" onSubmit={onSubmit} onCrossLinkPress={() => {}} />,
     )
     const inputs = container.querySelectorAll('input')
     const email = inputs[0]!
@@ -60,11 +48,7 @@ describe('AuthForm', () => {
   it('sign-up: password < 8 chars blocks submit + shows banner error', async () => {
     const onSubmit = vi.fn(async () => {})
     const { container } = render(
-      <AuthForm
-        mode="sign-up"
-        onSubmit={onSubmit}
-        onCrossLinkPress={() => {}}
-      />,
+      <AuthForm mode="sign-up" onSubmit={onSubmit} onCrossLinkPress={() => {}} />,
     )
     const inputs = container.querySelectorAll('input')
     const email = inputs[0]!
@@ -84,11 +68,7 @@ describe('AuthForm', () => {
   it('submit success path: onSubmit awaited with email + password; no banner', async () => {
     const onSubmit = vi.fn(async () => {})
     const { container } = render(
-      <AuthForm
-        mode="sign-in"
-        onSubmit={onSubmit}
-        onCrossLinkPress={() => {}}
-      />,
+      <AuthForm mode="sign-in" onSubmit={onSubmit} onCrossLinkPress={() => {}} />,
     )
     const inputs = container.querySelectorAll('input')
     fireEvent.change(inputs[0]!, { target: { value: 'a@b.com' } })
@@ -108,11 +88,7 @@ describe('AuthForm', () => {
       throw new Error('Invalid login credentials')
     })
     const { container } = render(
-      <AuthForm
-        mode="sign-in"
-        onSubmit={onSubmit}
-        onCrossLinkPress={() => {}}
-      />,
+      <AuthForm mode="sign-in" onSubmit={onSubmit} onCrossLinkPress={() => {}} />,
     )
     const inputs = container.querySelectorAll('input')
     fireEvent.change(inputs[0]!, { target: { value: 'a@b.com' } })
@@ -130,11 +106,7 @@ describe('AuthForm', () => {
   it('notice channel: onSubmit resolving { notice } renders in the status banner, NOT the danger alert', async () => {
     const onSubmit = vi.fn(async () => ({ notice: 'Check your email to confirm your account.' }))
     const { container } = render(
-      <AuthForm
-        mode="sign-up"
-        onSubmit={onSubmit}
-        onCrossLinkPress={() => {}}
-      />,
+      <AuthForm mode="sign-up" onSubmit={onSubmit} onCrossLinkPress={() => {}} />,
     )
     const inputs = container.querySelectorAll('input')
     fireEvent.change(inputs[0]!, { target: { value: 'a@b.com' } })
@@ -156,11 +128,7 @@ describe('AuthForm', () => {
   it('notice channel: void resolution renders no status banner', async () => {
     const onSubmit = vi.fn(async () => {})
     const { container } = render(
-      <AuthForm
-        mode="sign-in"
-        onSubmit={onSubmit}
-        onCrossLinkPress={() => {}}
-      />,
+      <AuthForm mode="sign-in" onSubmit={onSubmit} onCrossLinkPress={() => {}} />,
     )
     const inputs = container.querySelectorAll('input')
     fireEvent.change(inputs[0]!, { target: { value: 'a@b.com' } })
@@ -177,11 +145,7 @@ describe('AuthForm', () => {
       throw new Error('Email already registered')
     })
     const { container } = render(
-      <AuthForm
-        mode="sign-up"
-        onSubmit={onSubmit}
-        onCrossLinkPress={() => {}}
-      />,
+      <AuthForm mode="sign-up" onSubmit={onSubmit} onCrossLinkPress={() => {}} />,
     )
     const inputs = container.querySelectorAll('input')
     fireEvent.change(inputs[0]!, { target: { value: 'a@b.com' } })
@@ -199,16 +163,12 @@ describe('AuthForm', () => {
 
   it('disabled-during-submit: inputs + CTA disabled while onSubmit pending', async () => {
     let resolveSubmit!: () => void
-    const submitPromise = new Promise<void>(resolve => {
+    const submitPromise = new Promise<void>((resolve) => {
       resolveSubmit = resolve
     })
     const onSubmit = vi.fn(() => submitPromise)
     const { container } = render(
-      <AuthForm
-        mode="sign-in"
-        onSubmit={onSubmit}
-        onCrossLinkPress={() => {}}
-      />,
+      <AuthForm mode="sign-in" onSubmit={onSubmit} onCrossLinkPress={() => {}} />,
     )
     const inputs = container.querySelectorAll('input')
     fireEvent.change(inputs[0]!, { target: { value: 'a@b.com' } })
@@ -231,16 +191,12 @@ describe('AuthForm', () => {
 
   it('CTA text swaps to loading copy during submit', async () => {
     let resolveSubmit!: () => void
-    const submitPromise = new Promise<void>(resolve => {
+    const submitPromise = new Promise<void>((resolve) => {
       resolveSubmit = resolve
     })
     const onSubmit = vi.fn(() => submitPromise)
     const { container } = render(
-      <AuthForm
-        mode="sign-in"
-        onSubmit={onSubmit}
-        onCrossLinkPress={() => {}}
-      />,
+      <AuthForm mode="sign-in" onSubmit={onSubmit} onCrossLinkPress={() => {}} />,
     )
     const inputs = container.querySelectorAll('input')
     fireEvent.change(inputs[0]!, { target: { value: 'a@b.com' } })
@@ -289,11 +245,7 @@ describe('AuthForm', () => {
 
   it('headline carries accessibilityRole="header" + accessibilityLevel={1} (role=heading, aria-level=1)', () => {
     const { container } = render(
-      <AuthForm
-        mode="sign-in"
-        onSubmit={async () => {}}
-        onCrossLinkPress={() => {}}
-      />,
+      <AuthForm mode="sign-in" onSubmit={async () => {}} onCrossLinkPress={() => {}} />,
     )
     const heading = container.querySelector('[role="heading"]')
     expect(heading).not.toBeNull()
@@ -306,11 +258,7 @@ describe('AuthForm', () => {
       throw new Error('Something broke')
     })
     const { container } = render(
-      <AuthForm
-        mode="sign-in"
-        onSubmit={onSubmit}
-        onCrossLinkPress={() => {}}
-      />,
+      <AuthForm mode="sign-in" onSubmit={onSubmit} onCrossLinkPress={() => {}} />,
     )
     const inputs = container.querySelectorAll('input')
     fireEvent.change(inputs[0]!, { target: { value: 'a@b.com' } })

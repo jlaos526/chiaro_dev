@@ -5,7 +5,15 @@ import { fileURLToPath } from 'node:url'
 import { parseFlSenatorDetailHtml, fetchFlSenateOffices, deriveFlSenatorUrl } from './senate.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const FIXTURE = join(__dirname, '..', '..', '..', 'fixtures', 'state-community', 'fl-senator-detail.html')
+const FIXTURE = join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'fixtures',
+  'state-community',
+  'fl-senator-detail.html',
+)
 
 describe('parseFlSenatorDetailHtml', () => {
   it('extracts both Tallahassee + District address blocks', async () => {
@@ -32,7 +40,9 @@ describe('parseFlSenatorDetailHtml', () => {
       </section>
     `
     const parsed = parseFlSenatorDetailHtml(html)
-    expect(parsed.capitol_office).toBe('404 South Monroe Street, Suite 318, Tallahassee, FL 32399, Phone: (850) 487-5014')
+    expect(parsed.capitol_office).toBe(
+      '404 South Monroe Street, Suite 318, Tallahassee, FL 32399, Phone: (850) 487-5014',
+    )
   })
 })
 
@@ -54,8 +64,16 @@ describe('fetchFlSenateOffices', () => {
         if (sql.includes('from public.officials')) {
           return Promise.resolve({
             rows: [
-              { openstates_person_id: 'ocd-person/fl-s1', full_name: 'Jane Doe', district_id: 'FL-14' },
-              { openstates_person_id: 'ocd-person/fl-s2', full_name: 'Alex Smith', district_id: 'FL-23' },
+              {
+                openstates_person_id: 'ocd-person/fl-s1',
+                full_name: 'Jane Doe',
+                district_id: 'FL-14',
+              },
+              {
+                openstates_person_id: 'ocd-person/fl-s2',
+                full_name: 'Alex Smith',
+                district_id: 'FL-23',
+              },
             ],
             rowCount: 2,
           })
@@ -66,15 +84,17 @@ describe('fetchFlSenateOffices', () => {
     const rows = await fetchFlSenateOffices(client as never, { fetcher: async () => html })
     // 2 senators × 2 offices = 4 rows
     expect(rows).toHaveLength(4)
-    expect(rows.filter(r => r.kind === 'capitol').length).toBe(2)
-    expect(rows.filter(r => r.kind === 'district').length).toBe(2)
+    expect(rows.filter((r) => r.kind === 'capitol').length).toBe(2)
+    expect(rows.filter((r) => r.kind === 'district').length).toBe(2)
   })
 
   it('returns [] when no FL senators in officials table', async () => {
     const client = {
       query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
     }
-    const rows = await fetchFlSenateOffices(client as never, { fetcher: async () => '<html></html>' })
+    const rows = await fetchFlSenateOffices(client as never, {
+      fetcher: async () => '<html></html>',
+    })
     expect(rows).toEqual([])
   })
 
@@ -85,8 +105,16 @@ describe('fetchFlSenateOffices', () => {
         if (sql.includes('from public.officials')) {
           return Promise.resolve({
             rows: [
-              { openstates_person_id: 'ocd-person/fl-s1', full_name: 'Jane Doe', district_id: null },
-              { openstates_person_id: 'ocd-person/fl-s2', full_name: 'Alex Smith', district_id: 'FL-23' },
+              {
+                openstates_person_id: 'ocd-person/fl-s1',
+                full_name: 'Jane Doe',
+                district_id: null,
+              },
+              {
+                openstates_person_id: 'ocd-person/fl-s2',
+                full_name: 'Alex Smith',
+                district_id: 'FL-23',
+              },
             ],
             rowCount: 2,
           })
@@ -95,7 +123,7 @@ describe('fetchFlSenateOffices', () => {
       }),
     }
     const rows = await fetchFlSenateOffices(client as never, { fetcher: async () => html })
-    expect(rows).toHaveLength(2)  // Only Alex resolves
+    expect(rows).toHaveLength(2) // Only Alex resolves
   })
 
   it('skips senator on fetcher failure', async () => {
@@ -105,8 +133,16 @@ describe('fetchFlSenateOffices', () => {
         if (sql.includes('from public.officials')) {
           return Promise.resolve({
             rows: [
-              { openstates_person_id: 'ocd-person/fl-s1', full_name: 'Jane Doe', district_id: 'FL-14' },
-              { openstates_person_id: 'ocd-person/fl-s2', full_name: 'Alex Smith', district_id: 'FL-23' },
+              {
+                openstates_person_id: 'ocd-person/fl-s1',
+                full_name: 'Jane Doe',
+                district_id: 'FL-14',
+              },
+              {
+                openstates_person_id: 'ocd-person/fl-s2',
+                full_name: 'Alex Smith',
+                district_id: 'FL-23',
+              },
             ],
             rowCount: 2,
           })
@@ -122,6 +158,6 @@ describe('fetchFlSenateOffices', () => {
         return fixtureHtml
       },
     })
-    expect(rows).toHaveLength(2)  // First errors, second succeeds → 2 rows
+    expect(rows).toHaveLength(2) // First errors, second succeeds → 2 rows
   })
 })

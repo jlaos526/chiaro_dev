@@ -49,12 +49,12 @@ describe('CategoryId enum + CATEGORY_LABEL ordering (slice 41)', () => {
 
 describe('CATEGORY_ACCENT (slice 41 semantic-aligned)', () => {
   it('matches the locked hex values from spec §4', () => {
-    expect(CATEGORY_ACCENT['service-record']).toBe('#c89a4e')        // gold (unchanged)
-    expect(CATEGORY_ACCENT['community-presence']).toBe('#b86340')    // terracotta (was '#1f9b88' teal)
-    expect(CATEGORY_ACCENT['finance']).toBe('#1a8f5a')               // emerald (was '#3da75b' medium green)
-    expect(CATEGORY_ACCENT['issue-positions']).toBe('#3b6ed1')       // blue (unchanged)
+    expect(CATEGORY_ACCENT['service-record']).toBe('#c89a4e') // gold (unchanged)
+    expect(CATEGORY_ACCENT['community-presence']).toBe('#b86340') // terracotta (was '#1f9b88' teal)
+    expect(CATEGORY_ACCENT['finance']).toBe('#1a8f5a') // emerald (was '#3da75b' medium green)
+    expect(CATEGORY_ACCENT['issue-positions']).toBe('#3b6ed1') // blue (unchanged)
     expect(CATEGORY_ACCENT['ethics-accountability']).toBe('#8a3a4d') // burgundy (was '#d68a1f' amber)
-    expect(CATEGORY_ACCENT['voting-bills']).toBe('#7d57c1')          // purple (unchanged)
+    expect(CATEGORY_ACCENT['voting-bills']).toBe('#7d57c1') // purple (unchanged)
   })
 })
 
@@ -72,23 +72,23 @@ describe('CATEGORY_ACCENT_DARK (slice 41: single-hex collapse)', () => {
 
 describe('SUB_CASCADE_ACCENT (slice 41 light)', () => {
   it('matches the locked light sub-cascade hexes', () => {
-    expect(SUB_CASCADE_ACCENT['service-record']).toBe('#e1c896')        // unchanged (gold-derived)
-    expect(SUB_CASCADE_ACCENT['community-presence']).toBe('#e0b8a0')    // NEW terracotta-derived (was '#7fc7bb' teal-derived)
-    expect(SUB_CASCADE_ACCENT['finance']).toBe('#7eb898')               // NEW emerald-derived (was '#8fc89d')
-    expect(SUB_CASCADE_ACCENT['issue-positions']).toBe('#87aae0')       // unchanged
+    expect(SUB_CASCADE_ACCENT['service-record']).toBe('#e1c896') // unchanged (gold-derived)
+    expect(SUB_CASCADE_ACCENT['community-presence']).toBe('#e0b8a0') // NEW terracotta-derived (was '#7fc7bb' teal-derived)
+    expect(SUB_CASCADE_ACCENT['finance']).toBe('#7eb898') // NEW emerald-derived (was '#8fc89d')
+    expect(SUB_CASCADE_ACCENT['issue-positions']).toBe('#87aae0') // unchanged
     expect(SUB_CASCADE_ACCENT['ethics-accountability']).toBe('#c89aa8') // NEW burgundy-derived (was '#ecbc7d' amber-derived)
-    expect(SUB_CASCADE_ACCENT['voting-bills']).toBe('#b39bd9')          // unchanged
+    expect(SUB_CASCADE_ACCENT['voting-bills']).toBe('#b39bd9') // unchanged
   })
 })
 
 describe('SUB_CASCADE_ACCENT_DARK (slice 41 dark)', () => {
   it('matches the locked dark sub-cascade hexes', () => {
-    expect(SUB_CASCADE_ACCENT_DARK['service-record']).toBe('#8a6a55')        // NEW gold-derived (was '#9a8866')
-    expect(SUB_CASCADE_ACCENT_DARK['community-presence']).toBe('#a08858')    // NEW terracotta-derived (was '#4a9888' teal-derived)
-    expect(SUB_CASCADE_ACCENT_DARK['finance']).toBe('#4e8060')               // NEW emerald-derived (was '#5e9a70')
-    expect(SUB_CASCADE_ACCENT_DARK['issue-positions']).toBe('#6680b8')       // unchanged
+    expect(SUB_CASCADE_ACCENT_DARK['service-record']).toBe('#8a6a55') // NEW gold-derived (was '#9a8866')
+    expect(SUB_CASCADE_ACCENT_DARK['community-presence']).toBe('#a08858') // NEW terracotta-derived (was '#4a9888' teal-derived)
+    expect(SUB_CASCADE_ACCENT_DARK['finance']).toBe('#4e8060') // NEW emerald-derived (was '#5e9a70')
+    expect(SUB_CASCADE_ACCENT_DARK['issue-positions']).toBe('#6680b8') // unchanged
     expect(SUB_CASCADE_ACCENT_DARK['ethics-accountability']).toBe('#704a55') // NEW burgundy-derived (was '#b08850' amber-derived)
-    expect(SUB_CASCADE_ACCENT_DARK['voting-bills']).toBe('#8470a8')          // unchanged
+    expect(SUB_CASCADE_ACCENT_DARK['voting-bills']).toBe('#8470a8') // unchanged
   })
 })
 

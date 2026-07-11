@@ -77,7 +77,10 @@ export function CalibrateScreen({
           accessibilityRole="button"
           accessibilityState={{ disabled: loading }}
           aria-disabled={loading}
-          style={[styles.gpsButton, { borderColor: semantic.accent.primary, opacity: loading ? 0.6 : 1 }]}
+          style={[
+            styles.gpsButton,
+            { borderColor: semantic.accent.primary, opacity: loading ? 0.6 : 1 },
+          ]}
         >
           <Text style={[styles.gpsButtonText, { color: semantic.accent.primary }]}>
             {loading ? gpsLoadingLabel : gpsLabel}
@@ -91,14 +94,19 @@ export function CalibrateScreen({
         placeholder="123 Main St, Brooklyn, NY 11201"
       />
       {error ? (
-        <Text role="alert" style={[styles.error, { color: semantic.alert.danger.fg }]}>{error}</Text>
+        <Text role="alert" style={[styles.error, { color: semantic.alert.danger.fg }]}>
+          {error}
+        </Text>
       ) : null}
       <Pressable
         onPress={loading ? undefined : handleSubmit}
         accessibilityRole="button"
         accessibilityState={{ disabled: loading }}
         aria-disabled={loading}
-        style={[styles.cta, { backgroundColor: semantic.accent.primary, opacity: loading ? 0.6 : 1 }]}
+        style={[
+          styles.cta,
+          { backgroundColor: semantic.accent.primary, opacity: loading ? 0.6 : 1 },
+        ]}
       >
         <Text style={[styles.ctaText, { color: semantic.text.onAccent }]}>
           {loading ? loadingLabel : submitLabel}

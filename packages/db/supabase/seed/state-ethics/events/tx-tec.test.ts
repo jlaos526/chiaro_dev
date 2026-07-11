@@ -10,7 +10,17 @@ describe('txTecEvents adapter', () => {
   })
 
   it('injected fetcher short-circuits adapter dispatch', async () => {
-    const fixture = [{ official_openstates_person_id: 'x', event_date: '2024-01-01', event_type: 'campaign_finance_violation', summary: 's', state: 'TX', source_url: 'u', source: 'tx-tec' }]
+    const fixture = [
+      {
+        official_openstates_person_id: 'x',
+        event_date: '2024-01-01',
+        event_type: 'campaign_finance_violation',
+        summary: 's',
+        state: 'TX',
+        source_url: 'u',
+        source: 'tx-tec',
+      },
+    ]
     const result = await txTecEvents.fetchEvents({
       fetcher: async () => fixture as never,
     } as never)

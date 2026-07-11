@@ -25,9 +25,12 @@ export type StateChamber = 'state_house' | 'state_senate' | 'state_legislature'
 export function inferChamberFromTitle(title: string): StateChamber | null {
   // Match priority: state_senate (must contain "State Senator") then state_house.
   if (/\bState Senator\b/i.test(title)) return 'state_senate'
-  if (/\b(Assemblymember|Assemblyman|Assemblywoman|Delegate|State Rep\.?|State Representative)\b/i.test(title)) {
+  if (
+    /\b(Assemblymember|Assemblyman|Assemblywoman|Delegate|State Rep\.?|State Representative)\b/i.test(
+      title,
+    )
+  ) {
     return 'state_house'
   }
   return null
 }
-

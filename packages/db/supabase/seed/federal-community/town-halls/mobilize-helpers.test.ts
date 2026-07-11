@@ -25,7 +25,9 @@ describe('isFederalLegislatorEvent', () => {
     expect(isFederalLegislatorEvent('Town Hall with State Senator Mike Foote', '')).toBe(false)
   })
   it('REJECTS "State Rep. <Name>"', () => {
-    expect(isFederalLegislatorEvent('State Rep. Emily Sirota — Community Town Hall', '')).toBe(false)
+    expect(isFederalLegislatorEvent('State Rep. Emily Sirota — Community Town Hall', '')).toBe(
+      false,
+    )
   })
   it('REJECTS "State Representative <Name>"', () => {
     expect(isFederalLegislatorEvent('State Representative Jane Roe', '')).toBe(false)
@@ -37,13 +39,19 @@ describe('isFederalLegislatorEvent', () => {
 
 describe('extractFederalLegislatorName', () => {
   it('extracts from "Senator <Name>"', () => {
-    expect(extractFederalLegislatorName('Town Hall with Senator Elizabeth Warren')).toBe('Elizabeth Warren')
+    expect(extractFederalLegislatorName('Town Hall with Senator Elizabeth Warren')).toBe(
+      'Elizabeth Warren',
+    )
   })
   it('extracts from "Representative <Name>"', () => {
-    expect(extractFederalLegislatorName('Town Hall with Representative Jim Jordan')).toBe('Jim Jordan')
+    expect(extractFederalLegislatorName('Town Hall with Representative Jim Jordan')).toBe(
+      'Jim Jordan',
+    )
   })
   it('extracts hyphenated last name', () => {
-    expect(extractFederalLegislatorName('Senator Maria Lopez-Garcia Town Hall')).toBe('Maria Lopez-Garcia')
+    expect(extractFederalLegislatorName('Senator Maria Lopez-Garcia Town Hall')).toBe(
+      'Maria Lopez-Garcia',
+    )
   })
   it('extracts from "Rep. <Name>"', () => {
     expect(extractFederalLegislatorName('Rep. John Doe Town Hall')).toBe('John Doe')

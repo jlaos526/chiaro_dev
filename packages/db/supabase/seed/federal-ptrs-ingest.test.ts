@@ -8,13 +8,30 @@ import type { PtrAdapter, NormalizedPtr } from './federal-disclosures/shared/typ
  * query up front (officials seed), then per-row resolve queries +
  * stock_transactions INSERTs. We track all calls for assertion.
  */
-function buildClientStub(opts: {
-  officials?: Array<{ id: string; bioguide_id: string | null; full_name?: string; chamber?: string }>
-  resolveByName?: (full_name: string, chamber: string) => string | null
-} = {}) {
+function buildClientStub(
+  opts: {
+    officials?: Array<{
+      id: string
+      bioguide_id: string | null
+      full_name?: string
+      chamber?: string
+    }>
+    resolveByName?: (full_name: string, chamber: string) => string | null
+  } = {},
+) {
   const officials = opts.officials ?? [
-    { id: 'off-pelosi', bioguide_id: 'P000197', full_name: 'Nancy Pelosi', chamber: 'federal_house' },
-    { id: 'off-warren', bioguide_id: 'W000817', full_name: 'Elizabeth Warren', chamber: 'federal_senate' },
+    {
+      id: 'off-pelosi',
+      bioguide_id: 'P000197',
+      full_name: 'Nancy Pelosi',
+      chamber: 'federal_house',
+    },
+    {
+      id: 'off-warren',
+      bioguide_id: 'W000817',
+      full_name: 'Elizabeth Warren',
+      chamber: 'federal_senate',
+    },
   ]
   const inserts: Array<{ sql: string; params: unknown[] }> = []
   const resolveByName = opts.resolveByName
@@ -22,7 +39,10 @@ function buildClientStub(opts: {
   const query = vi.fn(async (sql: string, params?: unknown[]) => {
     const text = String(sql)
     if (/from public\.officials\s+where bioguide_id is not null/i.test(text)) {
-      return { rows: officials.map(o => ({ id: o.id, bioguide_id: o.bioguide_id })), rowCount: officials.length }
+      return {
+        rows: officials.map((o) => ({ id: o.id, bioguide_id: o.bioguide_id })),
+        rowCount: officials.length,
+      }
     }
     if (/lower\(full_name\)/i.test(text) && /chamber = \$2/i.test(text)) {
       const name = params?.[0] as string | undefined
@@ -32,8 +52,9 @@ function buildClientStub(opts: {
           const id = resolveByName(name, chamber)
           if (id) return { rows: [{ id }], rowCount: 1 }
         } else {
-          const hit = officials.find(o =>
-            o.full_name?.toLowerCase() === name.toLowerCase() && o.chamber === chamber)
+          const hit = officials.find(
+            (o) => o.full_name?.toLowerCase() === name.toLowerCase() && o.chamber === chamber,
+          )
           if (hit) return { rows: [{ id: hit.id }], rowCount: 1 }
         }
       }
@@ -62,32 +83,32 @@ function makeAdapter(slug: PtrAdapter['slug'], rows: NormalizedPtr[]): PtrAdapte
 
 const SAMPLE_HOUSE_ROW: NormalizedPtr = {
   official_bioguide_id: 'P000197',
-  official_full_name:   'Nancy Pelosi',
-  filing_year:          2025,
-  transaction_date:     '2025-01-05',
-  filing_date:          '2025-01-19',
-  asset_ticker:         'AAPL',
-  asset_name:           'Apple Inc.',
-  transaction_type:     'purchase',
-  amount_range_low:     1001,
-  amount_range_high:    15000,
-  source_url:           'https://disclosures-clerk.house.gov/x/20012345.pdf',
-  external_id:          'house-ptr-20012345-1',
+  official_full_name: 'Nancy Pelosi',
+  filing_year: 2025,
+  transaction_date: '2025-01-05',
+  filing_date: '2025-01-19',
+  asset_ticker: 'AAPL',
+  asset_name: 'Apple Inc.',
+  transaction_type: 'purchase',
+  amount_range_low: 1001,
+  amount_range_high: 15000,
+  source_url: 'https://disclosures-clerk.house.gov/x/20012345.pdf',
+  external_id: 'house-ptr-20012345-1',
 }
 
 const SAMPLE_SENATE_ROW: NormalizedPtr = {
   // No bioguide_id — orchestrator must fall back to name-based resolve.
   official_full_name: 'Elizabeth Warren',
-  filing_year:        2025,
-  transaction_date:   '2025-03-02',
-  filing_date:        '2025-03-16',
-  asset_ticker:       'NVDA',
-  asset_name:         'NVIDIA Corp.',
-  transaction_type:   'sale',
-  amount_range_low:   50001,
-  amount_range_high:  100000,
-  source_url:         'https://efdsearch.senate.gov/x/S1234.pdf',
-  external_id:        'senate-ptr-S1234-1',
+  filing_year: 2025,
+  transaction_date: '2025-03-02',
+  filing_date: '2025-03-16',
+  asset_ticker: 'NVDA',
+  asset_name: 'NVIDIA Corp.',
+  transaction_type: 'sale',
+  amount_range_low: 50001,
+  amount_range_high: 100000,
+  source_url: 'https://efdsearch.senate.gov/x/S1234.pdf',
+  external_id: 'senate-ptr-S1234-1',
 }
 
 beforeEach(() => {
@@ -101,8 +122,8 @@ describe('ingestFederalPtrs happy path', () => {
     const senate = makeAdapter('senate-efpfd-ptr', [])
 
     const stats = await ingestFederalPtrs({
-      years:    [2025],
-      chamber:  'all',
+      years: [2025],
+      chamber: 'all',
       adapters: [house, senate],
       client,
     })
@@ -124,8 +145,8 @@ describe('ingestFederalPtrs happy path', () => {
     const senate = makeAdapter('senate-efpfd-ptr', [SAMPLE_SENATE_ROW])
 
     const stats = await ingestFederalPtrs({
-      years:    [2025],
-      chamber:  'senate',
+      years: [2025],
+      chamber: 'senate',
       adapters: [makeAdapter('house-efd-ptr', []), senate],
       client,
     })
@@ -143,8 +164,8 @@ describe('ingestFederalPtrs happy path', () => {
     const house = makeAdapter('house-efd-ptr', [SAMPLE_HOUSE_ROW])
 
     const stats = await ingestFederalPtrs({
-      years:    [2025],
-      chamber:  'all',
+      years: [2025],
+      chamber: 'all',
       adapters: [house],
       client,
     })
@@ -164,16 +185,16 @@ describe('ingestFederalPtrs --no-apply mode', () => {
     const house = makeAdapter('house-efd-ptr', [SAMPLE_HOUSE_ROW])
 
     const stats = await ingestFederalPtrs({
-      years:    [2025],
-      chamber:  'house',
+      years: [2025],
+      chamber: 'house',
       adapters: [house, makeAdapter('senate-efpfd-ptr', [])],
       client,
-      noApply:  true,
+      noApply: true,
     })
 
     expect(stats.rowsFetched).toBe(1)
     expect(stats.officialsMatched).toBe(1)
-    expect(stats.rowsInserted).toBe(0)   // no INSERT issued
+    expect(stats.rowsInserted).toBe(0) // no INSERT issued
     expect(inserts).toHaveLength(0)
   })
 })
@@ -181,12 +202,12 @@ describe('ingestFederalPtrs --no-apply mode', () => {
 describe('ingestFederalPtrs --chamber filter', () => {
   it('chamber=house invokes only houseEfdPtr', async () => {
     const { client } = buildClientStub()
-    const house  = makeAdapter('house-efd-ptr', [SAMPLE_HOUSE_ROW])
+    const house = makeAdapter('house-efd-ptr', [SAMPLE_HOUSE_ROW])
     const senate = makeAdapter('senate-efpfd-ptr', [SAMPLE_SENATE_ROW])
 
     await ingestFederalPtrs({
-      years:    [2025],
-      chamber:  'house',
+      years: [2025],
+      chamber: 'house',
       adapters: [house, senate],
       client,
     })
@@ -197,12 +218,12 @@ describe('ingestFederalPtrs --chamber filter', () => {
 
   it('chamber=senate invokes only senateEfpfdPtr', async () => {
     const { client } = buildClientStub()
-    const house  = makeAdapter('house-efd-ptr', [SAMPLE_HOUSE_ROW])
+    const house = makeAdapter('house-efd-ptr', [SAMPLE_HOUSE_ROW])
     const senate = makeAdapter('senate-efpfd-ptr', [SAMPLE_SENATE_ROW])
 
     await ingestFederalPtrs({
-      years:    [2025],
-      chamber:  'senate',
+      years: [2025],
+      chamber: 'senate',
       adapters: [house, senate],
       client,
     })
@@ -213,12 +234,12 @@ describe('ingestFederalPtrs --chamber filter', () => {
 
   it('chamber=all invokes both adapters across all years', async () => {
     const { client } = buildClientStub()
-    const house  = makeAdapter('house-efd-ptr', [])
+    const house = makeAdapter('house-efd-ptr', [])
     const senate = makeAdapter('senate-efpfd-ptr', [])
 
     await ingestFederalPtrs({
-      years:    [2025, 2024],
-      chamber:  'all',
+      years: [2025, 2024],
+      chamber: 'all',
       adapters: [house, senate],
       client,
     })
@@ -232,8 +253,8 @@ describe('ingestFederalPtrs slice 22 skip summary', () => {
   it('skipSummary reads "No skips recorded." when adapter yields without skips', async () => {
     const { client } = buildClientStub()
     const stats = await ingestFederalPtrs({
-      years:    [2025],
-      chamber:  'all',
+      years: [2025],
+      chamber: 'all',
       adapters: [
         makeAdapter('house-efd-ptr', [SAMPLE_HOUSE_ROW]),
         makeAdapter('senate-efpfd-ptr', []),
@@ -246,8 +267,8 @@ describe('ingestFederalPtrs slice 22 skip summary', () => {
   it('skipSummary includes resolve stage when official is unmatched', async () => {
     const { client } = buildClientStub({ officials: [] })
     const stats = await ingestFederalPtrs({
-      years:    [2025],
-      chamber:  'house',
+      years: [2025],
+      chamber: 'house',
       adapters: [
         makeAdapter('house-efd-ptr', [SAMPLE_HOUSE_ROW]),
         makeAdapter('senate-efpfd-ptr', []),
@@ -269,8 +290,8 @@ describe('ingestFederalPtrs adapter throw containment', () => {
     const ok = makeAdapter('senate-efpfd-ptr', [SAMPLE_SENATE_ROW])
 
     const stats = await ingestFederalPtrs({
-      years:    [2025],
-      chamber:  'all',
+      years: [2025],
+      chamber: 'all',
       adapters: [failing, ok],
       client,
     })

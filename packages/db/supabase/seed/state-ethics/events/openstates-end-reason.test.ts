@@ -13,7 +13,8 @@ describe('openstatesEndReason adapter', () => {
   it('happy path: fetcher injection returns fixture events', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     const events = await openstatesEndReason.fetchEvents({
-      client: {} as never, fetcher: async () => fixture.events,
+      client: {} as never,
+      fetcher: async () => fixture.events,
     } as never)
     expect(events.length).toBe(fixture.events.length)
     expect((events[0] as { event_type?: string }).event_type).toBe('resignation')
@@ -36,7 +37,14 @@ describe('openstatesEndReason adapter', () => {
   })
 
   describe('production path — YAML cache walker', () => {
-    const YAML_DIR = join(__dirname, '..', '..', 'fixtures', 'state-ethics', 'events-openstates-yaml')
+    const YAML_DIR = join(
+      __dirname,
+      '..',
+      '..',
+      'fixtures',
+      'state-ethics',
+      'events-openstates-yaml',
+    )
 
     beforeEach(() => {
       process.env.OPENSTATES_PEOPLE_CACHE_DIR = YAML_DIR
@@ -47,15 +55,17 @@ describe('openstatesEndReason adapter', () => {
     })
 
     it('parses .yml files and emits resignation events with state extracted from OCD jurisdiction', async () => {
-      const events = await openstatesEndReason.fetchEvents({ client: {} as never } as never) as Array<{
+      const events = (await openstatesEndReason.fetchEvents({
+        client: {} as never,
+      } as never)) as Array<{
         state: string
         event_date: string
         event_type: string
         outcome?: string
       }>
       expect(events.length).toBe(2)
-      const ca = events.find(e => e.state === 'CA')
-      const ny = events.find(e => e.state === 'NY')
+      const ca = events.find((e) => e.state === 'CA')
+      const ny = events.find((e) => e.state === 'NY')
       expect(ca).toBeDefined()
       expect(ny).toBeDefined()
       expect(ca!.event_date).toBe('2025-11-15')
@@ -84,7 +94,9 @@ describe('openstatesEndReason adapter', () => {
       const skips: SkipReason[] = []
       const events = await openstatesEndReason.fetchEvents({
         client: {} as never,
-        onSkip: (r: SkipReason) => { skips.push(r) },
+        onSkip: (r: SkipReason) => {
+          skips.push(r)
+        },
       } as never)
       expect(events).toEqual([])
       expect(skips).toHaveLength(1)
@@ -107,10 +119,14 @@ describe('openstatesEndReason adapter', () => {
       const skips: SkipReason[] = []
       const events = await openstatesEndReason.fetchEvents({
         client: {} as never,
-        onSkip: (r: SkipReason) => { skips.push(r) },
+        onSkip: (r: SkipReason) => {
+          skips.push(r)
+        },
       } as never)
       expect(events).toEqual([])
-      const parseSkips = skips.filter(s => s.stage === 'parse' && s.adapter === 'openstates-end-reason')
+      const parseSkips = skips.filter(
+        (s) => s.stage === 'parse' && s.adapter === 'openstates-end-reason',
+      )
       expect(parseSkips.length).toBeGreaterThanOrEqual(1)
       expect(parseSkips[0]!.legislator).toBe('broken.yml')
     })
@@ -133,11 +149,13 @@ describe('openstatesEndReason adapter', () => {
       const skips: SkipReason[] = []
       const events = await openstatesEndReason.fetchEvents({
         client: {} as never,
-        onSkip: (r: SkipReason) => { skips.push(r) },
+        onSkip: (r: SkipReason) => {
+          skips.push(r)
+        },
       } as never)
       expect(events).toEqual([])
       // No skip emitted: filter for resign/death is the normal case.
-      const filterSkips = skips.filter(s => s.stage === 'filter')
+      const filterSkips = skips.filter((s) => s.stage === 'filter')
       expect(filterSkips).toEqual([])
     })
 

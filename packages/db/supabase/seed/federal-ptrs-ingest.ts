@@ -5,36 +5,36 @@ import { createSkipCollector, formatSkipSummary } from './shared/instrumentation
 import { PTR_ADAPTERS } from './federal-disclosures/ptr/index.ts'
 import type { PtrAdapter, NormalizedPtr } from './federal-disclosures/shared/types.ts'
 
-const DB_URL = process.env.SUPABASE_DB_URL
-  ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const DB_URL =
+  process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 
 export type Chamber = 'house' | 'senate' | 'all'
 
 export interface IngestFederalPtrsOpts {
   /** Years to ingest. Defaults to [currentYear, currentYear - 1]. */
-  years?:      number[]
+  years?: number[]
   /** Chamber filter; 'all' includes both adapters. */
-  chamber?:    Chamber
+  chamber?: Chamber
   /** Slice 22 instrumentation: print skip summary to stdout when true. */
   instrument?: boolean
   /** Dry-run: skip DB writes; log intended row count. */
-  noApply?:    boolean
+  noApply?: boolean
   /** Override PTR adapters (testing hook). */
-  adapters?:   PtrAdapter[]
+  adapters?: PtrAdapter[]
   /** Injected pg client (testing hook). */
-  client?:     Client
+  client?: Client
 }
 
 export interface IngestFederalPtrsStats {
-  years:              number[]
-  chamber:            Chamber
-  rowsFetched:        number
-  rowsInserted:       number
-  officialsMatched:   number
+  years: number[]
+  chamber: Chamber
+  rowsFetched: number
+  rowsInserted: number
+  officialsMatched: number
   officialsUnmatched: string[]
-  errors:             string[]
+  errors: string[]
   /** Slice 22 skip summary text (always present; "No skips recorded." when none). */
-  skipSummary:        string
+  skipSummary: string
 }
 
 /**
@@ -46,7 +46,7 @@ export interface IngestFederalPtrsStats {
 function filterAdaptersByChamber(adapters: PtrAdapter[], chamber: Chamber): PtrAdapter[] {
   if (chamber === 'all') return adapters
   const prefix = `${chamber}-`
-  return adapters.filter(a => a.slug.startsWith(prefix))
+  return adapters.filter((a) => a.slug.startsWith(prefix))
 }
 
 /**
@@ -94,7 +94,7 @@ async function resolveOfficialIdForPtr(
 export async function ingestFederalPtrs(
   opts: IngestFederalPtrsOpts = {},
 ): Promise<IngestFederalPtrsStats> {
-  const years   = opts.years   ?? defaultYears()
+  const years = opts.years ?? defaultYears()
   const chamber = opts.chamber ?? 'all'
   const adapters = filterAdaptersByChamber(opts.adapters ?? PTR_ADAPTERS, chamber)
 
@@ -106,12 +106,12 @@ export async function ingestFederalPtrs(
   const stats: IngestFederalPtrsStats = {
     years,
     chamber,
-    rowsFetched:        0,
-    rowsInserted:       0,
-    officialsMatched:   0,
+    rowsFetched: 0,
+    rowsInserted: 0,
+    officialsMatched: 0,
     officialsUnmatched: [],
-    errors:             [],
-    skipSummary:        '',
+    errors: [],
+    skipSummary: '',
   }
 
   try {
@@ -140,7 +140,9 @@ export async function ingestFederalPtrs(
           try {
             officialId = await resolveOfficialIdForPtr(client, row, bioguideMap, adapter.slug)
           } catch (err) {
-            stats.errors.push(`${adapter.slug} resolve ${row.external_id}: ${(err as Error).message}`)
+            stats.errors.push(
+              `${adapter.slug} resolve ${row.external_id}: ${(err as Error).message}`,
+            )
             continue
           }
           if (!officialId) {
@@ -149,8 +151,8 @@ export async function ingestFederalPtrs(
             const legislator = row.official_full_name ?? row.official_bioguide_id
             collector.onSkip({
               adapter: adapter.slug,
-              stage:   'resolve',
-              reason:  `unmatched legislator for ${row.external_id}`,
+              stage: 'resolve',
+              reason: `unmatched legislator for ${row.external_id}`,
               ...(legislator ? { legislator } : {}),
             })
             continue
@@ -181,10 +183,10 @@ export async function ingestFederalPtrs(
                 officialId,
                 row.transaction_date,
                 row.filing_date,
-                row.asset_ticker  ?? null,
-                row.asset_name    ?? null,
+                row.asset_ticker ?? null,
+                row.asset_name ?? null,
                 row.transaction_type,
-                row.amount_range_low  ?? null,
+                row.amount_range_low ?? null,
                 row.amount_range_high ?? null,
                 row.source_url,
                 adapter.slug,
@@ -193,7 +195,9 @@ export async function ingestFederalPtrs(
             )
             stats.rowsInserted += 1
           } catch (err) {
-            stats.errors.push(`${adapter.slug} insert ${row.external_id}: ${(err as Error).message}`)
+            stats.errors.push(
+              `${adapter.slug} insert ${row.external_id}: ${(err as Error).message}`,
+            )
           }
         }
       }
@@ -207,10 +211,10 @@ export async function ingestFederalPtrs(
 }
 
 interface ParsedCli {
-  years?:      number[]
-  chamber:     Chamber
-  instrument:  boolean
-  noApply:     boolean
+  years?: number[]
+  chamber: Chamber
+  instrument: boolean
+  noApply: boolean
 }
 
 function parseArgs(argv: readonly string[]): ParsedCli {
@@ -246,24 +250,28 @@ if (isCliEntry(import.meta.url)) {
     cli = parseArgs(process.argv.slice(2))
   } catch (err) {
     console.error((err as Error).message)
-    console.error('usage: tsx federal-ptrs-ingest.ts [--year=YYYY] [--chamber=house|senate|all] [--instrument] [--no-apply]')
+    console.error(
+      'usage: tsx federal-ptrs-ingest.ts [--year=YYYY] [--chamber=house|senate|all] [--instrument] [--no-apply]',
+    )
     process.exit(2)
   }
 
   const ingestOpts: IngestFederalPtrsOpts = {
-    chamber:    cli.chamber,
+    chamber: cli.chamber,
     instrument: cli.instrument,
-    noApply:    cli.noApply,
+    noApply: cli.noApply,
   }
   if (cli.years) ingestOpts.years = cli.years
 
   ingestFederalPtrs(ingestOpts)
-    .then(stats => {
+    .then((stats) => {
       console.log(`Federal PTR ingest summary:`)
       console.log(`  years:               ${stats.years.join(', ')}`)
       console.log(`  chamber:             ${stats.chamber}`)
       console.log(`  rows fetched:        ${stats.rowsFetched}`)
-      console.log(`  rows inserted:       ${stats.rowsInserted}${cli.noApply ? ' (no-apply: not written)' : ''}`)
+      console.log(
+        `  rows inserted:       ${stats.rowsInserted}${cli.noApply ? ' (no-apply: not written)' : ''}`,
+      )
       console.log(`  officials matched:   ${stats.officialsMatched}`)
       console.log(`  officials unmatched: ${stats.officialsUnmatched.length}`)
       console.log(`  errors:              ${stats.errors.length}`)
@@ -276,5 +284,8 @@ if (isCliEntry(import.meta.url)) {
       }
       process.exit(stats.errors.length === 0 ? 0 : 1)
     })
-    .catch(err => { console.error((err as Error).message); process.exit(1) })
+    .catch((err) => {
+      console.error((err as Error).message)
+      process.exit(1)
+    })
 }

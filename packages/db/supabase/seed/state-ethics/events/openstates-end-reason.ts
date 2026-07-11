@@ -4,15 +4,68 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { parse as parseYaml } from 'yaml'
 
-const ALL_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY']
+const ALL_STATES = [
+  'AL',
+  'AK',
+  'AZ',
+  'AR',
+  'CA',
+  'CO',
+  'CT',
+  'DE',
+  'FL',
+  'GA',
+  'HI',
+  'ID',
+  'IL',
+  'IN',
+  'IA',
+  'KS',
+  'KY',
+  'LA',
+  'ME',
+  'MD',
+  'MA',
+  'MI',
+  'MN',
+  'MS',
+  'MO',
+  'MT',
+  'NE',
+  'NV',
+  'NH',
+  'NJ',
+  'NM',
+  'NY',
+  'NC',
+  'ND',
+  'OH',
+  'OK',
+  'OR',
+  'PA',
+  'RI',
+  'SC',
+  'SD',
+  'TN',
+  'TX',
+  'UT',
+  'VT',
+  'VA',
+  'WA',
+  'WV',
+  'WI',
+  'WY',
+]
 
 function peopleCacheDir(): string {
-  return process.env.OPENSTATES_PEOPLE_CACHE_DIR
-    ?? join(process.cwd(), 'packages', 'db', 'supabase', 'seed', '.cache', 'openstates', 'people')
+  return (
+    process.env.OPENSTATES_PEOPLE_CACHE_DIR ??
+    join(process.cwd(), 'packages', 'db', 'supabase', 'seed', '.cache', 'openstates', 'people')
+  )
 }
 
 const RESIGN_RE = /resign/i
-const DEATH_RE  = /(death|died|deceased)/i
+const DEATH_RE = /(death|died|deceased)/i
 
 const JURISDICTION_RE = /state:([a-z]{2})\//i
 
@@ -107,7 +160,7 @@ export const openstatesEndReason: StateEthicsAdapter<NormalizedOfficialEvent> = 
         if (opts.state && roleState !== opts.state) continue
 
         const isResign = RESIGN_RE.test(role.end_reason)
-        const isDeath  = DEATH_RE.test(role.end_reason)
+        const isDeath = DEATH_RE.test(role.end_reason)
         // INTENTIONAL silent filter: most roles have end_reason like "term ended"
         // — not a resignation/death. We don't emit a skip here because this is
         // the normal case (the adapter's purpose is to extract ONLY resign/death

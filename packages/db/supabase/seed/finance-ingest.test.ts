@@ -21,16 +21,21 @@ beforeEach(async () => {
     on conflict (tier,code) do nothing
   `)
   const d = await client.query("select id from public.districts where code='CA-11-fixfin'")
-  await client.query(`
+  await client.query(
+    `
     insert into public.officials (bioguide_id, opensecrets_id, first_name, last_name, full_name,
       chamber, party, state, district_id, senate_class, source_version)
     values ('FINTEST1','N00007360','Nancy','Pelosi','Nancy Pelosi','federal_house','D','CA',$1::uuid,null,'119')
     on conflict (bioguide_id) do update set opensecrets_id = excluded.opensecrets_id
-  `, [d.rows[0].id])
+  `,
+    [d.rows[0].id],
+  )
 })
 
 afterEach(async () => {
-  await client.query("delete from public.finance_summaries where official_id in (select id from public.officials where bioguide_id = 'FINTEST1')")
+  await client.query(
+    "delete from public.finance_summaries where official_id in (select id from public.officials where bioguide_id = 'FINTEST1')",
+  )
   await client.query("delete from public.officials where bioguide_id = 'FINTEST1'")
   await client.query("delete from public.districts where code = 'CA-11-fixfin'")
   await client.end()
@@ -101,9 +106,15 @@ describe('ingestFinance', () => {
     expect(donorsAgain.rows[0].c).toBe(3)
 
     // Cascade-delete: removing the summary clears both new child tables.
-    await client.query(`delete from public.finance_summaries where official_id in (select id from public.officials where bioguide_id = 'FINTEST1')`)
-    const donorsAfter = await client.query(`select count(*)::int as c from public.finance_individual_donors`)
-    const orgsAfter = await client.query(`select count(*)::int as c from public.finance_top_organizations`)
+    await client.query(
+      `delete from public.finance_summaries where official_id in (select id from public.officials where bioguide_id = 'FINTEST1')`,
+    )
+    const donorsAfter = await client.query(
+      `select count(*)::int as c from public.finance_individual_donors`,
+    )
+    const orgsAfter = await client.query(
+      `select count(*)::int as c from public.finance_top_organizations`,
+    )
     expect(donorsAfter.rows[0].c).toBe(0)
     expect(orgsAfter.rows[0].c).toBe(0)
   })

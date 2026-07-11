@@ -26,10 +26,7 @@ const PARTY_DISTRICT_RE = /^([DRI])\s*-\s*(?:HD|SD)\s*(\d+)$/
  *   0: Rep/Sen (link), 1: Party-District (e.g. "D - HD 23"),
  *   2: 2025 Score %, 3: Lifetime Score %
  */
-export function parseColoradoLcvHtml(
-  html: string,
-  chamber: Chamber,
-): ParsedColoradoLcvRow[] {
+export function parseColoradoLcvHtml(html: string, chamber: Chamber): ParsedColoradoLcvRow[] {
   const $ = cheerio.load(html)
   const out: ParsedColoradoLcvRow[] = []
 
@@ -164,12 +161,13 @@ export async function fetchColoradoRatings(
         full_name,
         state: 'CO',
         chamber,
-        onAmbiguous: () => opts.onSkip?.({
-          adapter: 'lcv',
-          stage: 'resolve_ambiguous',
-          legislator: full_name,
-          reason: 'ambiguous full_name match (2+ in-office officials)',
-        }),
+        onAmbiguous: () =>
+          opts.onSkip?.({
+            adapter: 'lcv',
+            stage: 'resolve_ambiguous',
+            legislator: full_name,
+            reason: 'ambiguous full_name match (2+ in-office officials)',
+          }),
       })
       if (!openstatesPersonId) {
         opts.onSkip?.({

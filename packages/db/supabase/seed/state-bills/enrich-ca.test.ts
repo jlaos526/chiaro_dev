@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url'
 import { enrichCalifornia } from './enrich-ca.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DB_URL    = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
-const FIXTURE   = join(__dirname, '..', 'fixtures', 'state-bills-enrich', 'ca-leginfo-AB123.json')
+const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const FIXTURE = join(__dirname, '..', 'fixtures', 'state-bills-enrich', 'ca-leginfo-AB123.json')
 
 let client: Client
 
@@ -27,7 +27,9 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  await client.query("delete from public.state_bills where openstates_bill_id like 'ocd-bill/test-ca-%'")
+  await client.query(
+    "delete from public.state_bills where openstates_bill_id like 'ocd-bill/test-ca-%'",
+  )
   await client.end()
 })
 
@@ -86,7 +88,9 @@ describe('enrichCalifornia', () => {
 
   it('reports state CA + correct skipped=false', async () => {
     const stats = await enrichCalifornia.enrich({
-      client, session: '20252026', fetcher: async () => null,
+      client,
+      session: '20252026',
+      fetcher: async () => null,
     } as never)
     expect(stats.state).toBe('CA')
     expect(stats.skipped).toBeUndefined()
@@ -94,7 +98,9 @@ describe('enrichCalifornia', () => {
 
   it('non-2025 session: no bills updated', async () => {
     const stats = await enrichCalifornia.enrich({
-      client, session: '99999999', fetcher: async () => null,
+      client,
+      session: '99999999',
+      fetcher: async () => null,
     } as never)
     expect(stats.billsUpdated).toBe(0)
   })

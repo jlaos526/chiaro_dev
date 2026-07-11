@@ -24,7 +24,8 @@ beforeEach(async () => {
   `)
   const d = await client.query("select id from public.districts where code='ZZ-AL-srfix'")
   // Speaker-shaped fixture official with FEC id (drives the Speaker-salary path)
-  await client.query(`
+  await client.query(
+    `
     insert into public.officials (bioguide_id, fec_candidate_id, first_name, last_name, full_name,
       chamber, party, state, district_id, senate_class, source_version, in_office)
     values ('SRTEST1','H8CA05035','Test','Speaker','Test Speaker','federal_house','D','ZZ',$1::uuid,null,'119', true)
@@ -33,7 +34,9 @@ beforeEach(async () => {
       district_id = excluded.district_id,
       state = excluded.state,
       in_office = true
-  `, [d.rows[0].id])
+  `,
+    [d.rows[0].id],
+  )
   // Seed leadership: current Speaker (no end_date)
   await client.query(`
     delete from public.officials_leadership_history
@@ -48,8 +51,12 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  await client.query("delete from public.official_metrics where official_id in (select id from public.officials where bioguide_id = 'SRTEST1')")
-  await client.query("delete from public.officials_leadership_history where official_id in (select id from public.officials where bioguide_id = 'SRTEST1')")
+  await client.query(
+    "delete from public.official_metrics where official_id in (select id from public.officials where bioguide_id = 'SRTEST1')",
+  )
+  await client.query(
+    "delete from public.officials_leadership_history where official_id in (select id from public.officials where bioguide_id = 'SRTEST1')",
+  )
   await client.query("delete from public.officials where bioguide_id = 'SRTEST1'")
   await client.query("delete from public.districts where code = 'ZZ-AL-srfix'")
   await client.end()
@@ -60,12 +67,12 @@ describe('ingestSalaryAndResidency', () => {
     const stats = await ingestSalaryAndResidency({
       addressFetcher: async () => ({
         address1: '90 7th Street',
-        city:     'Fixture City',
-        state:    'ZZ',
-        zip:      '00001',
+        city: 'Fixture City',
+        state: 'ZZ',
+        zip: '00001',
         source_url: 'https://www.fec.gov/data/candidate/H8CA05035/',
       }),
-      geocoder: async () => ({ lat: 37.776, lng: -122.418 }),  // inside the seeded ZZ polygon
+      geocoder: async () => ({ lat: 37.776, lng: -122.418 }), // inside the seeded ZZ polygon
     })
 
     expect(stats.officialsProcessed).toBeGreaterThanOrEqual(1)
@@ -78,7 +85,7 @@ describe('ingestSalaryAndResidency', () => {
       where official_id = (select id from public.officials where bioguide_id = 'SRTEST1')
     `)
     expect(m.rows.length).toBe(1)
-    expect(Number(m.rows[0].salary_usd)).toBe(223500)  // Speaker salary
+    expect(Number(m.rows[0].salary_usd)).toBe(223500) // Speaker salary
     expect(m.rows[0].salary_role).toBe('Speaker')
     expect(m.rows[0].lives_in_district).toBe(true)
     expect(m.rows[0].home_district_id).toBeTruthy()
@@ -88,12 +95,12 @@ describe('ingestSalaryAndResidency', () => {
     const stats = await ingestSalaryAndResidency({
       addressFetcher: async () => ({
         address1: '1 Far Away Ave',
-        city:     'Elsewhere',
-        state:    'ZZ',
-        zip:      '00002',
+        city: 'Elsewhere',
+        state: 'ZZ',
+        zip: '00002',
         source_url: 'https://www.fec.gov/data/candidate/H8CA05035/',
       }),
-      geocoder: async () => ({ lat: 40.706, lng: -74.011 }),  // far outside the ZZ polygon
+      geocoder: async () => ({ lat: 40.706, lng: -74.011 }), // far outside the ZZ polygon
     })
 
     // Address state is ZZ but the geocoded point falls outside ZZ-AL-srfix's

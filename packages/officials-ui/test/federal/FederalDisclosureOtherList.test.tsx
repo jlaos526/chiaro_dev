@@ -7,19 +7,19 @@ import type { FederalDisclosureOther } from '@chiaro/officials'
 
 function row(overrides: Partial<FederalDisclosureOther> = {}): FederalDisclosureOther {
   return {
-    id:           'o1',
-    official_id:  'oid',
-    filing_year:  2024,
-    source:       'house-fd',
-    external_id:  null,
-    source_url:   'https://example.com/fd',
-    category:     'gift',
-    description:  'World Series tickets',
+    id: 'o1',
+    official_id: 'oid',
+    filing_year: 2024,
+    source: 'house-fd',
+    external_id: null,
+    source_url: 'https://example.com/fd',
+    category: 'gift',
+    description: 'World Series tickets',
     source_party: 'ACME Lobby Group',
-    value_min:    500,
-    value_max:    1000,
-    value_text:   null,
-    ingested_at:  '2026-01-01',
+    value_min: 500,
+    value_max: 1000,
+    value_text: null,
+    ingested_at: '2026-01-01',
     ...overrides,
   }
 }
@@ -34,7 +34,7 @@ describe('FederalDisclosureOtherList', () => {
     const rows = [
       row({ id: 'o-gift', category: 'gift' }),
       row({ id: 'o-trav', category: 'travel', description: 'Trip to Davos' }),
-      row({ id: 'o-pos',  category: 'position', description: 'Trustee, X Foundation' }),
+      row({ id: 'o-pos', category: 'position', description: 'Trustee, X Foundation' }),
     ]
     const { getByText } = render(<FederalDisclosureOtherList rows={rows} />)
     expect(getByText('Gifts')).toBeTruthy()
@@ -44,12 +44,12 @@ describe('FederalDisclosureOtherList', () => {
 
   it('renders categories in editorial order (gift before travel before honoraria)', () => {
     const rows = [
-      row({ id: 'o-pos',     category: 'position',  description: 'Pos' }),
-      row({ id: 'o-honor',   category: 'honoraria', description: 'Honor' }),
-      row({ id: 'o-gift',    category: 'gift',      description: 'Gift' }),
+      row({ id: 'o-pos', category: 'position', description: 'Pos' }),
+      row({ id: 'o-honor', category: 'honoraria', description: 'Honor' }),
+      row({ id: 'o-gift', category: 'gift', description: 'Gift' }),
     ]
     const { container } = render(<FederalDisclosureOtherList rows={rows} />)
-    const headings = Array.from(container.querySelectorAll('div')).map(d => d.textContent ?? '')
+    const headings = Array.from(container.querySelectorAll('div')).map((d) => d.textContent ?? '')
     const headingsJoined = headings.join('|')
     // gift heading text must appear before honoraria, which must appear before positions
     const giftIdx = headingsJoined.indexOf('Gifts')
@@ -62,9 +62,7 @@ describe('FederalDisclosureOtherList', () => {
 
   it('formats value ranges correctly ($1k–$15k)', () => {
     const { getByText } = render(
-      <FederalDisclosureOtherList
-        rows={[row({ id: 'o-v', value_min: 1000, value_max: 15000 })]}
-      />,
+      <FederalDisclosureOtherList rows={[row({ id: 'o-v', value_min: 1000, value_max: 15000 })]} />,
     )
     expect(getByText(/\$1k–\$15k/)).toBeTruthy()
   })

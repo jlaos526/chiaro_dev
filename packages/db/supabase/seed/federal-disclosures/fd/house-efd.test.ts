@@ -4,7 +4,7 @@ import { Buffer } from 'node:buffer'
 // Mock the shared/pdf module so tests inject text directly.
 vi.mock('../../shared/pdf.ts', () => ({
   extractPdfText: vi.fn(),
-  fetchPdf:       vi.fn(),
+  fetchPdf: vi.fn(),
 }))
 
 // Mock the house-zip helper so tests inject manifest directly.
@@ -19,7 +19,7 @@ import { createSkipCollector } from '../../shared/instrumentation.ts'
 import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const mockedExtractPdfText = vi.mocked(extractPdfText)
-const mockedFetchHouseZip  = vi.mocked(fetchHouseDisclosureZip)
+const mockedFetchHouseZip = vi.mocked(fetchHouseDisclosureZip)
 
 /**
  * Mock FD text covering Schedule A (1 holding) + Schedule C (1 liability)
@@ -37,8 +37,7 @@ const FD_TEXT_MIXED = [
   'Trade group fly-in Washington DC $5,001 - $15,000',
 ].join('\n')
 
-const FD_TEXT_HOLDING_ONLY =
-  'Schedule A\nApple Inc. [ST] $15,001 - $50,000'
+const FD_TEXT_HOLDING_ONLY = 'Schedule A\nApple Inc. [ST] $15,001 - $50,000'
 
 beforeEach(() => {
   mockedExtractPdfText.mockReset()
@@ -56,11 +55,12 @@ describe('house-efd-fd happy path', () => {
     mockedFetchHouseZip.mockResolvedValue({
       filings: [
         {
-          filingId:   '90012345',
+          filingId: '90012345',
           bioguideId: 'P000197',
-          fullName:   'Nancy Pelosi',
-          pdfBytes:   Buffer.from('fake-pdf'),
-          pdfUrl:     'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025/90012345.pdf',
+          fullName: 'Nancy Pelosi',
+          pdfBytes: Buffer.from('fake-pdf'),
+          pdfUrl:
+            'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/2025/90012345.pdf',
         },
       ],
     })
@@ -71,16 +71,16 @@ describe('house-efd-fd happy path', () => {
     expect(holdings).toHaveLength(1)
     expect(holdings[0]).toMatchObject({
       official_bioguide_id: 'P000197',
-      official_full_name:   'Nancy Pelosi',
-      filing_year:          2025,
-      external_id:          'house-fd-90012345-A-1',
+      official_full_name: 'Nancy Pelosi',
+      filing_year: 2025,
+      external_id: 'house-fd-90012345-A-1',
     })
 
     expect(other).toHaveLength(3)
     // External_id schedule-letter mapping: liability=C, gift=H, travel=I.
     // Index suffix uses combined-array position (per plan code lines 1153-1162);
     // schedule letter encodes category, position increments globally.
-    const byCategory = new Map(other.map(r => [r.category, r]))
+    const byCategory = new Map(other.map((r) => [r.category, r]))
     expect(byCategory.get('liability')?.external_id).toMatch(/^house-fd-90012345-C-\d+$/)
     expect(byCategory.get('gift')?.external_id).toMatch(/^house-fd-90012345-H-\d+$/)
     expect(byCategory.get('travel')?.external_id).toMatch(/^house-fd-90012345-I-\d+$/)
@@ -98,7 +98,7 @@ describe('house-efd-fd happy path', () => {
           filingId: 'EMPTY1',
           fullName: 'Some Member',
           pdfBytes: Buffer.from('fake-pdf'),
-          pdfUrl:   'https://example.com/EMPTY1.pdf',
+          pdfUrl: 'https://example.com/EMPTY1.pdf',
         },
       ],
     })
@@ -121,7 +121,7 @@ describe('house-efd-fd happy path', () => {
           filingId: 'NOBIO1',
           fullName: 'Unknown Member',
           pdfBytes: Buffer.from('fake-pdf'),
-          pdfUrl:   'https://example.com/NOBIO1.pdf',
+          pdfUrl: 'https://example.com/NOBIO1.pdf',
         },
       ],
     })
@@ -156,22 +156,24 @@ describe('house-efd-fd slice 22 onSkip instrumentation', () => {
           filingId: 'F1',
           fullName: 'Jane Doe',
           pdfBytes: Buffer.from('fake-pdf'),
-          pdfUrl:   'https://example.com/F1.pdf',
+          pdfUrl: 'https://example.com/F1.pdf',
         },
       ],
     })
     mockedExtractPdfText.mockResolvedValue('')
     const skips: SkipReason[] = []
     const { holdings, other } = await houseEfdFd.fetchDisclosures({
-      year:   2025,
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      year: 2025,
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     })
     expect(holdings).toEqual([])
     expect(other).toEqual([])
     expect(skips).toHaveLength(1)
     expect(skips[0]).toMatchObject({
-      adapter:    'house-efd-fd',
-      stage:      'extract',
+      adapter: 'house-efd-fd',
+      stage: 'extract',
       legislator: 'Jane Doe',
     })
   })
@@ -183,22 +185,24 @@ describe('house-efd-fd slice 22 onSkip instrumentation', () => {
           filingId: 'F2',
           fullName: 'Alex Smith',
           pdfBytes: Buffer.from('fake-pdf'),
-          pdfUrl:   'https://example.com/F2.pdf',
+          pdfUrl: 'https://example.com/F2.pdf',
         },
       ],
     })
     mockedExtractPdfText.mockRejectedValue(new Error('PDF corrupt'))
     const skips: SkipReason[] = []
     const { holdings, other } = await houseEfdFd.fetchDisclosures({
-      year:   2025,
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      year: 2025,
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     })
     expect(holdings).toEqual([])
     expect(other).toEqual([])
     expect(skips).toHaveLength(1)
     expect(skips[0]).toMatchObject({
-      adapter:    'house-efd-fd',
-      stage:      'extract',
+      adapter: 'house-efd-fd',
+      stage: 'extract',
       legislator: 'Alex Smith',
     })
     expect(skips[0]?.detail).toMatch(/corrupt/)

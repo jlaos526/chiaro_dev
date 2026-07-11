@@ -9,14 +9,14 @@ import { useChiaroClient } from '../client-context.tsx'
 // appear on state_bill_subjects.subject (varies per state). Conservative
 // listing — better to under-match than over-match for the v1 evidence panel.
 const SUBJECT_BY_AREA_STATE: Record<string, string[]> = {
-  'environment':         ['Environment', 'Energy', 'Climate'],
-  'civil-liberties':     ['Civil rights', 'Privacy', 'Civil liberties'],
+  environment: ['Environment', 'Energy', 'Climate'],
+  'civil-liberties': ['Civil rights', 'Privacy', 'Civil liberties'],
   'reproductive-rights': ['Health', 'Reproductive rights'],
-  'second-amendment':    ['Firearms', 'Guns'],
-  'business-policy':     ['Commerce', 'Business', 'Taxation'],
-  'liberal-policy':      ['Government operations'],
+  'second-amendment': ['Firearms', 'Guns'],
+  'business-policy': ['Commerce', 'Business', 'Taxation'],
+  'liberal-policy': ['Government operations'],
   'conservative-policy': ['Government operations'],
-  'labor':               ['Labor', 'Employment'],
+  labor: ['Labor', 'Employment'],
 }
 
 export interface StateIssueVotesEvidenceProps {
@@ -43,14 +43,12 @@ export function StateIssueVotesEvidence({
   }
   if (!data || data.length === 0) {
     return (
-      <Text style={mutedStyle}>
-        No matching votes for this subject area in current session.
-      </Text>
+      <Text style={mutedStyle}>No matching votes for this subject area in current session.</Text>
     )
   }
   return (
     <View style={styles.list}>
-      {data.slice(0, 5).map(vp => (
+      {data.slice(0, 5).map((vp) => (
         <View key={vp.vote.id} style={rowStyle}>
           <View style={{ flex: 1 }}>
             <Text style={billTitleStyle}>
@@ -68,8 +66,8 @@ export function StateIssueVotesEvidence({
                   vp.position === 'yes'
                     ? semantic.alert.success.fg
                     : vp.position === 'no'
-                    ? semantic.alert.danger.fg
-                    : semantic.text.muted,
+                      ? semantic.alert.danger.fg
+                      : semantic.text.muted,
               },
             ]}
           >

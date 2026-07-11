@@ -9,7 +9,14 @@ import {
 } from './shared.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const FIXTURE = join(__dirname, '..', '..', 'fixtures', 'state-ethics', 'ny-coelig-enforcement.html')
+const FIXTURE = join(
+  __dirname,
+  '..',
+  '..',
+  'fixtures',
+  'state-ethics',
+  'ny-coelig-enforcement.html',
+)
 
 describe('parseCoeligEnforcementHtml', () => {
   it('extracts all 10 rows from fixture', async () => {
@@ -27,7 +34,7 @@ describe('parseCoeligEnforcementHtml', () => {
   it('parses penalty_amount integer with comma stripping', async () => {
     const html = await readFile(FIXTURE, 'utf8')
     const rows = parseCoeligEnforcementHtml(html)
-    const mariaChen = rows.find(r => r.full_name === 'Maria Chen')!
+    const mariaChen = rows.find((r) => r.full_name === 'Maria Chen')!
     expect(mariaChen.penalty_amount).toBe(15000)
   })
 })
@@ -77,7 +84,7 @@ describe('fetchEnforcementActions', () => {
     // Total resolved: 6 + 1 = 7. Each emits 1 complaint + 1 event = 14 total rows.
     expect(result.complaints).toHaveLength(7)
     expect(result.events).toHaveLength(7)
-    expect(result.errors.length).toBeGreaterThan(0)  // Unknown Stranger logged
+    expect(result.errors.length).toBeGreaterThan(0) // Unknown Stranger logged
   })
 
   it('maps status text to canonical enum', async () => {
@@ -93,22 +100,28 @@ describe('fetchEnforcementActions', () => {
     })
 
     // "Sanctioned" → sanctioned
-    const jane = result.complaints.find(c => c.disposition === 'Campaign Finance Violation')!
+    const jane = result.complaints.find((c) => c.disposition === 'Campaign Finance Violation')!
     expect(jane.status).toBe('sanctioned')
     // "Settled" → settled
-    const alex = result.complaints.find(c => c.disposition === 'Late Filing' && c.summary.includes('NY State Senate'))!
+    const alex = result.complaints.find(
+      (c) => c.disposition === 'Late Filing' && c.summary.includes('NY State Senate'),
+    )!
     expect(alex.status).toBe('settled')
     // "Penalty Imposed" → sanctioned
-    const maria = result.complaints.find(c => c.disposition === 'Gift Rule Violation' && c.summary.includes('NY State Assembly'))!
+    const maria = result.complaints.find(
+      (c) => c.disposition === 'Gift Rule Violation' && c.summary.includes('NY State Assembly'),
+    )!
     expect(maria.status).toBe('sanctioned')
     // "Open" → open
-    const bob = result.complaints.find(c => c.disposition === 'Disclosure Violation' && c.summary.includes('NY State Senate'))!
+    const bob = result.complaints.find(
+      (c) => c.disposition === 'Disclosure Violation' && c.summary.includes('NY State Senate'),
+    )!
     expect(bob.status).toBe('open')
     // "Dismissed" → dismissed
-    const lisa = result.complaints.find(c => c.disposition === 'Filing Late')!
+    const lisa = result.complaints.find((c) => c.disposition === 'Filing Late')!
     expect(lisa.status).toBe('dismissed')
     // "Pending" → open
-    const robin = result.complaints.find(c => c.disposition === 'Ethics Violation')!
+    const robin = result.complaints.find((c) => c.disposition === 'Ethics Violation')!
     expect(robin.status).toBe('open')
   })
 
@@ -138,9 +151,9 @@ describe('fetchEnforcementActions', () => {
       }),
     }
     const result = await fetchEnforcementActions(client as never, { fetcher: async () => html })
-    const jane = result.complaints.find(c => c.disposition === 'Campaign Finance Violation')!
+    const jane = result.complaints.find((c) => c.disposition === 'Campaign Finance Violation')!
     expect(jane.external_id).toBe('complaint-2024-0042')
-    const janeEvent = result.events.find(e => e.summary.includes('Campaign Finance Violation'))!
+    const janeEvent = result.events.find((e) => e.summary.includes('Campaign Finance Violation'))!
     expect(janeEvent.external_id).toBe('event-2024-0042')
   })
 
@@ -153,6 +166,6 @@ describe('fetchEnforcementActions', () => {
       }),
     }
     const result = await fetchEnforcementActions(client as never, { fetcher: async () => html })
-    expect(result.events.every(e => e.event_type === 'campaign_finance_violation')).toBe(true)
+    expect(result.events.every((e) => e.event_type === 'campaign_finance_violation')).toBe(true)
   })
 })

@@ -11,7 +11,8 @@ describe('fl-coe complaints adapter', () => {
   it('happy path: fetcher injection returns fixture events', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     const events = await flCoeComplaints.fetchEvents({
-      client: {} as never, fetcher: async () => fixture.events,
+      client: {} as never,
+      fetcher: async () => fixture.events,
     } as never)
     expect(events.length).toBe(fixture.events.length)
   })

@@ -110,7 +110,9 @@ describe('useAlignmentChipColors', () => {
     expect(result.current).toEqual(ALIGNMENT_CHIP_COLORS_DARK['strongly-aligned'])
   })
   it('returns the mixed tier object shape', () => {
-    const { result } = renderHook(() => useAlignmentChipColors('mixed'), { wrapper: wrapper('light') })
+    const { result } = renderHook(() => useAlignmentChipColors('mixed'), {
+      wrapper: wrapper('light'),
+    })
     expect(result.current).toEqual(ALIGNMENT_CHIP_COLORS.mixed)
     expect(Object.keys(result.current).sort()).toEqual(['bg', 'fg'])
   })
@@ -196,7 +198,9 @@ describe('useDistrictTierColors (slice 60)', () => {
     expect(result.current.federal_house).toBe(DISTRICT_TIER_COLOR_DARK.federal_house)
   })
   it('lightens federal_house between modes', () => {
-    const { result: light } = renderHook(() => useDistrictTierColors(), { wrapper: wrapper('light') })
+    const { result: light } = renderHook(() => useDistrictTierColors(), {
+      wrapper: wrapper('light'),
+    })
     const { result: dark } = renderHook(() => useDistrictTierColors(), { wrapper: wrapper('dark') })
     expect(light.current.federal_house).not.toBe(dark.current.federal_house)
   })

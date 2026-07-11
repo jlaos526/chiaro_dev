@@ -92,15 +92,15 @@ describe('fetchNraRatingsForState — CA fixture', () => {
     // Resolve called only after letterToNumeric passes — AQ filtered before resolve.
     // Expect: 2 federal_senate, 2 federal_house, 2 state_senate, 1 state_house
     // (state_house: Essayli A+ keeps; AQ Member AQ skipped pre-resolve; blank skipped in parser)
-    expect(calls.filter(c => c.chamber === 'federal_senate').length).toBe(2)
-    expect(calls.filter(c => c.chamber === 'federal_house').length).toBe(2)
-    expect(calls.filter(c => c.chamber === 'state_senate').length).toBe(2)
-    expect(calls.filter(c => c.chamber === 'state_house').length).toBe(1)
+    expect(calls.filter((c) => c.chamber === 'federal_senate').length).toBe(2)
+    expect(calls.filter((c) => c.chamber === 'federal_house').length).toBe(2)
+    expect(calls.filter((c) => c.chamber === 'state_senate').length).toBe(2)
+    expect(calls.filter((c) => c.chamber === 'state_house').length).toBe(1)
   })
 
   it('skips unresolved officials', async () => {
     const html = await readFile(CA_HTML, 'utf8')
-    const client = mkClient(null) as never  // no resolution
+    const client = mkClient(null) as never // no resolution
     const ratings = await fetchNraRatingsForState('CA', client, async () => html)
     expect(ratings.length).toBe(0)
   })
@@ -147,8 +147,12 @@ describe('fetchNraRatingsForState onSkip instrumentation (slice 23)', () => {
     const ratings = await fetchNraRatingsForState(
       'CA',
       client,
-      async () => { throw new Error('cloudflare 403') },
-      (r) => { skips.push(r) },
+      async () => {
+        throw new Error('cloudflare 403')
+      },
+      (r) => {
+        skips.push(r)
+      },
     )
     expect(ratings).toEqual([])
     expect(skips).toHaveLength(1)
@@ -163,9 +167,16 @@ describe('fetchNraRatingsForState onSkip instrumentation (slice 23)', () => {
     const html = await readFile(CA_HTML, 'utf8')
     const client = mkClient('osp-mock') as never
     const skips: SkipReason[] = []
-    await fetchNraRatingsForState('CA', client, async () => html, (r) => { skips.push(r) })
+    await fetchNraRatingsForState(
+      'CA',
+      client,
+      async () => html,
+      (r) => {
+        skips.push(r)
+      },
+    )
     // AQ Member's "AQ" grade fails letterToNumeric → parse skip
-    const aqSkip = skips.find(s => s.legislator === 'AQ Member' && s.stage === 'parse')
+    const aqSkip = skips.find((s) => s.legislator === 'AQ Member' && s.stage === 'parse')
     expect(aqSkip).toBeDefined()
     expect(aqSkip).toMatchObject({
       adapter: 'nra',
@@ -177,14 +188,21 @@ describe('fetchNraRatingsForState onSkip instrumentation (slice 23)', () => {
 
   it('emits resolve-stage skip per unmatched legislator', async () => {
     const html = await readFile(CA_HTML, 'utf8')
-    const client = mkClient(null) as never  // no resolution
+    const client = mkClient(null) as never // no resolution
     const skips: SkipReason[] = []
-    const ratings = await fetchNraRatingsForState('CA', client, async () => html, (r) => { skips.push(r) })
+    const ratings = await fetchNraRatingsForState(
+      'CA',
+      client,
+      async () => html,
+      (r) => {
+        skips.push(r)
+      },
+    )
     expect(ratings).toEqual([])
     // 7 rows survive parse stage (parser filters blank + AQ-skip filters AQ-Member) → 7 resolve skips
-    const resolveSkips = skips.filter(s => s.stage === 'resolve')
+    const resolveSkips = skips.filter((s) => s.stage === 'resolve')
     expect(resolveSkips).toHaveLength(7)
-    expect(resolveSkips.every(s => s.adapter === 'nra')).toBe(true)
+    expect(resolveSkips.every((s) => s.adapter === 'nra')).toBe(true)
   })
 
   it('omitting onSkip preserves silent-skip behavior (back-compat)', async () => {

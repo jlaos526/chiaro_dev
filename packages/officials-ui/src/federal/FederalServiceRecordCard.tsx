@@ -2,10 +2,7 @@
 
 import { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
-import {
-  useOfficialLeadershipHistory,
-  useOfficialMetrics,
-} from '@chiaro/officials'
+import { useOfficialLeadershipHistory, useOfficialMetrics } from '@chiaro/officials'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
 import { useChiaroClient } from '../client-context.tsx'
@@ -40,7 +37,9 @@ export function FederalServiceRecordCard({
   if (metrics.isLoading || leadership.isLoading) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Service Record</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+          Service Record
+        </Text>
         <Text style={mutedStyle}>Loading service record…</Text>
       </View>
     )
@@ -53,7 +52,9 @@ export function FederalServiceRecordCard({
   if (allEmpty) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Service Record</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+          Service Record
+        </Text>
         <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No service record data on file for this legislator.
         </Text>
@@ -67,7 +68,9 @@ export function FederalServiceRecordCard({
 
   return (
     <View style={cardStyle}>
-      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Service Record</Text>
+      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+        Service Record
+      </Text>
       <Text style={summaryStyle}>
         {sponsored != null ? `${sponsored} bill${sponsored === 1 ? '' : 's'} sponsored` : '—'}
         {' · '}
@@ -77,16 +80,13 @@ export function FederalServiceRecordCard({
       </Text>
 
       {/* Always-visible KPI tiles */}
-      <FederalKPIList
-        metrics={m}
-        {...(hideLivesInDistrict ? { hideLivesInDistrict: true } : {})}
-      />
+      <FederalKPIList metrics={m} {...(hideLivesInDistrict ? { hideLivesInDistrict: true } : {})} />
 
       {/* Collapsible Leadership subsection */}
       <CardSubsection
         label={`Leadership history (${leadCount ?? '—'})`}
         open={openLeadership}
-        onToggle={() => setOpenLeadership(v => !v)}
+        onToggle={() => setOpenLeadership((v) => !v)}
       >
         <FederalLeadershipList rows={leadership.data ?? []} />
       </CardSubsection>

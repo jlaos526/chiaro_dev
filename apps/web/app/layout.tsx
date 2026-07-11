@@ -18,7 +18,11 @@ const inter = Inter({
 
 export const metadata = { title: 'Chiaro' }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }): Promise<React.JSX.Element> {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}): Promise<React.JSX.Element> {
   const defaultMode = await readBrandModeCookie()
   // Effective mode for server-side <body> styling. Cookie is the only signal
   // available pre-hydration; useColorScheme() can't run on the server, so a
@@ -28,7 +32,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const semantic = getSemantic(effectiveMode)
   return (
     <html lang="en" className={inter.variable} style={{ colorScheme: effectiveMode }}>
-      <body style={{ backgroundColor: semantic.bg.app, color: semantic.text.body, margin: 0, fontFamily: BRAND_TYPE_FAMILY_WEB }}>
+      <body
+        style={{
+          backgroundColor: semantic.bg.app,
+          color: semantic.text.body,
+          margin: 0,
+          fontFamily: BRAND_TYPE_FAMILY_WEB,
+        }}
+      >
         <ClientBrandModeWiring defaultMode={defaultMode}>
           <QueryProvider>{children}</QueryProvider>
         </ClientBrandModeWiring>

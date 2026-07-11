@@ -10,7 +10,16 @@ describe('miLegislatureOffices adapter', () => {
   })
 
   it('injected fetcher short-circuits adapter dispatch', async () => {
-    const fixture = [{ official_openstates_person_id: 'x', kind: 'capitol', street_1: 's', city: 'c', state: 'MI', source_url: 'u' }]
+    const fixture = [
+      {
+        official_openstates_person_id: 'x',
+        kind: 'capitol',
+        street_1: 's',
+        city: 'c',
+        state: 'MI',
+        source_url: 'u',
+      },
+    ]
     const result = await miLegislatureOffices.fetchEvents({
       fetcher: async () => fixture as never,
     } as never)

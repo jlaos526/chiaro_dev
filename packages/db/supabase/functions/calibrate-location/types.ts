@@ -1,6 +1,4 @@
-export type CalibrateInput =
-  | { address: string }
-  | { lat: number; lng: number }
+export type CalibrateInput = { address: string } | { lat: number; lng: number }
 
 export type DistrictTier =
   | 'federal_house'
@@ -20,16 +18,23 @@ export type ResolvedDistrict = {
 export type GeocodioCandidate = {
   location: { lat: number; lng: number }
   fields?: {
-    congressional_districts?: Array<{ name: string; district_number: number; congress_number?: number }>
+    congressional_districts?: Array<{
+      name: string
+      district_number: number
+      congress_number?: number
+    }>
     state_legislative_districts?: {
       house?: Array<{ name: string; district_number: string }>
       senate?: Array<{ name: string; district_number: string }>
     }
-    census?: Record<string, {
-      county_fips?: string
-      full_fips?: string
-      place?: { name?: string; fips?: string }
-    }>
+    census?: Record<
+      string,
+      {
+        county_fips?: string
+        full_fips?: string
+        place?: { name?: string; fips?: string }
+      }
+    >
   }
   address_components: { state: string }
 }

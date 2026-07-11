@@ -29,7 +29,9 @@ describe('StateDonorsEvidence', () => {
   })
 
   it('omits secondary line when no employer/occupation/city', () => {
-    const donors = [makeDonor(1, { employer: null, occupation: null, city: null, donor_state: null })]
+    const donors = [
+      makeDonor(1, { employer: null, occupation: null, city: null, donor_state: null }),
+    ]
     const { queryByText } = render(<StateDonorsEvidence donors={donors} />)
     expect(queryByText(/Acme/)).toBeNull()
   })
@@ -64,7 +66,11 @@ const darkWrapper = ({ children }: { children: ReactNode }) =>
 describe('StateDonorsEvidence — mode awareness', () => {
   it('renders under both light and dark wrappers without throwing', () => {
     const donors = [makeDonor(1)]
-    expect(() => render(<StateDonorsEvidence donors={donors} />, { wrapper: lightWrapper })).not.toThrow()
-    expect(() => render(<StateDonorsEvidence donors={donors} />, { wrapper: darkWrapper })).not.toThrow()
+    expect(() =>
+      render(<StateDonorsEvidence donors={donors} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<StateDonorsEvidence donors={donors} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
   })
 })

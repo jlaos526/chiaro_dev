@@ -5,7 +5,8 @@ import { resolveOpenstatesPersonId } from '../../shared/officials.ts'
 import { fetchPdf, extractPdfText } from '../../shared/pdf.ts'
 import { parseNyFdsText } from './ny-fds-helpers.ts'
 
-const SOURCE_URL = 'https://ethics.ny.gov/financial-disclosure-statements-elected-officials?year=2024'
+const SOURCE_URL =
+  'https://ethics.ny.gov/financial-disclosure-statements-elected-officials?year=2024'
 const FETCH_TIMEOUT_MS = 5000
 const MAX_PAGES_DEFAULT = 120
 const RATE_LIMIT_MS = 1000
@@ -63,7 +64,9 @@ export function parseNyFdsIndexHtml(html: string): ParsedNyFdsPage {
 
   const nextHref = $('nav.pagination a.next-page').attr('href') ?? null
   const nextPageHref = nextHref
-    ? (nextHref.startsWith('http') ? nextHref : `${ORIGIN}${nextHref}`)
+    ? nextHref.startsWith('http')
+      ? nextHref
+      : `${ORIGIN}${nextHref}`
     : null
 
   return { rows, nextPageHref }
@@ -106,7 +109,7 @@ export async function fetchAllPages(
     try {
       html = await fetcher(url)
     } catch {
-      break  // network failure → stop pagination, return what we have
+      break // network failure → stop pagination, return what we have
     }
     const { rows, nextPageHref } = parseNyFdsIndexHtml(html)
     allRows.push(...rows)
@@ -129,10 +132,11 @@ export const nyJcopeDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosur
     // from the typed `fetcher?` adapter-level injection — kept under a
     // separate opts key with explicit typing (no `as never` cast).
     const pageFetcher = (opts as { pageFetcher?: (url: string) => Promise<string> }).pageFetcher
-    const fetcher: (url: string) => Promise<string> = pageFetcher
-      ?? (async (url: string) => {
+    const fetcher: (url: string) => Promise<string> =
+      pageFetcher ??
+      (async (url: string) => {
         const res = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })
-        await new Promise(resolve => setTimeout(resolve, RATE_LIMIT_MS))
+        await new Promise((resolve) => setTimeout(resolve, RATE_LIMIT_MS))
         return res.text()
       })
 
@@ -145,7 +149,8 @@ export const nyJcopeDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosur
 
     const out: NormalizedFinancialDisclosure[] = []
     const client = (opts as { client: Client }).client
-    const maxPdfsPerRun = (opts as { maxPdfsPerRun?: number }).maxPdfsPerRun ?? MAX_PDFS_PER_RUN_DEFAULT
+    const maxPdfsPerRun =
+      (opts as { maxPdfsPerRun?: number }).maxPdfsPerRun ?? MAX_PDFS_PER_RUN_DEFAULT
 
     // First pass: resolve + emit placeholder rows (slice 17 behavior, unchanged).
     // Collect rows that have a resolvable legislator for the slice 20 PDF pass.
@@ -171,12 +176,13 @@ export const nyJcopeDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosur
         full_name: row.full_name,
         state: 'NY',
         chamber,
-        onAmbiguous: () => opts.onSkip?.({
-          adapter: 'ny-jcope',
-          stage: 'resolve_ambiguous',
-          legislator: row.full_name,
-          reason: 'ambiguous full_name match (2+ in-office officials)',
-        }),
+        onAmbiguous: () =>
+          opts.onSkip?.({
+            adapter: 'ny-jcope',
+            stage: 'resolve_ambiguous',
+            legislator: row.full_name,
+            reason: 'ambiguous full_name match (2+ in-office officials)',
+          }),
       })
       if (!openstates_person_id) {
         opts.onSkip?.({
@@ -268,7 +274,7 @@ export const nyJcopeDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosur
 
       // Audit M5 throttle guard — skip after last iteration. Skipped entirely in test mode.
       if (!testMode && i < pdfBudget - 1) {
-        await new Promise(resolve => setTimeout(resolve, PDF_RATE_LIMIT_MS))
+        await new Promise((resolve) => setTimeout(resolve, PDF_RATE_LIMIT_MS))
       }
     }
 

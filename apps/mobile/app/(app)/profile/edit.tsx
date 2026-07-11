@@ -3,12 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'expo-router'
 import { supabase } from '@/lib/supabase'
 import { profileFormSchema, updateMyProfile, ProfileError } from '@chiaro/profile'
-import {
-  BrandFormScreen,
-  BrandTextInput,
-  BrandButton,
-  BrandAlert,
-} from '@chiaro/officials-ui'
+import { BrandFormScreen, BrandTextInput, BrandButton, BrandAlert } from '@chiaro/officials-ui'
 import { BackButton } from '@chiaro/officials-ui/src/nav/BackButton.tsx'
 
 export default function ProfileEdit() {
@@ -22,7 +17,7 @@ export default function ProfileEdit() {
     setError(null)
     const parsed = profileFormSchema.safeParse({ display_name: displayName, username })
     if (!parsed.success) {
-      setError(parsed.error.issues.map(i => i.message).join('; '))
+      setError(parsed.error.issues.map((i) => i.message).join('; '))
       return
     }
     setLoading(true)
@@ -30,7 +25,13 @@ export default function ProfileEdit() {
       await updateMyProfile(supabase, parsed.data)
       router.replace('/(app)' as never)
     } catch (err) {
-      setError(err instanceof ProfileError ? err.message : err instanceof Error ? err.message : String(err))
+      setError(
+        err instanceof ProfileError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : String(err),
+      )
     } finally {
       setLoading(false)
     }
@@ -46,9 +47,18 @@ export default function ProfileEdit() {
         }}
       />
       <BrandFormScreen title="Complete your profile" backHref="/" backLabel="← Home">
-        <BrandTextInput label="Display name" value={displayName} onChangeText={setDisplayName} required />
+        <BrandTextInput
+          label="Display name"
+          value={displayName}
+          onChangeText={setDisplayName}
+          required
+        />
         <BrandTextInput label="Username" value={username} onChangeText={setUsername} required />
-        {error ? <BrandAlert severity="danger" title="Couldn't save">{error}</BrandAlert> : null}
+        {error ? (
+          <BrandAlert severity="danger" title="Couldn't save">
+            {error}
+          </BrandAlert>
+        ) : null}
         <BrandButton variant="primary" disabled={loading} onPress={onSubmit}>
           {loading ? 'Saving…' : 'Save'}
         </BrandButton>

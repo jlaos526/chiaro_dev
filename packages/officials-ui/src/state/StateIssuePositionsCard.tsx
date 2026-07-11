@@ -7,10 +7,7 @@ import {
   type StateScorecardRatingWithOrg,
 } from '@chiaro/officials'
 import { useMySelections, useIssueCatalog, useRepWatchlistFlags } from '@chiaro/issues'
-import {
-  SCORECARD_LEAN_LABEL,
-  type ScorecardLean,
-} from '@chiaro/ui-tokens'
+import { SCORECARD_LEAN_LABEL, type ScorecardLean } from '@chiaro/ui-tokens'
 import { useBrandTokens, useScorecardLeanColor } from '../brand-hooks.ts'
 import { useChiaroClient } from '../client-context.tsx'
 import { IssuePriorityTag } from '../issues/IssuePriorityTag.tsx'
@@ -70,7 +67,7 @@ export function StateIssuePositionsCard({
   const flagsSection =
     flags.length > 0 ? (
       <View>
-        {flags.map(f => (
+        {flags.map((f) => (
           <WatchlistFlag key={`${f.topicSlug}::${f.lensSlug}`} flag={f} />
         ))}
       </View>
@@ -90,7 +87,9 @@ export function StateIssuePositionsCard({
   if (isLoading) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Issue Positions</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+          Issue Positions
+        </Text>
         <Text style={mutedStyle}>Loading issue positions…</Text>
       </View>
     )
@@ -98,7 +97,9 @@ export function StateIssuePositionsCard({
   if (!data || data.length === 0) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Issue Positions</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+          Issue Positions
+        </Text>
         {flagsSection}
         <Text style={[mutedStyle, { fontStyle: 'italic' }]}>
           No issue-position ratings available for this legislator yet.
@@ -151,32 +152,36 @@ export function StateIssuePositionsCard({
   // Priority path: when the user has selected issues that map to orgs present
   // here, drop the lean grouping and float matched rows to the top with a tag.
   if (priorityOrgSlugs.size > 0) {
-    const ordered = sortPriorityFirst(data, r => r.org.slug, priorityOrgSlugs)
+    const ordered = sortPriorityFirst(data, (r) => r.org.slug, priorityOrgSlugs)
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Issue Positions</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+          Issue Positions
+        </Text>
         {flagsSection}
-        {ordered.map(r => renderRatingRow(r, priorityOrgSlugs.has(r.org.slug)))}
+        {ordered.map((r) => renderRatingRow(r, priorityOrgSlugs.has(r.org.slug)))}
       </View>
     )
   }
 
   // Render canonical order first, then any unknown leans last (defensive).
   const orderedLeans: string[] = [
-    ...LEAN_GROUP_ORDER.filter(l => byLean.has(l)),
-    ...Array.from(byLean.keys()).filter(l => !LEAN_GROUP_ORDER.includes(l as ScorecardLean)),
+    ...LEAN_GROUP_ORDER.filter((l) => byLean.has(l)),
+    ...Array.from(byLean.keys()).filter((l) => !LEAN_GROUP_ORDER.includes(l as ScorecardLean)),
   ]
 
   return (
     <View style={cardStyle}>
-      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Issue Positions</Text>
+      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+        Issue Positions
+      </Text>
       {flagsSection}
-      {orderedLeans.map(lean => (
+      {orderedLeans.map((lean) => (
         <View key={lean} style={{ marginBottom: 12 }}>
           <Text style={[styles.leanHeader, { color: leanColor(lean, semantic.text.muted) }]}>
             {leanLabel(lean)}
           </Text>
-          {byLean.get(lean)!.map(r => renderRatingRow(r, false))}
+          {byLean.get(lean)!.map((r) => renderRatingRow(r, false))}
         </View>
       ))}
     </View>

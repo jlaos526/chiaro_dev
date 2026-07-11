@@ -144,68 +144,79 @@ describe('BRAND_PALETTE.dark', () => {
 
 describe('palette mode parity', () => {
   it('light and dark have identical top-level key shapes', () => {
-    expect(Object.keys(BRAND_PALETTE.light).sort())
-      .toEqual(Object.keys(BRAND_PALETTE.dark).sort())
+    expect(Object.keys(BRAND_PALETTE.light).sort()).toEqual(Object.keys(BRAND_PALETTE.dark).sort())
   })
 
   it('light and dark have identical ink scale keys', () => {
-    expect(Object.keys(BRAND_PALETTE.light.ink).sort())
-      .toEqual(Object.keys(BRAND_PALETTE.dark.ink).sort())
+    expect(Object.keys(BRAND_PALETTE.light.ink).sort()).toEqual(
+      Object.keys(BRAND_PALETTE.dark.ink).sort(),
+    )
   })
 
   it('light and dark have identical accent scale keys', () => {
-    expect(Object.keys(BRAND_PALETTE.light.accent).sort())
-      .toEqual(Object.keys(BRAND_PALETTE.dark.accent).sort())
+    expect(Object.keys(BRAND_PALETTE.light.accent).sort()).toEqual(
+      Object.keys(BRAND_PALETTE.dark.accent).sort(),
+    )
   })
 
   it('light and dark have identical alert variant keys', () => {
-    expect(Object.keys(BRAND_PALETTE.light.alert).sort())
-      .toEqual(Object.keys(BRAND_PALETTE.dark.alert).sort())
+    expect(Object.keys(BRAND_PALETTE.light.alert).sort()).toEqual(
+      Object.keys(BRAND_PALETTE.dark.alert).sort(),
+    )
   })
 
   it('light and dark alert.danger triplets share fg/bg/border keys', () => {
-    expect(Object.keys(BRAND_PALETTE.light.alert.danger).sort())
-      .toEqual(Object.keys(BRAND_PALETTE.dark.alert.danger).sort())
+    expect(Object.keys(BRAND_PALETTE.light.alert.danger).sort()).toEqual(
+      Object.keys(BRAND_PALETTE.dark.alert.danger).sort(),
+    )
   })
 
   it('light and dark alert.warning triplets share fg/bg/border keys', () => {
-    expect(Object.keys(BRAND_PALETTE.light.alert.warning).sort())
-      .toEqual(Object.keys(BRAND_PALETTE.dark.alert.warning).sort())
+    expect(Object.keys(BRAND_PALETTE.light.alert.warning).sort()).toEqual(
+      Object.keys(BRAND_PALETTE.dark.alert.warning).sort(),
+    )
   })
 
   it('light and dark alert.success triplets share fg/bg/border keys', () => {
-    expect(Object.keys(BRAND_PALETTE.light.alert.success).sort())
-      .toEqual(Object.keys(BRAND_PALETTE.dark.alert.success).sort())
+    expect(Object.keys(BRAND_PALETTE.light.alert.success).sort()).toEqual(
+      Object.keys(BRAND_PALETTE.dark.alert.success).sort(),
+    )
   })
 
   it('light and dark have identical signal keys', () => {
-    expect(Object.keys(BRAND_PALETTE.light.signal).sort())
-      .toEqual(Object.keys(BRAND_PALETTE.dark.signal).sort())
+    expect(Object.keys(BRAND_PALETTE.light.signal).sort()).toEqual(
+      Object.keys(BRAND_PALETTE.dark.signal).sort(),
+    )
   })
 
   it('light and dark have identical link keys', () => {
-    expect(Object.keys(BRAND_PALETTE.light.link).sort())
-      .toEqual(Object.keys(BRAND_PALETTE.dark.link).sort())
+    expect(Object.keys(BRAND_PALETTE.light.link).sort()).toEqual(
+      Object.keys(BRAND_PALETTE.dark.link).sort(),
+    )
   })
 
   it('light and dark have identical surface keys', () => {
-    expect(Object.keys(BRAND_PALETTE.light.surface).sort())
-      .toEqual(Object.keys(BRAND_PALETTE.dark.surface).sort())
+    expect(Object.keys(BRAND_PALETTE.light.surface).sort()).toEqual(
+      Object.keys(BRAND_PALETTE.dark.surface).sort(),
+    )
   })
 
   it('light and dark have identical border keys', () => {
-    expect(Object.keys(BRAND_PALETTE.light.border).sort())
-      .toEqual(Object.keys(BRAND_PALETTE.dark.border).sort())
+    expect(Object.keys(BRAND_PALETTE.light.border).sort()).toEqual(
+      Object.keys(BRAND_PALETTE.dark.border).sort(),
+    )
   })
 
   it('light and dark have identical portrait keys', () => {
-    expect(Object.keys(BRAND_PALETTE.light.portrait).sort())
-      .toEqual(Object.keys(BRAND_PALETTE.dark.portrait).sort())
+    expect(Object.keys(BRAND_PALETTE.light.portrait).sort()).toEqual(
+      Object.keys(BRAND_PALETTE.dark.portrait).sort(),
+    )
   })
 
   it('light and dark portrait.gradient share from/to keys', () => {
-    expect(Object.keys(BRAND_PALETTE.light.portrait.gradient).sort())
-      .toEqual(Object.keys(BRAND_PALETTE.dark.portrait.gradient).sort())
+    expect(Object.keys(BRAND_PALETTE.light.portrait.gradient).sort()).toEqual(
+      Object.keys(BRAND_PALETTE.dark.portrait.gradient).sort(),
+    )
   })
 })
 

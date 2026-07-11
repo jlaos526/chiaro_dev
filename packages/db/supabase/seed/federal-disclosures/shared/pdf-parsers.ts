@@ -1,11 +1,6 @@
-import type {
-  NormalizedDisclosureOther,
-  NormalizedHolding,
-  NormalizedPtr,
-} from './types.ts'
+import type { NormalizedDisclosureOther, NormalizedHolding, NormalizedPtr } from './types.ts'
 
-const AMOUNT_RANGE_RE =
-  /\$?([\d,]+)(?:\.\d{2})?\s*[-–to]+\s*\$?([\d,]+)(?:\.\d{2})?/i
+const AMOUNT_RANGE_RE = /\$?([\d,]+)(?:\.\d{2})?\s*[-–to]+\s*\$?([\d,]+)(?:\.\d{2})?/i
 
 const OVER_RE = /Over\s+\$?([\d,]+)/i
 const LESS_THAN_RE = /Less\s+than\s+\$?([\d,]+)/i
@@ -28,9 +23,15 @@ export function classifyAmountRange(text: string): { min?: number; max?: number;
 }
 
 const TXN_TYPE_MAP: Record<string, 'purchase' | 'sale' | 'exchange'> = {
-  'P': 'purchase', 'PURCHASE': 'purchase', 'BUY': 'purchase',
-  'S': 'sale',     'SALE':     'sale',     'D':   'sale',    'DISPOSITION': 'sale',
-  'E': 'exchange', 'EXCHANGE': 'exchange',
+  P: 'purchase',
+  PURCHASE: 'purchase',
+  BUY: 'purchase',
+  S: 'sale',
+  SALE: 'sale',
+  D: 'sale',
+  DISPOSITION: 'sale',
+  E: 'exchange',
+  EXCHANGE: 'exchange',
 }
 
 export function classifyTransactionType(marker: string): 'purchase' | 'sale' | 'exchange' | null {
@@ -38,17 +39,17 @@ export function classifyTransactionType(marker: string): 'purchase' | 'sale' | '
 }
 
 const ASSET_CODE_MAP: Record<string, NonNullable<NormalizedHolding['asset_type']>> = {
-  'ST':  'stock',
-  'GS':  'stock',           // government stock variants
-  'CS':  'stock',
-  'MF':  'mutual_fund',
-  'EF':  'etf',
-  'BD':  'bond',
-  'CB':  'bond',
-  'TR':  'trust',
-  'PS':  'partnership',
-  'RE':  'real_estate',
-  'CA':  'cash',
+  ST: 'stock',
+  GS: 'stock', // government stock variants
+  CS: 'stock',
+  MF: 'mutual_fund',
+  EF: 'etf',
+  BD: 'bond',
+  CB: 'bond',
+  TR: 'trust',
+  PS: 'partnership',
+  RE: 'real_estate',
+  CA: 'cash',
 }
 
 export function classifyAssetType(code?: string): NonNullable<NormalizedHolding['asset_type']> {
@@ -72,7 +73,10 @@ function isoFromUsDate(s: string): string {
  * Mock-text-only testing per slice 19+20 convention; real PDF binaries
  * are not committed.
  */
-export function parsePtrText(text: string, ctx: { filing_year: number; source_url: string }): {
+export function parsePtrText(
+  text: string,
+  ctx: { filing_year: number; source_url: string },
+): {
   trades: Omit<NormalizedPtr, 'external_id'>[]
 } {
   const trades: Omit<NormalizedPtr, 'external_id'>[] = []
@@ -80,23 +84,29 @@ export function parsePtrText(text: string, ctx: { filing_year: number; source_ur
   let inSection = false
   for (const raw of lines) {
     const line = raw.trim()
-    if (/Schedule of (Transactions|Sales|Purchases)/i.test(line)) { inSection = true; continue }
+    if (/Schedule of (Transactions|Sales|Purchases)/i.test(line)) {
+      inSection = true
+      continue
+    }
     if (!inSection) continue
     // Heuristic row regex: <date> <date> <Action> <Asset> <Amount range>
     // Example: 01/05/2025 01/19/2025 P AAPL Apple Inc. $1,001 - $15,000
-    const m = /^(\d{1,2}\/\d{1,2}\/\d{4})\s+(\d{1,2}\/\d{1,2}\/\d{4})\s+([A-Z]+)\s+([\w.&'-]+)\s+(.+?)\s+(\$?[\d,]+(?:\.\d{2})?(?:\s*[-–to]+\s*\$?[\d,]+(?:\.\d{2})?)?)$/i.exec(line)
+    const m =
+      /^(\d{1,2}\/\d{1,2}\/\d{4})\s+(\d{1,2}\/\d{1,2}\/\d{4})\s+([A-Z]+)\s+([\w.&'-]+)\s+(.+?)\s+(\$?[\d,]+(?:\.\d{2})?(?:\s*[-–to]+\s*\$?[\d,]+(?:\.\d{2})?)?)$/i.exec(
+        line,
+      )
     if (!m) continue
     const ttype = classifyTransactionType(m[3]!)
     if (!ttype) continue
     const range = classifyAmountRange(m[6]!)
     const row: Omit<NormalizedPtr, 'external_id'> = {
-      filing_year:      ctx.filing_year,
+      filing_year: ctx.filing_year,
       transaction_date: isoFromUsDate(m[1]!),
-      filing_date:      isoFromUsDate(m[2]!),
-      asset_ticker:     m[4]!,
-      asset_name:       m[5]!.trim(),
+      filing_date: isoFromUsDate(m[2]!),
+      asset_ticker: m[4]!,
+      asset_name: m[5]!.trim(),
       transaction_type: ttype,
-      source_url:       ctx.source_url,
+      source_url: ctx.source_url,
     }
     if (range.min !== undefined) row.amount_range_low = range.min
     if (range.max !== undefined) row.amount_range_high = range.max
@@ -122,20 +132,23 @@ export function parsePtrText(text: string, ctx: { filing_year: number; source_ur
  * spec Risk #5); D/E/F/G return [] until real FD samples surface
  * parser-shape requirements.
  */
-export function parseFdText(text: string, ctx: { filing_year: number; source_url: string }): {
+export function parseFdText(
+  text: string,
+  ctx: { filing_year: number; source_url: string },
+): {
   holdings: Omit<NormalizedHolding, 'external_id'>[]
-  other:    Omit<NormalizedDisclosureOther, 'external_id'>[]
+  other: Omit<NormalizedDisclosureOther, 'external_id'>[]
 } {
   const holdings: Omit<NormalizedHolding, 'external_id'>[] = []
-  const other:    Omit<NormalizedDisclosureOther, 'external_id'>[] = []
+  const other: Omit<NormalizedDisclosureOther, 'external_id'>[] = []
 
   const SECTION_RE = /Schedule\s+([A-I])\b/g
   const sections = splitBySchedule(text, SECTION_RE)
   for (const [letter, body] of sections.entries()) {
-    if (letter === 'A')        holdings.push(...parseScheduleA(body, ctx))
-    else if (letter === 'C')   other.push(...parseScheduleC(body, ctx))
-    else if (letter === 'H')   other.push(...parseScheduleH(body, ctx))
-    else if (letter === 'I')   other.push(...parseScheduleI(body, ctx))
+    if (letter === 'A') holdings.push(...parseScheduleA(body, ctx))
+    else if (letter === 'C') other.push(...parseScheduleC(body, ctx))
+    else if (letter === 'H') other.push(...parseScheduleH(body, ctx))
+    else if (letter === 'I') other.push(...parseScheduleI(body, ctx))
     // D/E/F/G left for follow-up — emit nothing (silent under-reporting acceptable v1)
   }
   return { holdings, other }
@@ -161,7 +174,7 @@ function splitBySchedule(text: string, re: RegExp): Map<string, string> {
     const cur = matches[i]!
     const next = matches[i + 1]
     const start = cur.end
-    const end   = next ? next.start : text.length
+    const end = next ? next.start : text.length
     map.set(cur.letter, text.slice(start, end))
   }
   return map
@@ -182,9 +195,10 @@ function parseScheduleA(
     const trimmed = line.trim()
     if (!trimmed || /^Schedule\s+/i.test(trimmed)) continue
     // Look for a value range somewhere in the line; bail on lines without one.
-    const rangeMatch = AMOUNT_RANGE_RE.exec(trimmed) ?? OVER_RE.exec(trimmed) ?? LESS_THAN_RE.exec(trimmed)
+    const rangeMatch =
+      AMOUNT_RANGE_RE.exec(trimmed) ?? OVER_RE.exec(trimmed) ?? LESS_THAN_RE.exec(trimmed)
     if (!rangeMatch) continue
-    const rangeText  = rangeMatch[0]
+    const rangeText = rangeMatch[0]
     const rangeStart = trimmed.indexOf(rangeText)
     const nameSegment = trimmed.slice(0, rangeStart).trim()
     if (!nameSegment) continue
@@ -194,8 +208,8 @@ function parseScheduleA(
     const cleanedName = nameSegment.replace(/\s*\[[A-Z]{2,3}\]\s*/g, '').trim()
     const row: Omit<NormalizedHolding, 'external_id'> = {
       filing_year: ctx.filing_year,
-      asset_type:  classifyAssetType(codeMatch?.[1]),
-      source_url:  ctx.source_url,
+      asset_type: classifyAssetType(codeMatch?.[1]),
+      source_url: ctx.source_url,
     }
     if (cleanedName) row.asset_name = cleanedName
     if (value.min !== undefined) row.value_min = value.min
@@ -251,19 +265,20 @@ function parseGenericOtherSchedule(
   for (const line of body.split(/\r?\n/)) {
     const trimmed = line.trim()
     if (!trimmed || /^Schedule\s+/i.test(trimmed)) continue
-    const rangeMatch = AMOUNT_RANGE_RE.exec(trimmed) ?? OVER_RE.exec(trimmed) ?? LESS_THAN_RE.exec(trimmed)
+    const rangeMatch =
+      AMOUNT_RANGE_RE.exec(trimmed) ?? OVER_RE.exec(trimmed) ?? LESS_THAN_RE.exec(trimmed)
     if (!rangeMatch) continue
-    const rangeText  = rangeMatch[0]
+    const rangeText = rangeMatch[0]
     const rangeStart = trimmed.indexOf(rangeText)
     const descSegment = trimmed.slice(0, rangeStart).trim()
     if (!descSegment) continue
     const value = classifyAmountRange(rangeText)
     const row: Omit<NormalizedDisclosureOther, 'external_id'> = {
-      filing_year:  ctx.filing_year,
+      filing_year: ctx.filing_year,
       category,
-      description:  descSegment,
-      value_text:   value.text,
-      source_url:   ctx.source_url,
+      description: descSegment,
+      value_text: value.text,
+      source_url: ctx.source_url,
     }
     if (value.min !== undefined) row.value_min = value.min
     if (value.max !== undefined) row.value_max = value.max

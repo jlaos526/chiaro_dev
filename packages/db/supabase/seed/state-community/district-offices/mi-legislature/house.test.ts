@@ -5,7 +5,15 @@ import { fileURLToPath } from 'node:url'
 import { parseMiRepProfileHtml, fetchMiHouseOffices, deriveMiRepUrl } from './house.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const FIXTURE = join(__dirname, '..', '..', '..', 'fixtures', 'state-community', 'mi-rep-detail.html')
+const FIXTURE = join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'fixtures',
+  'state-community',
+  'mi-rep-detail.html',
+)
 
 describe('parseMiRepProfileHtml', () => {
   it('extracts Lansing + District address blocks', async () => {
@@ -32,7 +40,9 @@ describe('parseMiRepProfileHtml', () => {
       </section>
     `
     const parsed = parseMiRepProfileHtml(html)
-    expect(parsed.lansing_office).toBe('House Office Building, P.O. Box 30014, Lansing, MI 48909, Phone: (517) 373-0001')
+    expect(parsed.lansing_office).toBe(
+      'House Office Building, P.O. Box 30014, Lansing, MI 48909, Phone: (517) 373-0001',
+    )
   })
 })
 
@@ -96,6 +106,6 @@ describe('fetchMiHouseOffices', () => {
         return fixtureHtml
       },
     })
-    expect(rows).toHaveLength(2)  // first TLS-flakes, second succeeds → 2 rows
+    expect(rows).toHaveLength(2) // first TLS-flakes, second succeeds → 2 rows
   })
 })

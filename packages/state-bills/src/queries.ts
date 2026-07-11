@@ -34,10 +34,15 @@ export async function fetchOfficialSponsoredStateBills(
   const { data, error } = await client
     .from('state_bills')
     .select(SELECT_BILL_WITH_SPONSORS)
-    .in('id', bsRows.map(r => r.bill_id))
+    .in(
+      'id',
+      bsRows.map((r) => r.bill_id),
+    )
     .order('latest_action_date', { ascending: false })
   if (error) throw error
-  return (data ?? []).map(row => normalizeBill(row as StateBillJoinRow)) as StateBillWithSponsors[]
+  return (data ?? []).map((row) =>
+    normalizeBill(row as StateBillJoinRow),
+  ) as StateBillWithSponsors[]
 }
 
 export async function fetchOfficialCosponsoredStateBills(
@@ -55,10 +60,15 @@ export async function fetchOfficialCosponsoredStateBills(
   const { data, error } = await client
     .from('state_bills')
     .select(SELECT_BILL_WITH_SPONSORS)
-    .in('id', bsRows.map(r => r.bill_id))
+    .in(
+      'id',
+      bsRows.map((r) => r.bill_id),
+    )
     .order('latest_action_date', { ascending: false })
   if (error) throw error
-  return (data ?? []).map(row => normalizeBill(row as StateBillJoinRow)) as StateBillWithSponsors[]
+  return (data ?? []).map((row) =>
+    normalizeBill(row as StateBillJoinRow),
+  ) as StateBillWithSponsors[]
 }
 
 export async function fetchOfficialStateVotes(
@@ -77,7 +87,7 @@ export async function fetchOfficialStateVotes(
     .eq('official_id', officialId)
   if (error) throw error
   // Sort client-side by vote_date desc (Supabase can't order via joined column reliably).
-  const rows = (data ?? []).map(row => ({
+  const rows = (data ?? []).map((row) => ({
     vote: (row as { vote: StateVoteWithBill }).vote,
     position: (row as { position: StateVotePositionRow['position'] }).position,
   }))
@@ -90,7 +100,7 @@ export async function fetchOfficialMissedStateVotes(
   officialId: string,
 ): Promise<StateVoteWithPosition[]> {
   const all = await fetchOfficialStateVotes(client, officialId)
-  return all.filter(v => v.position === 'not_voting' || v.position === 'abstain')
+  return all.filter((v) => v.position === 'not_voting' || v.position === 'abstain')
 }
 
 /**
@@ -112,16 +122,13 @@ export async function fetchOfficialStateVotesOnSubject(
     .select('bill_id')
     .in('subject', subjects)
   if (billRows.error) throw billRows.error
-  const billIds = Array.from(new Set((billRows.data ?? []).map(r => r.bill_id)))
+  const billIds = Array.from(new Set((billRows.data ?? []).map((r) => r.bill_id)))
   if (billIds.length === 0) return []
 
   // Step 2: find vote ids on those bills.
-  const voteRows = await client
-    .from('state_votes')
-    .select('id')
-    .in('bill_id', billIds)
+  const voteRows = await client.from('state_votes').select('id').in('bill_id', billIds)
   if (voteRows.error) throw voteRows.error
-  const voteIds = (voteRows.data ?? []).map(r => r.id)
+  const voteIds = (voteRows.data ?? []).map((r) => r.id)
   if (voteIds.length === 0) return []
 
   // Step 3: find vote positions for this official on those votes.
@@ -137,7 +144,7 @@ export async function fetchOfficialStateVotesOnSubject(
     .eq('official_id', officialId)
     .in('vote_id', voteIds)
   if (error) throw error
-  const rows = (data ?? []).map(row => ({
+  const rows = (data ?? []).map((row) => ({
     vote: (row as { vote: StateVoteWithBill }).vote,
     position: (row as { position: StateVotePositionRow['position'] }).position,
   }))
@@ -150,6 +157,6 @@ function normalizeBill(row: StateBillJoinRow): StateBillWithSponsors {
   return {
     ...row,
     sponsors: row.sponsors as StateBillWithSponsors['sponsors'],
-    subjects: (row.subjects ?? []).map(s => s.subject),
+    subjects: (row.subjects ?? []).map((s) => s.subject),
   }
 }

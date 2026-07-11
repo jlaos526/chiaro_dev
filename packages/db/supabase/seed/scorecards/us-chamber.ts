@@ -17,6 +17,9 @@ export const usChamber: ScorecardAdapter = {
       throw new Error('US Chamber: live download not implemented yet; use fixturePath for slice 4.')
     }
     const csv = await readFile(opts.fixturePath, 'utf8')
-    return parseBioguideScoreCSV(csv, b => `https://www.uschamber.com/scorecard/${b.toLowerCase()}`)
+    return parseBioguideScoreCSV(
+      csv,
+      (b) => `https://www.uschamber.com/scorecard/${b.toLowerCase()}`,
+    )
   },
 }

@@ -13,7 +13,9 @@ describe('SmartAnchor', () => {
 
   it('passes accessibilityLabel through as aria-label', () => {
     const { container } = render(
-      <SmartAnchor href="/x" accessibilityLabel="Go somewhere">Tag</SmartAnchor>,
+      <SmartAnchor href="/x" accessibilityLabel="Go somewhere">
+        Tag
+      </SmartAnchor>,
     )
     const a = container.querySelector('a') as HTMLAnchorElement
     expect(a.getAttribute('aria-label')).toBe('Go somewhere')
@@ -21,7 +23,9 @@ describe('SmartAnchor', () => {
 
   it('merges caller style after the base textDecoration/color', () => {
     const { container } = render(
-      <SmartAnchor href="/x" style={{ display: 'inline-block', cursor: 'pointer' }}>Tag</SmartAnchor>,
+      <SmartAnchor href="/x" style={{ display: 'inline-block', cursor: 'pointer' }}>
+        Tag
+      </SmartAnchor>,
     )
     const a = container.querySelector('a') as HTMLAnchorElement
     const style = a.getAttribute('style') ?? ''
@@ -31,7 +35,11 @@ describe('SmartAnchor', () => {
 
   it('plain left-click calls onPress + preventDefault', () => {
     const onPress = vi.fn()
-    const { container } = render(<SmartAnchor href="/x" onPress={onPress}>Tag</SmartAnchor>)
+    const { container } = render(
+      <SmartAnchor href="/x" onPress={onPress}>
+        Tag
+      </SmartAnchor>,
+    )
     const a = container.querySelector('a') as HTMLAnchorElement
     const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 })
     const notPrevented = a.dispatchEvent(event)
@@ -41,9 +49,18 @@ describe('SmartAnchor', () => {
 
   it('cmd-click falls through to browser default (no onPress)', () => {
     const onPress = vi.fn()
-    const { container } = render(<SmartAnchor href="/x" onPress={onPress}>Tag</SmartAnchor>)
+    const { container } = render(
+      <SmartAnchor href="/x" onPress={onPress}>
+        Tag
+      </SmartAnchor>,
+    )
     const a = container.querySelector('a') as HTMLAnchorElement
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, metaKey: true })
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      metaKey: true,
+    })
     const notPrevented = a.dispatchEvent(event)
     expect(notPrevented).toBe(true)
     expect(onPress).not.toHaveBeenCalled()
@@ -51,9 +68,18 @@ describe('SmartAnchor', () => {
 
   it('ctrl-click falls through to browser default (no onPress)', () => {
     const onPress = vi.fn()
-    const { container } = render(<SmartAnchor href="/x" onPress={onPress}>Tag</SmartAnchor>)
+    const { container } = render(
+      <SmartAnchor href="/x" onPress={onPress}>
+        Tag
+      </SmartAnchor>,
+    )
     const a = container.querySelector('a') as HTMLAnchorElement
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, ctrlKey: true })
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      ctrlKey: true,
+    })
     const notPrevented = a.dispatchEvent(event)
     expect(notPrevented).toBe(true)
     expect(onPress).not.toHaveBeenCalled()
@@ -61,7 +87,11 @@ describe('SmartAnchor', () => {
 
   it('middle-click (button=1) falls through to browser default (no onPress)', () => {
     const onPress = vi.fn()
-    const { container } = render(<SmartAnchor href="/x" onPress={onPress}>Tag</SmartAnchor>)
+    const { container } = render(
+      <SmartAnchor href="/x" onPress={onPress}>
+        Tag
+      </SmartAnchor>,
+    )
     const a = container.querySelector('a') as HTMLAnchorElement
     const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 1 })
     a.dispatchEvent(event)

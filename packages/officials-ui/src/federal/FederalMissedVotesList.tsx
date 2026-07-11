@@ -30,7 +30,7 @@ export function FederalMissedVotesList({ rows }: FederalMissedVotesListProps): R
   }
   return (
     <View style={styles.list}>
-      {rows.slice(0, 25).map(r => {
+      {rows.slice(0, 25).map((r) => {
         const url = r.vote.source_url ?? null
         const Row = url ? Pressable : View
         return (
@@ -46,14 +46,19 @@ export function FederalMissedVotesList({ rows }: FederalMissedVotesListProps): R
               <Text
                 style={[
                   styles.chip,
-                  { color: semantic.alert.warning.fg, backgroundColor: `${semantic.alert.warning.fg}22` },
+                  {
+                    color: semantic.alert.warning.fg,
+                    backgroundColor: `${semantic.alert.warning.fg}22`,
+                  },
                 ]}
               >
                 MISSED
               </Text>
             </View>
             {r.vote.question && (
-              <Text style={[styles.question, { color: semantic.text.primary }]}>{r.vote.question}</Text>
+              <Text style={[styles.question, { color: semantic.text.primary }]}>
+                {r.vote.question}
+              </Text>
             )}
           </Row>
         )

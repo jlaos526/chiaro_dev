@@ -19,7 +19,8 @@ export interface ParsedMiSenatorProfile {
 export function deriveMiSenatorUrl(full_name: string): string {
   const slug = full_name
     .toLowerCase()
-    .normalize('NFD').replace(/\p{Diacritic}/gu, '')
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
   return `https://senate.michigan.gov/senators/${slug}/`

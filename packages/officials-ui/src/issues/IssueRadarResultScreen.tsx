@@ -94,10 +94,12 @@ export function IssueRadarResultScreen({
   const userValues = selectedTopics.map((slug) => topicRadarValue(slug, positions))
 
   // lens_type lookup so save can decide stance-vs-watchlist per (topic, lens).
-  function lensType(topicSlug: string, lensSlug: string): IssueTopic['lenses'][number]['lens_type'] | undefined {
-    return catalog
-      .find((t) => t.slug === topicSlug)
-      ?.lenses.find((l) => l.slug === lensSlug)?.lens_type
+  function lensType(
+    topicSlug: string,
+    lensSlug: string,
+  ): IssueTopic['lenses'][number]['lens_type'] | undefined {
+    return catalog.find((t) => t.slug === topicSlug)?.lenses.find((l) => l.slug === lensSlug)
+      ?.lens_type
   }
 
   function handleSave(): void {
@@ -134,13 +136,20 @@ export function IssueRadarResultScreen({
 
           <View
             accessibilityLabel="Your issue priorities radar"
-            style={[styles.chartWrap, { backgroundColor: semantic.bg.card, borderColor: semantic.border.default }]}
+            style={[
+              styles.chartWrap,
+              { backgroundColor: semantic.bg.card, borderColor: semantic.border.default },
+            ]}
           >
             <IssueRadarChart axes={axisLabels} userValues={userValues} />
           </View>
 
           <View style={styles.footer}>
-            <BrandButton onPress={handleSave} size="lg" accessibilityLabel="Save your issue priorities">
+            <BrandButton
+              onPress={handleSave}
+              size="lg"
+              accessibilityLabel="Save your issue priorities"
+            >
               Save my priorities
             </BrandButton>
           </View>

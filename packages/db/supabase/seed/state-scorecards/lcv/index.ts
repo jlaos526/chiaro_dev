@@ -5,7 +5,8 @@ import { fetchMichiganRatings } from './mi.ts'
 import { fetchColoradoRatings } from './co.ts'
 
 const US_STATE_NAMES: Record<string, string> = {
-  MI: 'Michigan', CO: 'Colorado',
+  MI: 'Michigan',
+  CO: 'Colorado',
 }
 
 type LcvFetcher = (
@@ -24,9 +25,11 @@ export const lcv: StateScorecardAdapter = {
   issue_area: 'environment',
   lean: 'progressive',
   methodology_url_template: (s) =>
-    s === 'MI' ? 'https://www.michiganlcv.org/lawmakers/'
-    : s === 'CO' ? 'https://conservationco.org/scorecards/'
-    : 'https://www.lcv.org',
+    s === 'MI'
+      ? 'https://www.michiganlcv.org/lawmakers/'
+      : s === 'CO'
+        ? 'https://conservationco.org/scorecards/'
+        : 'https://www.lcv.org',
   scoring_min: 0,
   scoring_max: 100,
   notes:

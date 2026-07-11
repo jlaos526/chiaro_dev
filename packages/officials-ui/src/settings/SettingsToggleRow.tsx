@@ -26,14 +26,12 @@ export function SettingsToggleRow({
       <View style={styles.labelGroup}>
         <Text style={[styles.label, { color: semantic.text.primary, opacity }]}>{label}</Text>
         {description ? (
-          <Text style={[styles.description, { color: semantic.text.muted, opacity }]}>{description}</Text>
+          <Text style={[styles.description, { color: semantic.text.muted, opacity }]}>
+            {description}
+          </Text>
         ) : null}
       </View>
-      <Switch
-        value={value}
-        onValueChange={disabled ? undefined : onChange}
-        disabled={disabled}
-      />
+      <Switch value={value} onValueChange={disabled ? undefined : onChange} disabled={disabled} />
     </SettingsRow>
   )
 }

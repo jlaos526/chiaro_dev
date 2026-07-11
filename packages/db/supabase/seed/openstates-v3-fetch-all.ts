@@ -59,19 +59,22 @@ export async function fetchOpenStatesV3All(opts: FetchAllOpts = {}): Promise<Fet
     if (opts.strict || !opts.sessionMap) {
       throw new Error(
         `no session map for year ${year}; pass --year=YYYY for a year in [${Object.keys(KNOWN_SESSIONS).join(', ')}] ` +
-        `or supply a custom sessionMap via opts/config`,
+          `or supply a custom sessionMap via opts/config`,
       )
     }
   }
 
   const cacheDir = opts.cacheDir ?? DEFAULT_CACHE_DIR
-  const runFetch: RunFetchFn = opts.runFetch ?? ((state, session) =>
-    fetchOpenStatesV3({
-      state, session, cacheDir,
-      ...(opts.apiKey !== undefined ? { apiKey: opts.apiKey } : {}),
-      ...(opts.force !== undefined ? { force: opts.force } : {}),
-    })
-  )
+  const runFetch: RunFetchFn =
+    opts.runFetch ??
+    ((state, session) =>
+      fetchOpenStatesV3({
+        state,
+        session,
+        cacheDir,
+        ...(opts.apiKey !== undefined ? { apiKey: opts.apiKey } : {}),
+        ...(opts.force !== undefined ? { force: opts.force } : {}),
+      }))
 
   const stats: FetchAllStats = {
     year,
@@ -91,9 +94,9 @@ export async function fetchOpenStatesV3All(opts: FetchAllOpts = {}): Promise<Fet
     try {
       const result = await runFetch(state, session)
       stats.perStateStats.push(result)
-      stats.totalBillsCached       += result.billsCached
+      stats.totalBillsCached += result.billsCached
       stats.totalBillsSkippedFresh += result.billsSkippedFresh
-      stats.totalVotesCached       += result.votesCached
+      stats.totalVotesCached += result.votesCached
       stats.totalVotesSkippedFresh += result.votesSkippedFresh
       if (result.errors.length > 0) {
         stats.statesErrored.push({ state, error: result.errors.join('; ') })
@@ -112,10 +115,10 @@ export async function fetchOpenStatesV3All(opts: FetchAllOpts = {}): Promise<Fet
 }
 
 if (isCliEntry(import.meta.url)) {
-  const yearRaw     = parseFlag('year')
+  const yearRaw = parseFlag('year')
   const skipOnError = hasFlag('skip-on-error')
-  const force       = hasFlag('force')
-  const year        = yearRaw !== undefined ? Number(yearRaw) : new Date().getFullYear()
+  const force = hasFlag('force')
+  const year = yearRaw !== undefined ? Number(yearRaw) : new Date().getFullYear()
 
   if (!Number.isFinite(year)) {
     console.error(`invalid --year value (got '${yearRaw}')`)
@@ -123,7 +126,7 @@ if (isCliEntry(import.meta.url)) {
   }
 
   fetchOpenStatesV3All({ year, skipOnError, force })
-    .then(stats => {
+    .then((stats) => {
       console.log(`OpenStates v3 fetch-all summary (year ${stats.year}):`)
       console.log(`  states attempted:     ${stats.statesAttempted}`)
       console.log(`  states ok:            ${stats.statesOk}`)
@@ -135,5 +138,8 @@ if (isCliEntry(import.meta.url)) {
       for (const e of stats.statesErrored) console.log(`    - ${e.state}: ${e.error}`)
       process.exit(stats.statesErrored.length > 0 && !skipOnError ? 1 : 0)
     })
-    .catch(err => { console.error(err.message); process.exit(1) })
+    .catch((err) => {
+      console.error(err.message)
+      process.exit(1)
+    })
 }

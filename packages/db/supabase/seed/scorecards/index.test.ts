@@ -5,8 +5,8 @@ import { fileURLToPath } from 'node:url'
 import { ingestScorecards, ADAPTERS } from './index.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DB_URL    = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
-const FIXTURES  = join(__dirname, '..', 'fixtures', 'scorecards')
+const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const FIXTURES = join(__dirname, '..', 'fixtures', 'scorecards')
 
 let client: Client
 
@@ -26,12 +26,15 @@ beforeEach(async () => {
     on conflict (tier,code) do nothing
   `)
   const d = await client.query("select id from public.districts where code='CA-S1-scrcrd'")
-  await client.query(`
+  await client.query(
+    `
     insert into public.officials (bioguide_id, first_name, last_name, full_name,
       chamber, party, state, district_id, senate_class, source_version)
     values ('P000197','N','P','Nancy P.','federal_house','D','CA',$1::uuid,null,'119')
     on conflict (bioguide_id) do nothing
-  `, [d.rows[0].id])
+  `,
+    [d.rows[0].id],
+  )
 })
 
 afterEach(async () => {
@@ -39,13 +42,14 @@ afterEach(async () => {
   // tests, when serialized under turbo's `^test` topology against a shared
   // local Supabase) see no leftover P000197 / CA-S1-scrcrd / scorecard_orgs.
   // Order matters: ratings reference orgs AND officials, so ratings go first.
-  await client.query("delete from public.scorecard_ratings where official_id in (select id from public.officials where bioguide_id = 'P000197')")
+  await client.query(
+    "delete from public.scorecard_ratings where official_id in (select id from public.officials where bioguide_id = 'P000197')",
+  )
   await client.query("delete from public.officials where bioguide_id = 'P000197'")
   await client.query("delete from public.districts where code = 'CA-S1-scrcrd'")
-  await client.query(
-    "delete from public.scorecard_orgs where slug = ANY($1::text[])",
-    [ADAPTERS.map(a => a.slug)],
-  )
+  await client.query('delete from public.scorecard_orgs where slug = ANY($1::text[])', [
+    ADAPTERS.map((a) => a.slug),
+  ])
   await client.end()
 })
 
@@ -54,16 +58,25 @@ describe('ingestScorecards', () => {
     const stats = await ingestScorecards({ fixturesDir: FIXTURES })
 
     expect(Object.keys(stats)).toHaveLength(ADAPTERS.length)
-    for (const slug of ADAPTERS.map(a => a.slug)) {
+    for (const slug of ADAPTERS.map((a) => a.slug)) {
       expect(stats[slug]!.error).toBeUndefined()
       // Each fixture has 3 rows, only P000197 is a known official, so each adapter inserts 1.
       expect(stats[slug]!.ratings).toBe(1)
     }
 
-    const orgs = await client.query("select slug from public.scorecard_orgs order by slug")
-    expect(orgs.rows.map((r: any) => r.slug).sort()).toEqual(
-      ['aclu', 'ada', 'afl-cio', 'heritage-action', 'lcv', 'naacp', 'nra', 'planned-parenthood', 'sierra-club', 'us-chamber']
-    )
+    const orgs = await client.query('select slug from public.scorecard_orgs order by slug')
+    expect(orgs.rows.map((r: any) => r.slug).sort()).toEqual([
+      'aclu',
+      'ada',
+      'afl-cio',
+      'heritage-action',
+      'lcv',
+      'naacp',
+      'nra',
+      'planned-parenthood',
+      'sierra-club',
+      'us-chamber',
+    ])
 
     const ratings = await client.query(`
       select sc.slug, sr.score
@@ -73,14 +86,23 @@ describe('ingestScorecards', () => {
       where o.bioguide_id = 'P000197'
       order by sc.slug
     `)
-    expect(ratings.rows.map((r: any) => r.slug)).toEqual(
-      ['aclu', 'ada', 'afl-cio', 'heritage-action', 'lcv', 'naacp', 'nra', 'planned-parenthood', 'sierra-club', 'us-chamber']
-    )
+    expect(ratings.rows.map((r: any) => r.slug)).toEqual([
+      'aclu',
+      'ada',
+      'afl-cio',
+      'heritage-action',
+      'lcv',
+      'naacp',
+      'nra',
+      'planned-parenthood',
+      'sierra-club',
+      'us-chamber',
+    ])
   })
 
   it('isolates per-adapter failures (bad fixture path)', async () => {
     const stats = await ingestScorecards({ fixturesDir: '/nonexistent/path' })
-    for (const slug of ADAPTERS.map(a => a.slug)) {
+    for (const slug of ADAPTERS.map((a) => a.slug)) {
       expect(stats[slug]!.error).toBeDefined()
       expect(stats[slug]!.ratings).toBe(0)
     }

@@ -49,7 +49,7 @@ export function StateFinancialDisclosuresList({
 
   return (
     <View style={styles.list}>
-      {years.map(year => {
+      {years.map((year) => {
         const yearRows = byYear.get(year)!
         return (
           <View key={year} style={{ gap: 4 }}>
@@ -57,14 +57,14 @@ export function StateFinancialDisclosuresList({
               {year} ({yearRows.length} disclosure
               {yearRows.length === 1 ? '' : 's'})
             </Text>
-            {yearRows.map(r => {
+            {yearRows.map((r) => {
               const low = r.amount_range_low == null ? null : Number(r.amount_range_low)
               const high = r.amount_range_high == null ? null : Number(r.amount_range_high)
               return (
                 <View key={r.id} style={rowStyle}>
                   <Text style={titleStyle}>{r.income_source ?? '(unspecified source)'}</Text>
                   <Text style={metaStyle}>
-                    {r.income_kind ? KIND_LABEL[r.income_kind] ?? r.income_kind : 'Kind n/a'}
+                    {r.income_kind ? (KIND_LABEL[r.income_kind] ?? r.income_kind) : 'Kind n/a'}
                     {' · '}
                     {formatAmountRange(low, high)}
                   </Text>

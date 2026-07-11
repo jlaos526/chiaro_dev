@@ -5,7 +5,7 @@ const BASE_URL = 'https://efdsearch.senate.gov'
 
 export interface SenateSession {
   csrfToken: string
-  cookie:    string
+  cookie: string
 }
 
 export async function acceptSenateAgreement(opts: {
@@ -25,16 +25,16 @@ export async function acceptSenateAgreement(opts: {
   if (!cookie) throw new Error('Senate csrftoken cookie missing from landing Set-Cookie header')
   // Step 2: POST agreement form
   const form = new URLSearchParams({
-    csrfmiddlewaretoken:   csrfToken,
+    csrfmiddlewaretoken: csrfToken,
     prohibition_agreement: '1',
   })
   const post = await fetcher(`${BASE_URL}/search/home/`, {
-    method:  'POST',
+    method: 'POST',
     headers: {
-      'User-Agent':   BROWSER_USER_AGENT,
+      'User-Agent': BROWSER_USER_AGENT,
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Cookie':       cookie,
-      'Referer':      `${BASE_URL}/search/`,
+      Cookie: cookie,
+      Referer: `${BASE_URL}/search/`,
     },
     body: form.toString(),
   })
@@ -48,17 +48,17 @@ function extractCsrfCookie(setCookieHeader: string): string {
 }
 
 export interface SenateSearchOpts {
-  session:    SenateSession
-  reportType: '7c' | '11'  // 7c = PTR; 11 = annual FD
-  year:       number
-  fetcher?:   typeof fetch
+  session: SenateSession
+  reportType: '7c' | '11' // 7c = PTR; 11 = annual FD
+  year: number
+  fetcher?: typeof fetch
 }
 
 export interface SenateSearchResult {
-  filingId:   string
-  fullName:   string
+  filingId: string
+  fullName: string
   reportDate: string
-  pdfUrl:     string
+  pdfUrl: string
 }
 
 /**

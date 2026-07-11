@@ -59,7 +59,8 @@ function deriveFromSelections(rows: UserIssueSelectionRow[]): {
   const lenses: Record<string, string[]> = {}
   for (const row of rows) {
     const prev = orderByTopic.get(row.topic_slug)
-    if (prev === undefined || row.display_order < prev) orderByTopic.set(row.topic_slug, row.display_order)
+    if (prev === undefined || row.display_order < prev)
+      orderByTopic.set(row.topic_slug, row.display_order)
     const list = (lenses[row.topic_slug] ??= [])
     if (!list.includes(row.lens_slug)) list.push(row.lens_slug)
   }
@@ -88,7 +89,9 @@ export function IssueFlowProvider({
   initialSelections,
 }: IssueFlowProviderProps): React.JSX.Element {
   const initial = useRef(initialSelections ? deriveFromSelections(initialSelections) : null)
-  const [selectedTopics, setSelectedTopics] = useState<string[]>(() => initial.current?.topics ?? [])
+  const [selectedTopics, setSelectedTopics] = useState<string[]>(
+    () => initial.current?.topics ?? [],
+  )
   const [selectedLenses, setSelectedLenses] = useState<Record<string, string[]>>(
     () => initial.current?.lenses ?? {},
   )

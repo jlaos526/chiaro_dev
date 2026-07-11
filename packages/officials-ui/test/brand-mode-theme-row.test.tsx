@@ -4,7 +4,10 @@ import { createElement, type ReactNode } from 'react'
 import { BrandModeProvider } from '../src/brand-mode-provider.tsx'
 import { BrandModeThemeRow } from '../src/settings/brand-mode-theme-row.tsx'
 
-function withProvider(defaultMode: 'light' | 'dark' | null, onChange?: (m: 'light' | 'dark' | null) => void) {
+function withProvider(
+  defaultMode: 'light' | 'dark' | null,
+  onChange?: (m: 'light' | 'dark' | null) => void,
+) {
   return ({ children }: { children: ReactNode }) =>
     createElement(BrandModeProvider, { defaultMode, onChange }, children)
 }
@@ -26,7 +29,9 @@ describe('BrandModeThemeRow', () => {
   it('marks Light as selected when override is "light"', () => {
     const { getByText } = render(<BrandModeThemeRow />, { wrapper: withProvider('light') })
     expect(getByText('Light').closest('[role="button"]')?.getAttribute('aria-pressed')).toBe('true')
-    expect(getByText('System').closest('[role="button"]')?.getAttribute('aria-pressed')).toBe('false')
+    expect(getByText('System').closest('[role="button"]')?.getAttribute('aria-pressed')).toBe(
+      'false',
+    )
   })
 
   it('marks Dark as selected when override is "dark"', () => {

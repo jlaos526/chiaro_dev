@@ -4,9 +4,24 @@ import { BioAlignmentChipRow } from '../../src/bio/BioAlignmentChipRow.tsx'
 import type { AlignmentChipRow } from '@chiaro/officials'
 
 const CHIPS: AlignmentChipRow[] = [
-  { issueArea: 'environment',     displayLabel: 'Environment',     tier: 'strongly-aligned', subCascadeSlug: 'environment' },
-  { issueArea: 'civil-rights',    displayLabel: 'Civil Rights',    tier: 'mostly-aligned',   subCascadeSlug: 'civil-rights' },
-  { issueArea: 'business-policy', displayLabel: 'Business Policy', tier: 'strongly-differs', subCascadeSlug: 'business-policy' },
+  {
+    issueArea: 'environment',
+    displayLabel: 'Environment',
+    tier: 'strongly-aligned',
+    subCascadeSlug: 'environment',
+  },
+  {
+    issueArea: 'civil-rights',
+    displayLabel: 'Civil Rights',
+    tier: 'mostly-aligned',
+    subCascadeSlug: 'civil-rights',
+  },
+  {
+    issueArea: 'business-policy',
+    displayLabel: 'Business Policy',
+    tier: 'strongly-differs',
+    subCascadeSlug: 'business-policy',
+  },
 ]
 
 describe('BioAlignmentChipRow', () => {

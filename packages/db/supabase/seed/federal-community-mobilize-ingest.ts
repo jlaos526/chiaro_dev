@@ -5,8 +5,8 @@ import {
   type FederalTownHallRow,
 } from './federal-community/town-halls/mobilize.ts'
 
-const DB_URL = process.env.SUPABASE_DB_URL
-  ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const DB_URL =
+  process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 
 export interface FederalMobilizeStats {
   rowsUpserted: number
@@ -29,17 +29,19 @@ export async function ingestFederalTownHallsMobilize(
   if (ownsClient) await client.connect()
 
   const stats: FederalMobilizeStats = {
-    rowsUpserted: 0, officialsMatched: 0, officialsUnmatched: [], errors: [],
+    rowsUpserted: 0,
+    officialsMatched: 0,
+    officialsUnmatched: [],
+    errors: [],
   }
 
   try {
-    const events = opts.fetcher
-      ? await opts.fetcher()
-      : await fetchAndNormalizeFederal(client)
+    const events = opts.fetcher ? await opts.fetcher() : await fetchAndNormalizeFederal(client)
 
     for (const e of events) {
       try {
-        await client.query(`
+        await client.query(
+          `
           insert into public.town_halls (
             official_id, event_date, city, state, format,
             attendance_estimate, source_url, source, external_id
@@ -52,10 +54,19 @@ export async function ingestFederalTownHallsMobilize(
             format              = excluded.format,
             attendance_estimate = excluded.attendance_estimate,
             source_url          = excluded.source_url
-        `, [
-          e.official_id, e.event_date, e.city ?? null, e.state, e.format ?? null,
-          null, e.source_url, e.source, e.external_id,
-        ])
+        `,
+          [
+            e.official_id,
+            e.event_date,
+            e.city ?? null,
+            e.state,
+            e.format ?? null,
+            null,
+            e.source_url,
+            e.source,
+            e.external_id,
+          ],
+        )
         stats.rowsUpserted += 1
         stats.officialsMatched += 1
       } catch (err) {
@@ -74,7 +85,7 @@ export async function ingestFederalTownHallsMobilize(
 if (isCliEntry(import.meta.url)) {
   const skipOnError = hasFlag('skip-on-error')
   ingestFederalTownHallsMobilize({ skipOnError })
-    .then(stats => {
+    .then((stats) => {
       console.log(`Federal town halls (mobilize) ingest:`)
       console.log(`  rows upserted:        ${stats.rowsUpserted}`)
       console.log(`  officials matched:    ${stats.officialsMatched}`)
@@ -85,5 +96,8 @@ if (isCliEntry(import.meta.url)) {
       }
       process.exit(stats.errors.length === 0 ? 0 : 1)
     })
-    .catch(err => { console.error(err.message); process.exit(1) })
+    .catch((err) => {
+      console.error(err.message)
+      process.exit(1)
+    })
 }

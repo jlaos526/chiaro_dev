@@ -17,21 +17,21 @@ const DEFAULT_ROLE_TITLE: Record<OpenStatesRoleType, string> = {
 }
 
 export interface OpenStatesPerson {
-  id: string                    // ocd-person/<uuid>
+  id: string // ocd-person/<uuid>
   name: string
   given_name?: string
   family_name?: string
-  party: string                 // first party name in array
+  party: string // first party name in array
   image?: string
   email?: string
   role: {
     type: OpenStatesRoleType
-    state: string               // 2-char uppercase derived from jurisdiction id
+    state: string // 2-char uppercase derived from jurisdiction id
     district: string
     title: string
   }
   offices: Array<{
-    classification?: string     // 'capitol' | 'district' | 'primary'
+    classification?: string // 'capitol' | 'district' | 'primary'
     address?: string
     voice?: string
     fax?: string
@@ -52,7 +52,7 @@ export async function loadOpenStatesYamlDir(dir: string): Promise<OpenStatesPers
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') return []
     throw err
   }
-  const yamlFiles = entries.filter(f => f.endsWith('.yml') || f.endsWith('.yaml'))
+  const yamlFiles = entries.filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'))
 
   const people: OpenStatesPerson[] = []
   for (const file of yamlFiles) {
@@ -81,9 +81,7 @@ function normalize(raw: Record<string, unknown> | null): OpenStatesPerson | null
   const roles = (raw.roles as Array<Record<string, unknown>> | undefined) ?? []
   // Pick the role whose end_date is in the future (current term). Fall back to first.
   const now = new Date().toISOString().slice(0, 10)
-  const current = roles.find(r =>
-    typeof r.end_date === 'string' && r.end_date >= now
-  ) ?? roles[0]
+  const current = roles.find((r) => typeof r.end_date === 'string' && r.end_date >= now) ?? roles[0]
   if (!current) return null
 
   const roleType = current.type
@@ -97,11 +95,12 @@ function normalize(raw: Record<string, unknown> | null): OpenStatesPerson | null
   const district = current.district != null ? String(current.district) : ''
   if (!district) return null
 
-  const title = typeof current.title === 'string' && current.title
-    ? current.title
-    : DEFAULT_ROLE_TITLE[roleType]
+  const title =
+    typeof current.title === 'string' && current.title
+      ? current.title
+      : DEFAULT_ROLE_TITLE[roleType]
 
-  const offices = ((raw.offices as Array<Record<string, unknown>> | undefined) ?? []).map(o => ({
+  const offices = ((raw.offices as Array<Record<string, unknown>> | undefined) ?? []).map((o) => ({
     ...(typeof o.classification === 'string' ? { classification: o.classification } : {}),
     ...(typeof o.address === 'string' ? { address: o.address } : {}),
     ...(typeof o.voice === 'string' ? { voice: o.voice } : {}),

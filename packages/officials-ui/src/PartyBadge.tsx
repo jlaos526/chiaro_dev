@@ -20,7 +20,9 @@ export function PartyBadge({ party }: PartyBadgeProps): React.JSX.Element {
         alignSelf: 'flex-start',
       }}
     >
-      <Text style={{ color: semantic.text.onAccent, fontWeight: '700', fontSize: 12, lineHeight: 17 }}>
+      <Text
+        style={{ color: semantic.text.onAccent, fontWeight: '700', fontSize: 12, lineHeight: 17 }}
+      >
         {PARTY_SHORT[party]}
       </Text>
     </View>

@@ -6,13 +6,23 @@ import type { StateEthicsAdapter } from './state-ethics/shared.ts'
 const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 let client: Client
 
-beforeEach(async () => { client = new Client({ connectionString: DB_URL }); await client.connect() })
-afterEach(async () => { await client.end() })
+beforeEach(async () => {
+  client = new Client({ connectionString: DB_URL })
+  await client.connect()
+})
+afterEach(async () => {
+  await client.end()
+})
 
 function mkAdapter(overrides: Partial<StateEthicsAdapter>): StateEthicsAdapter {
   return {
-    slug: 'test', component: 'disclosures', covered_states: ['CA'],
-    async fetchEvents() { return [] }, ...overrides,
+    slug: 'test',
+    component: 'disclosures',
+    covered_states: ['CA'],
+    async fetchEvents() {
+      return []
+    },
+    ...overrides,
   }
 }
 
@@ -30,8 +40,22 @@ describe('ingestStateEthics', () => {
   it('--component filter restricts', async () => {
     const calls: string[] = []
     const adapters = [
-      mkAdapter({ slug: 'a', component: 'disclosures', async fetchEvents() { calls.push('a'); return [] } }),
-      mkAdapter({ slug: 'b', component: 'complaints',  async fetchEvents() { calls.push('b'); return [] } }),
+      mkAdapter({
+        slug: 'a',
+        component: 'disclosures',
+        async fetchEvents() {
+          calls.push('a')
+          return []
+        },
+      }),
+      mkAdapter({
+        slug: 'b',
+        component: 'complaints',
+        async fetchEvents() {
+          calls.push('b')
+          return []
+        },
+      }),
     ]
     await ingestStateEthics({ client, component: 'disclosures', adapters })
     expect(calls).toEqual(['a'])
@@ -40,8 +64,22 @@ describe('ingestStateEthics', () => {
   it('--state filter passes state + filters covered_states', async () => {
     const calls: Array<{ slug: string; state?: string }> = []
     const adapters = [
-      mkAdapter({ slug: 'a', covered_states: ['CA'], async fetchEvents(o) { calls.push({ slug: 'a', ...(o.state !== undefined ? { state: o.state } : {}) }); return [] } }),
-      mkAdapter({ slug: 'b', covered_states: ['NY'], async fetchEvents() { calls.push({ slug: 'b' }); return [] } }),
+      mkAdapter({
+        slug: 'a',
+        covered_states: ['CA'],
+        async fetchEvents(o) {
+          calls.push({ slug: 'a', ...(o.state !== undefined ? { state: o.state } : {}) })
+          return []
+        },
+      }),
+      mkAdapter({
+        slug: 'b',
+        covered_states: ['NY'],
+        async fetchEvents() {
+          calls.push({ slug: 'b' })
+          return []
+        },
+      }),
     ]
     await ingestStateEthics({ client, state: 'CA', adapters })
     expect(calls).toEqual([{ slug: 'a', state: 'CA' }])
@@ -49,18 +87,38 @@ describe('ingestStateEthics', () => {
 
   it('skipOnError: one throws, others run', async () => {
     const adapters = [
-      mkAdapter({ slug: 'a', async fetchEvents() { throw new Error('a broke') } }),
-      mkAdapter({ slug: 'b', async fetchEvents() { return [] } }),
+      mkAdapter({
+        slug: 'a',
+        async fetchEvents() {
+          throw new Error('a broke')
+        },
+      }),
+      mkAdapter({
+        slug: 'b',
+        async fetchEvents() {
+          return []
+        },
+      }),
     ]
     const stats = await ingestStateEthics({ client, skipOnError: true, adapters })
     expect(stats.adaptersOk).toBe(1)
-    expect(stats.byAdapter.find(s => s.adapter_slug === 'a')!.errors[0]).toMatch(/a broke/)
+    expect(stats.byAdapter.find((s) => s.adapter_slug === 'a')!.errors[0]).toMatch(/a broke/)
   })
 
   it('default: throw aborts', async () => {
     const adapters = [
-      mkAdapter({ slug: 'a', async fetchEvents() { throw new Error('boom') } }),
-      mkAdapter({ slug: 'b', async fetchEvents() { return [] } }),
+      mkAdapter({
+        slug: 'a',
+        async fetchEvents() {
+          throw new Error('boom')
+        },
+      }),
+      mkAdapter({
+        slug: 'b',
+        async fetchEvents() {
+          return []
+        },
+      }),
     ]
     await expect(ingestStateEthics({ client, adapters })).rejects.toThrow(/boom/)
   })
@@ -68,9 +126,30 @@ describe('ingestStateEthics', () => {
   it('--component=all runs all 3 components', async () => {
     const calls: string[] = []
     const adapters = [
-      mkAdapter({ slug: 'a', component: 'disclosures', async fetchEvents() { calls.push('a'); return [] } }),
-      mkAdapter({ slug: 'b', component: 'complaints',  async fetchEvents() { calls.push('b'); return [] } }),
-      mkAdapter({ slug: 'c', component: 'events',      async fetchEvents() { calls.push('c'); return [] } }),
+      mkAdapter({
+        slug: 'a',
+        component: 'disclosures',
+        async fetchEvents() {
+          calls.push('a')
+          return []
+        },
+      }),
+      mkAdapter({
+        slug: 'b',
+        component: 'complaints',
+        async fetchEvents() {
+          calls.push('b')
+          return []
+        },
+      }),
+      mkAdapter({
+        slug: 'c',
+        component: 'events',
+        async fetchEvents() {
+          calls.push('c')
+          return []
+        },
+      }),
     ]
     await ingestStateEthics({ client, component: 'all', adapters })
     expect(calls).toEqual(['a', 'b', 'c'])

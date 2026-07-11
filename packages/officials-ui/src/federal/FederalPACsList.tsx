@@ -27,10 +27,7 @@ export function FederalPACsList({ finance }: FederalPACsListProps): React.JSX.El
   return (
     <View style={styles.list}>
       {pacs.slice(0, 10).map((p, i) => (
-        <View
-          key={`${p.pac_name}-${i}`}
-          style={[styles.row, { backgroundColor: semantic.bg.app }]}
-        >
+        <View key={`${p.pac_name}-${i}`} style={[styles.row, { backgroundColor: semantic.bg.app }]}>
           <Text style={[styles.name, { color: semantic.text.primary }]}>{p.pac_name}</Text>
           <Text style={[styles.amount, { color: semantic.text.primary }]}>
             {fmtAmount(Number(p.amount))}

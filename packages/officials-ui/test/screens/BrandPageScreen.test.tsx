@@ -12,7 +12,9 @@ function withMode(mode: 'light' | 'dark') {
 describe('BrandPageScreen', () => {
   it('renders title as h1 when provided', () => {
     const { container } = render(
-      <BrandPageScreen title="Your officials"><div>body</div></BrandPageScreen>,
+      <BrandPageScreen title="Your officials">
+        <div>body</div>
+      </BrandPageScreen>,
       { wrapper: withMode('light') },
     )
     // BrandHeading uses createElement('h1', ...) on web — plain <h1> without
@@ -23,7 +25,9 @@ describe('BrandPageScreen', () => {
 
   it('omits heading when title is undefined', () => {
     const { container } = render(
-      <BrandPageScreen><div>body</div></BrandPageScreen>,
+      <BrandPageScreen>
+        <div>body</div>
+      </BrandPageScreen>,
       { wrapper: withMode('light') },
     )
     expect(container.querySelector('h1')).toBeNull()
@@ -31,18 +35,24 @@ describe('BrandPageScreen', () => {
 
   it('applies semantic.bg.app background on outer wrapper', () => {
     const { container } = render(
-      <BrandPageScreen><div>body</div></BrandPageScreen>,
+      <BrandPageScreen>
+        <div>body</div>
+      </BrandPageScreen>,
       { wrapper: withMode('light') },
     )
     const outer = container.firstChild as HTMLElement
     // Light mode: BRAND_PALETTE.light.surface.base = #efece5 = rgb(239, 236, 229)
     // RNW may normalise hex to rgb in inline style.
-    expect(outer?.getAttribute('style')).toMatch(/background-color:\s*(rgb\(239,\s*236,\s*229\)|#efece5)/i)
+    expect(outer?.getAttribute('style')).toMatch(
+      /background-color:\s*(rgb\(239,\s*236,\s*229\)|#efece5)/i,
+    )
   })
 
   it('applies WEB_VIEWPORT_FILL minHeight 100vh on web', () => {
     const { container } = render(
-      <BrandPageScreen><div>body</div></BrandPageScreen>,
+      <BrandPageScreen>
+        <div>body</div>
+      </BrandPageScreen>,
       { wrapper: withMode('light') },
     )
     const outer = container.firstChild as HTMLElement
@@ -51,7 +61,9 @@ describe('BrandPageScreen', () => {
 
   it('renders children inside the column wrapper', () => {
     const { getByText } = render(
-      <BrandPageScreen><div>page-body</div></BrandPageScreen>,
+      <BrandPageScreen>
+        <div>page-body</div>
+      </BrandPageScreen>,
       { wrapper: withMode('light') },
     )
     expect(getByText('page-body')).toBeTruthy()
@@ -59,7 +71,9 @@ describe('BrandPageScreen', () => {
 
   it('consumes the --chiaro-rail-width CSS var on web', () => {
     const { container } = render(
-      <BrandPageScreen><div>body</div></BrandPageScreen>,
+      <BrandPageScreen>
+        <div>body</div>
+      </BrandPageScreen>,
       { wrapper: withMode('light') },
     )
     const outer = container.firstChild as HTMLElement
@@ -69,7 +83,9 @@ describe('BrandPageScreen', () => {
 
   it('consumes the --chiaro-rail-topbar CSS var for padding-top on web', () => {
     const { container } = render(
-      <BrandPageScreen><div>body</div></BrandPageScreen>,
+      <BrandPageScreen>
+        <div>body</div>
+      </BrandPageScreen>,
       { wrapper: withMode('light') },
     )
     const outer = container.firstChild as HTMLElement

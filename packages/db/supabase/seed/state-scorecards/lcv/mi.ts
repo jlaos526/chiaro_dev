@@ -44,9 +44,7 @@ export function parseMichiganLcvHtml(html: string): ParsedMichiganLcvRow[] {
     if (!Number.isFinite(score_numeric)) return
 
     const chamber: Chamber | null =
-      chamberLabel === 'House' ? 'state_house'
-      : chamberLabel === 'Senate' ? 'state_senate'
-      : null
+      chamberLabel === 'House' ? 'state_house' : chamberLabel === 'Senate' ? 'state_senate' : null
     if (!chamber) return
 
     out.push({ full_name, party, chamber, district, score_numeric })
@@ -103,7 +101,13 @@ export async function fetchMichiganRatings(
   const $ = cheerio.load(html)
   const out: NormalizedStateRating[] = []
 
-  const cellTexts: { full_name: string; party: string; chamberLabel: string; district: string; scoreText: string }[] = []
+  const cellTexts: {
+    full_name: string
+    party: string
+    chamberLabel: string
+    district: string
+    scoreText: string
+  }[] = []
   $('table.lawmaker-table tbody tr').each((_, trEl) => {
     const cells = $(trEl).find('td')
     if (cells.length < 7) return
@@ -142,9 +146,7 @@ export async function fetchMichiganRatings(
     }
 
     const chamber: Chamber | null =
-      chamberLabel === 'House' ? 'state_house'
-      : chamberLabel === 'Senate' ? 'state_senate'
-      : null
+      chamberLabel === 'House' ? 'state_house' : chamberLabel === 'Senate' ? 'state_senate' : null
     if (!chamber) {
       opts.onSkip?.({
         adapter: 'lcv',
@@ -159,12 +161,13 @@ export async function fetchMichiganRatings(
       full_name,
       state: 'MI',
       chamber,
-      onAmbiguous: () => opts.onSkip?.({
-        adapter: 'lcv',
-        stage: 'resolve_ambiguous',
-        legislator: full_name,
-        reason: 'ambiguous full_name match (2+ in-office officials)',
-      }),
+      onAmbiguous: () =>
+        opts.onSkip?.({
+          adapter: 'lcv',
+          stage: 'resolve_ambiguous',
+          legislator: full_name,
+          reason: 'ambiguous full_name match (2+ in-office officials)',
+        }),
     })
     if (!openstatesPersonId) {
       opts.onSkip?.({

@@ -55,13 +55,23 @@ function mkOfficial(
   id = 'oid-' + fullName,
 ): OfficialWithDistrict {
   return {
-    id, full_name: fullName, first_name: fullName, last_name: '',
-    bioguide_id: id, openstates_person_id: null,
-    chamber, party: 'D', state: 'CA',
-    district_id: 'did', district_code: 'CA-12', title: null,
+    id,
+    full_name: fullName,
+    first_name: fullName,
+    last_name: '',
+    bioguide_id: id,
+    openstates_person_id: null,
+    chamber,
+    party: 'D',
+    state: 'CA',
+    district_id: 'did',
+    district_code: 'CA-12',
+    title: null,
     senate_class: chamber === 'federal_senate' ? 1 : null,
-    in_office: true, source_version: 'x',
-    opensecrets_id: null, fec_candidate_id: null,
+    in_office: true,
+    source_version: 'x',
+    opensecrets_id: null,
+    fec_candidate_id: null,
     portrait_url: null,
     district: { id: 'did', tier: chamber, state: 'CA', code: 'CA-12', name: 'CA-12' },
   } as unknown as OfficialWithDistrict
@@ -98,10 +108,7 @@ describe('OfficialsList', () => {
 
   it('renders Senate and House sections when both have officials', () => {
     useMyOfficialsMock.mockReturnValue({
-      data: [
-        mkOfficial('federal_senate', 'Padilla'),
-        mkOfficial('federal_house', 'Pelosi'),
-      ],
+      data: [mkOfficial('federal_senate', 'Padilla'), mkOfficial('federal_house', 'Pelosi')],
       isLoading: false,
       error: null,
     })
@@ -192,7 +199,12 @@ describe('OfficialsList — smart-anchor (row link)', () => {
       />,
     )
     const anchor = container.querySelector('a[href="/officials/oid-pelosi"]')!
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, metaKey: true })
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      metaKey: true,
+    })
     const notPrevented = anchor.dispatchEvent(event)
     expect(notPrevented).toBe(true)
     expect(onSelect).not.toHaveBeenCalled()
@@ -203,11 +215,7 @@ describe('OfficialsList — smart-anchor (calibrate prompt)', () => {
   it('renders calibrate prompt as real <a href> on web when calibrateHref provided', () => {
     useMyOfficialsMock.mockReturnValue({ data: [], isLoading: false, error: null })
     const { container } = wrap(
-      <OfficialsList
-        onSelect={vi.fn()}
-        onCalibrate={vi.fn()}
-        calibrateHref="/calibrate"
-      />,
+      <OfficialsList onSelect={vi.fn()} onCalibrate={vi.fn()} calibrateHref="/calibrate" />,
     )
     const anchor = container.querySelector('a[href="/calibrate"]')
     expect(anchor).not.toBeNull()
@@ -217,11 +225,7 @@ describe('OfficialsList — smart-anchor (calibrate prompt)', () => {
     useMyOfficialsMock.mockReturnValue({ data: [], isLoading: false, error: null })
     const onCalibrate = vi.fn()
     const { container } = wrap(
-      <OfficialsList
-        onSelect={vi.fn()}
-        onCalibrate={onCalibrate}
-        calibrateHref="/calibrate"
-      />,
+      <OfficialsList onSelect={vi.fn()} onCalibrate={onCalibrate} calibrateHref="/calibrate" />,
     )
     const anchor = container.querySelector('a[href="/calibrate"]')!
     const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 })
@@ -234,14 +238,15 @@ describe('OfficialsList — smart-anchor (calibrate prompt)', () => {
     useMyOfficialsMock.mockReturnValue({ data: [], isLoading: false, error: null })
     const onCalibrate = vi.fn()
     const { container } = wrap(
-      <OfficialsList
-        onSelect={vi.fn()}
-        onCalibrate={onCalibrate}
-        calibrateHref="/calibrate"
-      />,
+      <OfficialsList onSelect={vi.fn()} onCalibrate={onCalibrate} calibrateHref="/calibrate" />,
     )
     const anchor = container.querySelector('a[href="/calibrate"]')!
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, shiftKey: true })
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      shiftKey: true,
+    })
     const notPrevented = anchor.dispatchEvent(event)
     expect(notPrevented).toBe(true)
     expect(onCalibrate).not.toHaveBeenCalled()

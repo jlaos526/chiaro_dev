@@ -8,19 +8,25 @@ describe('stateBillsKeys', () => {
 
   it('byOfficialSponsored has hierarchical key', () => {
     expect(stateBillsKeys.byOfficialSponsored('oid-1')).toEqual([
-      'state-bills', 'byOfficialSponsored', 'oid-1',
+      'state-bills',
+      'byOfficialSponsored',
+      'oid-1',
     ])
   })
 
   it('byOfficialCosponsored has hierarchical key', () => {
     expect(stateBillsKeys.byOfficialCosponsored('oid-1')).toEqual([
-      'state-bills', 'byOfficialCosponsored', 'oid-1',
+      'state-bills',
+      'byOfficialCosponsored',
+      'oid-1',
     ])
   })
 
   it('byOfficialVotes has hierarchical key', () => {
     expect(stateBillsKeys.byOfficialVotes('oid-1')).toEqual([
-      'state-bills', 'byOfficialVotes', 'oid-1',
+      'state-bills',
+      'byOfficialVotes',
+      'oid-1',
     ])
   })
 })

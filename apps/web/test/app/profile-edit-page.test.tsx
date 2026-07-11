@@ -11,7 +11,7 @@ vi.mock('next/navigation', () => ({
 
 const { updateMyProfile } = vi.hoisted(() => ({ updateMyProfile: vi.fn() }))
 vi.mock('@chiaro/profile', async (importOriginal) => {
-  const actual = await importOriginal() as Record<string, unknown>
+  const actual = (await importOriginal()) as Record<string, unknown>
   return {
     ...actual,
     updateMyProfile: (...args: unknown[]) => updateMyProfile(...args),

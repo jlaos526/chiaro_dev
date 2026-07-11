@@ -7,21 +7,21 @@ import type { FederalHolding } from '@chiaro/officials'
 
 function row(overrides: Partial<FederalHolding> = {}): FederalHolding {
   return {
-    id:           'h1',
-    official_id:  'oid',
-    filing_year:  2024,
-    source:       'house-fd',
-    external_id:  null,
-    source_url:   'https://example.com/fd',
-    asset_name:   'Apple Inc.',
+    id: 'h1',
+    official_id: 'oid',
+    filing_year: 2024,
+    source: 'house-fd',
+    external_id: null,
+    source_url: 'https://example.com/fd',
+    asset_name: 'Apple Inc.',
     asset_ticker: 'AAPL',
-    asset_type:   'stock',
-    value_min:    1000,
-    value_max:    15000,
-    income_type:  null,
-    income_min:   null,
-    income_max:   null,
-    ingested_at:  '2026-01-01',
+    asset_type: 'stock',
+    value_min: 1000,
+    value_max: 15000,
+    income_type: null,
+    income_min: null,
+    income_max: null,
+    ingested_at: '2026-01-01',
     ...overrides,
   }
 }
@@ -91,19 +91,24 @@ const darkWrapper = ({ children }: { children: ReactNode }) =>
 
 describe('FederalHoldingsList — mode awareness', () => {
   it('renders under both light and dark wrappers without throwing', () => {
-    expect(() =>
-      render(<FederalHoldingsList rows={[]} />, { wrapper: lightWrapper }),
-    ).not.toThrow()
-    expect(() =>
-      render(<FederalHoldingsList rows={[]} />, { wrapper: darkWrapper }),
-    ).not.toThrow()
+    expect(() => render(<FederalHoldingsList rows={[]} />, { wrapper: lightWrapper })).not.toThrow()
+    expect(() => render(<FederalHoldingsList rows={[]} />, { wrapper: darkWrapper })).not.toThrow()
     // Also exercise non-empty path
     const sampleRow: FederalHolding = {
-      id: 'h1', official_id: 'oid', filing_year: 2024, source: 'house-fd',
-      external_id: null, source_url: 'https://example.com/fd',
-      asset_name: 'Apple Inc.', asset_ticker: 'AAPL', asset_type: 'stock',
-      value_min: 1000, value_max: 15000,
-      income_type: null, income_min: null, income_max: null,
+      id: 'h1',
+      official_id: 'oid',
+      filing_year: 2024,
+      source: 'house-fd',
+      external_id: null,
+      source_url: 'https://example.com/fd',
+      asset_name: 'Apple Inc.',
+      asset_ticker: 'AAPL',
+      asset_type: 'stock',
+      value_min: 1000,
+      value_max: 15000,
+      income_type: null,
+      income_min: null,
+      income_max: null,
       ingested_at: '2026-01-01',
     }
     expect(() =>

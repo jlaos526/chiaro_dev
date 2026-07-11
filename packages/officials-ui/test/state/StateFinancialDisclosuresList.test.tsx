@@ -21,10 +21,7 @@ describe('StateFinancialDisclosuresList', () => {
   })
 
   it('renders rows grouped by filing_year', () => {
-    const rows = [
-      makeRow('d1', { filing_year: 2026 }),
-      makeRow('d2', { filing_year: 2025 }),
-    ]
+    const rows = [makeRow('d1', { filing_year: 2026 }), makeRow('d2', { filing_year: 2025 })]
     const { getByText } = render(<StateFinancialDisclosuresList rows={rows} />)
     expect(getByText(/2026 \(1 disclosure\)/)).toBeTruthy()
     expect(getByText(/2025 \(1 disclosure\)/)).toBeTruthy()

@@ -6,9 +6,9 @@ import { useBrandTokens } from '../brand-hooks.ts'
 
 const FORMAT_LABEL: Record<string, string> = {
   in_person: 'In person',
-  virtual:   'Virtual',
-  phone:     'Phone',
-  hybrid:    'Hybrid',
+  virtual: 'Virtual',
+  phone: 'Phone',
+  hybrid: 'Hybrid',
 }
 
 export interface StateTownHallsListProps {
@@ -26,7 +26,7 @@ export function StateTownHallsList({ rows }: StateTownHallsListProps): React.JSX
   }
   return (
     <View style={styles.list}>
-      {rows.map(r => {
+      {rows.map((r) => {
         const url = r.source_url ?? null
         const Row = url ? Pressable : View
         return (
@@ -40,7 +40,7 @@ export function StateTownHallsList({ rows }: StateTownHallsListProps): React.JSX
               {r.city ? ` · ${r.city}, ${r.state}` : ` · ${r.state}`}
             </Text>
             <Text style={[styles.meta, { color: semantic.text.muted }]}>
-              {r.format ? FORMAT_LABEL[r.format] ?? r.format : 'Format n/a'}
+              {r.format ? (FORMAT_LABEL[r.format] ?? r.format) : 'Format n/a'}
               {r.attendance_estimate != null && ` · ~${r.attendance_estimate} attendees`}
             </Text>
           </Row>

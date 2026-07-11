@@ -21,13 +21,15 @@ export default function EditAddressScreen() {
   const [bootstrapping, setBootstrapping] = useState(true)
 
   useEffect(() => {
-    getMyLocation(supabase as never).then(loc => {
-      if (loc) {
-        setAddress(loc.home_address_text)
-        setCalibratedAt(loc.calibrated_at)
-      }
-      setBootstrapping(false)
-    }).catch(() => setBootstrapping(false))
+    getMyLocation(supabase as never)
+      .then((loc) => {
+        if (loc) {
+          setAddress(loc.home_address_text)
+          setCalibratedAt(loc.calibrated_at)
+        }
+        setBootstrapping(false)
+      })
+      .catch(() => setBootstrapping(false))
   }, [])
 
   async function save() {
@@ -87,7 +89,11 @@ export default function EditAddressScreen() {
         {...(subtitle ? { subtitle } : {})}
       >
         <BrandTextInput label="Address" value={address} onChangeText={setAddress} required />
-        {error ? <BrandAlert severity="danger" title="Couldn't save">{error}</BrandAlert> : null}
+        {error ? (
+          <BrandAlert severity="danger" title="Couldn't save">
+            {error}
+          </BrandAlert>
+        ) : null}
         <BrandButton variant="primary" disabled={loading} onPress={save}>
           {loading ? 'Saving…' : 'Save'}
         </BrandButton>

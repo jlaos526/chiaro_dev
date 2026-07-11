@@ -5,7 +5,15 @@ import { fileURLToPath } from 'node:url'
 import { parseFlRepDetailHtml, fetchFlHouseOffices, deriveFlRepUrl } from './house.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const FIXTURE = join(__dirname, '..', '..', '..', 'fixtures', 'state-community', 'fl-rep-detail.html')
+const FIXTURE = join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'fixtures',
+  'state-community',
+  'fl-rep-detail.html',
+)
 
 describe('parseFlRepDetailHtml', () => {
   it('extracts both Tallahassee + District address blocks', async () => {
@@ -32,17 +40,23 @@ describe('parseFlRepDetailHtml', () => {
       </section>
     `
     const parsed = parseFlRepDetailHtml(html)
-    expect(parsed.capitol_office).toBe('1102 The Capitol, 402 South Monroe Street, Tallahassee, FL 32399, Phone: (850) 717-5014')
+    expect(parsed.capitol_office).toBe(
+      '1102 The Capitol, 402 South Monroe Street, Tallahassee, FL 32399, Phone: (850) 717-5014',
+    )
   })
 })
 
 describe('deriveFlRepUrl', () => {
   it('builds URL with MemberId query param', () => {
-    expect(deriveFlRepUrl(4814)).toBe('https://www.flhouse.gov/Sections/Representatives/details.aspx?MemberId=4814')
+    expect(deriveFlRepUrl(4814)).toBe(
+      'https://www.flhouse.gov/Sections/Representatives/details.aspx?MemberId=4814',
+    )
   })
 
   it('handles single-digit MemberIds', () => {
-    expect(deriveFlRepUrl(3)).toBe('https://www.flhouse.gov/Sections/Representatives/details.aspx?MemberId=3')
+    expect(deriveFlRepUrl(3)).toBe(
+      'https://www.flhouse.gov/Sections/Representatives/details.aspx?MemberId=3',
+    )
   })
 })
 
@@ -54,8 +68,16 @@ describe('fetchFlHouseOffices', () => {
         if (sql.includes('from public.officials')) {
           return Promise.resolve({
             rows: [
-              { openstates_person_id: 'ocd-person/fl-h1', full_name: 'Jane Doe', district_id: 'FL-14' },
-              { openstates_person_id: 'ocd-person/fl-h2', full_name: 'Alex Smith', district_id: 'FL-23' },
+              {
+                openstates_person_id: 'ocd-person/fl-h1',
+                full_name: 'Jane Doe',
+                district_id: 'FL-14',
+              },
+              {
+                openstates_person_id: 'ocd-person/fl-h2',
+                full_name: 'Alex Smith',
+                district_id: 'FL-23',
+              },
             ],
             rowCount: 2,
           })
@@ -74,8 +96,16 @@ describe('fetchFlHouseOffices', () => {
         if (sql.includes('from public.officials')) {
           return Promise.resolve({
             rows: [
-              { openstates_person_id: 'ocd-person/fl-h1', full_name: 'Jane Doe', district_id: 'FL-14' },
-              { openstates_person_id: 'ocd-person/fl-h2', full_name: 'Alex Smith', district_id: 'FL-23' },
+              {
+                openstates_person_id: 'ocd-person/fl-h1',
+                full_name: 'Jane Doe',
+                district_id: 'FL-14',
+              },
+              {
+                openstates_person_id: 'ocd-person/fl-h2',
+                full_name: 'Alex Smith',
+                district_id: 'FL-23',
+              },
             ],
             rowCount: 2,
           })
@@ -91,6 +121,6 @@ describe('fetchFlHouseOffices', () => {
         return fixtureHtml
       },
     })
-    expect(rows).toHaveLength(2)  // First errors, second succeeds → 2 rows
+    expect(rows).toHaveLength(2) // First errors, second succeeds → 2 rows
   })
 })

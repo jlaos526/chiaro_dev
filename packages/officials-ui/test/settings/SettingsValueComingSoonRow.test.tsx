@@ -12,10 +12,9 @@ function withMode(mode: 'light' | 'dark') {
 
 describe('SettingsValueRow', () => {
   it('renders label and right-aligned value', () => {
-    const { getByText } = render(
-      <SettingsValueRow label="Version" value="1.2.3" />,
-      { wrapper: withMode('light') },
-    )
+    const { getByText } = render(<SettingsValueRow label="Version" value="1.2.3" />, {
+      wrapper: withMode('light'),
+    })
     expect(getByText('Version')).toBeTruthy()
     expect(getByText('1.2.3')).toBeTruthy()
   })
@@ -23,10 +22,9 @@ describe('SettingsValueRow', () => {
 
 describe('SettingsComingSoonRow', () => {
   it('renders label and "Coming soon" badge', () => {
-    const { getByText } = render(
-      <SettingsComingSoonRow label="Display name" />,
-      { wrapper: withMode('light') },
-    )
+    const { getByText } = render(<SettingsComingSoonRow label="Display name" />, {
+      wrapper: withMode('light'),
+    })
     expect(getByText('Display name')).toBeTruthy()
     expect(getByText('Coming soon')).toBeTruthy()
   })

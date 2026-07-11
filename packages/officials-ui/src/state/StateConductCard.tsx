@@ -2,10 +2,7 @@
 
 import { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
-import {
-  useOfficialStateEthicsComplaints,
-  useOfficialStateOfficialEvents,
-} from '@chiaro/officials'
+import { useOfficialStateEthicsComplaints, useOfficialStateOfficialEvents } from '@chiaro/officials'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
 import { useChiaroClient } from '../client-context.tsx'
@@ -16,9 +13,7 @@ export interface StateConductCardProps {
   officialId: string
 }
 
-export function StateConductCard({
-  officialId,
-}: StateConductCardProps): React.JSX.Element {
+export function StateConductCard({ officialId }: StateConductCardProps): React.JSX.Element {
   const client = useChiaroClient()
   const { semantic } = useBrandTokens()
   const complaints = useOfficialStateEthicsComplaints(client, officialId)
@@ -38,7 +33,9 @@ export function StateConductCard({
   if (complaints.isLoading || events.isLoading) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Conduct & Sanctions</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+          Conduct & Sanctions
+        </Text>
         <Text style={mutedStyle}>Loading conduct records…</Text>
       </View>
     )
@@ -47,14 +44,16 @@ export function StateConductCard({
   // Header counts: per NULL-vs-0 convention — em-dash when unknown,
   // numeric (incl. 0) when known.
   const complaintCount = complaints.data?.length ?? null
-  const openCount = complaints.data?.filter(r => r.status === 'open').length ?? 0
+  const openCount = complaints.data?.filter((r) => r.status === 'open').length ?? 0
   const eventCount = events.data?.length ?? null
   const allEmpty = (complaintCount ?? 0) === 0 && (eventCount ?? 0) === 0
 
   if (allEmpty) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Conduct & Sanctions</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+          Conduct & Sanctions
+        </Text>
         <Text style={[mutedStyle, { fontStyle: 'italic' }]}>
           No ethics complaints or conduct events on record for this legislator.
         </Text>
@@ -64,7 +63,9 @@ export function StateConductCard({
 
   return (
     <View style={cardStyle}>
-      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Conduct & Sanctions</Text>
+      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+        Conduct & Sanctions
+      </Text>
       <Text style={summaryStyle}>
         {complaintCount != null
           ? `${complaintCount} complaint${complaintCount === 1 ? '' : 's'} (${openCount} open)`
@@ -76,7 +77,7 @@ export function StateConductCard({
       <CardSubsection
         label={`Ethics complaints (${complaintCount ?? '—'})`}
         open={openComplaints}
-        onToggle={() => setOpenComplaints(v => !v)}
+        onToggle={() => setOpenComplaints((v) => !v)}
       >
         <StateEthicsComplaintsList rows={complaints.data ?? []} />
       </CardSubsection>
@@ -84,7 +85,7 @@ export function StateConductCard({
       <CardSubsection
         label={`Sanctions / recall / resignation (${eventCount ?? '—'})`}
         open={openEvents}
-        onToggle={() => setOpenEvents(v => !v)}
+        onToggle={() => setOpenEvents((v) => !v)}
       >
         <StateOfficialEventsList rows={events.data ?? []} />
       </CardSubsection>

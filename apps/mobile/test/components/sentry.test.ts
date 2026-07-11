@@ -36,7 +36,13 @@ describe('scrubAddressInPlace (mobile)', () => {
     const e: any = {
       extra: {
         p_selections: [{ topic_slug: 'climate', position: 80 }],
-        args: { selections: 'raw', topic_slug: 'guns', lens_slug: 'nra', position: 20, importance: 2 },
+        args: {
+          selections: 'raw',
+          topic_slug: 'guns',
+          lens_slug: 'nra',
+          position: 20,
+          importance: 2,
+        },
         display_order: 3,
       },
     }

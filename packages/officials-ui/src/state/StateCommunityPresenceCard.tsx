@@ -42,7 +42,9 @@ export function StateCommunityPresenceCard({
   if (halls.isLoading || offices.isLoading || hearings.isLoading) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Community Presence</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+          Community Presence
+        </Text>
         <Text style={mutedStyle}>Loading community presence…</Text>
       </View>
     )
@@ -59,7 +61,9 @@ export function StateCommunityPresenceCard({
   if (allEmpty) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Community Presence</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+          Community Presence
+        </Text>
         <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No community-presence data available for this legislator yet.
         </Text>
@@ -69,7 +73,9 @@ export function StateCommunityPresenceCard({
 
   return (
     <View style={cardStyle}>
-      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Community Presence</Text>
+      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+        Community Presence
+      </Text>
 
       <Text style={summaryStyle}>
         {hallCount != null ? `${hallCount} town hall${hallCount === 1 ? '' : 's'}` : '—'}
@@ -84,7 +90,7 @@ export function StateCommunityPresenceCard({
       <CardSubsection
         label={`Town halls (${hallCount ?? '—'})`}
         open={openHalls}
-        onToggle={() => setOpenHalls(v => !v)}
+        onToggle={() => setOpenHalls((v) => !v)}
       >
         <StateTownHallsList rows={halls.data ?? []} />
       </CardSubsection>
@@ -92,7 +98,7 @@ export function StateCommunityPresenceCard({
       <CardSubsection
         label={`Committee hearings attended (${hearingCount ?? '—'})`}
         open={openHearings}
-        onToggle={() => setOpenHearings(v => !v)}
+        onToggle={() => setOpenHearings((v) => !v)}
       >
         <StateCommitteeHearingsList rows={hearings.data ?? []} />
       </CardSubsection>
@@ -100,7 +106,7 @@ export function StateCommunityPresenceCard({
       <CardSubsection
         label={`District offices (${officeCount ?? '—'})`}
         open={openOffices}
-        onToggle={() => setOpenOffices(v => !v)}
+        onToggle={() => setOpenOffices((v) => !v)}
       >
         <StateDistrictOfficesList rows={offices.data ?? []} />
       </CardSubsection>

@@ -8,11 +8,7 @@ vi.mock('../../shared/pdf.ts', () => ({
   extractPdfText: vi.fn(),
 }))
 
-import {
-  parseTxTecOrdersHtml,
-  isTexasLegislatorRow,
-  fetchSwornComplaintOrders,
-} from './shared.ts'
+import { parseTxTecOrdersHtml, isTexasLegislatorRow, fetchSwornComplaintOrders } from './shared.ts'
 import { fetchPdf, extractPdfText } from '../../shared/pdf.ts'
 import { stubFetchBlocked } from '../../test-utils/stub-fetch.ts'
 import type { SkipReason } from '../../shared/instrumentation.ts'
@@ -34,7 +30,9 @@ describe('parseTxTecOrdersHtml', () => {
     const html = await readFile(FIXTURE, 'utf8')
     const rows = parseTxTecOrdersHtml(html)
     expect(rows[0]!.order_number).toBe('SC-202401-001')
-    expect(rows[0]!.source_pdf_url).toBe('https://www.ethics.state.tx.us/data/enforcement/sworn_complaints/2024/SC-202401-001.pdf')
+    expect(rows[0]!.source_pdf_url).toBe(
+      'https://www.ethics.state.tx.us/data/enforcement/sworn_complaints/2024/SC-202401-001.pdf',
+    )
   })
 
   it('extracts year_filed as integer', async () => {
@@ -52,10 +50,14 @@ describe('isTexasLegislatorRow', () => {
     expect(isTexasLegislatorRow({ agency: 'Texas Senate' } as never)).toBe(true)
   })
   it('rejects Comptroller', () => {
-    expect(isTexasLegislatorRow({ agency: 'Texas Comptroller of Public Accounts' } as never)).toBe(false)
+    expect(isTexasLegislatorRow({ agency: 'Texas Comptroller of Public Accounts' } as never)).toBe(
+      false,
+    )
   })
   it('rejects state agencies', () => {
-    expect(isTexasLegislatorRow({ agency: 'Texas Department of Transportation' } as never)).toBe(false)
+    expect(isTexasLegislatorRow({ agency: 'Texas Department of Transportation' } as never)).toBe(
+      false,
+    )
   })
 })
 
@@ -67,7 +69,9 @@ describe('fetchSwornComplaintOrders', () => {
         const name = String(params[0]).toLowerCase()
         if (name.includes('unknown')) return Promise.resolve({ rows: [], rowCount: 0 })
         return Promise.resolve({
-          rows: [{ openstates_person_id: `ocd-person/tx-${Math.random().toString(36).slice(2, 6)}` }],
+          rows: [
+            { openstates_person_id: `ocd-person/tx-${Math.random().toString(36).slice(2, 6)}` },
+          ],
           rowCount: 1,
         })
       }),
@@ -95,19 +99,19 @@ describe('fetchSwornComplaintOrders', () => {
     const result = await fetchSwornComplaintOrders(client as never, { fetcher: async () => html })
 
     // "Agreed Order" → sanctioned (TX-specific lexicon)
-    const jane = result.complaints.find(c => c.external_id === 'complaint-SC-202401-001')!
+    const jane = result.complaints.find((c) => c.external_id === 'complaint-SC-202401-001')!
     expect(jane.status).toBe('sanctioned')
     // "Final Order" → sanctioned
-    const alex = result.complaints.find(c => c.external_id === 'complaint-SC-202405-099')!
+    const alex = result.complaints.find((c) => c.external_id === 'complaint-SC-202405-099')!
     expect(alex.status).toBe('sanctioned')
     // "Resolved" → sanctioned
-    const maria = result.complaints.find(c => c.external_id === 'complaint-SC-202407-150')!
+    const maria = result.complaints.find((c) => c.external_id === 'complaint-SC-202407-150')!
     expect(maria.status).toBe('sanctioned')
     // "Pending" → open
-    const bob = result.complaints.find(c => c.external_id === 'complaint-SC-202409-200')!
+    const bob = result.complaints.find((c) => c.external_id === 'complaint-SC-202409-200')!
     expect(bob.status).toBe('open')
     // "Dismissed" → dismissed
-    const lisa = result.complaints.find(c => c.external_id === 'complaint-SC-202410-205')!
+    const lisa = result.complaints.find((c) => c.external_id === 'complaint-SC-202410-205')!
     expect(lisa.status).toBe('dismissed')
   })
 
@@ -137,7 +141,7 @@ describe('fetchSwornComplaintOrders', () => {
       }),
     }
     const result = await fetchSwornComplaintOrders(client as never, { fetcher: async () => html })
-    expect(result.events.every(e => e.event_type === 'campaign_finance_violation')).toBe(true)
+    expect(result.events.every((e) => e.event_type === 'campaign_finance_violation')).toBe(true)
   })
 
   it('uses external_id prefix to disambiguate dual emission', async () => {
@@ -184,11 +188,11 @@ Resolved by Agreed Order.
     })
 
     // Pick the first legislator-row's complaint (Jane Doe per fixture)
-    const jane = result.complaints.find(c => c.external_id === 'complaint-SC-202401-001')!
+    const jane = result.complaints.find((c) => c.external_id === 'complaint-SC-202401-001')!
     expect(jane.summary).toMatch(/Failed to file annual/)
     expect(jane.disposition).toMatch(/Resolved by Agreed Order/)
 
-    const janeEvent = result.events.find(e => e.external_id === 'event-SC-202401-001')!
+    const janeEvent = result.events.find((e) => e.external_id === 'event-SC-202401-001')!
     expect(janeEvent.summary).toMatch(/Failed to file annual/)
     expect(janeEvent.outcome).toMatch(/Resolved by Agreed Order/)
   })
@@ -207,8 +211,8 @@ Resolved by Agreed Order.
       fetcher: async () => html,
     })
 
-    const jane = result.complaints.find(c => c.external_id === 'complaint-SC-202401-001')!
-    expect(jane.summary).toMatch(/Sworn complaint order SC-202401-001/)  // slice 16 stub format
+    const jane = result.complaints.find((c) => c.external_id === 'complaint-SC-202401-001')!
+    expect(jane.summary).toMatch(/Sworn complaint order SC-202401-001/) // slice 16 stub format
   })
 
   it('falls back to slice 16 generic summary when extractPdfText returns empty', async () => {
@@ -226,7 +230,7 @@ Resolved by Agreed Order.
       fetcher: async () => html,
     })
 
-    const jane = result.complaints.find(c => c.external_id === 'complaint-SC-202401-001')!
+    const jane = result.complaints.find((c) => c.external_id === 'complaint-SC-202401-001')!
     expect(jane.summary).toMatch(/Sworn complaint order/)
   })
 
@@ -248,9 +252,9 @@ Failed to register lobbyist.
       fetcher: async () => html,
     })
 
-    const jane = result.complaints.find(c => c.external_id === 'complaint-SC-202401-001')!
+    const jane = result.complaints.find((c) => c.external_id === 'complaint-SC-202401-001')!
     expect(jane.summary).toMatch(/Failed to register lobbyist/)
-    expect(jane.disposition).toMatch(/Agreed Order/)  // slice 16 fallback (from row.status)
+    expect(jane.disposition).toMatch(/Agreed Order/) // slice 16 fallback (from row.status)
   })
 
   it('respects maxPdfsPerRun cap (only first N rows enriched)', async () => {
@@ -267,10 +271,13 @@ VIOLATION:
 Test violation.
 `)
 
-    const result = await fetchSwornComplaintOrders(client as never, {
-      fetcher: async () => html,
-      maxPdfsPerRun: 2,
-    } as never)
+    const result = await fetchSwornComplaintOrders(
+      client as never,
+      {
+        fetcher: async () => html,
+        maxPdfsPerRun: 2,
+      } as never,
+    )
 
     // Fixture has 6 legislator rows (3 Assembly + 3 Senate per slice 16 fixture).
     // First 2 get PDF-enriched; rest get slice 16 fallback summary.
@@ -313,11 +320,15 @@ describe('tx-tec slice 22 onSkip instrumentation', () => {
     const skips: SkipReason[] = []
     await fetchSwornComplaintOrders(client as never, {
       fetcher: async () => html,
-      onSkip: (r) => { skips.push(r) },
+      onSkip: (r) => {
+        skips.push(r)
+      },
     })
 
     // Dr. Sarah Miller is Texas Comptroller (not legislator) → filter skip
-    const filterSkip = skips.find(s => s.stage === 'filter' && s.legislator === 'Dr. Sarah Miller')
+    const filterSkip = skips.find(
+      (s) => s.stage === 'filter' && s.legislator === 'Dr. Sarah Miller',
+    )
     expect(filterSkip).toBeDefined()
     expect(filterSkip).toMatchObject({
       adapter: 'tx-tec',
@@ -341,12 +352,16 @@ describe('tx-tec slice 22 onSkip instrumentation', () => {
     const skips: SkipReason[] = []
     const result = await fetchSwornComplaintOrders(client as never, {
       fetcher: async () => html,
-      onSkip: (r) => { skips.push(r) },
+      onSkip: (r) => {
+        skips.push(r)
+      },
     })
 
     // Slice 23 contract: unresolved legislator emits onSkip ONLY; errors[] is
     // no longer populated for the unresolved case (only `fetch failed`).
-    const resolveSkip = skips.find(s => s.stage === 'resolve' && s.legislator === 'Unknown Stranger')
+    const resolveSkip = skips.find(
+      (s) => s.stage === 'resolve' && s.legislator === 'Unknown Stranger',
+    )
     expect(resolveSkip).toBeDefined()
     expect(resolveSkip).toMatchObject({
       adapter: 'tx-tec',
@@ -354,7 +369,7 @@ describe('tx-tec slice 22 onSkip instrumentation', () => {
       legislator: 'Unknown Stranger',
     })
     expect(resolveSkip!.reason).toMatch(/unmatched/i)
-    expect(result.errors.some(e => e.includes('Unknown Stranger'))).toBe(false)
+    expect(result.errors.some((e) => e.includes('Unknown Stranger'))).toBe(false)
   })
 
   it('calls onSkip with fetch stage when per-case PDF fetchPdf rejects', async () => {
@@ -370,11 +385,13 @@ describe('tx-tec slice 22 onSkip instrumentation', () => {
     const skips: SkipReason[] = []
     await fetchSwornComplaintOrders(client as never, {
       fetcher: async () => html,
-      onSkip: (r) => { skips.push(r) },
+      onSkip: (r) => {
+        skips.push(r)
+      },
     })
 
     // 6 resolved legislator rows → 6 fetchPdf attempts → 6 fetch skips
-    const fetchSkips = skips.filter(s => s.stage === 'fetch')
+    const fetchSkips = skips.filter((s) => s.stage === 'fetch')
     expect(fetchSkips.length).toBe(6)
     expect(fetchSkips[0]).toMatchObject({
       adapter: 'tx-tec',
@@ -397,10 +414,12 @@ describe('tx-tec slice 22 onSkip instrumentation', () => {
     const skips: SkipReason[] = []
     await fetchSwornComplaintOrders(client as never, {
       fetcher: async () => html,
-      onSkip: (r) => { skips.push(r) },
+      onSkip: (r) => {
+        skips.push(r)
+      },
     })
 
-    const extractSkips = skips.filter(s => s.stage === 'extract')
+    const extractSkips = skips.filter((s) => s.stage === 'extract')
     expect(extractSkips.length).toBe(6)
     expect(extractSkips[0]).toMatchObject({
       adapter: 'tx-tec',

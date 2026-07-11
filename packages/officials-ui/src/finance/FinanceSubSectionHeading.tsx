@@ -12,7 +12,15 @@ export function FinanceSubSectionHeading({
   ruleColor,
 }: FinanceSubSectionHeadingProps): React.JSX.Element {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12, marginBottom: 6 }}>
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        marginTop: 12,
+        marginBottom: 6,
+      }}
+    >
       <Text
         style={{
           fontSize: 12,

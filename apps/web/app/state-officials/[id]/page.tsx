@@ -3,14 +3,20 @@ import { fetchOfficial, fetchOfficialDistrictOffices, isStateLevel } from '@chia
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { StateOfficialDetailClient } from './StateOfficialDetailClient'
 
-interface Params { id: string }
+interface Params {
+  id: string
+}
 
-export default async function StateOfficialPage(
-  { params }: { params: Promise<Params> },
-): Promise<React.JSX.Element> {
+export default async function StateOfficialPage({
+  params,
+}: {
+  params: Promise<Params>
+}): Promise<React.JSX.Element> {
   const { id } = await params
   const supabase = await createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) redirect('/sign-in')
 
   let official

@@ -14,7 +14,7 @@ describe('openstates-yaml-loader', () => {
 
   it('returns each person with normalized core fields', async () => {
     const people = await loadOpenStatesYamlDir(FIXTURE_DIR)
-    const asm = people.find(p => p.id === 'ocd-person/00000000-0000-0000-0000-000000000001')
+    const asm = people.find((p) => p.id === 'ocd-person/00000000-0000-0000-0000-000000000001')
     expect(asm).toBeDefined()
     expect(asm!.name).toBe('Test Asm')
     expect(asm!.party).toBe('Democratic')
@@ -30,16 +30,16 @@ describe('openstates-yaml-loader', () => {
 
   it('parses NE legislature (unicameral) correctly', async () => {
     const people = await loadOpenStatesYamlDir(FIXTURE_DIR)
-    const ne = people.find(p => p.role.state === 'NE')!
+    const ne = people.find((p) => p.role.state === 'NE')!
     expect(ne.role.type).toBe('legislature')
     expect(ne.party).toBe('Nonpartisan')
   })
 
   it('parses MD multi-member districts (1A, 1B, 1C)', async () => {
     const people = await loadOpenStatesYamlDir(FIXTURE_DIR)
-    const mds = people.filter(p => p.role.state === 'MD')
+    const mds = people.filter((p) => p.role.state === 'MD')
     expect(mds).toHaveLength(3)
-    expect(new Set(mds.map(p => p.role.district))).toEqual(new Set(['1A','1B','1C']))
+    expect(new Set(mds.map((p) => p.role.district))).toEqual(new Set(['1A', '1B', '1C']))
   })
 
   it('skips malformed files and continues (graceful)', async () => {
@@ -75,8 +75,8 @@ describe('openstates-yaml-loader', () => {
     try {
       const people = await loadOpenStatesYamlDir(tmpDir)
       expect(people).toHaveLength(2)
-      expect(people.find(p => p.id === 'ocd-person/n1')!.role.title).toBe('State Representative')
-      expect(people.find(p => p.id === 'ocd-person/n2')!.role.title).toBe('State Senator')
+      expect(people.find((p) => p.id === 'ocd-person/n1')!.role.title).toBe('State Representative')
+      expect(people.find((p) => p.id === 'ocd-person/n2')!.role.title).toBe('State Senator')
     } finally {
       await rm(tmpDir, { recursive: true, force: true })
     }

@@ -8,13 +8,10 @@ import {
   fetchOfficialStateVotesOnSubject,
 } from './queries.ts'
 import { stateBillsKeys } from './keys.ts'
-import type {
-  StateBillWithSponsors,
-  StateVoteWithPosition,
-} from './types.ts'
+import type { StateBillWithSponsors, StateVoteWithPosition } from './types.ts'
 
-const STALE_TIME = 5 * 60 * 1000        // 5 min — matches @chiaro/bills convention
-const GC_TIME    = 30 * 60 * 1000       // 30 min
+const STALE_TIME = 5 * 60 * 1000 // 5 min — matches @chiaro/bills convention
+const GC_TIME = 30 * 60 * 1000 // 30 min
 
 export function useOfficialSponsoredStateBills(
   client: ChiaroClient,

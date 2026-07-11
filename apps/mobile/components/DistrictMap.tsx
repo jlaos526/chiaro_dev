@@ -51,7 +51,7 @@ export function DistrictMap({
   // Initial view: zoom to the county boundary (most useful local context).
   // Falls back to the union of everything if no county was resolved.
   const initialRegion = useMemo(() => {
-    const countyDistricts = districts.filter(d => d.tier === 'county')
+    const countyDistricts = districts.filter((d) => d.tier === 'county')
     return countyDistricts.length > 0
       ? computeInitialRegion(countyDistricts)
       : computeInitialRegion(districts)
@@ -62,20 +62,26 @@ export function DistrictMap({
   return (
     <View>
       <View style={styles.toggleGroups}>
-        {DISTRICT_GROUPS.map(group => {
-          const inGroup = group.tiers.flatMap(tier =>
-            districts.filter(d => d.tier === tier).sort((a, b) => a.code.localeCompare(b.code))
+        {DISTRICT_GROUPS.map((group) => {
+          const inGroup = group.tiers.flatMap((tier) =>
+            districts.filter((d) => d.tier === tier).sort((a, b) => a.code.localeCompare(b.code)),
           )
           if (inGroup.length === 0) return null
           return (
             <View key={group.heading} style={styles.groupRow}>
-              <Text style={[styles.groupHeading, { color: semantic.text.muted }]}>{group.heading}</Text>
+              <Text style={[styles.groupHeading, { color: semantic.text.muted }]}>
+                {group.heading}
+              </Text>
               <View style={styles.toggleRow}>
-                {inGroup.map(d => (
+                {inGroup.map((d) => (
                   <Pressable
                     key={d.id}
-                    style={[styles.toggle, { borderColor: semantic.border.default }, enabled[d.id] && { backgroundColor: tierColors[d.tier] }]}
-                    onPress={() => setEnabled(prev => ({ ...prev, [d.id]: !prev[d.id] }))}
+                    style={[
+                      styles.toggle,
+                      { borderColor: semantic.border.default },
+                      enabled[d.id] && { backgroundColor: tierColors[d.tier] },
+                    ]}
+                    onPress={() => setEnabled((prev) => ({ ...prev, [d.id]: !prev[d.id] }))}
                   >
                     <Text style={[styles.toggleText, enabled[d.id] && { color: 'white' }]}>
                       {TIER_LABEL[d.tier]} {d.code}
@@ -103,15 +109,19 @@ export function DistrictMap({
         {/* S1/S2 dedupe (S67) lives in my_districts_geojson (0062) + getMyDistricts:
             the shared senate geometry crosses the wire once and is re-attached,
             so both seats still render here. */}
-        {districts.filter(d => enabled[d.id]).flatMap(d => (polysById.get(d.id) ?? []).map((coords, i) => (
-          <Polygon
-            key={`${d.id}-${i}`}
-            coordinates={coords}
-            strokeColor={tierColors[d.tier]}
-            strokeWidth={1.5}
-            fillColor={tierColors[d.tier] + '26'}              // ~15% alpha
-          />
-        )))}
+        {districts
+          .filter((d) => enabled[d.id])
+          .flatMap((d) =>
+            (polysById.get(d.id) ?? []).map((coords, i) => (
+              <Polygon
+                key={`${d.id}-${i}`}
+                coordinates={coords}
+                strokeColor={tierColors[d.tier]}
+                strokeWidth={1.5}
+                fillColor={tierColors[d.tier] + '26'} // ~15% alpha
+              />
+            )),
+          )}
         {homePoint && (
           <Marker
             coordinate={{ latitude: homePoint.lat, longitude: homePoint.lng }}
@@ -125,24 +135,37 @@ export function DistrictMap({
 }
 
 function defaultEnabled(districts: DistrictMapDistrict[]): Record<string, boolean> {
-  return Object.fromEntries(districts.map(d => [d.id, d.tier !== 'federal_senate']))
+  return Object.fromEntries(districts.map((d) => [d.id, d.tier !== 'federal_senate']))
 }
 
 // Stable identity of the district *set* (order-independent), used to detect when
 // an in-place prop change warrants re-seeding the toggle defaults.
 function districtIdSignature(districts: DistrictMapDistrict[]): string {
-  return districts.map(d => d.id).sort().join(',')
+  return districts
+    .map((d) => d.id)
+    .sort()
+    .join(',')
 }
 
-function polygonsFromGeometry(d: DistrictMapDistrict): Array<Array<{ latitude: number; longitude: number }>> {
-  const polys = d.geometry.type === 'Polygon'
-    ? [d.geometry.coordinates as number[][][]]
-    : (d.geometry.coordinates as number[][][][])
-  return polys.flatMap(poly => poly.map(ring => ring.map(([lng, lat]) => ({ latitude: lat as number, longitude: lng as number }))))
+function polygonsFromGeometry(
+  d: DistrictMapDistrict,
+): Array<Array<{ latitude: number; longitude: number }>> {
+  const polys =
+    d.geometry.type === 'Polygon'
+      ? [d.geometry.coordinates as number[][][]]
+      : (d.geometry.coordinates as number[][][][])
+  return polys.flatMap((poly) =>
+    poly.map((ring) =>
+      ring.map(([lng, lat]) => ({ latitude: lat as number, longitude: lng as number })),
+    ),
+  )
 }
 
 function computeInitialRegion(districts: DistrictMapDistrict[]) {
-  let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180
+  let minLat = 90,
+    maxLat = -90,
+    minLng = 180,
+    maxLng = -180
   for (const d of districts) {
     for (const ring of polygonsFromGeometry(d)) {
       for (const p of ring) {

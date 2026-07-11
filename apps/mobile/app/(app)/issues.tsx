@@ -44,12 +44,8 @@ export default function IssuesScreen(): React.JSX.Element {
         {step === 'topics' && (
           <TopicPickerScreen topics={catalog} onNext={() => setStep('lenses')} />
         )}
-        {step === 'lenses' && (
-          <LensPickerScreen catalog={catalog} onNext={() => setStep('quiz')} />
-        )}
-        {step === 'quiz' && (
-          <IssueQuizScreen catalog={catalog} onFinish={() => setStep('radar')} />
-        )}
+        {step === 'lenses' && <LensPickerScreen catalog={catalog} onNext={() => setStep('quiz')} />}
+        {step === 'quiz' && <IssueQuizScreen catalog={catalog} onFinish={() => setStep('radar')} />}
         {step === 'radar' && (
           <IssueRadarResultScreen
             catalog={catalog}

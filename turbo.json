@@ -15,7 +15,13 @@
     },
     "test": {
       "dependsOn": ["^typecheck", "^test"],
-      "env": ["SUPABASE_ANON_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "GEOCODIO_KEY", "CI"],
+      "env": [
+        "SUPABASE_ANON_KEY",
+        "SUPABASE_URL",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "GEOCODIO_KEY",
+        "CI"
+      ],
       "cache": false
     }
   }

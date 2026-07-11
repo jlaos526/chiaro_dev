@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { ingestStateOfficials } from './state-officials-ingest.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DB_URL    = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 const FIXTURE_DIR = join(__dirname, 'fixtures', 'openstates-people')
 
 let client: Client
@@ -32,8 +32,12 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  await client.query("delete from public.district_offices where official_id in (select id from public.officials where openstates_person_id like 'ocd-person/00000000-0000-0000-0000-%')")
-  await client.query("delete from public.officials where openstates_person_id like 'ocd-person/00000000-0000-0000-0000-%'")
+  await client.query(
+    "delete from public.district_offices where official_id in (select id from public.officials where openstates_person_id like 'ocd-person/00000000-0000-0000-0000-%')",
+  )
+  await client.query(
+    "delete from public.officials where openstates_person_id like 'ocd-person/00000000-0000-0000-0000-%'",
+  )
   await client.query("delete from public.districts where source_version = 'FX-stateleg'")
   await client.end()
 })
@@ -48,7 +52,7 @@ describe('ingestStateOfficials', () => {
     expect(stats.errors).toEqual([])
     expect(stats.officialsUpserted).toBe(6)
     const rows = await client.query(
-      "select chamber, state, district_code, title, party from public.officials where openstates_person_id like 'ocd-person/00000000-0000-0000-0000-%' order by state, district_code, title"
+      "select chamber, state, district_code, title, party from public.officials where openstates_person_id like 'ocd-person/00000000-0000-0000-0000-%' order by state, district_code, title",
     )
     expect(rows.rows.length).toBe(6)
   })
@@ -60,7 +64,7 @@ describe('ingestStateOfficials', () => {
       minStateSenateCount: 0,
     })
     const rows = await client.query(
-      "select chamber::text as chamber, party from public.officials where openstates_person_id = 'ocd-person/00000000-0000-0000-0000-000000000003'"
+      "select chamber::text as chamber, party from public.officials where openstates_person_id = 'ocd-person/00000000-0000-0000-0000-000000000003'",
     )
     expect(rows.rows[0]).toMatchObject({ chamber: 'state_legislature', party: 'Nonpartisan' })
   })
@@ -125,7 +129,7 @@ describe('ingestStateOfficials', () => {
     })
     expect(stats2.errors).toEqual([])
     const rows = await client.query(
-      "select count(*)::int as c from public.officials where openstates_person_id like 'ocd-person/00000000-0000-0000-0000-%'"
+      "select count(*)::int as c from public.officials where openstates_person_id like 'ocd-person/00000000-0000-0000-0000-%'",
     )
     expect(rows.rows[0].c).toBe(6)
   })
@@ -134,18 +138,21 @@ describe('ingestStateOfficials', () => {
     const tmpDir = join(__dirname, 'fixtures', 'openstates-people-nh-tmp')
     const { mkdir, writeFile, rm } = await import('node:fs/promises')
     await mkdir(tmpDir, { recursive: true })
-    await writeFile(join(tmpDir, 'nh.yml'), [
-      `id: ocd-person/00000000-0000-0000-0000-0000000000NH`,
-      `name: Test NH`,
-      `party: [{name: Republican}]`,
-      `roles:`,
-      `  - type: lower`,
-      `    jurisdiction: ocd-jurisdiction/country:us/state:nh/government`,
-      `    district: 'Rockingham 5'`,
-      `    title: Representative`,
-      `    start_date: '2024-12-04'`,
-      `    end_date: '2026-12-02'`,
-    ].join('\n'))
+    await writeFile(
+      join(tmpDir, 'nh.yml'),
+      [
+        `id: ocd-person/00000000-0000-0000-0000-0000000000NH`,
+        `name: Test NH`,
+        `party: [{name: Republican}]`,
+        `roles:`,
+        `  - type: lower`,
+        `    jurisdiction: ocd-jurisdiction/country:us/state:nh/government`,
+        `    district: 'Rockingham 5'`,
+        `    title: Representative`,
+        `    start_date: '2024-12-04'`,
+        `    end_date: '2026-12-02'`,
+      ].join('\n'),
+    )
     try {
       const stats = await ingestStateOfficials({
         fixturesDir: tmpDir,
@@ -165,10 +172,10 @@ describe('ingestStateOfficials', () => {
         fixturesDir: FIXTURE_DIR,
         minStateHouseCount: 1000,
         minStateSenateCount: 1000,
-      })
+      }),
     ).rejects.toThrow(/pre-flight count/i)
     const rows = await client.query(
-      "select count(*)::int as c from public.officials where openstates_person_id like 'ocd-person/00000000-0000-0000-0000-%'"
+      "select count(*)::int as c from public.officials where openstates_person_id like 'ocd-person/00000000-0000-0000-0000-%'",
     )
     expect(rows.rows[0].c).toBe(0)
   })

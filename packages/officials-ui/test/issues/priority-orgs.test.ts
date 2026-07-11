@@ -1,9 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { IssueTopic, UserIssueSelectionRow } from '@chiaro/issues'
-import {
-  computePriorityOrgSlugs,
-  sortPriorityFirst,
-} from '../../src/issues/priority-orgs.ts'
+import { computePriorityOrgSlugs, sortPriorityFirst } from '../../src/issues/priority-orgs.ts'
 
 function sel(topic: string, lens: string): UserIssueSelectionRow {
   return {
@@ -48,9 +45,7 @@ const CATALOG = [
         topic_slug: 'guns',
         slug: 'second-amendment',
         lens_type: 'stance',
-        measurement_sources: [
-          { type: 'scorecard', weight: 1, config: { orgs: ['nra'] } },
-        ],
+        measurement_sources: [{ type: 'scorecard', weight: 1, config: { orgs: ['nra'] } }],
         quiz_questions: [],
       },
     ],
@@ -100,23 +95,26 @@ describe('sortPriorityFirst', () => {
 
   it('returns input order unchanged (new array) when priority set is empty', () => {
     const out = sortPriorityFirst(rows, slugOf, new Set())
-    expect(out.map(r => r.id)).toEqual(['a', 'b', 'c', 'd'])
+    expect(out.map((r) => r.id)).toEqual(['a', 'b', 'c', 'd'])
     expect(out).not.toBe(rows)
   })
 
   it('floats matched rows to the top, stable within both partitions', () => {
     const out = sortPriorityFirst(rows, slugOf, new Set(['lcv', 'nra']))
     // matched in original relative order (b before d), then the rest (a, c).
-    expect(out.map(r => r.id)).toEqual(['b', 'd', 'a', 'c'])
+    expect(out.map((r) => r.id)).toEqual(['b', 'd', 'a', 'c'])
   })
 
   it('treats null/undefined slug as non-matched', () => {
-    const withNull = [{ id: 'a', slug: null }, { id: 'b', slug: 'lcv' }]
+    const withNull = [
+      { id: 'a', slug: null },
+      { id: 'b', slug: 'lcv' },
+    ]
     const out = sortPriorityFirst(
       withNull,
       (r: { slug: string | null }) => r.slug,
       new Set(['lcv']),
     )
-    expect(out.map(r => r.id)).toEqual(['b', 'a'])
+    expect(out.map((r) => r.id)).toEqual(['b', 'a'])
   })
 })

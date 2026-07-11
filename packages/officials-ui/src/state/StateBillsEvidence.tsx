@@ -33,7 +33,7 @@ export function StateBillsEvidence({ bills }: StateBillsEvidenceProps): React.JS
   const hasMore = bills.length > INITIAL_ROW_COUNT
   return (
     <View testID="state-bills-evidence">
-      {visible.map(b => {
+      {visible.map((b) => {
         const url = b.source_url ?? null
         const Row = url ? Pressable : View
         return (
@@ -53,7 +53,7 @@ export function StateBillsEvidence({ bills }: StateBillsEvidenceProps): React.JS
       })}
       {hasMore && (
         <Pressable
-          onPress={() => setExpanded(e => !e)}
+          onPress={() => setExpanded((e) => !e)}
           accessibilityRole="button"
           accessibilityState={{ expanded }}
           aria-expanded={expanded}

@@ -36,11 +36,14 @@ export interface SkipReason {
  * at the end of an --instrument run.
  */
 export interface SkipSummary {
-  byAdapter: Map<string, {
-    byStage: Map<SkipReason['stage'], number>
-    samples: SkipReason[]
-    total: number
-  }>
+  byAdapter: Map<
+    string,
+    {
+      byStage: Map<SkipReason['stage'], number>
+      samples: SkipReason[]
+      total: number
+    }
+  >
   grandTotal: number
 }
 
@@ -61,11 +64,14 @@ export function createSkipCollector(): {
   onSkip: (reason: SkipReason) => void
   summary: () => SkipSummary
 } {
-  const byAdapter = new Map<string, {
-    byStage: Map<SkipReason['stage'], number>
-    samples: SkipReason[]
-    total: number
-  }>()
+  const byAdapter = new Map<
+    string,
+    {
+      byStage: Map<SkipReason['stage'], number>
+      samples: SkipReason[]
+      total: number
+    }
+  >()
   let grandTotal = 0
 
   return {
@@ -98,15 +104,13 @@ export function formatSkipSummary(s: SkipSummary): string {
   lines.push(`Skip summary (${s.grandTotal} skips across ${s.byAdapter.size} adapters)`)
   lines.push('─'.repeat(40))
 
-  const sortedAdapters = Array.from(s.byAdapter.entries())
-    .sort(([, a], [, b]) => b.total - a.total)
+  const sortedAdapters = Array.from(s.byAdapter.entries()).sort(([, a], [, b]) => b.total - a.total)
 
   for (const [adapter, entry] of sortedAdapters) {
     lines.push(`[${adapter}]    ${entry.total} skips`)
-    const sortedStages = Array.from(entry.byStage.entries())
-      .sort(([, a], [, b]) => b - a)
+    const sortedStages = Array.from(entry.byStage.entries()).sort(([, a], [, b]) => b - a)
     for (const [stage, count] of sortedStages) {
-      const sample = entry.samples.find(s => s.stage === stage)
+      const sample = entry.samples.find((s) => s.stage === stage)
       const sampleStr = sample
         ? `(e.g. ${sample.legislator ? `${sample.legislator}: ` : ''}${sample.reason})`
         : ''

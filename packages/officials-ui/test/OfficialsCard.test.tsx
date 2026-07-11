@@ -46,13 +46,23 @@ function mkOfficial(
   id = 'oid-' + fullName,
 ): OfficialWithDistrict {
   return {
-    id, full_name: fullName, first_name: fullName, last_name: '',
-    bioguide_id: id, openstates_person_id: null,
-    chamber, party: 'D', state: 'CA',
-    district_id: 'did', district_code: 'CA-12', title: null,
+    id,
+    full_name: fullName,
+    first_name: fullName,
+    last_name: '',
+    bioguide_id: id,
+    openstates_person_id: null,
+    chamber,
+    party: 'D',
+    state: 'CA',
+    district_id: 'did',
+    district_code: 'CA-12',
+    title: null,
     senate_class: chamber === 'federal_senate' ? 1 : null,
-    in_office: true, source_version: 'x',
-    opensecrets_id: null, fec_candidate_id: null,
+    in_office: true,
+    source_version: 'x',
+    opensecrets_id: null,
+    fec_candidate_id: null,
     portrait_url: null,
     district: { id: 'did', tier: chamber, state: 'CA', code: 'CA-12', name: 'CA-12' },
   } as unknown as OfficialWithDistrict
@@ -156,9 +166,13 @@ describe('OfficialsCard', () => {
     useScorecardsMock.mockReturnValue({
       data: [
         {
-          id: 'r1', scorecard_id: 's1', official_id: 'oid-pelosi',
-          congress: '119', score: 95,
-          source_url: 'https://example.org', ingested_at: '2026-01-01',
+          id: 'r1',
+          scorecard_id: 's1',
+          official_id: 'oid-pelosi',
+          congress: '119',
+          score: 95,
+          source_url: 'https://example.org',
+          ingested_at: '2026-01-01',
           org: { issue_area: 'environment', scoring_max: 100 },
         },
       ],
@@ -169,7 +183,10 @@ describe('OfficialsCard', () => {
       <OfficialsCard onSelect={onSelect} onSeeAll={vi.fn()} onCalibrate={vi.fn()} />,
     )
     fireEvent.click(getByRole('link', { name: /View Environment positions/i }))
-    expect(onSelect).toHaveBeenCalledWith({ officialId: 'oid-pelosi', subCascadeSlug: 'environment' })
+    expect(onSelect).toHaveBeenCalledWith({
+      officialId: 'oid-pelosi',
+      subCascadeSlug: 'environment',
+    })
   })
 })
 
@@ -306,7 +323,12 @@ describe('OfficialsCard — smart-anchor (See all + calibrate links)', () => {
       />,
     )
     const anchor = container.querySelector('a[href="/officials"]')!
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, ctrlKey: true })
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      ctrlKey: true,
+    })
     const notPrevented = anchor.dispatchEvent(event)
     expect(notPrevented).toBe(true)
     expect(onSeeAll).not.toHaveBeenCalled()

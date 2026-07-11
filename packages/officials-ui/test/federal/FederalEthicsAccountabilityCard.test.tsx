@@ -131,9 +131,7 @@ describe('FederalEthicsAccountabilityCard', () => {
       isLoading: false,
       isSuccess: true,
     })
-    const { getByText, queryByText } = wrap(
-      <FederalEthicsAccountabilityCard officialId="oid" />,
-    )
+    const { getByText, queryByText } = wrap(<FederalEthicsAccountabilityCard officialId="oid" />)
     expect(queryByText(/AAPL/)).toBeNull()
     fireEvent.click(getByText(/^▸ Stock trades/))
     expect(getByText(/AAPL/)).toBeTruthy()
@@ -148,26 +146,61 @@ describe('FederalEthicsAccountabilityCard', () => {
     useStockMock.mockReturnValue(EMPTY_HOOK)
     useHoldingsMock.mockReturnValue({
       data: [
-        { id: 'h1', filing_year: 2024, asset_name: 'Apple', asset_ticker: 'AAPL',
-          asset_type: 'stock', value_min: 1000, value_max: 15000,
-          source: 'house-fd', external_id: null, source_url: 'https://x',
-          official_id: 'oid', income_type: null, income_min: null, income_max: null,
-          ingested_at: '2026-01-01' },
-        { id: 'h2', filing_year: 2024, asset_name: 'Tesla', asset_ticker: 'TSLA',
-          asset_type: 'stock', value_min: 50000, value_max: 100000,
-          source: 'house-fd', external_id: null, source_url: 'https://x',
-          official_id: 'oid', income_type: null, income_min: null, income_max: null,
-          ingested_at: '2026-01-01' },
+        {
+          id: 'h1',
+          filing_year: 2024,
+          asset_name: 'Apple',
+          asset_ticker: 'AAPL',
+          asset_type: 'stock',
+          value_min: 1000,
+          value_max: 15000,
+          source: 'house-fd',
+          external_id: null,
+          source_url: 'https://x',
+          official_id: 'oid',
+          income_type: null,
+          income_min: null,
+          income_max: null,
+          ingested_at: '2026-01-01',
+        },
+        {
+          id: 'h2',
+          filing_year: 2024,
+          asset_name: 'Tesla',
+          asset_ticker: 'TSLA',
+          asset_type: 'stock',
+          value_min: 50000,
+          value_max: 100000,
+          source: 'house-fd',
+          external_id: null,
+          source_url: 'https://x',
+          official_id: 'oid',
+          income_type: null,
+          income_min: null,
+          income_max: null,
+          ingested_at: '2026-01-01',
+        },
       ],
       isLoading: false,
       isSuccess: true,
     })
     useOtherMock.mockReturnValue({
       data: [
-        { id: 'o1', filing_year: 2024, category: 'gift', description: 'Tickets',
-          source_party: 'Lobby Inc', value_min: 500, value_max: 1000, value_text: null,
-          source: 'house-fd', external_id: null, source_url: 'https://x',
-          official_id: 'oid', ingested_at: '2026-01-01' },
+        {
+          id: 'o1',
+          filing_year: 2024,
+          category: 'gift',
+          description: 'Tickets',
+          source_party: 'Lobby Inc',
+          value_min: 500,
+          value_max: 1000,
+          value_text: null,
+          source: 'house-fd',
+          external_id: null,
+          source_url: 'https://x',
+          official_id: 'oid',
+          ingested_at: '2026-01-01',
+        },
       ],
       isLoading: false,
       isSuccess: true,
@@ -186,19 +219,29 @@ describe('FederalEthicsAccountabilityCard', () => {
     useStockMock.mockReturnValue(EMPTY_HOOK)
     useHoldingsMock.mockReturnValue({
       data: [
-        { id: 'h1', filing_year: 2024, asset_name: 'Apple Inc.', asset_ticker: 'AAPL',
-          asset_type: 'stock', value_min: 1000, value_max: 15000,
-          source: 'house-fd', external_id: null, source_url: 'https://x',
-          official_id: 'oid', income_type: null, income_min: null, income_max: null,
-          ingested_at: '2026-01-01' },
+        {
+          id: 'h1',
+          filing_year: 2024,
+          asset_name: 'Apple Inc.',
+          asset_ticker: 'AAPL',
+          asset_type: 'stock',
+          value_min: 1000,
+          value_max: 15000,
+          source: 'house-fd',
+          external_id: null,
+          source_url: 'https://x',
+          official_id: 'oid',
+          income_type: null,
+          income_min: null,
+          income_max: null,
+          ingested_at: '2026-01-01',
+        },
       ],
       isLoading: false,
       isSuccess: true,
     })
     useOtherMock.mockReturnValue(EMPTY_HOOK)
-    const { getByText, queryByText } = wrap(
-      <FederalEthicsAccountabilityCard officialId="oid" />,
-    )
+    const { getByText, queryByText } = wrap(<FederalEthicsAccountabilityCard officialId="oid" />)
     expect(queryByText('AAPL')).toBeNull()
     fireEvent.click(getByText(/^▸ Holdings/))
     expect(getByText('AAPL')).toBeTruthy()
@@ -214,17 +257,26 @@ describe('FederalEthicsAccountabilityCard', () => {
     useHoldingsMock.mockReturnValue(EMPTY_HOOK)
     useOtherMock.mockReturnValue({
       data: [
-        { id: 'o1', filing_year: 2024, category: 'travel', description: 'Davos trip',
-          source_party: 'WEF', value_min: 5000, value_max: 10000, value_text: null,
-          source: 'house-fd', external_id: null, source_url: 'https://x',
-          official_id: 'oid', ingested_at: '2026-01-01' },
+        {
+          id: 'o1',
+          filing_year: 2024,
+          category: 'travel',
+          description: 'Davos trip',
+          source_party: 'WEF',
+          value_min: 5000,
+          value_max: 10000,
+          value_text: null,
+          source: 'house-fd',
+          external_id: null,
+          source_url: 'https://x',
+          official_id: 'oid',
+          ingested_at: '2026-01-01',
+        },
       ],
       isLoading: false,
       isSuccess: true,
     })
-    const { getByText, queryByText } = wrap(
-      <FederalEthicsAccountabilityCard officialId="oid" />,
-    )
+    const { getByText, queryByText } = wrap(<FederalEthicsAccountabilityCard officialId="oid" />)
     expect(queryByText('Davos trip')).toBeNull()
     fireEvent.click(getByText(/^▸ Other Disclosures/))
     expect(getByText('Davos trip')).toBeTruthy()

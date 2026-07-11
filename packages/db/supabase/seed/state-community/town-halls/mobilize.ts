@@ -6,24 +6,115 @@ import {
   inferChamberFromTitle,
   deriveFormat,
 } from './mobilize-helpers.ts'
-import { resolveOpenstatesPersonId, } from '../../shared/officials.ts'
+import { resolveOpenstatesPersonId } from '../../shared/officials.ts'
 import type { SkipReason } from '../../shared/instrumentation.ts'
 
-const ALL_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY']
+const ALL_STATES = [
+  'AL',
+  'AK',
+  'AZ',
+  'AR',
+  'CA',
+  'CO',
+  'CT',
+  'DE',
+  'FL',
+  'GA',
+  'HI',
+  'ID',
+  'IL',
+  'IN',
+  'IA',
+  'KS',
+  'KY',
+  'LA',
+  'ME',
+  'MD',
+  'MA',
+  'MI',
+  'MN',
+  'MS',
+  'MO',
+  'MT',
+  'NE',
+  'NV',
+  'NH',
+  'NJ',
+  'NM',
+  'NY',
+  'NC',
+  'ND',
+  'OH',
+  'OK',
+  'OR',
+  'PA',
+  'RI',
+  'SC',
+  'SD',
+  'TN',
+  'TX',
+  'UT',
+  'VT',
+  'VA',
+  'WA',
+  'WV',
+  'WI',
+  'WY',
+]
 
 // Full state-name → 2-letter code, used as fallback when event.location is null
 // (e.g., virtual events). Detection scans description for the first state name.
 const STATE_NAME_TO_CODE: Record<string, string> = {
-  'Alabama':'AL','Alaska':'AK','Arizona':'AZ','Arkansas':'AR','California':'CA',
-  'Colorado':'CO','Connecticut':'CT','Delaware':'DE','Florida':'FL','Georgia':'GA',
-  'Hawaii':'HI','Idaho':'ID','Illinois':'IL','Indiana':'IN','Iowa':'IA',
-  'Kansas':'KS','Kentucky':'KY','Louisiana':'LA','Maine':'ME','Maryland':'MD',
-  'Massachusetts':'MA','Michigan':'MI','Minnesota':'MN','Mississippi':'MS','Missouri':'MO',
-  'Montana':'MT','Nebraska':'NE','Nevada':'NV','New Hampshire':'NH','New Jersey':'NJ',
-  'New Mexico':'NM','New York':'NY','North Carolina':'NC','North Dakota':'ND','Ohio':'OH',
-  'Oklahoma':'OK','Oregon':'OR','Pennsylvania':'PA','Rhode Island':'RI','South Carolina':'SC',
-  'South Dakota':'SD','Tennessee':'TN','Texas':'TX','Utah':'UT','Vermont':'VT',
-  'Virginia':'VA','Washington':'WA','West Virginia':'WV','Wisconsin':'WI','Wyoming':'WY',
+  Alabama: 'AL',
+  Alaska: 'AK',
+  Arizona: 'AZ',
+  Arkansas: 'AR',
+  California: 'CA',
+  Colorado: 'CO',
+  Connecticut: 'CT',
+  Delaware: 'DE',
+  Florida: 'FL',
+  Georgia: 'GA',
+  Hawaii: 'HI',
+  Idaho: 'ID',
+  Illinois: 'IL',
+  Indiana: 'IN',
+  Iowa: 'IA',
+  Kansas: 'KS',
+  Kentucky: 'KY',
+  Louisiana: 'LA',
+  Maine: 'ME',
+  Maryland: 'MD',
+  Massachusetts: 'MA',
+  Michigan: 'MI',
+  Minnesota: 'MN',
+  Mississippi: 'MS',
+  Missouri: 'MO',
+  Montana: 'MT',
+  Nebraska: 'NE',
+  Nevada: 'NV',
+  'New Hampshire': 'NH',
+  'New Jersey': 'NJ',
+  'New Mexico': 'NM',
+  'New York': 'NY',
+  'North Carolina': 'NC',
+  'North Dakota': 'ND',
+  Ohio: 'OH',
+  Oklahoma: 'OK',
+  Oregon: 'OR',
+  Pennsylvania: 'PA',
+  'Rhode Island': 'RI',
+  'South Carolina': 'SC',
+  'South Dakota': 'SD',
+  Tennessee: 'TN',
+  Texas: 'TX',
+  Utah: 'UT',
+  Vermont: 'VT',
+  Virginia: 'VA',
+  Washington: 'WA',
+  'West Virginia': 'WV',
+  Wisconsin: 'WI',
+  Wyoming: 'WY',
 }
 
 function extractStateFromText(text: string): string | null {
@@ -90,8 +181,7 @@ export async function parseMobilizeEvents(
       continue
     }
 
-    const name = extractLegislatorName(event.title)
-      ?? extractLegislatorName(description)
+    const name = extractLegislatorName(event.title) ?? extractLegislatorName(description)
     if (!name) {
       onSkip?.({
         adapter: 'mobilize',
@@ -136,12 +226,13 @@ export async function parseMobilizeEvents(
       full_name: name,
       state,
       chamber,
-      onAmbiguous: () => onSkip?.({
-        adapter: 'mobilize',
-        stage: 'resolve_ambiguous',
-        legislator: name,
-        reason: 'ambiguous full_name match (2+ in-office officials)',
-      }),
+      onAmbiguous: () =>
+        onSkip?.({
+          adapter: 'mobilize',
+          stage: 'resolve_ambiguous',
+          legislator: name,
+          reason: 'ambiguous full_name match (2+ in-office officials)',
+        }),
     })
     if (!personId) {
       onSkip?.({
@@ -198,7 +289,7 @@ async function fetchAndNormalize(
   const out: NormalizedTownHall[] = []
   let url: string | null = `${MOBILIZE_API_BASE}?event_types=town_hall&per_page=${PER_PAGE}`
   let pageCount = 0
-  const MAX_PAGES = 50  // hard cap to avoid runaway pagination
+  const MAX_PAGES = 50 // hard cap to avoid runaway pagination
 
   while (url && pageCount < MAX_PAGES) {
     pageCount += 1
@@ -214,7 +305,7 @@ async function fetchAndNormalize(
         })
         break
       }
-      body = await resp.json() as MobilizeListResponse
+      body = (await resp.json()) as MobilizeListResponse
     } catch (e) {
       onSkip?.({
         adapter: 'mobilize',

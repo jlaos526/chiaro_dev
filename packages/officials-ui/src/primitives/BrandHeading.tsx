@@ -12,9 +12,9 @@ export interface BrandHeadingProps {
 }
 
 const LEVEL_STYLES = {
-  1: { fontSize: 28, lineHeight: 28 * 1.2,  letterSpacing: -28 * 0.015, fontWeight: '700' as const },
-  2: { fontSize: 22, lineHeight: 22 * 1.25, letterSpacing: -22 * 0.01,  fontWeight: '700' as const },
-  3: { fontSize: 18, lineHeight: 18 * 1.3,  letterSpacing: -18 * 0.005, fontWeight: '700' as const },
+  1: { fontSize: 28, lineHeight: 28 * 1.2, letterSpacing: -28 * 0.015, fontWeight: '700' as const },
+  2: { fontSize: 22, lineHeight: 22 * 1.25, letterSpacing: -22 * 0.01, fontWeight: '700' as const },
+  3: { fontSize: 18, lineHeight: 18 * 1.3, letterSpacing: -18 * 0.005, fontWeight: '700' as const },
 } as const
 
 // Web-style metrics use the unitless line-height that BRAND_TYPE spec uses.

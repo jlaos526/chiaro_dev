@@ -15,6 +15,6 @@ export type DistrictGroup = { heading: string; tiers: DistrictTier[] }
 // representative; in-tier sort is by code so S1/S2 stay stable.
 export const DISTRICT_GROUPS: DistrictGroup[] = [
   { heading: 'Federal', tiers: ['federal_senate', 'federal_house'] },
-  { heading: 'State',   tiers: ['state_senate', 'state_house'] },
-  { heading: 'Local',   tiers: ['county', 'place'] },
+  { heading: 'State', tiers: ['state_senate', 'state_house'] },
+  { heading: 'Local', tiers: ['county', 'place'] },
 ]
