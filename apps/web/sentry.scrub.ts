@@ -1,13 +1,18 @@
 import type { Breadcrumb, Event } from '@sentry/core'
 
-const ADDRESS_KEY = /^address/i
+// Sensitive-key list (slice 5B: address*; slice 71 / audit U21: issue
+// selections — political-opinion data, a GDPR Art. 9 special category, added
+// by slice 52). Any NEW sensitive field class requires extending this regex
+// in all 3 scrubber copies (web sentry.scrub.ts, mobile lib/sentry.ts, edge
+// _shared/sentry.ts — duplicated by design per slice 5B).
+const SENSITIVE_KEY = /^address|^(p_)?selections$|^topic_slug$|^lens_slug$|^position$|^importance$/i
 
 function scrub(obj: unknown, seen: WeakSet<object>): void {
   if (!obj || typeof obj !== 'object') return
   if (seen.has(obj as object)) return
   seen.add(obj as object)
   for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
-    if (ADDRESS_KEY.test(k)) {
+    if (SENSITIVE_KEY.test(k)) {
       (obj as Record<string, unknown>)[k] = '[scrubbed]'
     } else if (v && typeof v === 'object') {
       scrub(v, seen)

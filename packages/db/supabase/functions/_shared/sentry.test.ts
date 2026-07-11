@@ -21,6 +21,24 @@ Deno.test('scrubEventForTesting handles breadcrumbs', () => {
   assertEquals(e.breadcrumbs[0].data.address, '[scrubbed]')
 })
 
+Deno.test('scrubEventForTesting scrubs issue-selection keys (U21, slice 71)', () => {
+  const e: any = {
+    extra: {
+      p_selections: [{ topic_slug: 'climate', position: 80 }],
+      args: { selections: 'raw', topic_slug: 'guns', lens_slug: 'nra', position: 20, importance: 2 },
+      display_order: 3,
+    },
+  }
+  scrubEventForTesting(e)
+  assertEquals(e.extra.p_selections, '[scrubbed]')
+  assertEquals(e.extra.args.selections, '[scrubbed]')
+  assertEquals(e.extra.args.topic_slug, '[scrubbed]')
+  assertEquals(e.extra.args.lens_slug, '[scrubbed]')
+  assertEquals(e.extra.args.position, '[scrubbed]')
+  assertEquals(e.extra.args.importance, '[scrubbed]')
+  assertEquals(e.extra.display_order, 3)
+})
+
 Deno.test('scrubEventForTesting handles cyclic references', () => {
   const cyclic: any = { address: '1 Main St' }
   cyclic.self = cyclic

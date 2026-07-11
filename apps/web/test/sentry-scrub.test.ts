@@ -55,6 +55,25 @@ describe('scrubAddressInPlace', () => {
     expect(e.extra!.greeting).toBe('hello')
   })
 
+  it('scrubs issue-selection keys — political-opinion data (U21, slice 71)', () => {
+    const e: Event = {
+      extra: {
+        p_selections: [{ topic_slug: 'climate', position: 80 }],
+        rpcArgs: { selections: 'raw', topic_slug: 'guns', lens_slug: 'nra', position: 20, importance: 2 },
+        display_order: 3,
+      },
+    }
+    scrubAddressInPlace(e)
+    expect(e.extra!.p_selections).toBe('[scrubbed]')
+    const args = e.extra!.rpcArgs as Record<string, unknown>
+    expect(args.selections).toBe('[scrubbed]')
+    expect(args.topic_slug).toBe('[scrubbed]')
+    expect(args.lens_slug).toBe('[scrubbed]')
+    expect(args.position).toBe('[scrubbed]')
+    expect(args.importance).toBe('[scrubbed]')
+    expect(e.extra!.display_order).toBe(3)
+  })
+
   it('handles cyclic references without infinite-looping', () => {
     const cyclic: Record<string, unknown> = { address: '1 Main St' }
     cyclic.self = cyclic

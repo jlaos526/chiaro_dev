@@ -32,6 +32,24 @@ describe('scrubAddressInPlace (mobile)', () => {
     expect(() => scrubAddressInPlace(e)).not.toThrow()
   })
 
+  it('scrubs issue-selection keys — political-opinion data (U21, slice 71)', () => {
+    const e: any = {
+      extra: {
+        p_selections: [{ topic_slug: 'climate', position: 80 }],
+        args: { selections: 'raw', topic_slug: 'guns', lens_slug: 'nra', position: 20, importance: 2 },
+        display_order: 3,
+      },
+    }
+    scrubAddressInPlace(e)
+    expect(e.extra.p_selections).toBe('[scrubbed]')
+    expect(e.extra.args.selections).toBe('[scrubbed]')
+    expect(e.extra.args.topic_slug).toBe('[scrubbed]')
+    expect(e.extra.args.lens_slug).toBe('[scrubbed]')
+    expect(e.extra.args.position).toBe('[scrubbed]')
+    expect(e.extra.args.importance).toBe('[scrubbed]')
+    expect(e.extra.display_order).toBe(3)
+  })
+
   it('handles cyclic references without infinite-looping', () => {
     const cyclic: any = { address: '1 Main St' }
     cyclic.self = cyclic
