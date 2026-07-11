@@ -9,6 +9,9 @@
     ".": "./src/index.ts",
     "./src/*": "./src/*"
   },
+  "sideEffects": [
+    "./src/types/react-native-augment.ts"
+  ],
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
@@ -17,7 +20,6 @@
     "@chiaro/bills": "workspace:*",
     "@chiaro/db": "workspace:*",
     "@chiaro/issues": "workspace:*",
-    "@chiaro/location": "workspace:*",
     "@chiaro/officials": "workspace:*",
     "@chiaro/profile": "workspace:*",
     "@chiaro/state-bills": "workspace:*",
