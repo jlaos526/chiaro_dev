@@ -16,7 +16,7 @@
 import { Client } from 'pg'
 import { fileURLToPath } from 'node:url'
 import { join, dirname } from 'node:path'
-import { isCliEntry } from './shared/cli.ts'
+import { hasFlag, isCliEntry, parseFlag } from './shared/cli.ts'
 import { loadOpenStatesYamlDir } from './openstates-yaml-loader.ts'
 import { normalizeStateLegDistrictCode } from './state-leg-config.ts'
 
@@ -235,11 +235,9 @@ export async function ingestStateOfficials(
  *   production thresholds 4500/1800). Production runs MUST NOT use this flag.
  */
 if (isCliEntry(import.meta.url)) {
-  const allowDeactArg = process.argv.find(a => a.startsWith('--allow-deactivations='))
-  const allowDeactivations = allowDeactArg
-    ? Number(allowDeactArg.split('=')[1])
-    : undefined
-  const fixtureMode = process.argv.includes('--fixture-mode')
+  const allowDeactRaw = parseFlag('allow-deactivations')
+  const allowDeactivations = allowDeactRaw !== undefined ? Number(allowDeactRaw) : undefined
+  const fixtureMode = hasFlag('fixture-mode')
   ingestStateOfficials({
     ...(allowDeactivations !== undefined ? { allowDeactivations } : {}),
     ...(fixtureMode ? { minStateHouseCount: 0, minStateSenateCount: 0 } : {}),

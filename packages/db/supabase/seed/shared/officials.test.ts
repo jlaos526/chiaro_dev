@@ -1,6 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { Client } from 'pg'
-import { resolveOfficialByName, type Chamber } from './officials.ts'
+import {
+  resolveOfficialByName,
+  resolveOpenstatesPersonId,
+  type AmbiguousMatch,
+  type Chamber,
+} from './officials.ts'
 
 const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 let client: Client
@@ -81,5 +86,101 @@ describe('resolveOfficialByName', () => {
       full_name: 'Nobody Here', state: 'CA', chamber: 'state_house',
     })
     expect(id).toBeNull()
+  })
+
+  it('single match does NOT fire onAmbiguous', async () => {
+    const seen: AmbiguousMatch[] = []
+    const id = await resolveOfficialByName(client, {
+      full_name: 'Jane Doe', state: 'CA', chamber: 'state_house',
+      onAmbiguous: (info) => seen.push(info),
+    })
+    expect(id).toBe(officialIdState)
+    expect(seen).toEqual([])
+  })
+})
+
+describe('resolveOpenstatesPersonId', () => {
+  it('resolves openstates_person_id for a single match', async () => {
+    const pid = await resolveOpenstatesPersonId(client, {
+      full_name: 'Jane Doe', state: 'CA', chamber: 'state_house',
+    })
+    expect(pid).toBe('ocd-person/fx-off-s')
+  })
+
+  it('returns null for a match with no openstates_person_id (federal)', async () => {
+    const pid = await resolveOpenstatesPersonId(client, {
+      full_name: 'John Smith', state: 'CA', chamber: 'federal_house',
+    })
+    expect(pid).toBeNull()
+  })
+
+  it('single match does NOT fire onAmbiguous', async () => {
+    const seen: AmbiguousMatch[] = []
+    const pid = await resolveOpenstatesPersonId(client, {
+      full_name: 'Jane Doe', state: 'CA', chamber: 'state_house',
+      onAmbiguous: (info) => seen.push(info),
+    })
+    expect(pid).toBe('ocd-person/fx-off-s')
+    expect(seen).toEqual([])
+  })
+})
+
+// Audit G3: two in-office officials sharing full_name+state+chamber must NOT
+// silently attach data to an arbitrary one — both resolvers fire onAmbiguous
+// and return null instead.
+describe('name-resolver ambiguity guard (G3)', () => {
+  const AMB_SV = 'FX-amb-g3'
+  const AMB_NAME = 'Ambiguous Twin G3'
+
+  beforeEach(async () => {
+    await client.query(`
+      insert into public.districts (tier, state, code, name, geometry, source_version)
+      values ('state_house', 'CA', 'CA-FX-AMB-G3', 'CA AMB G3',
+        st_geogfromtext('MULTIPOLYGON(((-120 35,-119 35,-119 36,-120 36,-120 35)))'),
+        $1)
+      on conflict (tier, code) do nothing
+    `, [AMB_SV])
+    await client.query(`
+      insert into public.officials (openstates_person_id, full_name, first_name, last_name,
+        chamber, party, state, district_id, in_office, source_version)
+      select unnest(array['ocd-person/amb-g3-1', 'ocd-person/amb-g3-2']),
+             $1, 'Ambiguous', 'Twin', 'state_house', 'D', 'CA',
+             d.id, true, $2
+      from public.districts d where d.code = 'CA-FX-AMB-G3'
+    `, [AMB_NAME, AMB_SV])
+  })
+
+  afterEach(async () => {
+    await client.query('delete from public.officials where source_version = $1', [AMB_SV])
+    await client.query('delete from public.districts where source_version = $1', [AMB_SV])
+  })
+
+  it('resolveOfficialByName returns null + fires onAmbiguous once', async () => {
+    const seen: AmbiguousMatch[] = []
+    const id = await resolveOfficialByName(client, {
+      full_name: AMB_NAME, state: 'CA', chamber: 'state_house',
+      onAmbiguous: (info) => seen.push(info),
+    })
+    expect(id).toBeNull()
+    expect(seen).toEqual([{ full_name: AMB_NAME, state: 'CA', chamber: 'state_house' }])
+  })
+
+  it('resolveOpenstatesPersonId returns null + fires onAmbiguous once', async () => {
+    const seen: AmbiguousMatch[] = []
+    const pid = await resolveOpenstatesPersonId(client, {
+      full_name: AMB_NAME, state: 'CA', chamber: 'state_house',
+      onAmbiguous: (info) => seen.push(info),
+    })
+    expect(pid).toBeNull()
+    expect(seen).toEqual([{ full_name: AMB_NAME, state: 'CA', chamber: 'state_house' }])
+  })
+
+  it('ambiguous match without onAmbiguous still returns null (safe default)', async () => {
+    expect(await resolveOfficialByName(client, {
+      full_name: AMB_NAME, state: 'CA', chamber: 'state_house',
+    })).toBeNull()
+    expect(await resolveOpenstatesPersonId(client, {
+      full_name: AMB_NAME, state: 'CA', chamber: 'state_house',
+    })).toBeNull()
   })
 })

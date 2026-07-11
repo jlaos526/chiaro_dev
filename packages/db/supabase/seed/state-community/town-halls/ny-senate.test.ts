@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { nySenateTownHalls, parseNysenateEventsHtml } from './ny-senate.ts'
+import { nySenateTownHalls, parseNysenateEventsHtml, deriveExternalId } from './ny-senate.ts'
 import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -57,6 +57,26 @@ describe('parseNysenateEventsHtml', () => {
     const parsed = parseNysenateEventsHtml(html)
     expect(parsed).toHaveLength(1)
     expect(parsed[0]?.city).toBeUndefined()
+  })
+})
+
+describe('deriveExternalId (C33 vector c)', () => {
+  it('takes the last path segment of a normal detail URL', () => {
+    expect(deriveExternalId('https://www.nysenate.gov/events/jane-doe-coffee'))
+      .toBe('jane-doe-coffee')
+  })
+
+  it('trailing-slash URL still yields a non-empty deterministic id (never omitted)', () => {
+    const id = deriveExternalId('https://www.nysenate.gov/events/jane-doe-coffee/')
+    expect(id).toBe('jane-doe-coffee')
+    expect(id).not.toBe('')
+  })
+
+  it('all-slashes URL falls back to a deterministic sha1 hash', () => {
+    const id1 = deriveExternalId('///')
+    const id2 = deriveExternalId('///')
+    expect(id1).toMatch(/^ny-senate-urlhash-[0-9a-f]{12}$/)
+    expect(id1).toBe(id2)
   })
 })
 

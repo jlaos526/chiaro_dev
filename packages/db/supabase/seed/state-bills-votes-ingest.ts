@@ -1,7 +1,7 @@
 import { Client } from 'pg'
 import { fileURLToPath } from 'node:url'
 import { join, dirname } from 'node:path'
-import { isCliEntry } from './shared/cli.ts'
+import { hasFlag, isCliEntry, parseFlag } from './shared/cli.ts'
 import {
   loadOpenStatesBillsDir,
   loadOpenStatesVotesDir,
@@ -235,10 +235,10 @@ function normalizeVoteOption(raw: string): 'yes' | 'no' | 'abstain' | 'not_votin
 }
 
 if (isCliEntry(import.meta.url)) {
-  const skipBills = process.argv.includes('--skip-bills')
-  const skipVotes = process.argv.includes('--skip-votes')
-  const allowDeletionsArg = process.argv.find(a => a.startsWith('--allow-deletions='))
-  const allowDeletions = allowDeletionsArg ? Number(allowDeletionsArg.split('=')[1]) : undefined
+  const skipBills = hasFlag('skip-bills')
+  const skipVotes = hasFlag('skip-votes')
+  const allowDeletionsRaw = parseFlag('allow-deletions')
+  const allowDeletions = allowDeletionsRaw !== undefined ? Number(allowDeletionsRaw) : undefined
   ingestStateBillsVotes({ skipBills, skipVotes, ...(allowDeletions !== undefined ? { allowDeletions } : {}) })
     .then(stats => {
       console.log('Ingest summary (state bills + votes):')

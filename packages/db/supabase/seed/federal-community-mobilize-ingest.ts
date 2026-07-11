@@ -1,5 +1,5 @@
 import { Client } from 'pg'
-import { isCliEntry } from './shared/cli.ts'
+import { hasFlag, isCliEntry } from './shared/cli.ts'
 import {
   fetchAndNormalizeFederal,
   type FederalTownHallRow,
@@ -72,7 +72,7 @@ export async function ingestFederalTownHallsMobilize(
 
 // CLI entrypoint
 if (isCliEntry(import.meta.url)) {
-  const skipOnError = process.argv.includes('--skip-on-error')
+  const skipOnError = hasFlag('skip-on-error')
   ingestFederalTownHallsMobilize({ skipOnError })
     .then(stats => {
       console.log(`Federal town halls (mobilize) ingest:`)

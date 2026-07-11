@@ -164,6 +164,12 @@ export async function fetchColoradoRatings(
         full_name,
         state: 'CO',
         chamber,
+        onAmbiguous: () => opts.onSkip?.({
+          adapter: 'lcv',
+          stage: 'resolve_ambiguous',
+          legislator: full_name,
+          reason: 'ambiguous full_name match (2+ in-office officials)',
+        }),
       })
       if (!openstatesPersonId) {
         opts.onSkip?.({

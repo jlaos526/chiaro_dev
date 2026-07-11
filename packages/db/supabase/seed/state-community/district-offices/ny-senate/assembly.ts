@@ -82,6 +82,12 @@ export async function fetchAssemblyOffices(
       full_name: m.full_name,
       state: 'NY',
       chamber: 'state_house',
+      onAmbiguous: () => opts.onSkip?.({
+        adapter: 'ny-senate',
+        stage: 'resolve_ambiguous',
+        legislator: m.full_name,
+        reason: 'ambiguous full_name match (2+ in-office officials)',
+      }),
     })
     if (!openstates_person_id) {
       opts.onSkip?.({

@@ -1,5 +1,5 @@
 import { Client } from 'pg'
-import { isCliEntry } from './shared/cli.ts'
+import { hasFlag, isCliEntry, parseFlag } from './shared/cli.ts'
 import {
   type StateFinanceAdapter,
   type StateFinanceStats,
@@ -85,15 +85,13 @@ export async function ingestStateFinance(
 }
 
 if (isCliEntry(import.meta.url)) {
-  const cycleArg = process.argv.find(a => a.startsWith('--cycle='))
-  const stateArg = process.argv.find(a => a.startsWith('--state='))
-  const skipOnError = process.argv.includes('--skip-on-error')
-  if (!cycleArg) {
+  const cycle = parseFlag('cycle')
+  const state = parseFlag('state') as FinanceState | undefined
+  const skipOnError = hasFlag('skip-on-error')
+  if (cycle === undefined) {
     console.error('usage: tsx state-finance-ingest.ts --cycle=YYYY [--state=XX] [--skip-on-error]')
     process.exit(2)
   }
-  const cycle = cycleArg.split('=')[1]!
-  const state = stateArg ? (stateArg.split('=')[1]! as FinanceState) : undefined
 
   ingestStateFinance({ cycle, ...(state !== undefined ? { state } : {}), skipOnError })
     .then(stats => {

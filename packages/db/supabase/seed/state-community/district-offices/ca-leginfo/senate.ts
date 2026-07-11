@@ -85,6 +85,12 @@ export async function fetchCaSenateOffices(
       full_name: s.full_name,
       state: 'CA',
       chamber: 'state_senate',
+      onAmbiguous: () => opts.onSkip?.({
+        adapter: 'ca-leginfo',
+        stage: 'resolve_ambiguous',
+        legislator: s.full_name,
+        reason: 'ambiguous full_name match (2+ in-office officials)',
+      }),
     })
     if (!openstates_person_id) {
       opts.onSkip?.({

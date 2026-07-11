@@ -1,6 +1,6 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { isCliEntry } from './shared/cli.ts'
+import { hasFlag, isCliEntry, parseFlag } from './shared/cli.ts'
 import { fetchOpenStatesV3, type FetchOpenStatesV3Stats } from './openstates-v3-fetch.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -112,13 +112,13 @@ export async function fetchOpenStatesV3All(opts: FetchAllOpts = {}): Promise<Fet
 }
 
 if (isCliEntry(import.meta.url)) {
-  const yearArg        = process.argv.find(a => a.startsWith('--year='))
-  const skipOnError    = process.argv.includes('--skip-on-error')
-  const force          = process.argv.includes('--force')
-  const year           = yearArg ? Number(yearArg.split('=')[1]) : new Date().getFullYear()
+  const yearRaw     = parseFlag('year')
+  const skipOnError = hasFlag('skip-on-error')
+  const force       = hasFlag('force')
+  const year        = yearRaw !== undefined ? Number(yearRaw) : new Date().getFullYear()
 
   if (!Number.isFinite(year)) {
-    console.error(`invalid --year value (got '${yearArg}')`)
+    console.error(`invalid --year value (got '${yearRaw}')`)
     process.exit(2)
   }
 

@@ -132,6 +132,21 @@ describe('upsertCommitteeHearing', () => {
     expect(result.unmatched).toEqual(['ocd-person/UNKNOWN'])
   })
 
+  it('NULL-committee hearing dedupes by (state, hearing_date, source_url) on re-insert (C33)', async () => {
+    const h = {
+      state: 'CA', session: '20252026', hearing_date: '2026-05-05',
+      source_url: 'https://null-committee-dedup',
+      attendees_openstates_person_ids: ['ocd-person/fx-scm'],
+    }
+    await upsertCommitteeHearing(client, h)
+    await upsertCommitteeHearing(client, h)
+    const r = await client.query<{ c: number }>(
+      `select count(*)::int as c from public.state_committee_hearings
+        where openstates_committee_id is null and hearing_date = '2026-05-05'
+          and source_url = 'https://null-committee-dedup'`)
+    expect(r.rows[0]!.c).toBe(1)
+  })
+
   it('idempotent: re-inserting same hearing dedupes by (openstates_committee_id, hearing_date)', async () => {
     await upsertCommitteeHearing(client, {
       openstates_committee_id: 'ocd-org/dedup',
