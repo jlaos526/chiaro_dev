@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
   parseNyFdsText,
-  type ParsedNyFdsLineItem,
 } from './ny-fds-helpers.ts'
 
 describe('parseNyFdsText', () => {

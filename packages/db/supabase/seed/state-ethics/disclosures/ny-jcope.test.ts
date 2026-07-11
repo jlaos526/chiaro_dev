@@ -28,7 +28,7 @@ const FIXTURE = join(__dirname, '..', '..', 'fixtures', 'state-ethics', 'ny-fds-
 describe('parseNyFdsIndexHtml', () => {
   it('extracts 6 rows from fixture', async () => {
     const html = await readFile(FIXTURE, 'utf8')
-    const { rows, nextPageHref } = parseNyFdsIndexHtml(html)
+    const { rows } = parseNyFdsIndexHtml(html)
     expect(rows).toHaveLength(6)
   })
 

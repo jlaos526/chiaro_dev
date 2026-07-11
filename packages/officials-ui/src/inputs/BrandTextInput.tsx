@@ -143,6 +143,7 @@ export function BrandTextInput({
         className: `${className}${disabled ? ' disabled' : ''}`,
         'data-testid': testID,
       },
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: CSS-in-JS escape hatch (slice 31/33) — `css` is template-built from brand tokens only, no user input reaches it
       createElement('style', { dangerouslySetInnerHTML: { __html: css } }),
       createElement(
         'div',

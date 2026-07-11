@@ -1,4 +1,4 @@
-import type { Client } from 'pg'
+
 import {
   type StateFinanceAdapter,
   type StateFinanceStats,

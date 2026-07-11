@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
   parseTxTecOrderText,
-  type ParsedTxTecOrder,
 } from './pdf-helpers.ts'
 
 describe('parseTxTecOrderText', () => {

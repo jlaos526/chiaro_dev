@@ -56,7 +56,7 @@ describe('DistrictBadge — slice 46 token wiring', () => {
   })
 
   it('text color uses semantic.text.body in light mode', () => {
-    const { container, getByText } = render(
+    const { getByText } = render(
       <DistrictBadge chamber="federal_house" stateName="California" stateAbbrev="CA" districtNumber={11} />,
     )
     const text = getByText("California's 11th District") as HTMLElement

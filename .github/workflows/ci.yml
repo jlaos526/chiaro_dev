@@ -167,6 +167,10 @@ jobs:
           key: nextcache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
           restore-keys: |
             nextcache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+      - name: Biome lint + format check
+        # Slice 72 (audit C41): single fast pass over the whole workspace —
+        # lint rules AND formatter conformance (biome check covers both).
+        run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm build
 

@@ -39,6 +39,7 @@ export default function RootLayout() {
 
   const loaded = sessionLoaded && brandModeLoaded
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: router.replace is a stable expo-router export — adding it is a no-op; the nav-guard dep list is deliberate (slice 59 F4 tests it)
   useEffect(() => {
     if (!loaded) return
     const inAuthGroup = segments[0] === '(auth)'

@@ -17,7 +17,7 @@ export async function getCurrentLocation(): Promise<GpsResult> {
   try {
     const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
     return { ok: true, lat: pos.coords.latitude, lng: pos.coords.longitude }
-  } catch (err) {
+  } catch {
     return {
       ok: false,
       reason: 'unavailable',
