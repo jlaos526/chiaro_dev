@@ -1,6 +1,6 @@
 begin;
 
-select plan(9);
+select plan(10);
 
 -- Helper: create two test users via auth.users insert (trigger creates profiles)
 do $$
@@ -62,13 +62,24 @@ select throws_ok(
   'Updating created_at is denied by column grant'
 );
 
--- Test 7 (auth read): User A can read any profile
+-- Test 7 (auth read): User A sees ONLY their own profile. 0063 scoped SELECT
+-- to self — the old using(true) policy let any authenticated user enumerate
+-- the roster, and this test used to assert that leak as correct (count=2;
+-- the Gotcha #32a pattern).
 select results_eq(
   $$ select count(*)::int from public.profiles
       where id in ('00000000-0000-0000-0000-00000000000a',
                    '00000000-0000-0000-0000-00000000000b') $$,
-  $$ values (2) $$,
-  'Authenticated user can read all profiles'
+  $$ values (1) $$,
+  'Authenticated user sees only their own profile'
+);
+
+-- Test 7b: user B's row is specifically invisible to user A.
+select results_eq(
+  $$ select count(*)::int from public.profiles
+      where id = '00000000-0000-0000-0000-00000000000b' $$,
+  $$ values (0) $$,
+  'Cross-user profile SELECT returns 0 rows'
 );
 
 -- Switch to anon
