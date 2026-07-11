@@ -8,6 +8,11 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const GEOCODIO_KEY = Deno.env.get('GEOCODIO_KEY')!
 
+// Mirrors apply_calibration's default `app.calibrate_throttle_seconds` (0008).
+// The RPC's per-session GUC override applies only to the RPC itself; this
+// pre-check always uses the 60s default.
+const CALIBRATE_THROTTLE_MS = 60_000
+
 function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -15,7 +20,10 @@ function jsonResponse(status: number, body: unknown): Response {
   })
 }
 
-export async function handle(req: Request, deps?: { geocodio?: GeocodioClient }): Promise<Response> {
+export async function handle(
+  req: Request,
+  deps?: { geocodio?: GeocodioClient; supabase?: any },
+): Promise<Response> {
   if (req.method !== 'POST') return jsonResponse(405, { error: 'method_not_allowed' })
 
   const auth = req.headers.get('Authorization') ?? ''
@@ -26,8 +34,9 @@ export async function handle(req: Request, deps?: { geocodio?: GeocodioClient })
 
   // Service-role key + user JWT as Authorization → PostgREST runs requests
   // as the authenticated user; auth.uid() inside SECURITY DEFINER resolves
-  // to the JWT's subject. Used for both auth verification and the RPC call.
-  const client = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+  // to the JWT's subject. Used for auth verification, the throttle pre-check,
+  // and the RPC call.
+  const client = deps?.supabase ?? createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
     global: { headers: { Authorization: auth } },
     auth: { persistSession: false, autoRefreshToken: false },
   })
@@ -47,6 +56,28 @@ export async function handle(req: Request, deps?: { geocodio?: GeocodioClient })
     }
   } catch {
     return jsonResponse(400, { error: 'invalid_json' })
+  }
+
+  // Pre-geocode throttle (audit U17, slice 69). apply_calibration owns the
+  // authoritative 60s rate limit (0008), but it runs AFTER the GeocodIO call —
+  // without this check every request spent a paid geocode credit before any
+  // 429 could fire. Read the same user_locations.calibrated_at the RPC checks
+  // (RLS: self-scoped select, 0005) and short-circuit first. Fail-open on
+  // read errors — the RPC still enforces the limit atomically.
+  try {
+    const { data: loc, error: locErr } = await client
+      .from('user_locations')
+      .select('calibrated_at')
+      .eq('id', userResp.user.id)
+      .maybeSingle()
+    if (!locErr && loc?.calibrated_at) {
+      const last = Date.parse(loc.calibrated_at)
+      if (Number.isFinite(last) && Date.now() - last < CALIBRATE_THROTTLE_MS) {
+        return jsonResponse(429, { error: 'calibrating_too_frequently' })
+      }
+    }
+  } catch (err) {
+    console.warn('throttle_precheck_failed', err)
   }
 
   // Call GeocodIO.

@@ -33,12 +33,10 @@ export async function getSession(client: ChiaroClient) {
  *
  * Behaviourally equivalent to the prior `getUser()` usage: both trust the
  * session's own claimed id for an `.eq` scoping filter. For `user_locations`
- * (0005) / `user_districts` (0060) self-scoped SELECT and the `profiles` UPDATE
- * `with check` (0002), RLS independently enforces ownership server-side. NOTE:
- * `profiles` SELECT is intentionally `using (true)` (authenticated-readable
- * directory), so for `getMyProfile` this `.eq('id', uid)` filter — not RLS — is
- * what scopes the read to the caller's own row; that's the same trust model the
- * old `getUser()` code had, on non-sensitive directory fields.
+ * (0005) / `user_districts` (0060) / `profiles` (0063) self-scoped SELECT and
+ * the `profiles` UPDATE `with check` (0002), RLS independently enforces
+ * ownership server-side — the `.eq` filter is a narrowing convenience, not
+ * the security boundary.
  */
 export async function resolveUserId(
   client: ChiaroClient,
