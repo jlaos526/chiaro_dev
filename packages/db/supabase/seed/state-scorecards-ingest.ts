@@ -1,5 +1,5 @@
 import { Client } from 'pg'
-import { isCliEntry } from './shared/cli.ts'
+import { hasFlag, isCliEntry, parseFlag } from './shared/cli.ts'
 import {
   type StateScorecardAdapter,
   type StateScorecardStats,
@@ -118,17 +118,14 @@ export async function ingestStateScorecards(
 }
 
 if (isCliEntry(import.meta.url)) {
-  const sessionArg = process.argv.find(a => a.startsWith('--session='))
-  const stateArg   = process.argv.find(a => a.startsWith('--state='))
-  const orgArg     = process.argv.find(a => a.startsWith('--org='))
-  const skipOnError = process.argv.includes('--skip-on-error')
-  if (!sessionArg) {
+  const session = parseFlag('session')
+  const state   = parseFlag('state')
+  const org     = parseFlag('org')
+  const skipOnError = hasFlag('skip-on-error')
+  if (session === undefined) {
     console.error('usage: tsx state-scorecards-ingest.ts --session=YYYY [--state=XX] [--org=SLUG] [--skip-on-error]')
     process.exit(2)
   }
-  const session = sessionArg.split('=')[1]!
-  const state = stateArg ? stateArg.split('=')[1]! : undefined
-  const org = orgArg ? orgArg.split('=')[1]! : undefined
 
   ingestStateScorecards({
     session,

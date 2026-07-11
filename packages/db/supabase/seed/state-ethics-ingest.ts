@@ -1,5 +1,5 @@
 import { Client } from 'pg'
-import { isCliEntry } from './shared/cli.ts'
+import { hasFlag, isCliEntry, parseFlag } from './shared/cli.ts'
 import {
   type EthicsComponent, type StateEthicsAdapter, type StateEthicsStats,
   upsertFinancialDisclosure,
@@ -134,16 +134,12 @@ export async function ingestStateEthics(
 }
 
 if (isCliEntry(import.meta.url)) {
-  const componentArg = process.argv.find(a => a.startsWith('--component='))
-  const stateArg     = process.argv.find(a => a.startsWith('--state='))
-  const skipOnError  = process.argv.includes('--skip-on-error')
-  const instrument   = process.argv.includes('--instrument')
-  const noApply      = process.argv.includes('--no-apply')
+  const skipOnError = hasFlag('skip-on-error')
+  const instrument  = hasFlag('instrument')
+  const noApply     = hasFlag('no-apply')
 
-  const component = componentArg
-    ? componentArg.split('=')[1] as EthicsComponent | 'all'
-    : 'all'
-  const state = stateArg ? stateArg.split('=')[1] : undefined
+  const component = (parseFlag('component') ?? 'all') as EthicsComponent | 'all'
+  const state = parseFlag('state')
 
   ingestStateEthics({
     component,

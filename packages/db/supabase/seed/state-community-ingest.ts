@@ -1,5 +1,5 @@
 import { Client } from 'pg'
-import { isCliEntry } from './shared/cli.ts'
+import { hasFlag, isCliEntry, parseFlag } from './shared/cli.ts'
 import {
   type CommunityComponent,
   type StateCommunityAdapter,
@@ -165,18 +165,13 @@ export async function ingestStateCommunity(
 }
 
 if (isCliEntry(import.meta.url)) {
-  const componentArg = process.argv.find(a => a.startsWith('--component='))
-  const stateArg     = process.argv.find(a => a.startsWith('--state='))
-  const sessionArg   = process.argv.find(a => a.startsWith('--session='))
-  const skipOnError  = process.argv.includes('--skip-on-error')
-  const instrument   = process.argv.includes('--instrument')
-  const noApply      = process.argv.includes('--no-apply')
+  const skipOnError = hasFlag('skip-on-error')
+  const instrument  = hasFlag('instrument')
+  const noApply     = hasFlag('no-apply')
 
-  const component = componentArg
-    ? componentArg.split('=')[1] as CommunityComponent | 'all'
-    : 'all'
-  const state   = stateArg ? stateArg.split('=')[1] : undefined
-  const session = sessionArg ? sessionArg.split('=')[1] : undefined
+  const component = (parseFlag('component') ?? 'all') as CommunityComponent | 'all'
+  const state   = parseFlag('state')
+  const session = parseFlag('session')
 
   ingestStateCommunity({
     component,

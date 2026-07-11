@@ -2,7 +2,7 @@
 // Slice 3 officials ingest — defensive Congress.gov v3 pipeline.
 // See spec § Ingest pipeline. Run via `pnpm seed:officials`.
 
-import { isCliEntry } from './shared/cli.ts'
+import { isCliEntry, parseFlag } from './shared/cli.ts'
 import { Client } from 'pg'
 import type { NormalizedMember } from './normalize.ts'
 import { fetchMembers } from './congress-gov.ts'
@@ -293,10 +293,8 @@ if (isCliEntry(import.meta.url)) {
     console.error('CONGRESS_GOV_API_KEY env var is required')
     process.exit(1)
   }
-  const allowFlag = process.argv.find((a) => a.startsWith('--allow-deactivations='))
-  const allowDeactivations = allowFlag
-    ? Number(allowFlag.split('=')[1])
-    : undefined
+  const allowRaw = parseFlag('allow-deactivations')
+  const allowDeactivations = allowRaw !== undefined ? Number(allowRaw) : undefined
 
   ingestOfficials({ apiKey, ...(allowDeactivations !== undefined ? { allowDeactivations } : {}) })
     .then((stats) => {

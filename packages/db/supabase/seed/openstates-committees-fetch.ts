@@ -2,7 +2,7 @@ import { fetch } from 'undici'
 import { mkdir, readdir, stat, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { isCliEntry } from './shared/cli.ts'
+import { hasFlag, isCliEntry, parseFlag } from './shared/cli.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -183,13 +183,13 @@ export async function pruneStaleCommitteesCache(
 }
 
 if (isCliEntry(import.meta.url)) {
-  const stateArg = process.argv.find(a => a.startsWith('--state='))
-  const force    = process.argv.includes('--force')
-  if (!stateArg) {
+  const state = parseFlag('state')
+  const force = hasFlag('force')
+  if (state === undefined) {
     console.error('usage: tsx openstates-committees-fetch.ts --state=XX [--force]')
     process.exit(2)
   }
-  fetchOpenStatesCommittees({ state: stateArg.split('=')[1]!, force })
+  fetchOpenStatesCommittees({ state, force })
     .then(stats => {
       console.log('OpenStates committees fetch summary:')
       console.log(`  state:                  ${stats.state}`)
