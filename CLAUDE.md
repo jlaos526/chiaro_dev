@@ -23,6 +23,16 @@ pnpm seed:openstates-committees-fetch --state=CA   # one state at a time; repeat
 pnpm seed:openstates-committees-ingest             # parse cache → state_committee_memberships
 pnpm seed:state-metrics-recompute --session=2024   # populates new KPI columns
 
+# One-command state refresh (mirrors seed:slice-4-full for the federal side).
+# Chains ONLY the flag-free steps: state-officials → openstates-v3-fetch-all →
+# state-bills-votes → state-bills-enrich → state-metrics-recompute → state-community → state-ethics.
+pnpm seed:state-full
+# The flag-REQUIRING state steps can't be defaulted safely — run them separately:
+#   pnpm seed:openstates-committees-fetch --state=XX   # per state (repeat) …
+#   pnpm seed:openstates-committees-ingest             # … then ingest the cache
+#   pnpm seed:state-finance   --cycle=2024             # cycle varies per state (Gotcha #10)
+#   pnpm seed:state-scorecards --session=20252026      # session varies per state
+
 # App dev
 pnpm --filter @chiaro/web dev          # Next.js on http://localhost:3000
 pnpm --filter @chiaro/mobile dev       # Expo Metro
