@@ -1,0 +1,8 @@
+# Slice 72 fixup: Biome verifies lineEnding=lf; without this, Windows
+# autocrlf checkouts materialize CRLF working trees and `pnpm lint` reports
+# every file as misformatted (534 phantom errors post-merge).
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.zip binary
+*.pdf binary
