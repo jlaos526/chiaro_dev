@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { Event } from '@sentry/core'
-import { scrubAddressInPlace } from '@/sentry.scrub'
+import type { Breadcrumb, Event } from '@sentry/core'
+import { beforeBreadcrumb, beforeSend, scrubAddressInPlace } from '@/sentry.scrub'
 
 describe('scrubAddressInPlace', () => {
   it('scrubs event.request.data.address', () => {
@@ -63,5 +63,53 @@ describe('scrubAddressInPlace', () => {
     scrubAddressInPlace(e)
     expect(((e.extra!.nested as Record<string, unknown>).address)).toBe('[scrubbed]')
     expect((e.extra!.nested as Record<string, unknown>).self).toBe(cyclic)
+  })
+})
+
+describe('beforeSend (C52 — B10 web parity)', () => {
+  it('returns the scrubbed event on the happy path', () => {
+    const e: Event = { message: 'boom', extra: { address: '1 Main St' } }
+    const out = beforeSend(e)
+    expect(out).toBe(e)
+    expect(out.extra!.address).toBe('[scrubbed]')
+  })
+
+  it('returns a minimal {message, level} event (NOT null) when scrubbing throws', () => {
+    const poisoned: Record<string, unknown> = {}
+    Object.defineProperty(poisoned, 'trap', {
+      enumerable: true,
+      get() { throw new Error('getter bomb') },
+    })
+    const e: Event = { message: 'boom', level: 'error', extra: poisoned }
+    const out = beforeSend(e)
+    expect(out).not.toBeNull()
+    expect(out).toEqual({ message: 'boom', level: 'error' })
+  })
+})
+
+describe('beforeBreadcrumb (C51 — Supabase URL query-strip)', () => {
+  it('strips the query string from *.supabase.co URLs', () => {
+    const b: Breadcrumb = {
+      category: 'fetch',
+      data: { method: 'GET', url: 'https://ebxlyxxudxapswuoonhm.supabase.co/rest/v1/user_districts?select=district_id&user_id=eq.abc-123' },
+    }
+    expect(beforeBreadcrumb(b).data!.url).toBe('https://ebxlyxxudxapswuoonhm.supabase.co/rest/v1/user_districts')
+  })
+
+  it('strips localhost Supabase URLs too', () => {
+    const b: Breadcrumb = { data: { url: 'http://127.0.0.1:54321/rest/v1/user_locations?id=eq.abc' } }
+    expect(beforeBreadcrumb(b).data!.url).toBe('http://127.0.0.1:54321/rest/v1/user_locations')
+  })
+
+  it('leaves non-Supabase URLs untouched', () => {
+    const url = 'https://example.com/path?q=keep'
+    const b: Breadcrumb = { data: { url } }
+    expect(beforeBreadcrumb(b).data!.url).toBe(url)
+  })
+
+  it('passes through breadcrumbs without a url and malformed urls', () => {
+    expect(beforeBreadcrumb({ data: { method: 'GET' } }).data!.method).toBe('GET')
+    const b: Breadcrumb = { data: { url: 'not a url?x=1' } }
+    expect(beforeBreadcrumb(b).data!.url).toBe('not a url?x=1')
   })
 })
