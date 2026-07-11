@@ -5,7 +5,7 @@
 
 import { BRAND_PALETTE, type BrandMode, type BrandPalette } from './palette.ts'
 import { BRAND_SEMANTIC, getSemantic, type BrandSemantic } from './semantic.ts'
-import { BRAND_TYPE, BRAND_TYPE_FAMILY, BRAND_TYPE_WEIGHT, type BrandType, type BrandTypeKey } from './typography.ts'
+import { BRAND_TYPE, BRAND_TYPE_FAMILY, BRAND_TYPE_FAMILY_WEB, BRAND_TYPE_WEIGHT, type BrandType, type BrandTypeKey } from './typography.ts'
 import { BRAND_SPACE, type BrandSpace, type BrandSpaceKey } from './spacing.ts'
 import { BRAND_RADII, type BrandRadii, type BrandRadiiKey } from './radii.ts'
 import { BRAND_SHADOW, type BrandShadow, type BrandShadowKey } from './shadow.ts'
@@ -29,6 +29,7 @@ export {
   BRAND_SEMANTIC,
   BRAND_TYPE,
   BRAND_TYPE_FAMILY,
+  BRAND_TYPE_FAMILY_WEB,
   BRAND_TYPE_WEIGHT,
   BRAND_SPACE,
   BRAND_RADII,
