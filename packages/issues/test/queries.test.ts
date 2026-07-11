@@ -47,21 +47,19 @@ describe('queries', () => {
     expect(out[0]?.lenses).toHaveLength(1)
   })
   it('fetchRepWatchlistFlags calls the RPC and returns its payload', async () => {
-    const rpc = vi
-      .fn()
-      .mockResolvedValue({
-        data: [
-          {
-            topicSlug: 'environment',
-            lensSlug: 'industry-donor-recipients',
-            label: 'X',
-            category: 'fossil-fuel',
-            totalAmount: 42000,
-            evidence: [{ industry: 'Oil & Gas', amount: 42000 }],
-          },
-        ],
-        error: null,
-      })
+    const rpc = vi.fn().mockResolvedValue({
+      data: [
+        {
+          topicSlug: 'environment',
+          lensSlug: 'industry-donor-recipients',
+          label: 'X',
+          category: 'fossil-fuel',
+          totalAmount: 42000,
+          evidence: [{ industry: 'Oil & Gas', amount: 42000 }],
+        },
+      ],
+      error: null,
+    })
     const out = await fetchRepWatchlistFlags(clientWith({ rpc }), 'off-1')
     expect(rpc).toHaveBeenCalledWith('get_rep_watchlist_flags', { p_official_id: 'off-1' })
     expect(out).toHaveLength(1)
