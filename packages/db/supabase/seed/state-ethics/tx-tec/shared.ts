@@ -169,6 +169,12 @@ export async function fetchSwornComplaintOrders(
       full_name: row.respondent,
       state: 'TX',
       chamber,
+      onAmbiguous: () => opts.onSkip?.({
+        adapter: 'tx-tec',
+        stage: 'resolve_ambiguous',
+        legislator: row.respondent,
+        reason: 'ambiguous full_name match (2+ in-office officials)',
+      }),
     })
     if (!openstates_person_id) {
       opts.onSkip?.({

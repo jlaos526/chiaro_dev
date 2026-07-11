@@ -115,6 +115,12 @@ export const nySenateTownHalls: StateCommunityAdapter<NormalizedTownHall> = {
         full_name: p.full_name,
         state: 'NY',
         chamber: 'state_senate',
+        onAmbiguous: () => onSkip?.({
+          adapter: 'ny-senate',
+          stage: 'resolve_ambiguous',
+          legislator: p.full_name,
+          reason: 'ambiguous full_name match (2+ in-office officials)',
+        }),
       })
       if (!openstates_person_id) {
         onSkip?.({

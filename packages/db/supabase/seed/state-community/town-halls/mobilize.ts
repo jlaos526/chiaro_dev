@@ -134,6 +134,12 @@ export async function parseMobilizeEvents(
       full_name: name,
       state,
       chamber,
+      onAmbiguous: () => onSkip?.({
+        adapter: 'mobilize',
+        stage: 'resolve_ambiguous',
+        legislator: name,
+        reason: 'ambiguous full_name match (2+ in-office officials)',
+      }),
     })
     if (!officialId) {
       onSkip?.({

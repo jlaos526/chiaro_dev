@@ -18,9 +18,11 @@ export interface SkipReason {
    *   - 'extract'      — PDF/HTML text extraction returned empty
    *   - 'parse'        — text extracted but parser found no recognized items
    *   - 'resolve'      — legislator name didn't match officials table
+   *   - 'resolve_ambiguous' — name matched >1 in-office official; attribution
+   *                     would be arbitrary, so the row is dropped (audit G3)
    *   - 'filter'       — row didn't match LEGISLATOR_AGENCY_RE / chamber filter
    */
-  stage: 'derive_url' | 'fetch' | 'extract' | 'parse' | 'resolve' | 'filter'
+  stage: 'derive_url' | 'fetch' | 'extract' | 'parse' | 'resolve' | 'resolve_ambiguous' | 'filter'
   /** Optional legislator full_name or order_number identifier for the skip. */
   legislator?: string
   /** One-line human-readable reason; goes in summary output. */

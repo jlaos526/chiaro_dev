@@ -171,6 +171,12 @@ export const nyJcopeDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosur
         full_name: row.full_name,
         state: 'NY',
         chamber,
+        onAmbiguous: () => opts.onSkip?.({
+          adapter: 'ny-jcope',
+          stage: 'resolve_ambiguous',
+          legislator: row.full_name,
+          reason: 'ambiguous full_name match (2+ in-office officials)',
+        }),
       })
       if (!openstates_person_id) {
         opts.onSkip?.({

@@ -7,6 +7,7 @@ import {
 } from './mobilize-helpers.ts'
 import { deriveFormat } from '../../shared/town-halls-helpers.ts'
 import { resolveOfficialByName } from '../../shared/officials.ts'
+import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const MOBILIZE_API_BASE = 'https://api.mobilize.us/v1/events'
 const PER_PAGE = 100
@@ -80,10 +81,17 @@ export interface FederalTownHallRow {
  * an official via resolveOfficialByName. State-tier events (titles with
  * "State Senator" / "State Rep" / "State Representative") are filtered out
  * via FEDERAL_LEGISLATOR_RE's negative-lookbehind in the helpers module.
+ *
+ * Optional `onSkip` (slice 68 G3): emits a `resolve_ambiguous` skip when a
+ * name matches >1 in-office official (resolver returns null in that case, so
+ * the event is dropped rather than mis-attributed). Federal mobilize is not
+ * otherwise instrumented; a future federal --instrument slice can thread this
+ * through fetchAndNormalizeFederal + the orchestrator.
  */
 export async function parseFederalMobilizeEvents(
   events: MobilizeEvent[],
   client: Client,
+  onSkip?: (reason: SkipReason) => void,
 ): Promise<FederalTownHallRow[]> {
   const out: FederalTownHallRow[] = []
   for (const event of events) {
@@ -107,6 +115,12 @@ export async function parseFederalMobilizeEvents(
 
     const officialId = await resolveOfficialByName(client, {
       full_name: name, state, chamber,
+      onAmbiguous: () => onSkip?.({
+        adapter: 'mobilize',
+        stage: 'resolve_ambiguous',
+        legislator: name,
+        reason: 'ambiguous full_name match (2+ in-office officials)',
+      }),
     })
     if (!officialId) continue
 

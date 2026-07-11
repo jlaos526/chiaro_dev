@@ -159,6 +159,12 @@ export async function fetchMichiganRatings(
       full_name,
       state: 'MI',
       chamber,
+      onAmbiguous: () => opts.onSkip?.({
+        adapter: 'lcv',
+        stage: 'resolve_ambiguous',
+        legislator: full_name,
+        reason: 'ambiguous full_name match (2+ in-office officials)',
+      }),
     })
     if (!openstatesPersonId) {
       opts.onSkip?.({
