@@ -132,3 +132,10 @@ level so no future setup rediscovers them:
 - The OpenStates loader requires `roles[].title`, which the live
   `openstates/people` repo omits for default roles — seeds 0 legislators
   unless a default title is derived.
+- The loader is also NON-recursive: `seed:state-officials` needs
+  `OPENSTATES_DATA_DIR` pointing at a FLATTENED directory of
+  `data/*/legislature/*.yml` (the repo nests per state). Procedure in
+  `docs/superpowers/staging-promotion-runbook.md` §4.
+- Cloning `openstates/people` on Windows needs `core.longpaths=true` —
+  committee filenames exceed MAX_PATH and abort the checkout otherwise
+  (G1 spike, 2026-07-11).
