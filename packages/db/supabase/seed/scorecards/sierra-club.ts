@@ -14,9 +14,11 @@ export const sierraClub: ScorecardAdapter = {
 
   async fetchRatings(_congress, opts) {
     if (!opts?.fixturePath) {
-      throw new Error('Sierra Club: live download not implemented yet; use fixturePath for slice 4.')
+      throw new Error(
+        'Sierra Club: live download not implemented yet; use fixturePath for slice 4.',
+      )
     }
     const csv = await readFile(opts.fixturePath, 'utf8')
-    return parseBioguideScoreCSV(csv, b => `https://www.sierraclub.org/political/scorecard/${b}`)
+    return parseBioguideScoreCSV(csv, (b) => `https://www.sierraclub.org/political/scorecard/${b}`)
   },
 }

@@ -27,7 +27,13 @@ function Probe(): React.JSX.Element {
       <button onClick={() => flow.toggleLens('a', 'l1')}>lens-a-l1</button>
       <button
         onClick={() =>
-          flow.setAnswer({ topicSlug: 'a', lensSlug: 'l1', questionSlug: 'q1', answer: 'agree', starred: false })
+          flow.setAnswer({
+            topicSlug: 'a',
+            lensSlug: 'l1',
+            questionSlug: 'q1',
+            answer: 'agree',
+            starred: false,
+          })
         }
       >
         ans-q1
@@ -72,12 +78,20 @@ describe('useIssueFlow', () => {
   it('setAnswer upserts by (topic,lens,question)', () => {
     function AnswerProbe(): React.JSX.Element {
       const flow = useIssueFlow()
-      const a: QuizAnswer = { topicSlug: 'a', lensSlug: 'l1', questionSlug: 'q1', answer: 'agree', starred: false }
+      const a: QuizAnswer = {
+        topicSlug: 'a',
+        lensSlug: 'l1',
+        questionSlug: 'q1',
+        answer: 'agree',
+        starred: false,
+      }
       const a2: QuizAnswer = { ...a, answer: 'disagree', starred: true }
       return (
         <div>
           <div data-testid="count">{flow.answers.length}</div>
-          <div data-testid="latest">{flow.answers.map((x) => `${x.answer}/${x.starred}`).join(',')}</div>
+          <div data-testid="latest">
+            {flow.answers.map((x) => `${x.answer}/${x.starred}`).join(',')}
+          </div>
           <button onClick={() => flow.setAnswer(a)}>set</button>
           <button onClick={() => flow.setAnswer(a2)}>reset-same-key</button>
         </div>
@@ -151,10 +165,13 @@ describe('useIssueFlow', () => {
       environment: ['conservation', 'climate-action'],
     })
   })
-
 })
 
-function mkRow(topic_slug: string, lens_slug: string, display_order: number): UserIssueSelectionRow {
+function mkRow(
+  topic_slug: string,
+  lens_slug: string,
+  display_order: number,
+): UserIssueSelectionRow {
   return {
     user_id: 'u1',
     topic_slug,

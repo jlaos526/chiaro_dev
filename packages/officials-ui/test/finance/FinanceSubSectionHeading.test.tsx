@@ -4,7 +4,9 @@ import { FinanceSubSectionHeading } from '../../src/finance/FinanceSubSectionHea
 
 describe('FinanceSubSectionHeading', () => {
   it('renders the label', () => {
-    render(<FinanceSubSectionHeading label="Top Industries" textColor="#1a1714" ruleColor="#d8d4c9" />)
+    render(
+      <FinanceSubSectionHeading label="Top Industries" textColor="#1a1714" ruleColor="#d8d4c9" />,
+    )
     expect(screen.getByText('Top Industries')).toBeTruthy()
   })
 

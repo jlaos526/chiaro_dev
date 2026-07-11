@@ -41,13 +41,14 @@ Deno.test('returns 400 on too-short address (auth would be 401 first; this verif
 // the rpc; `geocodio` records lookup calls so tests can assert whether a
 // (paid) geocode would have been spent.
 
-function makeSupabaseStub(opts: { calibratedAt?: string | null; throttleReadError?: boolean } = {}) {
+function makeSupabaseStub(
+  opts: { calibratedAt?: string | null; throttleReadError?: boolean } = {},
+) {
   const rpcCalls: unknown[] = []
   return {
     rpcCalls,
     auth: {
-      getUser: (_jwt: string) =>
-        Promise.resolve({ data: { user: { id: 'user-1' } }, error: null }),
+      getUser: (_jwt: string) => Promise.resolve({ data: { user: { id: 'user-1' } }, error: null }),
     },
     from: (_table: string) => ({
       select: (_cols: string) => ({
@@ -56,7 +57,8 @@ function makeSupabaseStub(opts: { calibratedAt?: string | null; throttleReadErro
             opts.throttleReadError
               ? Promise.resolve({ data: null, error: { message: 'read failed' } })
               : Promise.resolve({
-                  data: opts.calibratedAt === undefined ? null : { calibrated_at: opts.calibratedAt },
+                  data:
+                    opts.calibratedAt === undefined ? null : { calibrated_at: opts.calibratedAt },
                   error: null,
                 }),
         }),
@@ -76,11 +78,13 @@ function makeGeocodioStub() {
     lookup: (input: unknown) => {
       calls.push(input)
       return Promise.resolve({
-        results: [{
-          address_components: { state: 'NY' },
-          location: { lat: 40.7128, lng: -74.006 },
-          fields: { congressional_districts: [{ district_number: 12, name: "NY's 12th" }] },
-        }],
+        results: [
+          {
+            address_components: { state: 'NY' },
+            location: { lat: 40.7128, lng: -74.006 },
+            fields: { congressional_districts: [{ district_number: 12, name: "NY's 12th" }] },
+          },
+        ],
       })
     },
   }
@@ -102,7 +106,9 @@ Deno.test('throttle: 429 within 60s of calibrated_at and GeocodIO is NOT called'
 })
 
 Deno.test('throttle: stale calibrated_at proceeds to geocode + rpc', async () => {
-  const supabase = makeSupabaseStub({ calibratedAt: new Date(Date.now() - 5 * 60_000).toISOString() })
+  const supabase = makeSupabaseStub({
+    calibratedAt: new Date(Date.now() - 5 * 60_000).toISOString(),
+  })
   const geocodio = makeGeocodioStub()
   const res = await handle(makeRequest({ address: '350 5th Ave NY' }), depsFor(supabase, geocodio))
   assertEquals(res.status, 200)
@@ -157,7 +163,12 @@ Deno.test('NaN lat/lng is rejected 400 before any GeocodIO spend', async () => {
 Deno.test('out-of-range coordinates are rejected 400 before any GeocodIO spend', async () => {
   const supabase = makeSupabaseStub({})
   const geocodio = makeGeocodioStub()
-  for (const body of [{ lat: 91, lng: 0 }, { lat: -91, lng: 0 }, { lat: 0, lng: 181 }, { lat: 0, lng: -181 }]) {
+  for (const body of [
+    { lat: 91, lng: 0 },
+    { lat: -91, lng: 0 },
+    { lat: 0, lng: 181 },
+    { lat: 0, lng: -181 },
+  ]) {
     const res = await handle(makeRequest(body), depsFor(supabase, geocodio))
     assertEquals(res.status, 400)
   }

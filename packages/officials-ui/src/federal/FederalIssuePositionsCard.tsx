@@ -34,7 +34,7 @@ export function FederalIssuePositionsCard({
   const flagsSection =
     flags.length > 0 ? (
       <View>
-        {flags.map(f => (
+        {flags.map((f) => (
           <WatchlistFlag key={`${f.topicSlug}::${f.lensSlug}`} flag={f} />
         ))}
       </View>
@@ -48,7 +48,13 @@ export function FederalIssuePositionsCard({
           { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
         ]}
       >
-        <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>Issue Positions</Text>
+        <Text
+          style={[styles.title, { color: semantic.text.primary }]}
+          accessibilityRole="header"
+          accessibilityLevel={2}
+        >
+          Issue Positions
+        </Text>
         <Text style={[styles.muted, { color: semantic.text.muted }]}>Loading issue positions…</Text>
       </View>
     )
@@ -63,7 +69,13 @@ export function FederalIssuePositionsCard({
           { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
         ]}
       >
-        <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>Issue Positions</Text>
+        <Text
+          style={[styles.title, { color: semantic.text.primary }]}
+          accessibilityRole="header"
+          accessibilityLevel={2}
+        >
+          Issue Positions
+        </Text>
         {flagsSection}
         <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No issue-position ratings available for this legislator yet.
@@ -72,7 +84,7 @@ export function FederalIssuePositionsCard({
     )
   }
 
-  const leans = new Set(rows.map(r => r.org?.lean ?? 'centrist'))
+  const leans = new Set(rows.map((r) => r.org?.lean ?? 'centrist'))
   return (
     <View
       style={[
@@ -80,7 +92,13 @@ export function FederalIssuePositionsCard({
         { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
       ]}
     >
-      <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>Issue Positions</Text>
+      <Text
+        style={[styles.title, { color: semantic.text.primary }]}
+        accessibilityRole="header"
+        accessibilityLevel={2}
+      >
+        Issue Positions
+      </Text>
       {flagsSection}
       <Text style={[styles.summary, { color: semantic.text.muted }]}>
         {rows.length} org{rows.length === 1 ? '' : 's'} rated · {leans.size} lean group

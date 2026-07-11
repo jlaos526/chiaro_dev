@@ -18,7 +18,11 @@ export interface BrandModeProviderProps {
   children?: ReactNode
 }
 
-export function BrandModeProvider({ defaultMode, onChange, children }: BrandModeProviderProps): React.JSX.Element {
+export function BrandModeProvider({
+  defaultMode,
+  onChange,
+  children,
+}: BrandModeProviderProps): React.JSX.Element {
   const [override, setOverride] = useState<BrandMode | null>(defaultMode)
   const setMode = useCallback(
     (mode: BrandMode | null) => {

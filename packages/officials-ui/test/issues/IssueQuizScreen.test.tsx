@@ -50,7 +50,9 @@ const CATALOG: IssueTopic[] = [
         mkQ('q-emissions', 'Emissions caps are worth the cost.', 1),
       ]),
       // SELECTED watchlist lens → NOT scored, contributes NO questions.
-      mkLens('industry-watch', 'Industry Watch', 'watchlist', [mkQ('q-watch', 'Should not appear.', 0)]),
+      mkLens('industry-watch', 'Industry Watch', 'watchlist', [
+        mkQ('q-watch', 'Should not appear.', 0),
+      ]),
       // UNSELECTED stance lens → its questions must NOT appear.
       mkLens('renewables', 'Renewables', 'stance', [mkQ('q-renew', 'Also should not appear.', 0)]),
     ],

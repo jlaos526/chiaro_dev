@@ -11,7 +11,7 @@ vi.mock('next/navigation', () => ({
 
 const { getMyLocation } = vi.hoisted(() => ({ getMyLocation: vi.fn() }))
 vi.mock('@chiaro/location', async (importOriginal) => {
-  const actual = await importOriginal() as Record<string, unknown>
+  const actual = (await importOriginal()) as Record<string, unknown>
   return {
     ...actual,
     getMyLocation: (...args: unknown[]) => getMyLocation(...args),
@@ -65,7 +65,9 @@ describe('EditAddressPage', () => {
     })
     functionsInvoke.mockResolvedValueOnce({ error: null })
     const { container, getByText } = render(<EditAddressPage />)
-    await waitFor(() => expect(container.querySelector('input')?.value).toBe('123 Main St, Springfield IL 62701'))
+    await waitFor(() =>
+      expect(container.querySelector('input')?.value).toBe('123 Main St, Springfield IL 62701'),
+    )
     fireEvent.click(getByText('Save'))
     await waitFor(() => expect(pushMock).toHaveBeenCalledWith('/settings'))
   })
@@ -77,7 +79,9 @@ describe('EditAddressPage', () => {
     })
     functionsInvoke.mockResolvedValueOnce({ error: { context: { status: 400 } } })
     const { container, getByText, findByText } = render(<EditAddressPage />)
-    await waitFor(() => expect(container.querySelector('input')?.value).toBe('123 Main St, Springfield IL 62701'))
+    await waitFor(() =>
+      expect(container.querySelector('input')?.value).toBe('123 Main St, Springfield IL 62701'),
+    )
     fireEvent.click(getByText('Save'))
     await findByText(/couldn'?t find that address/i)
   })

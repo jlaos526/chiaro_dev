@@ -21,7 +21,7 @@ export function FederalLeadershipList({ rows }: FederalLeadershipListProps): Rea
   }
   return (
     <View style={styles.list}>
-      {rows.map(r => (
+      {rows.map((r) => (
         <View key={r.id} style={[styles.row, { backgroundColor: semantic.bg.app }]}>
           <Text style={[styles.title, { color: semantic.text.primary }]}>{r.role}</Text>
           <Text style={[styles.meta, { color: semantic.text.muted }]}>

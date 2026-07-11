@@ -32,7 +32,8 @@ export async function updateStateBillAugment(
     augmented_from: string
   },
 ): Promise<boolean> {
-  const result = await client.query(`
+  const result = await client.query(
+    `
     update public.state_bills set
       status_substage      = coalesce($5, status_substage),
       hearing_date         = coalesce($6, hearing_date),
@@ -41,14 +42,19 @@ export async function updateStateBillAugment(
       augmented_from       = $9,
       updated_at           = now()
     where state = $1 and session = $2 and bill_type = $3 and number = $4
-  `, [
-    key.state, key.session, key.bill_type, key.number,
-    augment.status_substage ?? null,
-    augment.hearing_date ?? null,
-    augment.fiscal_impact_amount ?? null,
-    augment.party_vote_split ? JSON.stringify(augment.party_vote_split) : null,
-    augment.augmented_from,
-  ])
+  `,
+    [
+      key.state,
+      key.session,
+      key.bill_type,
+      key.number,
+      augment.status_substage ?? null,
+      augment.hearing_date ?? null,
+      augment.fiscal_impact_amount ?? null,
+      augment.party_vote_split ? JSON.stringify(augment.party_vote_split) : null,
+      augment.augmented_from,
+    ],
+  )
   return (result.rowCount ?? 0) > 0
 }
 
@@ -57,10 +63,10 @@ export async function fetchWithRetry(url: string, init?: RequestInit): Promise<R
   const delays = [500, 1000, 2000, 4000, 8000]
   let lastErr: unknown = null
   for (const delay of [0, ...delays]) {
-    if (delay > 0) await new Promise(r => setTimeout(r, delay))
+    if (delay > 0) await new Promise((r) => setTimeout(r, delay))
     try {
       const res = await fetch(url, init)
-      if (res.ok || res.status === 404) return res  // 404 isn't transient
+      if (res.ok || res.status === 404) return res // 404 isn't transient
       lastErr = new Error(`HTTP ${res.status} ${res.statusText} for ${url}`)
     } catch (err) {
       lastErr = err

@@ -5,7 +5,14 @@ import { fileURLToPath } from 'node:url'
 import { openstatesV3Hearings } from './openstates-v3.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const FIXTURE = join(__dirname, '..', '..', 'fixtures', 'state-community', 'hearings-openstates.json')
+const FIXTURE = join(
+  __dirname,
+  '..',
+  '..',
+  'fixtures',
+  'state-community',
+  'hearings-openstates.json',
+)
 
 describe('openstatesV3Hearings adapter', () => {
   it('happy path: fetcher injection returns fixture events', async () => {
@@ -15,8 +22,9 @@ describe('openstatesV3Hearings adapter', () => {
       fetcher: async () => fixture.events,
     } as never)
     expect(events.length).toBe(fixture.events.length)
-    expect((events[0] as { openstates_committee_id?: string }).openstates_committee_id)
-      .toBe(fixture.events[0].openstates_committee_id)
+    expect((events[0] as { openstates_committee_id?: string }).openstates_committee_id).toBe(
+      fixture.events[0].openstates_committee_id,
+    )
   })
 
   it('production stub returns empty array when cache dir absent', async () => {

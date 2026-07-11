@@ -12,8 +12,8 @@ import {
 } from './openstates-bills-loader.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DB_URL = process.env.SUPABASE_DB_URL
-  ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const DB_URL =
+  process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 
 const DEFAULT_MIN_STATE_BILLS_COUNT = 500
 
@@ -39,9 +39,10 @@ export interface IngestStateBillsVotesStats {
 export async function ingestStateBillsVotes(
   opts: IngestStateBillsVotesOpts = {},
 ): Promise<IngestStateBillsVotesStats> {
-  const fixturesDir = opts.fixturesDir
-    ?? process.env.OPENSTATES_BILLS_DATA_DIR
-    ?? join(__dirname, 'fixtures', 'openstates-bills')
+  const fixturesDir =
+    opts.fixturesDir ??
+    process.env.OPENSTATES_BILLS_DATA_DIR ??
+    join(__dirname, 'fixtures', 'openstates-bills')
   const minBills = opts.minStateBillsCount ?? DEFAULT_MIN_STATE_BILLS_COUNT
 
   const bills = opts.skipBills ? [] : await loadOpenStatesBillsDir(fixturesDir)
@@ -50,7 +51,7 @@ export async function ingestStateBillsVotes(
   if (!opts.skipBills && bills.length < minBills) {
     throw new Error(
       `pre-flight count below threshold: bills=${bills.length} (min ${minBills}). ` +
-      `Aborting with zero DB writes.`,
+        `Aborting with zero DB writes.`,
     )
   }
 
@@ -100,14 +101,15 @@ async function ingestBill(
     return
   }
   const status = b.actions?.length ? b.actions[b.actions.length - 1]!.description : null
-  const introducedAction = b.actions?.find(a => a.classification?.includes('introduction'))
+  const introducedAction = b.actions?.find((a) => a.classification?.includes('introduction'))
   const introducedDate = introducedAction?.date ?? null
   const latestAction = b.actions?.length ? b.actions[b.actions.length - 1]!.description : null
   const latestActionDate = b.actions?.length ? b.actions[b.actions.length - 1]!.date : null
 
   const sourceUrl = b.sources[0]?.url ?? b.openstates_url
 
-  const upsert = await client.query<{ id: string }>(`
+  const upsert = await client.query<{ id: string }>(
+    `
     insert into public.state_bills (
       openstates_bill_id, state, session, bill_type, number, title, status,
       introduced_date, latest_action, latest_action_date, source_url, openstates_url
@@ -120,11 +122,22 @@ async function ingestBill(
       latest_action_date = excluded.latest_action_date,
       updated_at         = now()
     returning id
-  `, [
-    b.id, state, b.session, billType.bill_type, billType.number,
-    b.title, status, introducedDate, latestAction, latestActionDate,
-    sourceUrl, b.openstates_url,
-  ])
+  `,
+    [
+      b.id,
+      state,
+      b.session,
+      billType.bill_type,
+      billType.number,
+      b.title,
+      status,
+      introducedDate,
+      latestAction,
+      latestActionDate,
+      sourceUrl,
+      b.openstates_url,
+    ],
+  )
   const billId = upsert.rows[0]!.id
   stats.billsUpserted += 1
 
@@ -174,16 +187,22 @@ async function ingestVote(
   const { id: billId, state, session } = billRow.rows[0]!
 
   const chamber =
-    v.organization.classification === 'lower'        ? 'state_house' :
-    v.organization.classification === 'upper'        ? 'state_senate' :
-    v.organization.classification === 'legislature' ? 'state_legislature' :
-                                                      null
+    v.organization.classification === 'lower'
+      ? 'state_house'
+      : v.organization.classification === 'upper'
+        ? 'state_senate'
+        : v.organization.classification === 'legislature'
+          ? 'state_legislature'
+          : null
   if (!chamber) {
-    stats.errors.push(`vote ${v.id} has unknown organization.classification '${v.organization.classification}'`)
+    stats.errors.push(
+      `vote ${v.id} has unknown organization.classification '${v.organization.classification}'`,
+    )
     return
   }
 
-  const voteUpsert = await client.query<{ id: string }>(`
+  const voteUpsert = await client.query<{ id: string }>(
+    `
     insert into public.state_votes (
       openstates_vote_id, bill_id, state, session, chamber,
       vote_date, question, result, source_url
@@ -193,10 +212,19 @@ async function ingestVote(
       question = excluded.question,
       result   = excluded.result
     returning id
-  `, [
-    v.id, billId, state, session, chamber,
-    v.start_date, v.motion_text, v.result, v.sources[0]?.url ?? '',
-  ])
+  `,
+    [
+      v.id,
+      billId,
+      state,
+      session,
+      chamber,
+      v.start_date,
+      v.motion_text,
+      v.result,
+      v.sources[0]?.url ?? '',
+    ],
+  )
   const voteId = voteUpsert.rows[0]!.id
   stats.votesUpserted += 1
 
@@ -224,7 +252,9 @@ async function ingestVote(
   }
 }
 
-function normalizeVoteOption(raw: string): 'yes' | 'no' | 'abstain' | 'not_voting' | 'present' | null {
+function normalizeVoteOption(
+  raw: string,
+): 'yes' | 'no' | 'abstain' | 'not_voting' | 'present' | null {
   const v = raw.toLowerCase().trim()
   if (v === 'yes' || v === 'aye' || v === 'y') return 'yes'
   if (v === 'no' || v === 'nay' || v === 'n') return 'no'
@@ -239,8 +269,12 @@ if (isCliEntry(import.meta.url)) {
   const skipVotes = hasFlag('skip-votes')
   const allowDeletionsRaw = parseFlag('allow-deletions')
   const allowDeletions = allowDeletionsRaw !== undefined ? Number(allowDeletionsRaw) : undefined
-  ingestStateBillsVotes({ skipBills, skipVotes, ...(allowDeletions !== undefined ? { allowDeletions } : {}) })
-    .then(stats => {
+  ingestStateBillsVotes({
+    skipBills,
+    skipVotes,
+    ...(allowDeletions !== undefined ? { allowDeletions } : {}),
+  })
+    .then((stats) => {
       console.log('Ingest summary (state bills + votes):')
       console.log(`  bills upserted:    ${stats.billsUpserted}`)
       console.log(`  sponsors upserted: ${stats.sponsorsUpserted}`)
@@ -252,5 +286,8 @@ if (isCliEntry(import.meta.url)) {
       console.log(`  errors:            ${stats.errors.length}`)
       process.exit(stats.errors.length > 0 ? 1 : 0)
     })
-    .catch(err => { console.error(err.message); process.exit(1) })
+    .catch((err) => {
+      console.error(err.message)
+      process.exit(1)
+    })
 }

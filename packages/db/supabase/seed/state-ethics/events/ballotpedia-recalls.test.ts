@@ -7,14 +7,29 @@ import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const FIXTURE = join(__dirname, '..', '..', 'fixtures', 'state-ethics', 'events-ballotpedia.json')
-const INDEX_HTML = join(__dirname, '..', '..', 'fixtures', 'state-ethics', 'ballotpedia-recalls-index.html')
-const YEAR_2024_HTML = join(__dirname, '..', '..', 'fixtures', 'state-ethics', 'ballotpedia-recalls-2024.html')
+const INDEX_HTML = join(
+  __dirname,
+  '..',
+  '..',
+  'fixtures',
+  'state-ethics',
+  'ballotpedia-recalls-index.html',
+)
+const YEAR_2024_HTML = join(
+  __dirname,
+  '..',
+  '..',
+  'fixtures',
+  'state-ethics',
+  'ballotpedia-recalls-2024.html',
+)
 
 describe('ballotpedia adapter', () => {
   it('happy path: fetcher injection returns fixture events', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     const events = await ballotpediaRecalls.fetchEvents({
-      client: {} as never, fetcher: async () => fixture.events,
+      client: {} as never,
+      fetcher: async () => fixture.events,
     } as never)
     expect(events.length).toBe(fixture.events.length)
   })
@@ -37,9 +52,7 @@ interface FakeClient {
 function mkClient(openstatesPersonId: string | null): FakeClient {
   return {
     query: vi.fn().mockResolvedValue({
-      rows: openstatesPersonId
-        ? [{ openstates_person_id: openstatesPersonId }]
-        : [],
+      rows: openstatesPersonId ? [{ openstates_person_id: openstatesPersonId }] : [],
       rowCount: openstatesPersonId ? 1 : 0,
     }),
   }
@@ -54,15 +67,18 @@ describe('fetchBallotpediaRecallEvents — production path', () => {
     // other years return empty HTML.
     const fetcher = async (url: string) => {
       if (url === 'https://ballotpedia.org/State_legislative_recalls') return indexHtml
-      if (url === 'https://ballotpedia.org/State_legislative_recall_efforts,_2024') return year2024Html
-      return '<html><body><table></table></body></html>'  // empty per-year fixture
+      if (url === 'https://ballotpedia.org/State_legislative_recall_efforts,_2024')
+        return year2024Html
+      return '<html><body><table></table></body></html>' // empty per-year fixture
     }
     const skips: SkipReason[] = []
-    const result = await fetchBallotpediaRecallEvents(client, fetcher, (r) => { skips.push(r) })
+    const result = await fetchBallotpediaRecallEvents(client, fetcher, (r) => {
+      skips.push(r)
+    })
     // 5 fixture rows: CA Petition failed → failed; TX Recalled → succeeded;
     // NY Retained → failed; FL Active → attempt; MD weird → null (skip + log).
     expect(result.events.length).toBe(4)
-    expect(skips.some(s => s.stage === 'parse' && /unknown status/i.test(s.reason))).toBe(true)
+    expect(skips.some((s) => s.stage === 'parse' && /unknown status/i.test(s.reason))).toBe(true)
   })
 
   it('outcome → event_type mapping matches fixture statuses', async () => {
@@ -71,11 +87,12 @@ describe('fetchBallotpediaRecallEvents — production path', () => {
     const client = mkClient('oid-mock') as never
     const fetcher = async (url: string) => {
       if (url === 'https://ballotpedia.org/State_legislative_recalls') return indexHtml
-      if (url === 'https://ballotpedia.org/State_legislative_recall_efforts,_2024') return year2024Html
+      if (url === 'https://ballotpedia.org/State_legislative_recall_efforts,_2024')
+        return year2024Html
       return '<html><body><table></table></body></html>'
     }
     const { events } = await fetchBallotpediaRecallEvents(client, fetcher)
-    const byState = Object.fromEntries(events.map(e => [e.state, e.event_type]))
+    const byState = Object.fromEntries(events.map((e) => [e.state, e.event_type]))
     expect(byState.CA).toBe('recall_failed')
     expect(byState.TX).toBe('recall_succeeded')
     expect(byState.NY).toBe('recall_failed')
@@ -88,29 +105,33 @@ describe('fetchBallotpediaRecallEvents — production path', () => {
     const client = mkClient('oid-mock') as never
     const fetcher = async (url: string) => {
       if (url === 'https://ballotpedia.org/State_legislative_recalls') return indexHtml
-      if (url === 'https://ballotpedia.org/State_legislative_recall_efforts,_2024') return year2024Html
+      if (url === 'https://ballotpedia.org/State_legislative_recall_efforts,_2024')
+        return year2024Html
       return '<html><body><table></table></body></html>'
     }
     const { events } = await fetchBallotpediaRecallEvents(client, fetcher)
-    const ca = events.find(e => e.state === 'CA')!
+    const ca = events.find((e) => e.state === 'CA')!
     expect(ca.external_id).toBe('ballotpedia-CA-jane-doe-2024-03-15')
   })
 
   it('skips unresolved officials with log entry', async () => {
     const indexHtml = await readFile(INDEX_HTML, 'utf8')
     const year2024Html = await readFile(YEAR_2024_HTML, 'utf8')
-    const client = mkClient(null) as never  // every resolveOpenstatesPersonId returns null
+    const client = mkClient(null) as never // every resolveOpenstatesPersonId returns null
     const fetcher = async (url: string) => {
       if (url === 'https://ballotpedia.org/State_legislative_recalls') return indexHtml
-      if (url === 'https://ballotpedia.org/State_legislative_recall_efforts,_2024') return year2024Html
+      if (url === 'https://ballotpedia.org/State_legislative_recall_efforts,_2024')
+        return year2024Html
       return '<html><body><table></table></body></html>'
     }
     const skips: SkipReason[] = []
-    const { events } = await fetchBallotpediaRecallEvents(client, fetcher, (r) => { skips.push(r) })
+    const { events } = await fetchBallotpediaRecallEvents(client, fetcher, (r) => {
+      skips.push(r)
+    })
     expect(events.length).toBe(0)
     // 4 well-formed rows unresolved + 1 unknown-status row = 5 skips
     expect(skips.length).toBeGreaterThanOrEqual(4)
-    expect(skips.filter(s => s.stage === 'resolve').length).toBeGreaterThanOrEqual(4)
+    expect(skips.filter((s) => s.stage === 'resolve').length).toBeGreaterThanOrEqual(4)
   })
 
   it('returns empty + emits fetch-stage skip when index fetch throws', async () => {
@@ -118,8 +139,12 @@ describe('fetchBallotpediaRecallEvents — production path', () => {
     const skips: SkipReason[] = []
     const result = await fetchBallotpediaRecallEvents(
       client,
-      async () => { throw new Error('network down') },
-      (r) => { skips.push(r) },
+      async () => {
+        throw new Error('network down')
+      },
+      (r) => {
+        skips.push(r)
+      },
     )
     expect(result.events).toEqual([])
     expect(skips).toHaveLength(1)
@@ -134,8 +159,12 @@ describe('fetchBallotpediaRecallEvents onSkip instrumentation (slice 23)', () =>
     const skips: SkipReason[] = []
     const result = await fetchBallotpediaRecallEvents(
       client,
-      async () => { throw new Error('cloudflare gate') },
-      (r) => { skips.push(r) },
+      async () => {
+        throw new Error('cloudflare gate')
+      },
+      (r) => {
+        skips.push(r)
+      },
     )
     expect(result.events).toEqual([])
     expect(skips).toHaveLength(1)
@@ -152,32 +181,42 @@ describe('fetchBallotpediaRecallEvents onSkip instrumentation (slice 23)', () =>
     const client = mkClient('oid-mock') as never
     const fetcher = async (url: string) => {
       if (url === 'https://ballotpedia.org/State_legislative_recalls') return indexHtml
-      if (url === 'https://ballotpedia.org/State_legislative_recall_efforts,_2024') return year2024Html
+      if (url === 'https://ballotpedia.org/State_legislative_recall_efforts,_2024')
+        return year2024Html
       return '<html><body><table></table></body></html>'
     }
     const skips: SkipReason[] = []
-    await fetchBallotpediaRecallEvents(client, fetcher, (r) => { skips.push(r) })
+    await fetchBallotpediaRecallEvents(client, fetcher, (r) => {
+      skips.push(r)
+    })
     // Fixture has 1 row with weird status → parse-stage skip
-    const parseSkips = skips.filter(s => s.stage === 'parse' && s.adapter === 'ballotpedia-recalls')
+    const parseSkips = skips.filter(
+      (s) => s.stage === 'parse' && s.adapter === 'ballotpedia-recalls',
+    )
     expect(parseSkips.length).toBeGreaterThanOrEqual(1)
   })
 
   it('emits resolve-stage skip per unresolved official', async () => {
     const indexHtml = await readFile(INDEX_HTML, 'utf8')
     const year2024Html = await readFile(YEAR_2024_HTML, 'utf8')
-    const client = mkClient(null) as never  // no official resolves
+    const client = mkClient(null) as never // no official resolves
     const fetcher = async (url: string) => {
       if (url === 'https://ballotpedia.org/State_legislative_recalls') return indexHtml
-      if (url === 'https://ballotpedia.org/State_legislative_recall_efforts,_2024') return year2024Html
+      if (url === 'https://ballotpedia.org/State_legislative_recall_efforts,_2024')
+        return year2024Html
       return '<html><body><table></table></body></html>'
     }
     const skips: SkipReason[] = []
-    const result = await fetchBallotpediaRecallEvents(client, fetcher, (r) => { skips.push(r) })
+    const result = await fetchBallotpediaRecallEvents(client, fetcher, (r) => {
+      skips.push(r)
+    })
     expect(result.events.length).toBe(0)
-    const resolveSkips = skips.filter(s => s.stage === 'resolve' && s.adapter === 'ballotpedia-recalls')
+    const resolveSkips = skips.filter(
+      (s) => s.stage === 'resolve' && s.adapter === 'ballotpedia-recalls',
+    )
     // 4 well-formed rows are unresolved → 4 resolve skips
     expect(resolveSkips.length).toBeGreaterThanOrEqual(4)
-    expect(resolveSkips.every(s => s.legislator)).toBe(true)
+    expect(resolveSkips.every((s) => s.legislator)).toBe(true)
   })
 
   it('omitting onSkip preserves silent-skip behavior (back-compat)', async () => {

@@ -64,7 +64,7 @@ describe('fetchWithRetry', () => {
     const buf = new ArrayBuffer(4)
     fetchMock
       .mockResolvedValueOnce(new Response(null, { status: 503 }))
-      .mockResolvedValueOnce(new Response(buf,  { status: 200 }))
+      .mockResolvedValueOnce(new Response(buf, { status: 200 }))
     const result = await fetchWithRetry('https://example.invalid/flaky.zip')
     expect(result.kind).toBe('ok')
   })

@@ -4,13 +4,13 @@ import { Buffer } from 'node:buffer'
 // Mock shared/pdf (extractPdfText + fetchPdf).
 vi.mock('../../shared/pdf.ts', () => ({
   extractPdfText: vi.fn(),
-  fetchPdf:       vi.fn(),
+  fetchPdf: vi.fn(),
 }))
 
 // Mock senate-agreement helpers so tests inject session + results directly.
 vi.mock('../shared/senate-agreement.ts', () => ({
   acceptSenateAgreement: vi.fn(),
-  searchSenateEfpfd:     vi.fn(),
+  searchSenateEfpfd: vi.fn(),
 }))
 
 import { senateEfpfdFd } from './senate-efpfd.ts'
@@ -20,9 +20,9 @@ import { createSkipCollector } from '../../shared/instrumentation.ts'
 import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const mockedExtractPdfText = vi.mocked(extractPdfText)
-const mockedFetchPdf       = vi.mocked(fetchPdf)
-const mockedAgreement      = vi.mocked(acceptSenateAgreement)
-const mockedSearch         = vi.mocked(searchSenateEfpfd)
+const mockedFetchPdf = vi.mocked(fetchPdf)
+const mockedAgreement = vi.mocked(acceptSenateAgreement)
+const mockedSearch = vi.mocked(searchSenateEfpfd)
 
 const FD_TEXT_MIXED = [
   'Schedule A',
@@ -35,8 +35,7 @@ const FD_TEXT_MIXED = [
   'Conference travel SFO-DCA $5,001 - $15,000',
 ].join('\n')
 
-const FD_TEXT_HOLDING_ONLY =
-  'Schedule A\nNVIDIA Corp. [ST] $50,001 - $100,000'
+const FD_TEXT_HOLDING_ONLY = 'Schedule A\nNVIDIA Corp. [ST] $50,001 - $100,000'
 
 const SESSION = { csrfToken: 'csrf-token', cookie: 'csrftoken=abc' }
 
@@ -58,10 +57,10 @@ describe('senate-efpfd-fd happy path', () => {
     mockedAgreement.mockResolvedValue(SESSION)
     mockedSearch.mockResolvedValue([
       {
-        filingId:   'F4321',
-        fullName:   'Senator A',
+        filingId: 'F4321',
+        fullName: 'Senator A',
         reportDate: '2025-05-15',
-        pdfUrl:     'https://efdsearch.senate.gov/search/view/annual/F4321',
+        pdfUrl: 'https://efdsearch.senate.gov/search/view/annual/F4321',
       },
     ])
     mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
@@ -71,15 +70,15 @@ describe('senate-efpfd-fd happy path', () => {
     expect(holdings).toHaveLength(1)
     expect(holdings[0]).toMatchObject({
       official_full_name: 'Senator A',
-      filing_year:        2025,
-      external_id:        'senate-fd-F4321-A-1',
+      filing_year: 2025,
+      external_id: 'senate-fd-F4321-A-1',
     })
 
     expect(other).toHaveLength(3)
     // External_id schedule-letter mapping: liability=C, gift=H, travel=I.
     // Index suffix is the combined-array position per plan code; schedule
     // letter encodes the category itself.
-    const byCategory = new Map(other.map(r => [r.category, r]))
+    const byCategory = new Map(other.map((r) => [r.category, r]))
     expect(byCategory.get('liability')?.external_id).toMatch(/^senate-fd-F4321-C-\d+$/)
     expect(byCategory.get('gift')?.external_id).toMatch(/^senate-fd-F4321-H-\d+$/)
     expect(byCategory.get('travel')?.external_id).toMatch(/^senate-fd-F4321-I-\d+$/)
@@ -91,8 +90,18 @@ describe('senate-efpfd-fd happy path', () => {
   it('iterates multiple search results with stable external_id per filing', async () => {
     mockedAgreement.mockResolvedValue(SESSION)
     mockedSearch.mockResolvedValue([
-      { filingId: 'A1', fullName: 'Sen A', reportDate: '2025-01-01', pdfUrl: 'https://example.com/A1.pdf' },
-      { filingId: 'B2', fullName: 'Sen B', reportDate: '2025-02-01', pdfUrl: 'https://example.com/B2.pdf' },
+      {
+        filingId: 'A1',
+        fullName: 'Sen A',
+        reportDate: '2025-01-01',
+        pdfUrl: 'https://example.com/A1.pdf',
+      },
+      {
+        filingId: 'B2',
+        fullName: 'Sen B',
+        reportDate: '2025-02-01',
+        pdfUrl: 'https://example.com/B2.pdf',
+      },
     ])
     mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
     mockedExtractPdfText.mockResolvedValue(FD_TEXT_HOLDING_ONLY)
@@ -132,8 +141,18 @@ describe('senate-efpfd-fd slice 22 onSkip instrumentation', () => {
   it('calls onSkip with stage=fetch when per-filing fetchPdf throws (continues to next)', async () => {
     mockedAgreement.mockResolvedValue(SESSION)
     mockedSearch.mockResolvedValue([
-      { filingId: 'X1', fullName: 'Sen X', reportDate: '2025-01-01', pdfUrl: 'https://example.com/X1.pdf' },
-      { filingId: 'Y2', fullName: 'Sen Y', reportDate: '2025-02-01', pdfUrl: 'https://example.com/Y2.pdf' },
+      {
+        filingId: 'X1',
+        fullName: 'Sen X',
+        reportDate: '2025-01-01',
+        pdfUrl: 'https://example.com/X1.pdf',
+      },
+      {
+        filingId: 'Y2',
+        fullName: 'Sen Y',
+        reportDate: '2025-02-01',
+        pdfUrl: 'https://example.com/Y2.pdf',
+      },
     ])
     let n = 0
     mockedFetchPdf.mockImplementation(async () => {
@@ -145,16 +164,18 @@ describe('senate-efpfd-fd slice 22 onSkip instrumentation', () => {
 
     const skips: SkipReason[] = []
     const { holdings, other } = await senateEfpfdFd.fetchDisclosures({
-      year:   2025,
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      year: 2025,
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     })
     expect(holdings).toHaveLength(1)
     expect(holdings[0]?.external_id).toBe('senate-fd-Y2-A-1')
     expect(other).toEqual([])
     expect(skips).toHaveLength(1)
     expect(skips[0]).toMatchObject({
-      adapter:    'senate-efpfd-fd',
-      stage:      'fetch',
+      adapter: 'senate-efpfd-fd',
+      stage: 'fetch',
       legislator: 'Sen X',
     })
   })
@@ -162,22 +183,29 @@ describe('senate-efpfd-fd slice 22 onSkip instrumentation', () => {
   it('calls onSkip with stage=extract when extractPdfText throws', async () => {
     mockedAgreement.mockResolvedValue(SESSION)
     mockedSearch.mockResolvedValue([
-      { filingId: 'Z1', fullName: 'Sen Z', reportDate: '2025-01-01', pdfUrl: 'https://example.com/Z1.pdf' },
+      {
+        filingId: 'Z1',
+        fullName: 'Sen Z',
+        reportDate: '2025-01-01',
+        pdfUrl: 'https://example.com/Z1.pdf',
+      },
     ])
     mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
     mockedExtractPdfText.mockRejectedValue(new Error('PDF corrupt'))
 
     const skips: SkipReason[] = []
     const { holdings, other } = await senateEfpfdFd.fetchDisclosures({
-      year:   2025,
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      year: 2025,
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     })
     expect(holdings).toEqual([])
     expect(other).toEqual([])
     expect(skips).toHaveLength(1)
     expect(skips[0]).toMatchObject({
-      adapter:    'senate-efpfd-fd',
-      stage:      'extract',
+      adapter: 'senate-efpfd-fd',
+      stage: 'extract',
       legislator: 'Sen Z',
     })
     expect(skips[0]?.detail).toMatch(/corrupt/)
@@ -186,22 +214,29 @@ describe('senate-efpfd-fd slice 22 onSkip instrumentation', () => {
   it('calls onSkip with stage=extract when extractPdfText returns empty', async () => {
     mockedAgreement.mockResolvedValue(SESSION)
     mockedSearch.mockResolvedValue([
-      { filingId: 'E1', fullName: 'Sen E', reportDate: '2025-01-01', pdfUrl: 'https://example.com/E1.pdf' },
+      {
+        filingId: 'E1',
+        fullName: 'Sen E',
+        reportDate: '2025-01-01',
+        pdfUrl: 'https://example.com/E1.pdf',
+      },
     ])
     mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
     mockedExtractPdfText.mockResolvedValue('')
 
     const skips: SkipReason[] = []
     const { holdings, other } = await senateEfpfdFd.fetchDisclosures({
-      year:   2025,
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      year: 2025,
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     })
     expect(holdings).toEqual([])
     expect(other).toEqual([])
     expect(skips).toHaveLength(1)
     expect(skips[0]).toMatchObject({
-      adapter:    'senate-efpfd-fd',
-      stage:      'extract',
+      adapter: 'senate-efpfd-fd',
+      stage: 'extract',
       legislator: 'Sen E',
     })
   })
@@ -209,7 +244,12 @@ describe('senate-efpfd-fd slice 22 onSkip instrumentation', () => {
   it('returns zero rows without onSkip when parser finds no schedule data (Risk #5)', async () => {
     mockedAgreement.mockResolvedValue(SESSION)
     mockedSearch.mockResolvedValue([
-      { filingId: 'P1', fullName: 'Sen P', reportDate: '2025-01-01', pdfUrl: 'https://example.com/P1.pdf' },
+      {
+        filingId: 'P1',
+        fullName: 'Sen P',
+        reportDate: '2025-01-01',
+        pdfUrl: 'https://example.com/P1.pdf',
+      },
     ])
     mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
     mockedExtractPdfText.mockResolvedValue('Cover sheet only.')

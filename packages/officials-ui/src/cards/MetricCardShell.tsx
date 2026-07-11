@@ -1,11 +1,7 @@
 import { type ReactNode } from 'react'
 import { Linking, Pressable, Text, View } from 'react-native'
 import { type CategoryId } from '@chiaro/ui-tokens'
-import {
-  useBrandTokens,
-  useCategoryAccent,
-  useCategoryCardBg,
-} from '../brand-hooks.ts'
+import { useBrandTokens, useCategoryAccent, useCategoryCardBg } from '../brand-hooks.ts'
 
 interface BaseProps {
   value: ReactNode
@@ -116,13 +112,11 @@ export function MetricCardShell(props: MetricCardShellProps): React.JSX.Element 
       }
 
   const valueText =
-    props.valueLabel ?? (typeof value === 'string' || typeof value === 'number' ? String(value) : '')
+    props.valueLabel ??
+    (typeof value === 'string' || typeof value === 'number' ? String(value) : '')
 
   return (
-    <View
-      accessibilityLabel={`${renderedLabel}: ${valueText}`}
-      style={cardStyle}
-    >
+    <View accessibilityLabel={`${renderedLabel}: ${valueText}`} style={cardStyle}>
       <Text style={valueStyle}>{value}</Text>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
         <View

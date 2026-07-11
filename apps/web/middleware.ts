@@ -5,36 +5,44 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabase/env'
 
 type CookieToSet = { name: string; value: string; options: CookieOptions }
 
-const ALLOW_LIST = ['/calibrate', '/sign-out', '/profile/edit', '/settings', '/settings/address', '/issues', '/legal']
+const ALLOW_LIST = [
+  '/calibrate',
+  '/sign-out',
+  '/profile/edit',
+  '/settings',
+  '/settings/address',
+  '/issues',
+  '/legal',
+]
 
 export function isAllowlisted(path: string): boolean {
-  return ALLOW_LIST.some(p => path === p || path.startsWith(p + '/'))
+  return ALLOW_LIST.some((p) => path === p || path.startsWith(p + '/'))
 }
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request })
 
-  const supabase = createServerClient<Database>(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() { return request.cookies.getAll() },
-        setAll(cookiesToSet: CookieToSet[]) {
-          for (const { name, value } of cookiesToSet) {
-            request.cookies.set(name, value)
-          }
-          response = NextResponse.next({ request })
-          for (const { name, value, options } of cookiesToSet) {
-            response.cookies.set(name, value, options)
-          }
-        },
+  const supabase = createServerClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll()
+      },
+      setAll(cookiesToSet: CookieToSet[]) {
+        for (const { name, value } of cookiesToSet) {
+          request.cookies.set(name, value)
+        }
+        response = NextResponse.next({ request })
+        for (const { name, value, options } of cookiesToSet) {
+          response.cookies.set(name, value, options)
+        }
       },
     },
-  )
+  })
 
   // Refresh session — must be called for cookie rotation to happen
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   if (user) {
     const path = request.nextUrl.pathname
@@ -64,5 +72,7 @@ export const config = {
   // beacons are fire-and-forget POSTs — running auth (a getUser network
   // round-trip) on them is waste, and an authenticated-but-uncalibrated
   // user's error beacons would 307 to /calibrate and be dropped.
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|monitoring|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|monitoring|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }

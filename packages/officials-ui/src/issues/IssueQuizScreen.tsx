@@ -117,8 +117,8 @@ export function IssueQuizScreen({ catalog, onFinish }: IssueQuizScreenProps): Re
         <View style={styles.column}>
           <BrandHeading level={1}>A few quick questions</BrandHeading>
           <BrandBodyText muted>
-            Tell us where you stand. Star the ones that matter most for extra weight, or skip any you
-            are unsure about.
+            Tell us where you stand. Star the ones that matter most for extra weight, or skip any
+            you are unsure about.
           </BrandBodyText>
 
           <View style={styles.progressRow}>
@@ -141,7 +141,10 @@ export function IssueQuizScreen({ catalog, onFinish }: IssueQuizScreenProps): Re
             return (
               <View
                 key={keyOf(item)}
-                style={[styles.card, { backgroundColor: semantic.bg.card, borderColor: semantic.border.default }]}
+                style={[
+                  styles.card,
+                  { backgroundColor: semantic.bg.card, borderColor: semantic.border.default },
+                ]}
               >
                 <Text style={[styles.prompt, { color: semantic.text.primary }]}>
                   {item.question.prompt}
@@ -163,7 +166,9 @@ export function IssueQuizScreen({ catalog, onFinish }: IssueQuizScreenProps): Re
                           styles.choice,
                           {
                             backgroundColor: selected ? semantic.accent.bg : semantic.bg.subtle,
-                            borderColor: selected ? semantic.accent.primary : semantic.border.default,
+                            borderColor: selected
+                              ? semantic.accent.primary
+                              : semantic.border.default,
                           },
                         ]}
                       >

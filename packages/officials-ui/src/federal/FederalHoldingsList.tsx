@@ -25,30 +25,45 @@ export function FederalHoldingsList({ rows }: FederalHoldingsListProps): React.J
   const byYear = new Map<number, FederalHolding[]>()
   for (const r of rows) {
     const list = byYear.get(r.filing_year) ?? []
-    list.push(r); byYear.set(r.filing_year, list)
+    list.push(r)
+    byYear.set(r.filing_year, list)
   }
   const sortedYears = Array.from(byYear.keys()).sort((a, b) => b - a)
   return (
     <View style={styles.list}>
-      {sortedYears.map(year => (
+      {sortedYears.map((year) => (
         <View key={year} style={styles.section}>
           <Text style={[styles.yearHeading, { color: semantic.text.primary }]}>{year}</Text>
-          {byYear.get(year)!.map(r => {
+          {byYear.get(year)!.map((r) => {
             const low = r.value_min == null ? null : Number(r.value_min)
             const high = r.value_max == null ? null : Number(r.value_max)
             return (
               <Pressable
                 key={r.id}
-                onPress={() => { void Linking.openURL(r.source_url).catch(() => {}) }}
+                onPress={() => {
+                  void Linking.openURL(r.source_url).catch(() => {})
+                }}
                 style={styles.row}
                 accessibilityRole="link"
               >
                 <View style={{ flex: 1 }}>
-                  <Text style={[styles.name, { color: semantic.text.primary }]}>{r.asset_name ?? 'Unknown asset'}</Text>
-                  {r.asset_ticker ? <Text style={[styles.ticker, { color: semantic.text.muted }]}>{r.asset_ticker}</Text> : null}
-                  {r.asset_type ? <Text style={[styles.muted, { color: semantic.text.muted }]}>{r.asset_type}</Text> : null}
+                  <Text style={[styles.name, { color: semantic.text.primary }]}>
+                    {r.asset_name ?? 'Unknown asset'}
+                  </Text>
+                  {r.asset_ticker ? (
+                    <Text style={[styles.ticker, { color: semantic.text.muted }]}>
+                      {r.asset_ticker}
+                    </Text>
+                  ) : null}
+                  {r.asset_type ? (
+                    <Text style={[styles.muted, { color: semantic.text.muted }]}>
+                      {r.asset_type}
+                    </Text>
+                  ) : null}
                 </View>
-                <Text style={[styles.amount, { color: semantic.text.primary }]}>{formatAmountRange(low, high)}</Text>
+                <Text style={[styles.amount, { color: semantic.text.primary }]}>
+                  {formatAmountRange(low, high)}
+                </Text>
               </Pressable>
             )
           })}
@@ -59,12 +74,17 @@ export function FederalHoldingsList({ rows }: FederalHoldingsListProps): React.J
 }
 
 const styles = StyleSheet.create({
-  list:        { gap: 12 },
-  section:     { gap: 6 },
+  list: { gap: 12 },
+  section: { gap: 6 },
   yearHeading: { fontSize: 14, fontWeight: '600' },
-  row:         { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6 },
-  name:        { fontSize: 13 },
-  ticker:      { fontSize: 12, marginTop: 2 },
-  muted:       { fontSize: 12 },
-  amount:      { fontSize: 13, fontWeight: '600' },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 6,
+  },
+  name: { fontSize: 13 },
+  ticker: { fontSize: 12, marginTop: 2 },
+  muted: { fontSize: 12 },
+  amount: { fontSize: 13, fontWeight: '600' },
 })

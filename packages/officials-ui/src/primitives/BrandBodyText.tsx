@@ -14,7 +14,7 @@ export interface BrandBodyTextProps {
 
 const SIZE_DIMS = {
   default: { fontSize: 15, lineHeight: 15 * 1.55 },
-  sm:      { fontSize: 13, lineHeight: 13 * 1.55 },
+  sm: { fontSize: 13, lineHeight: 13 * 1.55 },
 } as const
 
 /**
@@ -22,7 +22,12 @@ const SIZE_DIMS = {
  * both. Color defaults to semantic.text.body; muted=true switches to
  * semantic.text.muted. Mode-aware via useBrandTokens().
  */
-export function BrandBodyText({ children, size = 'default', muted = false, testID }: BrandBodyTextProps): React.JSX.Element {
+export function BrandBodyText({
+  children,
+  size = 'default',
+  muted = false,
+  testID,
+}: BrandBodyTextProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const dims = SIZE_DIMS[size]
   const color = muted ? semantic.text.muted : semantic.text.body

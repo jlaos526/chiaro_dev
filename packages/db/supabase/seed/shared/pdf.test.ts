@@ -49,7 +49,7 @@ describe('fetchPdf', () => {
   })
 
   it('returns Buffer when fetch is 2xx', async () => {
-    const fakeBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46])  // "%PDF"
+    const fakeBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46]) // "%PDF"
     fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
       ok: true,
       status: 200,

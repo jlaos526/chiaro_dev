@@ -14,17 +14,17 @@
 import { Client } from 'pg'
 import { isCliEntry } from './shared/cli.ts'
 
-const DB_URL = process.env.SUPABASE_DB_URL
-  ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const DB_URL =
+  process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 const TARGET_BIOGUIDE = process.env.AUDIT_TARGET_BIOGUIDE ?? 'P000197'
 
 interface Target {
-  id:           string
-  bioguide_id:  string
-  full_name:    string
-  state:        string
-  district_id:  string | null
-  chamber:      string
+  id: string
+  bioguide_id: string
+  full_name: string
+  state: string
+  district_id: string | null
+  chamber: string
 }
 
 async function main(): Promise<void> {
@@ -48,27 +48,128 @@ async function main(): Promise<void> {
     )
     target = fallback.rows[0]
     if (!target) throw new Error('No house officials in DB — run pnpm seed:officials first.')
-    console.error(`Target ${TARGET_BIOGUIDE} not found; falling back to ${target.bioguide_id} (${target.full_name}).`)
+    console.error(
+      `Target ${TARGET_BIOGUIDE} not found; falling back to ${target.bioguide_id} (${target.full_name}).`,
+    )
   }
-  console.log(`Attaching slice-4 fixture data to ${target.full_name} (${target.bioguide_id}, ${target.chamber}, ${target.state}).`)
+  console.log(
+    `Attaching slice-4 fixture data to ${target.full_name} (${target.bioguide_id}, ${target.chamber}, ${target.state}).`,
+  )
 
   await client.query('BEGIN')
   try {
     // 2. SCORECARDS — ensure 10 orgs exist, then upsert ratings for the target
     const orgsSeed: Array<{
-      slug: string; name: string; issue_area: string; lean: string;
-      methodology_url: string; min: number; max: number; score: number;
+      slug: string
+      name: string
+      issue_area: string
+      lean: string
+      methodology_url: string
+      min: number
+      max: number
+      score: number
     }> = [
-      { slug: 'lcv',              name: 'League of Conservation Voters',     issue_area: 'environment',        lean: 'progressive',  methodology_url: 'https://scorecard.lcv.org/methodology',                                  min: 0, max: 100, score: 92 },
-      { slug: 'sierra-club',      name: 'Sierra Club',                       issue_area: 'environment',        lean: 'progressive',  methodology_url: 'https://www.sierraclub.org/political/scorecard/methodology',            min: 0, max: 100, score: 95 },
-      { slug: 'aclu',             name: 'American Civil Liberties Union',    issue_area: 'civil-liberties',    lean: 'progressive',  methodology_url: 'https://www.aclu.org/legislative-scorecard/methodology',                min: 0, max: 100, score: 85 },
-      { slug: 'naacp',            name: 'NAACP',                             issue_area: 'civil-rights',       lean: 'progressive',  methodology_url: 'https://naacp.org/legislative-report-card/methodology',                 min: 0, max: 100, score: 90 },
-      { slug: 'planned-parenthood', name: 'Planned Parenthood Action Fund',  issue_area: 'reproductive-rights',lean: 'progressive',  methodology_url: 'https://www.plannedparenthoodaction.org/elections/congressional-scorecard/methodology', min: 0, max: 100, score: 100 },
-      { slug: 'ada',              name: 'Americans for Democratic Action',   issue_area: 'liberal-policy',     lean: 'progressive',  methodology_url: 'https://adaction.org/voting-records/methodology',                       min: 0, max: 100, score: 95 },
-      { slug: 'heritage-action',  name: 'Heritage Action for America',       issue_area: 'conservative-policy',lean: 'conservative', methodology_url: 'https://heritageaction.com/scorecard/methodology',                      min: 0, max: 100, score: 5 },
-      { slug: 'us-chamber',       name: 'U.S. Chamber of Commerce',          issue_area: 'business-policy',    lean: 'conservative', methodology_url: 'https://www.uschamber.com/scorecard/methodology',                       min: 0, max: 100, score: 20 },
-      { slug: 'nra',              name: 'NRA Political Victory Fund',        issue_area: 'second-amendment',   lean: 'single-issue', methodology_url: 'https://www.nrapvf.org/grades/methodology',                             min: 0, max: 100, score: 0 },
-      { slug: 'afl-cio',          name: 'AFL-CIO',                           issue_area: 'labor',              lean: 'single-issue', methodology_url: 'https://aflcio.org/scorecard/methodology',                              min: 0, max: 100, score: 95 },
+      {
+        slug: 'lcv',
+        name: 'League of Conservation Voters',
+        issue_area: 'environment',
+        lean: 'progressive',
+        methodology_url: 'https://scorecard.lcv.org/methodology',
+        min: 0,
+        max: 100,
+        score: 92,
+      },
+      {
+        slug: 'sierra-club',
+        name: 'Sierra Club',
+        issue_area: 'environment',
+        lean: 'progressive',
+        methodology_url: 'https://www.sierraclub.org/political/scorecard/methodology',
+        min: 0,
+        max: 100,
+        score: 95,
+      },
+      {
+        slug: 'aclu',
+        name: 'American Civil Liberties Union',
+        issue_area: 'civil-liberties',
+        lean: 'progressive',
+        methodology_url: 'https://www.aclu.org/legislative-scorecard/methodology',
+        min: 0,
+        max: 100,
+        score: 85,
+      },
+      {
+        slug: 'naacp',
+        name: 'NAACP',
+        issue_area: 'civil-rights',
+        lean: 'progressive',
+        methodology_url: 'https://naacp.org/legislative-report-card/methodology',
+        min: 0,
+        max: 100,
+        score: 90,
+      },
+      {
+        slug: 'planned-parenthood',
+        name: 'Planned Parenthood Action Fund',
+        issue_area: 'reproductive-rights',
+        lean: 'progressive',
+        methodology_url:
+          'https://www.plannedparenthoodaction.org/elections/congressional-scorecard/methodology',
+        min: 0,
+        max: 100,
+        score: 100,
+      },
+      {
+        slug: 'ada',
+        name: 'Americans for Democratic Action',
+        issue_area: 'liberal-policy',
+        lean: 'progressive',
+        methodology_url: 'https://adaction.org/voting-records/methodology',
+        min: 0,
+        max: 100,
+        score: 95,
+      },
+      {
+        slug: 'heritage-action',
+        name: 'Heritage Action for America',
+        issue_area: 'conservative-policy',
+        lean: 'conservative',
+        methodology_url: 'https://heritageaction.com/scorecard/methodology',
+        min: 0,
+        max: 100,
+        score: 5,
+      },
+      {
+        slug: 'us-chamber',
+        name: 'U.S. Chamber of Commerce',
+        issue_area: 'business-policy',
+        lean: 'conservative',
+        methodology_url: 'https://www.uschamber.com/scorecard/methodology',
+        min: 0,
+        max: 100,
+        score: 20,
+      },
+      {
+        slug: 'nra',
+        name: 'NRA Political Victory Fund',
+        issue_area: 'second-amendment',
+        lean: 'single-issue',
+        methodology_url: 'https://www.nrapvf.org/grades/methodology',
+        min: 0,
+        max: 100,
+        score: 0,
+      },
+      {
+        slug: 'afl-cio',
+        name: 'AFL-CIO',
+        issue_area: 'labor',
+        lean: 'single-issue',
+        methodology_url: 'https://aflcio.org/scorecard/methodology',
+        min: 0,
+        max: 100,
+        score: 95,
+      },
     ]
 
     for (const o of orgsSeed) {
@@ -115,7 +216,9 @@ async function main(): Promise<void> {
     )
     const fsId = fs.rows[0]!.id
 
-    await client.query(`delete from public.finance_industry_top where finance_summary_id = $1`, [fsId])
+    await client.query(`delete from public.finance_industry_top where finance_summary_id = $1`, [
+      fsId,
+    ])
     for (const [rank, industry, amount] of [
       [1, 'Securities & Investment', 412000],
       [2, 'Real Estate', 287500],
@@ -128,11 +231,14 @@ async function main(): Promise<void> {
       )
     }
 
-    await client.query(`delete from public.finance_pac_contributions where finance_summary_id = $1`, [fsId])
+    await client.query(
+      `delete from public.finance_pac_contributions where finance_summary_id = $1`,
+      [fsId],
+    )
     for (const [name, fec, amount] of [
-      ['Realtors PAC',          'C00030718', 10000],
-      ['AT&T Inc Federal PAC',  'C00109017', 7500],
-      ['Comcast Corp PAC',      'C00373593', 5000],
+      ['Realtors PAC', 'C00030718', 10000],
+      ['AT&T Inc Federal PAC', 'C00109017', 7500],
+      ['Comcast Corp PAC', 'C00373593', 5000],
     ] as Array<[string, string, number]>) {
       await client.query(
         `insert into public.finance_pac_contributions (finance_summary_id, pac_name, pac_fec_id, amount)
@@ -152,7 +258,10 @@ async function main(): Promise<void> {
       [target.id],
     )
 
-    await client.query(`delete from public.town_halls where official_id = $1 and event_date >= '2025-01-03'`, [target.id])
+    await client.query(
+      `delete from public.town_halls where official_id = $1 and event_date >= '2025-01-03'`,
+      [target.id],
+    )
     await client.query(
       `insert into public.town_halls (official_id, event_date, city, state, format, attendance_estimate, source_url, source)
          values ($1, '2026-02-15', 'San Francisco', 'CA', 'in_person', 250,
@@ -160,7 +269,10 @@ async function main(): Promise<void> {
       [target.id],
     )
 
-    await client.query(`delete from public.stock_transactions where official_id = $1 and transaction_date >= '2025-01-03'`, [target.id])
+    await client.query(
+      `delete from public.stock_transactions where official_id = $1 and transaction_date >= '2025-01-03'`,
+      [target.id],
+    )
     // on-time (15 days)
     await client.query(
       `insert into public.stock_transactions (official_id, transaction_date, filing_date, asset_ticker, asset_name, transaction_type, amount_range_low, amount_range_high, source_url, source)
@@ -176,7 +288,9 @@ async function main(): Promise<void> {
       [target.id],
     )
 
-    await client.query(`delete from public.officials_leadership_history where official_id = $1`, [target.id])
+    await client.query(`delete from public.officials_leadership_history where official_id = $1`, [
+      target.id,
+    ])
     await client.query(
       `insert into public.officials_leadership_history (official_id, role, chamber, party, start_date, source_url)
          values ($1, 'Speaker', $2::public.official_chamber, 'D', '2023-01-03',
@@ -195,8 +309,14 @@ async function main(): Promise<void> {
     )
     const b1Id = b1.rows[0]!.id
     await client.query(`delete from public.bill_subjects where bill_id = $1`, [b1Id])
-    await client.query(`insert into public.bill_subjects (bill_id, subject) values ($1, $2)`, [b1Id, 'Environmental protection'])
-    await client.query(`insert into public.bill_subjects (bill_id, subject) values ($1, $2)`, [b1Id, 'Air quality'])
+    await client.query(`insert into public.bill_subjects (bill_id, subject) values ($1, $2)`, [
+      b1Id,
+      'Environmental protection',
+    ])
+    await client.query(`insert into public.bill_subjects (bill_id, subject) values ($1, $2)`, [
+      b1Id,
+      'Air quality',
+    ])
     await client.query(`delete from public.bill_sponsors where bill_id = $1`, [b1Id])
     await client.query(
       `insert into public.bill_sponsors (bill_id, official_id, role, added_date) values ($1, $2, 'sponsor', '2026-01-15')`,
@@ -212,7 +332,10 @@ async function main(): Promise<void> {
     )
     const b2Id = b2.rows[0]!.id
     await client.query(`delete from public.bill_subjects where bill_id = $1`, [b2Id])
-    await client.query(`insert into public.bill_subjects (bill_id, subject) values ($1, $2)`, [b2Id, 'Civil rights and liberties, minority issues'])
+    await client.query(`insert into public.bill_subjects (bill_id, subject) values ($1, $2)`, [
+      b2Id,
+      'Civil rights and liberties, minority issues',
+    ])
     await client.query(`delete from public.bill_sponsors where bill_id = $1`, [b2Id])
     await client.query(
       `insert into public.bill_sponsors (bill_id, official_id, role, added_date) values ($1, $2, 'cosponsor', '2026-02-01')`,
@@ -236,9 +359,18 @@ async function main(): Promise<void> {
          returning id`,
       [target.chamber, b2Id],
     )
-    await client.query(`delete from public.vote_positions where vote_id in ($1, $2) and official_id = $3`, [v1.rows[0]!.id, v2.rows[0]!.id, target.id])
-    await client.query(`insert into public.vote_positions (vote_id, official_id, position) values ($1, $2, 'yes')`, [v1.rows[0]!.id, target.id])
-    await client.query(`insert into public.vote_positions (vote_id, official_id, position) values ($1, $2, 'not_voting')`, [v2.rows[0]!.id, target.id])
+    await client.query(
+      `delete from public.vote_positions where vote_id in ($1, $2) and official_id = $3`,
+      [v1.rows[0]!.id, v2.rows[0]!.id, target.id],
+    )
+    await client.query(
+      `insert into public.vote_positions (vote_id, official_id, position) values ($1, $2, 'yes')`,
+      [v1.rows[0]!.id, target.id],
+    )
+    await client.query(
+      `insert into public.vote_positions (vote_id, official_id, position) values ($1, $2, 'not_voting')`,
+      [v2.rows[0]!.id, target.id],
+    )
     console.log(`  ✓ 2 bills + sponsors + subjects + 2 votes (1 attended, 1 missed)`)
 
     // 6. OFFICIAL_METRICS — populate the scalar rollup
@@ -309,5 +441,8 @@ async function main(): Promise<void> {
 if (isCliEntry(import.meta.url)) {
   main()
     .then(() => process.exit(0))
-    .catch((e) => { console.error(e); process.exit(1) })
+    .catch((e) => {
+      console.error(e)
+      process.exit(1)
+    })
 }

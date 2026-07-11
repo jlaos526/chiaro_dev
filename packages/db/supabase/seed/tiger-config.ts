@@ -7,29 +7,33 @@ export type TigerSource = {
   // either a single nationwide URL or one URL per state FIPS
   urls: () => Array<{ url: string; stateFips?: string }>
   // produce the canonical (tier, code, state, name) per shapefile feature
-  extract: (props: Record<string, unknown>, stateFipsHint?: string) => {
+  extract: (
+    props: Record<string, unknown>,
+    stateFipsHint?: string,
+  ) => {
     code: string
     state: string
     name: string
   } | null
 }
 
-const fipsToState = new Map(STATE_FIPS.map(s => [s.fips, s.state]))
+const fipsToState = new Map(STATE_FIPS.map((s) => [s.fips, s.state]))
 
 export const TIGER_SOURCES: TigerSource[] = [
   {
     tier: 'federal_house',
     // TIGER 2024 ships cd119 as per-state files (one per state FIPS), not a
     // single nationwide file. The field name changed to CD119FP.
-    urls: () => STATE_FIPS.map(s => ({
-      url: `https://www2.census.gov/geo/tiger/TIGER2024/CD/tl_2024_${s.fips}_cd119.zip`,
-      stateFips: s.fips,
-    })),
+    urls: () =>
+      STATE_FIPS.map((s) => ({
+        url: `https://www2.census.gov/geo/tiger/TIGER2024/CD/tl_2024_${s.fips}_cd119.zip`,
+        stateFips: s.fips,
+      })),
     extract: (props, stateFipsHint) => {
       const stateFp = stateFipsHint ?? String(props.STATEFP)
       const cd = String(props.CD119FP)
       const state = fipsToState.get(stateFp)
-      if (!state) return null  // territory, skip
+      if (!state) return null // territory, skip
       // Census uses '00' for at-large districts — render as 'AL'
       const codeNum = cd === '00' ? 'AL' : cd
       const code = `${state}-${codeNum}`
@@ -39,16 +43,15 @@ export const TIGER_SOURCES: TigerSource[] = [
   },
   {
     tier: 'state_senate',
-    urls: () => STATE_FIPS
-      .filter(s => !NO_STATE_LEGISLATURE.has(s.state))
-      .map(s => ({
+    urls: () =>
+      STATE_FIPS.filter((s) => !NO_STATE_LEGISLATURE.has(s.state)).map((s) => ({
         url: `https://www2.census.gov/geo/tiger/TIGER2024/SLDU/tl_2024_${s.fips}_sldu.zip`,
         stateFips: s.fips,
       })),
     extract: (props, stateFipsHint) => {
       const stateFp = stateFipsHint ?? String(props.STATEFP)
       const slduRaw = String(props.SLDUST)
-      const sldu = slduRaw === '00' ? 'AL' : (slduRaw.replace(/^0+/, '') || '0')
+      const sldu = slduRaw === '00' ? 'AL' : slduRaw.replace(/^0+/, '') || '0'
       const state = fipsToState.get(stateFp)
       if (!state) return null
       const code = `${state}-SS-${sldu}`
@@ -58,16 +61,17 @@ export const TIGER_SOURCES: TigerSource[] = [
   },
   {
     tier: 'state_house',
-    urls: () => STATE_FIPS
-      .filter(s => !NO_STATE_LEGISLATURE.has(s.state) && !NO_STATE_HOUSE.has(s.state))
-      .map(s => ({
+    urls: () =>
+      STATE_FIPS.filter(
+        (s) => !NO_STATE_LEGISLATURE.has(s.state) && !NO_STATE_HOUSE.has(s.state),
+      ).map((s) => ({
         url: `https://www2.census.gov/geo/tiger/TIGER2024/SLDL/tl_2024_${s.fips}_sldl.zip`,
         stateFips: s.fips,
       })),
     extract: (props, stateFipsHint) => {
       const stateFp = stateFipsHint ?? String(props.STATEFP)
       const sldlRaw = String(props.SLDLST)
-      const sldl = sldlRaw === '00' ? 'AL' : (sldlRaw.replace(/^0+/, '') || '0')
+      const sldl = sldlRaw === '00' ? 'AL' : sldlRaw.replace(/^0+/, '') || '0'
       const state = fipsToState.get(stateFp)
       if (!state) return null
       const code = `${state}-SH-${sldl}`
@@ -84,22 +88,23 @@ export const TIGER_SOURCES: TigerSource[] = [
       const stateFp = String(props.STATEFP)
       const state = fipsToState.get(stateFp)
       if (!state) return null
-      const code = String(props.GEOID)              // 5-digit county FIPS
-      const name = String(props.NAMELSAD)            // e.g. "Kings County"
+      const code = String(props.GEOID) // 5-digit county FIPS
+      const name = String(props.NAMELSAD) // e.g. "Kings County"
       return { code, state, name }
     },
   },
   {
     tier: 'place',
-    urls: () => STATE_FIPS.map(s => ({
-      url: `https://www2.census.gov/geo/tiger/TIGER2024/PLACE/tl_2024_${s.fips}_place.zip`,
-      stateFips: s.fips,
-    })),
+    urls: () =>
+      STATE_FIPS.map((s) => ({
+        url: `https://www2.census.gov/geo/tiger/TIGER2024/PLACE/tl_2024_${s.fips}_place.zip`,
+        stateFips: s.fips,
+      })),
     extract: (props, stateFipsHint) => {
       const stateFp = stateFipsHint ?? String(props.STATEFP)
       const state = fipsToState.get(stateFp)
       if (!state) return null
-      const code = String(props.GEOID)              // 7-digit place FIPS
+      const code = String(props.GEOID) // 7-digit place FIPS
       const name = String(props.NAMELSAD)
       return { code, state, name }
     },

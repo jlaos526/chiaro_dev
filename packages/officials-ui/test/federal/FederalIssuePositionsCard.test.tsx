@@ -38,9 +38,7 @@ const CATALOG = [
         topic_slug: 'civil-rights',
         slug: 'liberties',
         lens_type: 'stance',
-        measurement_sources: [
-          { type: 'scorecard', weight: 1, config: { orgs: ['aclu'] } },
-        ],
+        measurement_sources: [{ type: 'scorecard', weight: 1, config: { orgs: ['aclu'] } }],
         quiz_questions: [],
       },
     ],
@@ -147,7 +145,13 @@ const NRA_THEN_ACLU = [
     score_numeric: 80,
     source_url: null,
     score: 80,
-    org: { name: 'ACLU', lean: 'progressive', issue_area: 'civil-rights', scoring_max: 100, slug: 'aclu' },
+    org: {
+      name: 'ACLU',
+      lean: 'progressive',
+      issue_area: 'civil-rights',
+      scoring_max: 100,
+      slug: 'aclu',
+    },
   },
 ]
 
@@ -245,7 +249,9 @@ describe('FederalIssuePositionsCard — mode awareness', () => {
     })
     const ui = (
       <ChiaroClientProvider client={mockClient}>
-        <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <QueryClientProvider
+          client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+        >
           <FederalIssuePositionsCard officialId="oid" />
         </QueryClientProvider>
       </ChiaroClientProvider>

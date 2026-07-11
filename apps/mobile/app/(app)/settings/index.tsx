@@ -31,41 +31,46 @@ export default function SettingsIndex() {
     <>
       <Drawer.Screen options={{ title: 'Settings' }} />
       <SettingsScreen>
-      <SettingsSection title="Account">
-        <SettingsNavRow
-          label="Home address"
-          onPress={() => router.push('/settings/address')}
-        />
-        <SettingsNavRow
-          label="Issue priorities"
-          onPress={() => router.push('/issues')}
-        />
-        <SettingsActionRow label="Sign out" danger onPress={handleSignOut} />
-      </SettingsSection>
+        <SettingsSection title="Account">
+          <SettingsNavRow label="Home address" onPress={() => router.push('/settings/address')} />
+          <SettingsNavRow label="Issue priorities" onPress={() => router.push('/issues')} />
+          <SettingsActionRow label="Sign out" danger onPress={handleSignOut} />
+        </SettingsSection>
 
-      <SettingsSection title="Appearance">
-        <BrandModeThemeRow />
-      </SettingsSection>
+        <SettingsSection title="Appearance">
+          <BrandModeThemeRow />
+        </SettingsSection>
 
-      <SettingsSection title="Notifications" description="Coming soon">
-        <SettingsToggleRow label="Push notifications" value={false} disabled onChange={() => {}} />
-        <SettingsToggleRow label="Email digest" value={false} disabled onChange={() => {}} />
-      </SettingsSection>
+        <SettingsSection title="Notifications" description="Coming soon">
+          <SettingsToggleRow
+            label="Push notifications"
+            value={false}
+            disabled
+            onChange={() => {}}
+          />
+          <SettingsToggleRow label="Email digest" value={false} disabled onChange={() => {}} />
+        </SettingsSection>
 
-      <SettingsSection title="Profile">
-        <SettingsComingSoonRow label="Display name" />
-        <SettingsComingSoonRow label="Avatar" />
-      </SettingsSection>
+        <SettingsSection title="Profile">
+          <SettingsComingSoonRow label="Display name" />
+          <SettingsComingSoonRow label="Avatar" />
+        </SettingsSection>
 
-      <SettingsSection title="About">
-        <SettingsValueRow label="Version" value={APP_VERSION} />
-        {/* /legal/privacy + /legal/terms are not yet in the routes manifest;
+        <SettingsSection title="About">
+          <SettingsValueRow label="Version" value={APP_VERSION} />
+          {/* /legal/privacy + /legal/terms are not yet in the routes manifest;
             casting per existing apps/mobile/ convention until the legal pages
             ship (tracked as slice 39 follow-up). */}
-        <SettingsNavRow label="Privacy policy" onPress={() => router.push('/legal/privacy' as never)} />
-        <SettingsNavRow label="Terms of service" onPress={() => router.push('/legal/terms' as never)} />
-      </SettingsSection>
-    </SettingsScreen>
+          <SettingsNavRow
+            label="Privacy policy"
+            onPress={() => router.push('/legal/privacy' as never)}
+          />
+          <SettingsNavRow
+            label="Terms of service"
+            onPress={() => router.push('/legal/terms' as never)}
+          />
+        </SettingsSection>
+      </SettingsScreen>
     </>
   )
 }

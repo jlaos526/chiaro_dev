@@ -12,14 +12,18 @@ function installMatchMedia(initial: boolean) {
   const listeners = new Set<(e: { matches: boolean }) => void>()
   const mql: FakeMQL = {
     matches: initial,
-    addEventListener: (_e, l) => { listeners.add(l) },
-    removeEventListener: (_e, l) => { listeners.delete(l) },
+    addEventListener: (_e, l) => {
+      listeners.add(l)
+    },
+    removeEventListener: (_e, l) => {
+      listeners.delete(l)
+    },
   }
   ;(window as unknown as { matchMedia: (q: string) => FakeMQL }).matchMedia = () => mql
   return {
     fire(matches: boolean) {
       mql.matches = matches
-      listeners.forEach(l => l({ matches }))
+      listeners.forEach((l) => l({ matches }))
     },
   }
 }

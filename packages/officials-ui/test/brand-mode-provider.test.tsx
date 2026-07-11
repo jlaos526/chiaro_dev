@@ -4,7 +4,10 @@ import { createElement, type ReactNode } from 'react'
 import { useBrandTokens } from '../src/brand-hooks.ts'
 import { BrandModeProvider, useBrandModeSetter } from '../src/brand-mode-provider.tsx'
 
-function withProvider(defaultMode: 'light' | 'dark' | null, onChange?: (m: 'light' | 'dark' | null) => void) {
+function withProvider(
+  defaultMode: 'light' | 'dark' | null,
+  onChange?: (m: 'light' | 'dark' | null) => void,
+) {
   return ({ children }: { children: ReactNode }) =>
     createElement(BrandModeProvider, { defaultMode, onChange }, children)
 }

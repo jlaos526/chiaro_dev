@@ -1,11 +1,7 @@
 import { extractPdfText, fetchPdf } from '../../shared/pdf.ts'
 import { acceptSenateAgreement, searchSenateEfpfd } from '../shared/senate-agreement.ts'
 import { parseFdText } from '../shared/pdf-parsers.ts'
-import type {
-  FdAdapter,
-  NormalizedDisclosureOther,
-  NormalizedHolding,
-} from '../shared/types.ts'
+import type { FdAdapter, NormalizedDisclosureOther, NormalizedHolding } from '../shared/types.ts'
 
 const THROTTLE_MS = 1000
 
@@ -47,9 +43,9 @@ export const senateEfpfdFd: FdAdapter = {
     } catch (err) {
       opts.onSkip?.({
         adapter: 'senate-efpfd-fd',
-        stage:   'fetch',
-        reason:  'senate agreement gate failed',
-        detail:  err instanceof Error ? err.message : String(err),
+        stage: 'fetch',
+        reason: 'senate agreement gate failed',
+        detail: err instanceof Error ? err.message : String(err),
       })
       return { holdings: [], other: [] }
     }
@@ -59,22 +55,22 @@ export const senateEfpfdFd: FdAdapter = {
       const searchOpts: Parameters<typeof searchSenateEfpfd>[0] = {
         session,
         reportType: '11',
-        year:       opts.year,
+        year: opts.year,
       }
       if (opts.fetcher) searchOpts.fetcher = opts.fetcher
       results = await searchSenateEfpfd(searchOpts)
     } catch (err) {
       opts.onSkip?.({
         adapter: 'senate-efpfd-fd',
-        stage:   'fetch',
-        reason:  `senate fd search ${opts.year} failed`,
-        detail:  err instanceof Error ? err.message : String(err),
+        stage: 'fetch',
+        reason: `senate fd search ${opts.year} failed`,
+        detail: err instanceof Error ? err.message : String(err),
       })
       return { holdings: [], other: [] }
     }
 
     const holdings: NormalizedHolding[] = []
-    const other:    NormalizedDisclosureOther[] = []
+    const other: NormalizedDisclosureOther[] = []
     for (let n = 0; n < results.length; n++) {
       const r = results[n]!
       let pdfBytes
@@ -82,11 +78,11 @@ export const senateEfpfdFd: FdAdapter = {
         pdfBytes = await fetchPdf(r.pdfUrl)
       } catch (err) {
         opts.onSkip?.({
-          adapter:    'senate-efpfd-fd',
-          stage:      'fetch',
+          adapter: 'senate-efpfd-fd',
+          stage: 'fetch',
           legislator: r.fullName,
-          reason:     `senate-fd ${r.filingId}: pdf fetch failed`,
-          detail:     err instanceof Error ? err.message : String(err),
+          reason: `senate-fd ${r.filingId}: pdf fetch failed`,
+          detail: err instanceof Error ? err.message : String(err),
         })
         continue
       }
@@ -95,20 +91,20 @@ export const senateEfpfdFd: FdAdapter = {
         text = await extractPdfText(pdfBytes)
       } catch (err) {
         opts.onSkip?.({
-          adapter:    'senate-efpfd-fd',
-          stage:      'extract',
+          adapter: 'senate-efpfd-fd',
+          stage: 'extract',
           legislator: r.fullName,
-          reason:     `senate-fd ${r.filingId}: extract failed`,
-          detail:     err instanceof Error ? err.message : String(err),
+          reason: `senate-fd ${r.filingId}: extract failed`,
+          detail: err instanceof Error ? err.message : String(err),
         })
         continue
       }
       if (!text) {
         opts.onSkip?.({
-          adapter:    'senate-efpfd-fd',
-          stage:      'extract',
+          adapter: 'senate-efpfd-fd',
+          stage: 'extract',
           legislator: r.fullName,
-          reason:     `senate-fd ${r.filingId}: empty extract`,
+          reason: `senate-fd ${r.filingId}: empty extract`,
         })
         continue
       }
@@ -117,7 +113,7 @@ export const senateEfpfdFd: FdAdapter = {
         holdings.push({
           ...parsed.holdings[i]!,
           official_full_name: r.fullName,
-          external_id:        `senate-fd-${r.filingId}-A-${i + 1}`,
+          external_id: `senate-fd-${r.filingId}-A-${i + 1}`,
         })
       }
       for (let i = 0; i < parsed.other.length; i++) {
@@ -125,12 +121,12 @@ export const senateEfpfdFd: FdAdapter = {
         other.push({
           ...base,
           official_full_name: r.fullName,
-          external_id:        `senate-fd-${r.filingId}-${schedLetterFor(base.category)}-${i + 1}`,
+          external_id: `senate-fd-${r.filingId}-${schedLetterFor(base.category)}-${i + 1}`,
         })
       }
       // Throttle between filings (skip after last per audit M5 pattern).
       if (n + 1 < results.length) {
-        await new Promise(resolve => setTimeout(resolve, THROTTLE_MS))
+        await new Promise((resolve) => setTimeout(resolve, THROTTLE_MS))
       }
     }
     return { holdings, other }
@@ -140,13 +136,13 @@ export const senateEfpfdFd: FdAdapter = {
 /** Map category → Schedule letter for external_id traceability. */
 function schedLetterFor(cat: NormalizedDisclosureOther['category']): string {
   const map: Record<NormalizedDisclosureOther['category'], string> = {
-    liability:    'C',
-    position:     'D',
-    agreement:    'E',
+    liability: 'C',
+    position: 'D',
+    agreement: 'E',
     compensation: 'F',
-    honoraria:    'G',
-    gift:         'H',
-    travel:       'I',
+    honoraria: 'G',
+    gift: 'H',
+    travel: 'I',
   }
   return map[cat]
 }

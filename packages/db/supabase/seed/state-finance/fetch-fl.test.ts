@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url'
 import { fetchFlorida } from './fetch-fl.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DB_URL    = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
-const FIXTURE   = join(__dirname, '..', 'fixtures', 'state-finance', 'fl-sample.json')
+const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const FIXTURE = join(__dirname, '..', 'fixtures', 'state-finance', 'fl-sample.json')
 
 let client: Client
 let repId: string
@@ -49,7 +49,8 @@ describe('fetchFlorida', () => {
   it('happy path: 1 filing → 1 summary + 3 donors', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     const stats = await fetchFlorida.fetch({
-      client, cycle: '2023-2024',
+      client,
+      cycle: '2023-2024',
       fetcher: async () => fixture.filings,
     } as never)
     expect(stats.errors).toEqual([])
@@ -61,7 +62,8 @@ describe('fetchFlorida', () => {
 
   it('empty payload graceful: no summaries, no errors', async () => {
     const stats = await fetchFlorida.fetch({
-      client, cycle: '2023-2024',
+      client,
+      cycle: '2023-2024',
       fetcher: async () => [],
     } as never)
     expect(stats.summariesUpserted).toBe(0)
@@ -71,8 +73,11 @@ describe('fetchFlorida', () => {
 
   it('fetcher rejection surfaces to errors', async () => {
     const stats = await fetchFlorida.fetch({
-      client, cycle: '2023-2024',
-      fetcher: async () => { throw new Error('FL DOE markup changed') },
+      client,
+      cycle: '2023-2024',
+      fetcher: async () => {
+        throw new Error('FL DOE markup changed')
+      },
     } as never)
     expect(stats.summariesUpserted).toBe(0)
     expect(stats.errors[0]).toMatch(/FL DOE markup changed/)
@@ -81,7 +86,8 @@ describe('fetchFlorida', () => {
   it('source slug is fl-doe', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     await fetchFlorida.fetch({
-      client, cycle: '2023-2024',
+      client,
+      cycle: '2023-2024',
       fetcher: async () => fixture.filings,
     } as never)
     const row = await client.query<{ source: string }>(
@@ -94,15 +100,19 @@ describe('fetchFlorida', () => {
   it('out-of-state donor preserved (rank 3 GA)', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     await fetchFlorida.fetch({
-      client, cycle: '2023-2024',
+      client,
+      cycle: '2023-2024',
       fetcher: async () => fixture.filings,
     } as never)
-    const donor = await client.query<{ donor_state: string | null }>(`
+    const donor = await client.query<{ donor_state: string | null }>(
+      `
       select svp.donor_state
         from public.state_finance_individual_donors svp
         join public.state_finance_summaries s on s.id = svp.state_finance_summary_id
         where s.official_id = $1 and svp.rank = 3
-    `, [repId])
+    `,
+      [repId],
+    )
     expect(donor.rows[0]!.donor_state).toBe('GA')
   })
 })

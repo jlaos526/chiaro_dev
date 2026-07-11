@@ -25,7 +25,10 @@ export function WatchlistFlag({ flag }: WatchlistFlagProps): React.JSX.Element {
   return (
     <View
       accessibilityLabel={`Watchlist flag: ${flag.label}`}
-      style={[styles.row, { backgroundColor: semantic.bg.subtle, borderColor: semantic.border.default }]}
+      style={[
+        styles.row,
+        { backgroundColor: semantic.bg.subtle, borderColor: semantic.border.default },
+      ]}
     >
       <Text style={[styles.label, { color: semantic.alert.warning.fg }]} numberOfLines={1}>
         ⚑ {flag.label}
@@ -38,7 +41,13 @@ export function WatchlistFlag({ flag }: WatchlistFlagProps): React.JSX.Element {
 }
 
 const styles = StyleSheet.create({
-  row: { borderWidth: 1, borderRadius: 8, paddingVertical: 8, paddingHorizontal: 10, marginBottom: 8 },
+  row: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    marginBottom: 8,
+  },
   label: { fontSize: 13, fontWeight: '600' },
   evidence: { fontSize: 12, marginTop: 2 },
 })

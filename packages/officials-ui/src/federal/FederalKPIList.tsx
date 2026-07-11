@@ -36,9 +36,7 @@ export function FederalKPIList({
   const { semantic } = useBrandTokens()
   if (!metrics) {
     return (
-      <Text style={[styles.muted, { color: semantic.text.muted }]}>
-        No KPI data available.
-      </Text>
+      <Text style={[styles.muted, { color: semantic.text.muted }]}>No KPI data available.</Text>
     )
   }
   const tiles: Tile[] = [
@@ -53,7 +51,7 @@ export function FederalKPIList({
 
   return (
     <View style={styles.grid}>
-      {tiles.map(t => (
+      {tiles.map((t) => (
         <View key={t.label} style={[styles.tile, { backgroundColor: semantic.bg.app }]}>
           <Text style={[styles.tileValue, { color: semantic.text.primary }]}>{t.value}</Text>
           <Text style={[styles.tileLabel, { color: semantic.text.muted }]}>{t.label}</Text>

@@ -1,4 +1,3 @@
-import type { Client } from 'pg'
 import {
   type StateFinanceAdapter,
   type StateFinanceStats,
@@ -39,8 +38,7 @@ const STATE: FinanceState = 'MI'
 export const fetchMichigan: StateFinanceAdapter = {
   state: STATE,
   async fetch(opts): Promise<StateFinanceStats> {
-    const fetcher: MIFetcher =
-      (opts as never as { fetcher?: MIFetcher }).fetcher ?? defaultFetcher
+    const fetcher: MIFetcher = (opts as never as { fetcher?: MIFetcher }).fetcher ?? defaultFetcher
 
     const stats: StateFinanceStats = {
       state: STATE,
@@ -62,13 +60,16 @@ export const fetchMichigan: StateFinanceAdapter = {
     for (const f of filings) {
       try {
         const officialId = await resolveOfficialByName(opts.client, {
-          full_name: f.full_name, state: STATE, chamber: f.chamber,
+          full_name: f.full_name,
+          state: STATE,
+          chamber: f.chamber,
         })
         if (!officialId) {
           stats.officialsUnmatched.push(f.full_name)
           continue
         }
-        await upsertStateFinance(opts.client,
+        await upsertStateFinance(
+          opts.client,
           { official_id: officialId, cycle: opts.cycle },
           {
             total_raised: f.total_raised,

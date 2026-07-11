@@ -12,7 +12,9 @@ function withMode(mode: 'light' | 'dark') {
 describe('SettingsSection', () => {
   it('renders without title (card only)', () => {
     const { container } = render(
-      <SettingsSection><div>row-1</div></SettingsSection>,
+      <SettingsSection>
+        <div>row-1</div>
+      </SettingsSection>,
       { wrapper: withMode('light') },
     )
     expect(container.querySelector('[role="heading"]')).toBeNull()
@@ -20,7 +22,9 @@ describe('SettingsSection', () => {
 
   it('renders uppercase title as h2', () => {
     const { container } = render(
-      <SettingsSection title="Account"><div>row-1</div></SettingsSection>,
+      <SettingsSection title="Account">
+        <div>row-1</div>
+      </SettingsSection>,
       { wrapper: withMode('light') },
     )
     const h2 = container.querySelector('[role="heading"][aria-level="2"]')

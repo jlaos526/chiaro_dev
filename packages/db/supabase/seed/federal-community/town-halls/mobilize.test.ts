@@ -33,7 +33,7 @@ describe('federal mobilize adapter', () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     const client = mkClient('oid-fed') as never
     const events = await parseFederalMobilizeEvents(fixture.data, client)
-    const ma = events.find(e => e.state === 'MA')
+    const ma = events.find((e) => e.state === 'MA')
     expect(ma).toBeDefined()
     expect(ma!.format).toBe('hybrid')
   })
@@ -42,7 +42,7 @@ describe('federal mobilize adapter', () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     const client = mkClient('oid-fed') as never
     const events = await parseFederalMobilizeEvents(fixture.data, client)
-    const oh = events.find(e => e.state === 'OH')
+    const oh = events.find((e) => e.state === 'OH')
     expect(oh).toBeDefined()
     // chamber field exists on FederalTownHallRow
     expect((oh as FederalTownHallRow).chamber).toBe('federal_house')
@@ -52,7 +52,7 @@ describe('federal mobilize adapter', () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     const client = mkClient('oid-fed') as never
     const events = await parseFederalMobilizeEvents(fixture.data, client)
-    const co = events.find(e => e.state === 'CO')
+    const co = events.find((e) => e.state === 'CO')
     expect(co).toBeUndefined()
   })
 
@@ -60,13 +60,13 @@ describe('federal mobilize adapter', () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     const client = mkClient('oid-fed') as never
     const events = await parseFederalMobilizeEvents(fixture.data, client)
-    const ny = events.find(e => e.state === 'NY')
+    const ny = events.find((e) => e.state === 'NY')
     expect(ny).toBeUndefined()
   })
 
   it('drops events with unresolved legislator names', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
-    const client = mkClient(null) as never  // every name → unresolved
+    const client = mkClient(null) as never // every name → unresolved
     const events = await parseFederalMobilizeEvents(fixture.data, client)
     expect(events).toHaveLength(0)
   })

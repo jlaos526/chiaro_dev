@@ -1,5 +1,5 @@
 import { createElement, type ReactNode } from 'react'
-import { fireEvent, render } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { Linking } from 'react-native'
 import { BrandLink } from '../../src/primitives/BrandLink.tsx'
@@ -36,7 +36,11 @@ describe('BrandLink', () => {
 
   it('plain left-click calls onPress + preventDefault', () => {
     const onPress = vi.fn()
-    const { container } = render(<BrandLink href="/x" onPress={onPress}>Tag</BrandLink>)
+    const { container } = render(
+      <BrandLink href="/x" onPress={onPress}>
+        Tag
+      </BrandLink>,
+    )
     const a = container.querySelector('a') as HTMLAnchorElement
     const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 })
     const notPrevented = a.dispatchEvent(event)
@@ -46,9 +50,18 @@ describe('BrandLink', () => {
 
   it('cmd-click falls through to browser default (no onPress)', () => {
     const onPress = vi.fn()
-    const { container } = render(<BrandLink href="/x" onPress={onPress}>Tag</BrandLink>)
+    const { container } = render(
+      <BrandLink href="/x" onPress={onPress}>
+        Tag
+      </BrandLink>,
+    )
     const a = container.querySelector('a') as HTMLAnchorElement
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, metaKey: true })
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      metaKey: true,
+    })
     const notPrevented = a.dispatchEvent(event)
     expect(notPrevented).toBe(true)
     expect(onPress).not.toHaveBeenCalled()
@@ -64,7 +77,11 @@ describe('BrandLink', () => {
   })
 
   it('external=true adds target=_blank rel=noopener noreferrer', () => {
-    const { container } = render(<BrandLink href="https://example.com" external>Visit</BrandLink>)
+    const { container } = render(
+      <BrandLink href="https://example.com" external>
+        Visit
+      </BrandLink>,
+    )
     const a = container.querySelector('a') as HTMLAnchorElement
     expect(a.getAttribute('target')).toBe('_blank')
     expect(a.getAttribute('rel')).toBe('noopener noreferrer')

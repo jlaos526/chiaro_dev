@@ -29,8 +29,19 @@ describe('ingestIssueCatalog', () => {
   it('ships all 13 locked topic slugs', () => {
     const slugs = ISSUE_CATALOG.map((t) => t.slug)
     for (const s of [
-      'immigration', 'environment', 'law-and-order', 'civil-liberties', 'civil-rights', 'labor',
-      'abortion-policy', 'gun-policy', 'economy', 'healthcare', 'education', 'housing', 'foreign-policy',
+      'immigration',
+      'environment',
+      'law-and-order',
+      'civil-liberties',
+      'civil-rights',
+      'labor',
+      'abortion-policy',
+      'gun-policy',
+      'economy',
+      'healthcare',
+      'education',
+      'housing',
+      'foreign-policy',
     ])
       expect(slugs).toContain(s)
   })
@@ -50,7 +61,11 @@ describe('ingestIssueCatalog', () => {
   it('deactivates the 3 non-data-backed watchlists', () => {
     const findLens = (slug: string) =>
       ISSUE_CATALOG.flatMap((t) => t.lenses).find((l) => l.slug === slug)!
-    for (const slug of ['slapp-suit-participants', 'anti-fraud-self-interest', 'epstein-related-protectors'])
+    for (const slug of [
+      'slapp-suit-participants',
+      'anti-fraud-self-interest',
+      'epstein-related-protectors',
+    ])
       expect(findLens(slug).active).toBe(false)
     expect(findLens('industry-donor-recipients').active).not.toBe(false)
   })
@@ -59,11 +74,16 @@ describe('ingestIssueCatalog', () => {
     const upserts: Record<string, unknown[]> = {}
     const client = {
       from: (table: string) => ({
-        upsert: async (rows: unknown[]) => { upserts[table] = [...(upserts[table] ?? []), ...rows]; return { error: null } },
+        upsert: async (rows: unknown[]) => {
+          upserts[table] = [...(upserts[table] ?? []), ...rows]
+          return { error: null }
+        },
       }),
     } as never
     await ingestIssueCatalog(client)
-    const slapp = (upserts['issue_lenses'] as Array<{ slug: string; active: boolean }>).find((r) => r.slug === 'slapp-suit-participants')!
+    const slapp = (upserts['issue_lenses'] as Array<{ slug: string; active: boolean }>).find(
+      (r) => r.slug === 'slapp-suit-participants',
+    )!
     expect(slapp.active).toBe(false)
   })
 })

@@ -75,9 +75,7 @@ describe('FederalFinanceCard', () => {
       isLoading: false,
       isSuccess: true,
     })
-    const { getByText, queryByText } = wrap(
-      <FederalFinanceCard officialId="oid" cycle="2024" />,
-    )
+    const { getByText, queryByText } = wrap(<FederalFinanceCard officialId="oid" cycle="2024" />)
     expect(queryByText('Alice')).toBeNull()
     fireEvent.click(getByText(/Top individual donors/i))
     expect(getByText('Alice')).toBeTruthy()
@@ -102,7 +100,9 @@ describe('FederalFinanceCard — mode awareness', () => {
     })
     const ui = (
       <ChiaroClientProvider client={mockClient}>
-        <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <QueryClientProvider
+          client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+        >
           <FederalFinanceCard officialId="oid" cycle="2024" />
         </QueryClientProvider>
       </ChiaroClientProvider>

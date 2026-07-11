@@ -11,7 +11,7 @@ const FETCH_TIMEOUT_MS = 5000
 export interface ParsedAssemblyMember {
   full_name: string
   district_no: string
-  albany_office?: string   // raw address text
+  albany_office?: string // raw address text
   district_office?: string
 }
 
@@ -82,12 +82,13 @@ export async function fetchAssemblyOffices(
       full_name: m.full_name,
       state: 'NY',
       chamber: 'state_house',
-      onAmbiguous: () => opts.onSkip?.({
-        adapter: 'ny-senate',
-        stage: 'resolve_ambiguous',
-        legislator: m.full_name,
-        reason: 'ambiguous full_name match (2+ in-office officials)',
-      }),
+      onAmbiguous: () =>
+        opts.onSkip?.({
+          adapter: 'ny-senate',
+          stage: 'resolve_ambiguous',
+          legislator: m.full_name,
+          reason: 'ambiguous full_name match (2+ in-office officials)',
+        }),
     })
     if (!openstates_person_id) {
       opts.onSkip?.({

@@ -6,12 +6,12 @@ import type { BrandSemantic } from '@chiaro/ui-tokens'
 import { useBrandTokens } from '../brand-hooks.ts'
 
 const TYPE_LABEL: Record<string, string> = {
-  recall_attempt:             'Recall attempt',
-  recall_succeeded:           'Recall succeeded',
-  recall_failed:              'Recall failed',
-  resignation:                'Resignation',
-  censure:                    'Censure',
-  expulsion:                  'Expulsion',
+  recall_attempt: 'Recall attempt',
+  recall_succeeded: 'Recall succeeded',
+  recall_failed: 'Recall failed',
+  resignation: 'Resignation',
+  censure: 'Censure',
+  expulsion: 'Expulsion',
   campaign_finance_violation: 'Finance violation',
 }
 
@@ -26,9 +26,7 @@ export interface StateOfficialEventsListProps {
   rows: StateOfficialEventRow[]
 }
 
-export function StateOfficialEventsList({
-  rows,
-}: StateOfficialEventsListProps): React.JSX.Element {
+export function StateOfficialEventsList({ rows }: StateOfficialEventsListProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
 
   const mutedStyle = [styles.muted, { color: semantic.text.muted }]
@@ -42,7 +40,7 @@ export function StateOfficialEventsList({
   }
   return (
     <View style={styles.list}>
-      {rows.map(r => {
+      {rows.map((r) => {
         const color = typeColor(r.event_type, semantic)
         const url = r.source_url ?? null
         const Row = url ? Pressable : View

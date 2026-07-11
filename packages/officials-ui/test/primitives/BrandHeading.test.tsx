@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { BrandHeading } from '../../src/primitives/BrandHeading.tsx'
 
@@ -47,7 +47,11 @@ describe('BrandHeading', () => {
   })
 
   it('color prop overrides default semantic.text.primary', () => {
-    const { container } = render(<BrandHeading level={1} color="#ff0000">Custom</BrandHeading>)
+    const { container } = render(
+      <BrandHeading level={1} color="#ff0000">
+        Custom
+      </BrandHeading>,
+    )
     const h = container.querySelector('h1') as HTMLElement
     const style = h.getAttribute('style') ?? ''
     // RNW normalizes #ff0000 to rgb(255, 0, 0).

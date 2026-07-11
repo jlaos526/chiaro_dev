@@ -32,9 +32,8 @@ function lensTypeOf(
   topicSlug: string,
   lensSlug: string,
 ): IssueTopic['lenses'][number]['lens_type'] | undefined {
-  return catalog
-    .find((t) => t.slug === topicSlug)
-    ?.lenses.find((l) => l.slug === lensSlug)?.lens_type
+  return catalog.find((t) => t.slug === topicSlug)?.lenses.find((l) => l.slug === lensSlug)
+    ?.lens_type
 }
 
 /** A topic's human label from the catalog, falling back to the slug. */
@@ -60,10 +59,7 @@ function buildRadar(
       order.push(sel.topic_slug)
       stanceByTopic.set(sel.topic_slug, [])
     }
-    if (
-      lensTypeOf(catalog, sel.topic_slug, sel.lens_slug) === 'stance' &&
-      sel.position != null
-    ) {
+    if (lensTypeOf(catalog, sel.topic_slug, sel.lens_slug) === 'stance' && sel.position != null) {
       stanceByTopic.get(sel.topic_slug)?.push(sel.position)
     }
   }
@@ -88,7 +84,12 @@ function buildRadar(
  * `useIssueCatalog` and passes the rows + catalog + nav callback. Mode-aware
  * via `useBrandTokens()`.
  */
-export function MyIssuesCard({ selections, catalog, onEdit, editHref }: MyIssuesCardProps): React.JSX.Element {
+export function MyIssuesCard({
+  selections,
+  catalog,
+  onEdit,
+  editHref,
+}: MyIssuesCardProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
 
   // Web smart-anchor wrapper for the edit/setup CTA: a real <a href> with
@@ -117,7 +118,10 @@ export function MyIssuesCard({ selections, catalog, onEdit, editHref }: MyIssues
     return (
       <View
         accessibilityLabel="Your issue priorities"
-        style={[styles.card, { backgroundColor: semantic.bg.card, borderColor: semantic.border.default }]}
+        style={[
+          styles.card,
+          { backgroundColor: semantic.bg.card, borderColor: semantic.border.default },
+        ]}
       >
         <BrandHeading level={3}>Set your issue priorities</BrandHeading>
         <BrandBodyText muted size="sm">
@@ -126,7 +130,11 @@ export function MyIssuesCard({ selections, catalog, onEdit, editHref }: MyIssues
         <View style={styles.cta}>
           {wrapCta(
             'Set your issue priorities',
-            <BrandButton onPress={ctaOnPress} size="default" accessibilityLabel="Set your issue priorities">
+            <BrandButton
+              onPress={ctaOnPress}
+              size="default"
+              accessibilityLabel="Set your issue priorities"
+            >
               Set your issue priorities
             </BrandButton>,
           )}
@@ -140,7 +148,10 @@ export function MyIssuesCard({ selections, catalog, onEdit, editHref }: MyIssues
   return (
     <View
       accessibilityLabel="Your issue priorities"
-      style={[styles.card, { backgroundColor: semantic.bg.card, borderColor: semantic.border.default }]}
+      style={[
+        styles.card,
+        { backgroundColor: semantic.bg.card, borderColor: semantic.border.default },
+      ]}
     >
       <BrandHeading level={3}>Your issue priorities</BrandHeading>
       <View style={styles.chartWrap}>

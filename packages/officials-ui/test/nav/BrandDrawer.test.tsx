@@ -50,7 +50,9 @@ describe('BrandDrawer', () => {
 
   it('applies screenOptionsOverride on top of brand defaults', () => {
     drawerSpy.mockClear()
-    render(<BrandDrawer screenOptionsOverride={{ headerShown: false }} />, { wrapper: withMode('light') })
+    render(<BrandDrawer screenOptionsOverride={{ headerShown: false }} />, {
+      wrapper: withMode('light'),
+    })
     const props = drawerSpy.mock.calls[0]![0]
     expect(props.screenOptions.headerShown).toBe(false)
     expect(props.screenOptions.drawerType).toBe('front') // base still applies

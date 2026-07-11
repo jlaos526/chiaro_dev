@@ -15,8 +15,14 @@ vi.mock('next/navigation', () => ({
 }))
 
 // Stub getMyProfile from @chiaro/profile so we control the user identity
-let mockProfile: { display_name: string | null; username: string | null; completed: boolean } | null = {
-  display_name: 'Sarah', username: 'sarah', completed: true,
+let mockProfile: {
+  display_name: string | null
+  username: string | null
+  completed: boolean
+} | null = {
+  display_name: 'Sarah',
+  username: 'sarah',
+  completed: true,
 }
 vi.mock('@chiaro/profile', () => ({
   getMyProfile: vi.fn(async () => mockProfile),
@@ -33,9 +39,7 @@ const fakeClient = { auth: fakeAuth } as unknown as ChiaroClient
 function wrap(mode: 'light' | 'dark' = 'light') {
   return ({ children }: { children: ReactNode }) => (
     <ChiaroClientProvider client={fakeClient}>
-      <BrandModeOverrideContext.Provider value={mode}>
-        {children}
-      </BrandModeOverrideContext.Provider>
+      <BrandModeOverrideContext.Provider value={mode}>{children}</BrandModeOverrideContext.Provider>
     </ChiaroClientProvider>
   )
 }
@@ -58,20 +62,21 @@ describe('BrandNavRailMount', () => {
     fakeAuth.getUser = vi.fn(async () => ({ data: { user: null }, error: null }))
     mockPathname = '/'
     const { container } = render(<BrandNavRailMount />, { wrapper: wrap() })
-    await new Promise(resolve => setTimeout(resolve, 0))
+    await new Promise((resolve) => setTimeout(resolve, 0))
     expect(container.firstChild).toBeNull()
   })
 
-  it.each(['/sign-in', '/sign-up', '/calibrate'])(
-    'renders null on excluded route %s',
-    async (path) => {
-      fakeAuth.getUser = vi.fn(async () => ({ data: { user: { id: 'u1' } }, error: null }))
-      mockPathname = path
-      const { container } = render(<BrandNavRailMount />, { wrapper: wrap() })
-      await new Promise(resolve => setTimeout(resolve, 0))
-      expect(container.firstChild).toBeNull()
-    },
-  )
+  it.each([
+    '/sign-in',
+    '/sign-up',
+    '/calibrate',
+  ])('renders null on excluded route %s', async (path) => {
+    fakeAuth.getUser = vi.fn(async () => ({ data: { user: { id: 'u1' } }, error: null }))
+    mockPathname = path
+    const { container } = render(<BrandNavRailMount />, { wrapper: wrap() })
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(container.firstChild).toBeNull()
+  })
 
   it('renders rail on /', async () => {
     fakeAuth.getUser = vi.fn(async () => ({ data: { user: { id: 'u1' } }, error: null }))

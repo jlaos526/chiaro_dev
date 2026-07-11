@@ -2,13 +2,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mkdtemp, readdir, readFile, rm, writeFile, utimes } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { fetchOpenStatesCommittees, pruneStaleCommitteesCache } from './openstates-committees-fetch.ts'
+import {
+  fetchOpenStatesCommittees,
+  pruneStaleCommitteesCache,
+} from './openstates-committees-fetch.ts'
 
 function mkCommittee(suffix: string) {
   return {
     id: `ocd-committee/00000000-0000-0000-0000-${suffix}`,
     name: `Test Committee ${suffix}`,
-    jurisdiction: { id: 'ocd-jurisdiction/country:us/state:ca/government', classification: 'state' },
+    jurisdiction: {
+      id: 'ocd-jurisdiction/country:us/state:ca/government',
+      classification: 'state',
+    },
     chamber: 'lower',
     memberships: [],
     sources: [{ url: 'https://x' }],
@@ -16,10 +22,13 @@ function mkCommittee(suffix: string) {
 }
 
 function mkResponse(results: object[], page: number, maxPage: number): Response {
-  return new Response(JSON.stringify({
-    results,
-    pagination: { page, per_page: 20, max_page: maxPage, total_items: results.length },
-  }), { status: 200, headers: { 'content-type': 'application/json' } })
+  return new Response(
+    JSON.stringify({
+      results,
+      pagination: { page, per_page: 20, max_page: maxPage, total_items: results.length },
+    }),
+    { status: 200, headers: { 'content-type': 'application/json' } },
+  )
 }
 
 let cacheDir: string
@@ -35,24 +44,31 @@ afterEach(async () => {
 
 describe('fetchOpenStatesCommittees', () => {
   it('happy path: single page of 2 committees writes 2 cache files', async () => {
-    const fetcher = vi.fn().mockResolvedValueOnce(mkResponse([mkCommittee('001'), mkCommittee('002')], 1, 1))
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(mkResponse([mkCommittee('001'), mkCommittee('002')], 1, 1))
     const stats = await fetchOpenStatesCommittees({
-      state: 'CA', cacheDir, apiKey: 'test',
+      state: 'CA',
+      cacheDir,
+      apiKey: 'test',
       fetcher: fetcher as never,
     })
     expect(stats.pagesFetched).toBe(1)
     expect(stats.committeesCached).toBe(2)
     expect(stats.errors).toEqual([])
-    const files = (await readdir(cacheDir)).filter(f => f.endsWith('.json'))
+    const files = (await readdir(cacheDir)).filter((f) => f.endsWith('.json'))
     expect(files).toHaveLength(2)
   })
 
   it('paginates: 2 pages of 1 committee each writes 2 files', async () => {
-    const fetcher = vi.fn()
+    const fetcher = vi
+      .fn()
       .mockResolvedValueOnce(mkResponse([mkCommittee('001')], 1, 2))
       .mockResolvedValueOnce(mkResponse([mkCommittee('002')], 2, 2))
     const stats = await fetchOpenStatesCommittees({
-      state: 'CA', cacheDir, apiKey: 'test',
+      state: 'CA',
+      cacheDir,
+      apiKey: 'test',
       fetcher: fetcher as never,
     })
     expect(stats.pagesFetched).toBe(2)
@@ -66,7 +82,9 @@ describe('fetchOpenStatesCommittees', () => {
     await writeFile(file, JSON.stringify({ stale: 'old data' }), 'utf8')
     const fetcher = vi.fn().mockResolvedValueOnce(mkResponse([cmt], 1, 1))
     const stats = await fetchOpenStatesCommittees({
-      state: 'CA', cacheDir, apiKey: 'test',
+      state: 'CA',
+      cacheDir,
+      apiKey: 'test',
       fetcher: fetcher as never,
     })
     expect(stats.committeesCached).toBe(0)
@@ -83,7 +101,9 @@ describe('fetchOpenStatesCommittees', () => {
     await utimes(file, eightDaysAgo, eightDaysAgo)
     const fetcher = vi.fn().mockResolvedValueOnce(mkResponse([cmt], 1, 1))
     const stats = await fetchOpenStatesCommittees({
-      state: 'CA', cacheDir, apiKey: 'test',
+      state: 'CA',
+      cacheDir,
+      apiKey: 'test',
       fetcher: fetcher as never,
     })
     expect(stats.committeesCached).toBe(1)
@@ -98,7 +118,10 @@ describe('fetchOpenStatesCommittees', () => {
     await writeFile(file, JSON.stringify({ stale: 'old' }), 'utf8')
     const fetcher = vi.fn().mockResolvedValueOnce(mkResponse([cmt], 1, 1))
     const stats = await fetchOpenStatesCommittees({
-      state: 'CA', cacheDir, apiKey: 'test', force: true,
+      state: 'CA',
+      cacheDir,
+      apiKey: 'test',
+      force: true,
       fetcher: fetcher as never,
     })
     expect(stats.committeesCached).toBe(1)
@@ -110,11 +133,14 @@ describe('fetchOpenStatesCommittees', () => {
       Promise.resolve().then(fn)
       return 0 as never
     }) as never)
-    const fetcher = vi.fn()
+    const fetcher = vi
+      .fn()
       .mockResolvedValueOnce(new Response(null, { status: 429, headers: { 'retry-after': '1' } }))
       .mockResolvedValueOnce(mkResponse([mkCommittee('001')], 1, 1))
     const stats = await fetchOpenStatesCommittees({
-      state: 'CA', cacheDir, apiKey: 'test',
+      state: 'CA',
+      cacheDir,
+      apiKey: 'test',
       fetcher: fetcher as never,
     })
     expect(stats.committeesCached).toBe(1)
@@ -122,10 +148,13 @@ describe('fetchOpenStatesCommittees', () => {
   })
 
   it('missing api key throws', async () => {
-    await expect(fetchOpenStatesCommittees({
-      state: 'CA', cacheDir,
-      fetcher: vi.fn() as never,
-    })).rejects.toThrow(/OPENSTATES_API_KEY/)
+    await expect(
+      fetchOpenStatesCommittees({
+        state: 'CA',
+        cacheDir,
+        fetcher: vi.fn() as never,
+      }),
+    ).rejects.toThrow(/OPENSTATES_API_KEY/)
   })
 
   it('pruneStaleCommitteesCache removes stale files', async () => {

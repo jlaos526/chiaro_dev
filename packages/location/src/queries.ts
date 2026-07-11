@@ -1,7 +1,10 @@
 import { resolveUserId, type ChiaroClient } from '@chiaro/supabase-client'
 import type { DistrictRow, UserLocationRow } from './types.ts'
 
-export async function getMyLocation(client: ChiaroClient, userId?: string): Promise<UserLocationRow | null> {
+export async function getMyLocation(
+  client: ChiaroClient,
+  userId?: string,
+): Promise<UserLocationRow | null> {
   const uid = await resolveUserId(client, userId)
   if (!uid) return null
 
@@ -71,7 +74,7 @@ function shareDedupedGeometry(rows: DistrictRow[]): DistrictRow[] {
   for (const r of rows) {
     if (r.geometry) geomByKey.set(`${r.state}:${r.tier}`, r.geometry)
   }
-  return rows.map(r =>
+  return rows.map((r) =>
     r.geometry ? r : { ...r, geometry: geomByKey.get(`${r.state}:${r.tier}`)! },
   )
 }

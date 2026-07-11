@@ -47,13 +47,17 @@ export function AuthCrossLink({ mode, onPress, href }: AuthCrossLinkProps): Reac
   }
 
   return (
-    <Pressable onPress={onPress} accessibilityRole="link" accessibilityLabel={`${prefix.trim()} ${action}`}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="link"
+      accessibilityLabel={`${prefix.trim()} ${action}`}
+    >
       {inner}
     </Pressable>
   )
 }
 
 const styles = StyleSheet.create({
-  text:   { fontSize: 13, textAlign: 'center' },
+  text: { fontSize: 13, textAlign: 'center' },
   action: { fontWeight: '600' },
 })

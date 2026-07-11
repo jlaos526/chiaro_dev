@@ -110,9 +110,7 @@ describe('mi-board production-path PDF flow', () => {
       if (n === 1) throw new Error('404')
       return Buffer.from('fake-pdf')
     })
-    mockedExtractPdfText.mockResolvedValue(
-      'Sources of Income\n1. Salary: $50,000 - $100,000',
-    )
+    mockedExtractPdfText.mockResolvedValue('Sources of Income\n1. Salary: $50,000 - $100,000')
 
     const result = await miBoardDisclosures.fetchEvents({ client: client as never } as never)
     // Jane skipped on fetch failure; Alex parses → 1 row
@@ -146,9 +144,7 @@ describe('mi-board production-path PDF flow', () => {
     }
     // Only one fetchPdf call expected (Alex); Singleton URL is empty → no fetch
     mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
-    mockedExtractPdfText.mockResolvedValue(
-      'Sources of Income\n1. Salary: $50,000 - $100,000',
-    )
+    mockedExtractPdfText.mockResolvedValue('Sources of Income\n1. Salary: $50,000 - $100,000')
 
     const result = await miBoardDisclosures.fetchEvents({ client: client as never } as never)
     expect(result).toHaveLength(1)
@@ -177,7 +173,9 @@ describe('mi-board slice 22 onSkip instrumentation', () => {
     const skips: SkipReason[] = []
     await miBoardDisclosures.fetchEvents({
       client: client as never,
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     } as never)
     expect(skips).toHaveLength(1)
     expect(skips[0]).toMatchObject({
@@ -198,7 +196,9 @@ describe('mi-board slice 22 onSkip instrumentation', () => {
     const skips: SkipReason[] = []
     await miBoardDisclosures.fetchEvents({
       client: client as never,
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     } as never)
     expect(skips).toHaveLength(1)
     expect(skips[0]).toMatchObject({
@@ -221,7 +221,9 @@ describe('mi-board slice 22 onSkip instrumentation', () => {
     const skips: SkipReason[] = []
     await miBoardDisclosures.fetchEvents({
       client: client as never,
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     } as never)
     expect(skips).toHaveLength(1)
     expect(skips[0]).toMatchObject({
@@ -244,7 +246,9 @@ describe('mi-board slice 22 onSkip instrumentation', () => {
     const skips: SkipReason[] = []
     await miBoardDisclosures.fetchEvents({
       client: client as never,
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     } as never)
     expect(skips).toHaveLength(1)
     expect(skips[0]).toMatchObject({
@@ -262,13 +266,13 @@ describe('mi-board slice 22 onSkip instrumentation', () => {
       }),
     }
     mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
-    mockedExtractPdfText.mockResolvedValue(
-      'Sources of Income\n1. Salary: $50,000 - $100,000',
-    )
+    mockedExtractPdfText.mockResolvedValue('Sources of Income\n1. Salary: $50,000 - $100,000')
     const skips: SkipReason[] = []
     await miBoardDisclosures.fetchEvents({
       client: client as never,
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     } as never)
     expect(skips).toEqual([])
   })

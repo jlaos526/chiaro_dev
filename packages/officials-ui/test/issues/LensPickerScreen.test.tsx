@@ -158,9 +158,9 @@ describe('LensPickerScreen', () => {
     expect(rows[0]?.getAttribute('aria-pressed')).toBe('false')
     fireEvent.click(getByText('Conservation'))
     const after = lensRows(getAllByRole('button'))
-    expect(after.find((r) => r.textContent?.includes('Conservation'))?.getAttribute('aria-pressed')).toBe(
-      'true',
-    )
+    expect(
+      after.find((r) => r.textContent?.includes('Conservation'))?.getAttribute('aria-pressed'),
+    ).toBe('true')
   })
 
   it('renders under a dark wrapper without throwing', () => {

@@ -36,57 +36,70 @@ afterEach(async () => {
 
 describe('ingestFederalTownHallsMobilize', () => {
   it('happy path: UPSERTs events to town_halls via (source, external_id) UNIQUE', async () => {
-    const events = [{
-      official_id: officialId,
-      legislator_name: 'Jim Jordan',
-      chamber: 'federal_house' as const,
-      event_date: '2026-02-15',
-      city: 'Lima',
-      state: 'OH',
-      format: 'in_person' as const,
-      source_url: 'https://www.mobilize.us/example/200002/',
-      source: 'mobilize' as const,
-      external_id: 'mobilize-200002',
-    }]
+    const events = [
+      {
+        official_id: officialId,
+        legislator_name: 'Jim Jordan',
+        chamber: 'federal_house' as const,
+        event_date: '2026-02-15',
+        city: 'Lima',
+        state: 'OH',
+        format: 'in_person' as const,
+        source_url: 'https://www.mobilize.us/example/200002/',
+        source: 'mobilize' as const,
+        external_id: 'mobilize-200002',
+      },
+    ]
     const stats = await ingestFederalTownHallsMobilize({ client, fetcher: async () => events })
     expect(stats.rowsUpserted).toBe(1)
     expect(stats.officialsMatched).toBe(1)
-    const r = await client.query('select * from public.town_halls where external_id = $1', ['mobilize-200002'])
+    const r = await client.query('select * from public.town_halls where external_id = $1', [
+      'mobilize-200002',
+    ])
     expect(r.rowCount).toBe(1)
   })
 
   it('idempotent re-run UPSERTs same row via (source, external_id) UNIQUE', async () => {
-    const events = [{
-      official_id: officialId,
-      legislator_name: 'Jim Jordan',
-      chamber: 'federal_house' as const,
-      event_date: '2026-02-15',
-      city: 'Lima',
-      state: 'OH',
-      format: 'in_person' as const,
-      source_url: 'https://x',
-      source: 'mobilize' as const,
-      external_id: 'mobilize-200002',
-    }]
+    const events = [
+      {
+        official_id: officialId,
+        legislator_name: 'Jim Jordan',
+        chamber: 'federal_house' as const,
+        event_date: '2026-02-15',
+        city: 'Lima',
+        state: 'OH',
+        format: 'in_person' as const,
+        source_url: 'https://x',
+        source: 'mobilize' as const,
+        external_id: 'mobilize-200002',
+      },
+    ]
     await ingestFederalTownHallsMobilize({ client, fetcher: async () => events })
     await ingestFederalTownHallsMobilize({ client, fetcher: async () => events })
     const r = await client.query<{ c: number }>(
-      "select count(*)::int as c from public.town_halls where external_id = 'mobilize-200002'"
+      "select count(*)::int as c from public.town_halls where external_id = 'mobilize-200002'",
     )
     expect(r.rows[0]!.c).toBe(1)
   })
 
   it('updates row when re-run with different source_url (UPSERT update)', async () => {
     const event1 = {
-      official_id: officialId, legislator_name: 'Jim Jordan', chamber: 'federal_house' as const,
-      event_date: '2026-02-15', city: 'Lima', state: 'OH', format: 'in_person' as const,
-      source_url: 'https://original-url', source: 'mobilize' as const, external_id: 'mobilize-200002',
+      official_id: officialId,
+      legislator_name: 'Jim Jordan',
+      chamber: 'federal_house' as const,
+      event_date: '2026-02-15',
+      city: 'Lima',
+      state: 'OH',
+      format: 'in_person' as const,
+      source_url: 'https://original-url',
+      source: 'mobilize' as const,
+      external_id: 'mobilize-200002',
     }
     const event2 = { ...event1, source_url: 'https://updated-url' }
     await ingestFederalTownHallsMobilize({ client, fetcher: async () => [event1] })
     await ingestFederalTownHallsMobilize({ client, fetcher: async () => [event2] })
     const r = await client.query<{ source_url: string }>(
-      "select source_url from public.town_halls where external_id = 'mobilize-200002'"
+      "select source_url from public.town_halls where external_id = 'mobilize-200002'",
     )
     expect(r.rows[0]!.source_url).toBe('https://updated-url')
   })
@@ -96,31 +109,57 @@ describe('ingestFederalTownHallsMobilize', () => {
       // First event: invalid official_id (FK failure → throws)
       {
         official_id: '00000000-0000-0000-0000-000000000000',
-        legislator_name: 'Bad Bad', chamber: 'federal_house' as const,
-        event_date: '2026-02-15', city: 'Nowhere', state: 'OH', format: 'in_person' as const,
-        source_url: 'https://x', source: 'mobilize' as const, external_id: 'mobilize-fail',
+        legislator_name: 'Bad Bad',
+        chamber: 'federal_house' as const,
+        event_date: '2026-02-15',
+        city: 'Nowhere',
+        state: 'OH',
+        format: 'in_person' as const,
+        source_url: 'https://x',
+        source: 'mobilize' as const,
+        external_id: 'mobilize-fail',
       },
       // Second event: valid (should still ingest)
       {
-        official_id: officialId, legislator_name: 'Jim Jordan', chamber: 'federal_house' as const,
-        event_date: '2026-02-15', city: 'Lima', state: 'OH', format: 'in_person' as const,
-        source_url: 'https://x', source: 'mobilize' as const, external_id: 'mobilize-200002',
+        official_id: officialId,
+        legislator_name: 'Jim Jordan',
+        chamber: 'federal_house' as const,
+        event_date: '2026-02-15',
+        city: 'Lima',
+        state: 'OH',
+        format: 'in_person' as const,
+        source_url: 'https://x',
+        source: 'mobilize' as const,
+        external_id: 'mobilize-200002',
       },
     ]
-    const stats = await ingestFederalTownHallsMobilize({ client, skipOnError: true, fetcher: async () => events })
+    const stats = await ingestFederalTownHallsMobilize({
+      client,
+      skipOnError: true,
+      fetcher: async () => events,
+    })
     expect(stats.rowsUpserted).toBe(1)
     expect(stats.errors.length).toBeGreaterThan(0)
   })
 
   it('default (no skipOnError): throws on FK violation', async () => {
-    const events = [{
-      official_id: '00000000-0000-0000-0000-000000000000',
-      legislator_name: 'Bad Bad', chamber: 'federal_house' as const,
-      event_date: '2026-02-15', city: 'Nowhere', state: 'OH', format: 'in_person' as const,
-      source_url: 'https://x', source: 'mobilize' as const, external_id: 'mobilize-fail',
-    }]
-    await expect(ingestFederalTownHallsMobilize({ client, fetcher: async () => events }))
-      .rejects.toThrow()
+    const events = [
+      {
+        official_id: '00000000-0000-0000-0000-000000000000',
+        legislator_name: 'Bad Bad',
+        chamber: 'federal_house' as const,
+        event_date: '2026-02-15',
+        city: 'Nowhere',
+        state: 'OH',
+        format: 'in_person' as const,
+        source_url: 'https://x',
+        source: 'mobilize' as const,
+        external_id: 'mobilize-fail',
+      },
+    ]
+    await expect(
+      ingestFederalTownHallsMobilize({ client, fetcher: async () => events }),
+    ).rejects.toThrow()
   })
 
   it('empty input → zero ingested, no errors', async () => {

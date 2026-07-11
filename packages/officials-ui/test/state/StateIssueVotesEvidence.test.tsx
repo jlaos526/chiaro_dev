@@ -35,36 +35,32 @@ afterEach(() => {
 describe('StateIssueVotesEvidence', () => {
   it('renders loading state', () => {
     useVotesOnSubjectMock.mockReturnValue({ data: undefined, isLoading: true })
-    const { getByText } = wrap(
-      <StateIssueVotesEvidence officialId="oid" issueArea="environment" />,
-    )
+    const { getByText } = wrap(<StateIssueVotesEvidence officialId="oid" issueArea="environment" />)
     expect(getByText(/Loading evidence votes/i)).toBeTruthy()
   })
 
   it('renders empty state when no data', () => {
     useVotesOnSubjectMock.mockReturnValue({ data: [], isLoading: false })
-    const { getByText } = wrap(
-      <StateIssueVotesEvidence officialId="oid" issueArea="environment" />,
-    )
+    const { getByText } = wrap(<StateIssueVotesEvidence officialId="oid" issueArea="environment" />)
     expect(getByText(/No matching votes for this subject area/i)).toBeTruthy()
   })
 
   it('renders bill rows with position color-coded uppercase', () => {
     useVotesOnSubjectMock.mockReturnValue({
-      data: [{
-        vote: {
-          id: 'v1',
-          question: 'Q1',
-          vote_date: '2026-03-01',
-          bill: { bill_type: 'AB', number: '101', title: 'Clean Air Act' },
+      data: [
+        {
+          vote: {
+            id: 'v1',
+            question: 'Q1',
+            vote_date: '2026-03-01',
+            bill: { bill_type: 'AB', number: '101', title: 'Clean Air Act' },
+          },
+          position: 'yes',
         },
-        position: 'yes',
-      }],
+      ],
       isLoading: false,
     })
-    const { getByText } = wrap(
-      <StateIssueVotesEvidence officialId="oid" issueArea="environment" />,
-    )
+    const { getByText } = wrap(<StateIssueVotesEvidence officialId="oid" issueArea="environment" />)
     expect(getByText(/AB 101 — Clean Air Act/)).toBeTruthy()
     expect(getByText(/YES/)).toBeTruthy()
   })

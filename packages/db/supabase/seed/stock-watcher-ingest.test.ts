@@ -7,7 +7,7 @@ import { ingestStockDisclosures } from './stock-watcher-ingest.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
-const HOUSE_FIX  = join(__dirname, 'fixtures', 'house-stock-watcher-mini.json')
+const HOUSE_FIX = join(__dirname, 'fixtures', 'house-stock-watcher-mini.json')
 const SENATE_FIX = join(__dirname, 'fixtures', 'senate-stock-watcher-mini.json')
 
 let client: Client
@@ -23,17 +23,22 @@ beforeEach(async () => {
     on conflict (tier,code) do nothing
   `)
   const d = await client.query("select id from public.districts where code='CA-11-stkfix'")
-  await client.query(`
+  await client.query(
+    `
     insert into public.officials (bioguide_id, first_name, last_name, full_name,
       chamber, party, state, district_id, senate_class, source_version)
     values ('SKHOUSE1','SK','H','SK H','federal_house','D','CA',$1::uuid,null,'119'),
            ('SKSENATE1','SK','S','SK S','federal_senate','D','CA',$1::uuid,1,'119')
     on conflict (bioguide_id) do nothing
-  `, [d.rows[0].id])
+  `,
+    [d.rows[0].id],
+  )
 })
 
 afterEach(async () => {
-  await client.query("delete from public.stock_transactions where official_id in (select id from public.officials where bioguide_id in ('SKHOUSE1','SKSENATE1'))")
+  await client.query(
+    "delete from public.stock_transactions where official_id in (select id from public.officials where bioguide_id in ('SKHOUSE1','SKSENATE1'))",
+  )
   await client.query("delete from public.officials where bioguide_id in ('SKHOUSE1','SKSENATE1')")
   await client.query("delete from public.districts where code = 'CA-11-stkfix'")
   await client.end()
@@ -41,11 +46,11 @@ afterEach(async () => {
 
 describe('ingestStockDisclosures', () => {
   it('inserts all disclosures and days_late generated column computes correctly', async () => {
-    const house  = JSON.parse(await readFile(HOUSE_FIX, 'utf8'))
+    const house = JSON.parse(await readFile(HOUSE_FIX, 'utf8'))
     const senate = JSON.parse(await readFile(SENATE_FIX, 'utf8'))
 
     const stats = await ingestStockDisclosures({
-      houseFetcher:  async () => house,
+      houseFetcher: async () => house,
       senateFetcher: async () => senate,
     })
     expect(stats.disclosuresIngested).toBe(3)
@@ -68,11 +73,19 @@ describe('ingestStockDisclosures', () => {
   })
 
   it('idempotent: re-running with same fixtures keeps count at 3', async () => {
-    const house  = JSON.parse(await readFile(HOUSE_FIX, 'utf8'))
+    const house = JSON.parse(await readFile(HOUSE_FIX, 'utf8'))
     const senate = JSON.parse(await readFile(SENATE_FIX, 'utf8'))
-    await ingestStockDisclosures({ houseFetcher: async () => house, senateFetcher: async () => senate })
-    await ingestStockDisclosures({ houseFetcher: async () => house, senateFetcher: async () => senate })
-    const c = await client.query(`select count(*)::int as c from public.stock_transactions where official_id in (select id from public.officials where bioguide_id in ('SKHOUSE1','SKSENATE1'))`)
+    await ingestStockDisclosures({
+      houseFetcher: async () => house,
+      senateFetcher: async () => senate,
+    })
+    await ingestStockDisclosures({
+      houseFetcher: async () => house,
+      senateFetcher: async () => senate,
+    })
+    const c = await client.query(
+      `select count(*)::int as c from public.stock_transactions where official_id in (select id from public.officials where bioguide_id in ('SKHOUSE1','SKSENATE1'))`,
+    )
     expect(c.rows[0].c).toBe(3)
   })
 })

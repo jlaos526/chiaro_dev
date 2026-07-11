@@ -40,26 +40,20 @@ describe('FederalCommunityPresenceCard', () => {
   it('renders loading state', () => {
     useOfficesMock.mockReturnValue({ data: undefined, isLoading: true, isSuccess: false })
     useTownHallsMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
-    const { getByText } = wrap(
-      <FederalCommunityPresenceCard officialId="oid" congress="119" />,
-    )
+    const { getByText } = wrap(<FederalCommunityPresenceCard officialId="oid" congress="119" />)
     expect(getByText(/Loading community presence/i)).toBeTruthy()
   })
 
   it('renders empty state when no halls + no offices', () => {
     useOfficesMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
     useTownHallsMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
-    const { getByText } = wrap(
-      <FederalCommunityPresenceCard officialId="oid" congress="119" />,
-    )
+    const { getByText } = wrap(<FederalCommunityPresenceCard officialId="oid" congress="119" />)
     expect(getByText(/No community-presence data/i)).toBeTruthy()
   })
 
   it('renders summary with counts', () => {
     useOfficesMock.mockReturnValue({
-      data: [
-        { id: 'o1', address: '123 Main St', city: 'Anywhere', state: 'CA' },
-      ],
+      data: [{ id: 'o1', address: '123 Main St', city: 'Anywhere', state: 'CA' }],
       isLoading: false,
       isSuccess: true,
     })
@@ -71,9 +65,7 @@ describe('FederalCommunityPresenceCard', () => {
       isLoading: false,
       isSuccess: true,
     })
-    const { getByText } = wrap(
-      <FederalCommunityPresenceCard officialId="oid" congress="119" />,
-    )
+    const { getByText } = wrap(<FederalCommunityPresenceCard officialId="oid" congress="119" />)
     expect(getByText(/2 town halls/i)).toBeTruthy()
     expect(getByText(/1 office/i)).toBeTruthy()
   })

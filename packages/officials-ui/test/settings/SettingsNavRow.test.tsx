@@ -11,10 +11,9 @@ function withMode(mode: 'light' | 'dark') {
 
 describe('SettingsNavRow', () => {
   it('renders label + chevron', () => {
-    const { getByText } = render(
-      <SettingsNavRow label="Home address" onPress={() => {}} />,
-      { wrapper: withMode('light') },
-    )
+    const { getByText } = render(<SettingsNavRow label="Home address" onPress={() => {}} />, {
+      wrapper: withMode('light'),
+    })
     expect(getByText('Home address')).toBeTruthy()
     expect(getByText('›')).toBeTruthy()
   })
@@ -29,10 +28,9 @@ describe('SettingsNavRow', () => {
 
   it('calls onPress when the row is clicked (no href, Pressable path)', () => {
     const onPress = vi.fn()
-    const { getByText } = render(
-      <SettingsNavRow label="Home address" onPress={onPress} />,
-      { wrapper: withMode('light') },
-    )
+    const { getByText } = render(<SettingsNavRow label="Home address" onPress={onPress} />, {
+      wrapper: withMode('light'),
+    })
     fireEvent.click(getByText('Home address'))
     expect(onPress).toHaveBeenCalled()
   })

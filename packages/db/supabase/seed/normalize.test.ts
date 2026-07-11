@@ -50,9 +50,7 @@ describe('normalizeMember', () => {
     expect(member.state).toBe('CA')
     expect(member.districtNumber).toBe(11)
     expect(member.senateClass).toBeNull()
-    expect(member.portraitUrl).toBe(
-      'https://bioguide.congress.gov/bioguide/photo/P/P000197.jpg',
-    )
+    expect(member.portraitUrl).toBe('https://bioguide.congress.gov/bioguide/photo/P/P000197.jpg')
   })
 
   it('maps senator with class', () => {

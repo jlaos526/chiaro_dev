@@ -14,8 +14,8 @@ const STATUS_LABEL: Record<string, string> = {
 }
 
 function statusColor(status: string, semantic: BrandSemantic): string {
-  if (status === 'open')           return semantic.alert.warning.fg
-  if (status === 'sanctioned')     return semantic.alert.danger.fg
+  if (status === 'open') return semantic.alert.warning.fg
+  if (status === 'sanctioned') return semantic.alert.danger.fg
   if (status === 'dismissed' || status === 'closed_no_action') return semantic.alert.success.fg
   return semantic.text.muted
 }
@@ -40,7 +40,7 @@ export function StateEthicsComplaintsList({
   }
   return (
     <View style={styles.list}>
-      {rows.map(r => {
+      {rows.map((r) => {
         const color = statusColor(r.status, semantic)
         return (
           <View key={r.id} style={rowStyle}>
@@ -51,9 +51,7 @@ export function StateEthicsComplaintsList({
               </Text>
             </View>
             <Text style={summaryStyle}>{r.summary}</Text>
-            {r.disposition && (
-              <Text style={dispositionStyle}>Disposition: {r.disposition}</Text>
-            )}
+            {r.disposition && <Text style={dispositionStyle}>Disposition: {r.disposition}</Text>}
           </View>
         )
       })}

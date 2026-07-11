@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url'
 import { enrichFlorida } from './enrich-fl.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DB_URL    = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
-const FIXTURE   = join(__dirname, '..', 'fixtures', 'state-bills-enrich', 'fl-senate-SB9.json')
+const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const FIXTURE = join(__dirname, '..', 'fixtures', 'state-bills-enrich', 'fl-senate-SB9.json')
 
 let client: Client
 
@@ -22,7 +22,9 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  await client.query("delete from public.state_bills where openstates_bill_id like 'ocd-bill/test-fl-%'")
+  await client.query(
+    "delete from public.state_bills where openstates_bill_id like 'ocd-bill/test-fl-%'",
+  )
   await client.end()
 })
 
@@ -30,7 +32,8 @@ describe('enrichFlorida', () => {
   it('updates augment from senate fixture', async () => {
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     const stats = await enrichFlorida.enrich({
-      client, session: '2025',
+      client,
+      session: '2025',
       fetcher: async () => fixture,
     } as never)
     expect(stats.billsUpdated).toBe(1)
@@ -51,7 +54,9 @@ describe('enrichFlorida', () => {
 
   it('null fetcher response → not updated', async () => {
     const stats = await enrichFlorida.enrich({
-      client, session: '2025', fetcher: async () => null,
+      client,
+      session: '2025',
+      fetcher: async () => null,
     } as never)
     expect(stats.billsUpdated).toBe(0)
   })
@@ -65,14 +70,22 @@ describe('enrichFlorida', () => {
   })
 
   it('reports state FL', async () => {
-    const stats = await enrichFlorida.enrich({ client, session: '2025', fetcher: async () => null } as never)
+    const stats = await enrichFlorida.enrich({
+      client,
+      session: '2025',
+      fetcher: async () => null,
+    } as never)
     expect(stats.state).toBe('FL')
   })
 
   it('handles missing FiscalImpactStatement', async () => {
-    const fixture = { bill: { Session: 2025, Number: 'SB 9', CurrentCommittee: 'X', LastActionDate: '2025-03-01' } }
+    const fixture = {
+      bill: { Session: 2025, Number: 'SB 9', CurrentCommittee: 'X', LastActionDate: '2025-03-01' },
+    }
     const stats = await enrichFlorida.enrich({
-      client, session: '2025', fetcher: async () => fixture,
+      client,
+      session: '2025',
+      fetcher: async () => fixture,
     } as never)
     expect(stats.billsUpdated).toBe(1)
     const row = await client.query<{ fiscal_impact_amount: string | null }>(

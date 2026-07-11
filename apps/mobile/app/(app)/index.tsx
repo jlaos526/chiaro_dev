@@ -54,10 +54,7 @@ export default function Home() {
         <BrandHeading level={1}>{greeting}</BrandHeading>
         {profile && !profile.completed ? (
           <BrandAlert severity="info" title="Complete your profile">
-            <BrandLink
-              href="/profile/edit"
-              onPress={() => router.push('/profile/edit' as never)}
-            >
+            <BrandLink href="/profile/edit" onPress={() => router.push('/profile/edit' as never)}>
               Add your display name and username →
             </BrandLink>
           </BrandAlert>

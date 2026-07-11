@@ -1,15 +1,8 @@
 'use client'
 
 import { StyleSheet, Text, View } from 'react-native'
-import {
-  isStateLevel,
-  useOfficialMetrics,
-  type OfficialWithDistrict,
-} from '@chiaro/officials'
-import {
-  useOfficialSponsoredStateBills,
-  useOfficialStateVotes,
-} from '@chiaro/state-bills'
+import { isStateLevel, useOfficialMetrics, type OfficialWithDistrict } from '@chiaro/officials'
+import { useOfficialSponsoredStateBills, useOfficialStateVotes } from '@chiaro/state-bills'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { useChiaroClient } from '../client-context.tsx'
 import { StateBillsEvidence } from './StateBillsEvidence.tsx'
@@ -57,10 +50,21 @@ export function StateServiceRecordCard({
     return (
       <View
         testID="state-service-record-card"
-        style={[styles.card, { backgroundColor: semantic.bg.app, borderColor: semantic.border.default }]}
+        style={[
+          styles.card,
+          { backgroundColor: semantic.bg.app, borderColor: semantic.border.default },
+        ]}
       >
-        <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>Service Record</Text>
-        <Text style={[styles.subtitle, { color: semantic.text.muted, marginTop: 8 }]}>Loading service record…</Text>
+        <Text
+          style={[styles.title, { color: semantic.text.primary }]}
+          accessibilityRole="header"
+          accessibilityLevel={2}
+        >
+          Service Record
+        </Text>
+        <Text style={[styles.subtitle, { color: semantic.text.muted, marginTop: 8 }]}>
+          Loading service record…
+        </Text>
       </View>
     )
   }
@@ -83,7 +87,13 @@ export function StateServiceRecordCard({
       ]}
     >
       <View style={{ marginBottom: 12 }}>
-        <Text style={[styles.title, headingStyle]} accessibilityRole="header" accessibilityLevel={2}>Service Record</Text>
+        <Text
+          style={[styles.title, headingStyle]}
+          accessibilityRole="header"
+          accessibilityLevel={2}
+        >
+          Service Record
+        </Text>
         <View
           style={{
             flexDirection: 'row',
@@ -100,20 +110,76 @@ export function StateServiceRecordCard({
       </View>
 
       <View style={{ gap: 8 }}>
-        <ScalarRow label="Bills sponsored" value={fmtCount(m?.bills_sponsored_count)} labelColor={rowLabelColor} valueColor={rowValueColor} />
-        <ScalarRow label="Bills cosponsored" value={fmtCount(m?.bills_cosponsored_count)} labelColor={rowLabelColor} valueColor={rowValueColor} />
-        <ScalarRow label="Votes voted" value={fmtCount(m?.votes_voted_count)} labelColor={rowLabelColor} valueColor={rowValueColor} />
-        <ScalarRow label="Votes missed" value={fmtCount(m?.votes_missed_count)} labelColor={rowLabelColor} valueColor={rowValueColor} />
-        <ScalarRow label="Attendance" value={attendance} labelColor={rowLabelColor} valueColor={rowValueColor} />
-        <ScalarRow label="Party unity" value={partyUnity} labelColor={rowLabelColor} valueColor={rowValueColor} />
+        <ScalarRow
+          label="Bills sponsored"
+          value={fmtCount(m?.bills_sponsored_count)}
+          labelColor={rowLabelColor}
+          valueColor={rowValueColor}
+        />
+        <ScalarRow
+          label="Bills cosponsored"
+          value={fmtCount(m?.bills_cosponsored_count)}
+          labelColor={rowLabelColor}
+          valueColor={rowValueColor}
+        />
+        <ScalarRow
+          label="Votes voted"
+          value={fmtCount(m?.votes_voted_count)}
+          labelColor={rowLabelColor}
+          valueColor={rowValueColor}
+        />
+        <ScalarRow
+          label="Votes missed"
+          value={fmtCount(m?.votes_missed_count)}
+          labelColor={rowLabelColor}
+          valueColor={rowValueColor}
+        />
+        <ScalarRow
+          label="Attendance"
+          value={attendance}
+          labelColor={rowLabelColor}
+          valueColor={rowValueColor}
+        />
+        <ScalarRow
+          label="Party unity"
+          value={partyUnity}
+          labelColor={rowLabelColor}
+          valueColor={rowValueColor}
+        />
       </View>
 
-      <Text style={[styles.subheading, headingStyle]} accessibilityRole="header" accessibilityLevel={3}>Performance metrics</Text>
+      <Text
+        style={[styles.subheading, headingStyle]}
+        accessibilityRole="header"
+        accessibilityLevel={3}
+      >
+        Performance metrics
+      </Text>
       <View style={{ marginTop: 8, gap: 8 }}>
-        <ScalarRow label="Bills passed" value={fmtCount(m?.bills_passed_count)} labelColor={rowLabelColor} valueColor={rowValueColor} />
-        <ScalarRow label="Hearings held" value={fmtCount(m?.hearings_held_count)} labelColor={rowLabelColor} valueColor={rowValueColor} />
-        <ScalarRow label="Subject breadth" value={fmtCount(m?.subject_breadth)} labelColor={rowLabelColor} valueColor={rowValueColor} />
-        <ScalarRow label="Bill passage rate" value={fmtPct(m?.bill_passage_rate)} labelColor={rowLabelColor} valueColor={rowValueColor} />
+        <ScalarRow
+          label="Bills passed"
+          value={fmtCount(m?.bills_passed_count)}
+          labelColor={rowLabelColor}
+          valueColor={rowValueColor}
+        />
+        <ScalarRow
+          label="Hearings held"
+          value={fmtCount(m?.hearings_held_count)}
+          labelColor={rowLabelColor}
+          valueColor={rowValueColor}
+        />
+        <ScalarRow
+          label="Subject breadth"
+          value={fmtCount(m?.subject_breadth)}
+          labelColor={rowLabelColor}
+          valueColor={rowValueColor}
+        />
+        <ScalarRow
+          label="Bill passage rate"
+          value={fmtPct(m?.bill_passage_rate)}
+          labelColor={rowLabelColor}
+          valueColor={rowValueColor}
+        />
         <ScalarRow
           label="Fiscal impact / $"
           value={fmtRatio(m?.fiscal_impact_per_dollar_raised)}
@@ -121,19 +187,32 @@ export function StateServiceRecordCard({
           valueColor={rowValueColor}
         />
         {m?.committee_chair_count != null && (
-          <ScalarRow label="Committee chair seats" value={String(m.committee_chair_count)} labelColor={rowLabelColor} valueColor={rowValueColor} />
+          <ScalarRow
+            label="Committee chair seats"
+            value={String(m.committee_chair_count)}
+            labelColor={rowLabelColor}
+            valueColor={rowValueColor}
+          />
         )}
       </View>
 
       <View style={{ marginTop: 12 }}>
-        <Text style={[styles.evidenceHeading, headingStyle]} accessibilityRole="header" accessibilityLevel={3}>
+        <Text
+          style={[styles.evidenceHeading, headingStyle]}
+          accessibilityRole="header"
+          accessibilityLevel={3}
+        >
           View sponsored bills ({sponsored.data?.length ?? 0})
         </Text>
         <StateBillsEvidence bills={sponsored.data ?? []} />
       </View>
 
       <View style={{ marginTop: 8 }}>
-        <Text style={[styles.evidenceHeading, headingStyle]} accessibilityRole="header" accessibilityLevel={3}>
+        <Text
+          style={[styles.evidenceHeading, headingStyle]}
+          accessibilityRole="header"
+          accessibilityLevel={3}
+        >
           View vote record ({votes.data?.length ?? 0})
         </Text>
         <StateVotesEvidence votes={votes.data ?? []} />

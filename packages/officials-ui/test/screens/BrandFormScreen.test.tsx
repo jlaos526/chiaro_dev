@@ -12,7 +12,9 @@ function withMode(mode: 'light' | 'dark') {
 describe('BrandFormScreen', () => {
   it('renders required title as h1', () => {
     const { container } = render(
-      <BrandFormScreen title="Home address"><div>form</div></BrandFormScreen>,
+      <BrandFormScreen title="Home address">
+        <div>form</div>
+      </BrandFormScreen>,
       { wrapper: withMode('light') },
     )
     const h1 = container.querySelector('h1')
@@ -31,7 +33,9 @@ describe('BrandFormScreen', () => {
 
   it('omits subtitle when not provided', () => {
     const { queryByText } = render(
-      <BrandFormScreen title="Home address"><div>form</div></BrandFormScreen>,
+      <BrandFormScreen title="Home address">
+        <div>form</div>
+      </BrandFormScreen>,
       { wrapper: withMode('light') },
     )
     expect(queryByText(/last updated/i)).toBeNull()
@@ -50,7 +54,9 @@ describe('BrandFormScreen', () => {
 
   it('omits back link when backHref is absent', () => {
     const { container } = render(
-      <BrandFormScreen title="Home address"><div>form</div></BrandFormScreen>,
+      <BrandFormScreen title="Home address">
+        <div>form</div>
+      </BrandFormScreen>,
       { wrapper: withMode('light') },
     )
     expect(container.querySelector('a')).toBeNull()
@@ -58,18 +64,24 @@ describe('BrandFormScreen', () => {
 
   it('applies card bg.elevated', () => {
     const { container } = render(
-      <BrandFormScreen title="X"><div>form</div></BrandFormScreen>,
+      <BrandFormScreen title="X">
+        <div>form</div>
+      </BrandFormScreen>,
       { wrapper: withMode('light') },
     )
     // Outer is the bg.app wrapper; card is the first inner View.
     const card = container.firstChild?.firstChild as HTMLElement
     // Light bg.elevated is #ffffff → rgb(255, 255, 255)
-    expect(card?.getAttribute('style')).toMatch(/background-color:\s*(rgb\(255,\s*255,\s*255\)|#fff|#ffffff)/i)
+    expect(card?.getAttribute('style')).toMatch(
+      /background-color:\s*(rgb\(255,\s*255,\s*255\)|#fff|#ffffff)/i,
+    )
   })
 
   it('renders form children', () => {
     const { getByText } = render(
-      <BrandFormScreen title="X"><div>form-body</div></BrandFormScreen>,
+      <BrandFormScreen title="X">
+        <div>form-body</div>
+      </BrandFormScreen>,
       { wrapper: withMode('light') },
     )
     expect(getByText('form-body')).toBeTruthy()
@@ -77,7 +89,9 @@ describe('BrandFormScreen', () => {
 
   it('consumes the --chiaro-rail-topbar CSS var for padding-top on web', () => {
     const { container } = render(
-      <BrandFormScreen title="X"><div>form</div></BrandFormScreen>,
+      <BrandFormScreen title="X">
+        <div>form</div>
+      </BrandFormScreen>,
       { wrapper: withMode('light') },
     )
     const outer = container.firstChild as HTMLElement

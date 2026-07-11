@@ -16,7 +16,9 @@ export interface FederalDistrictOfficesListProps {
  * `hours_text` (those are state-only on `state_district_offices`). All rows
  * render uniformly.
  */
-export function FederalDistrictOfficesList({ rows }: FederalDistrictOfficesListProps): React.JSX.Element {
+export function FederalDistrictOfficesList({
+  rows,
+}: FederalDistrictOfficesListProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   if (rows.length === 0) {
     return (
@@ -27,7 +29,7 @@ export function FederalDistrictOfficesList({ rows }: FederalDistrictOfficesListP
   }
   return (
     <View style={styles.list}>
-      {rows.map(r => (
+      {rows.map((r) => (
         <View key={r.id} style={styles.row}>
           <Text style={[styles.title, { color: semantic.text.primary }]}>
             District Office · {r.city}, {r.state}

@@ -2,10 +2,7 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { signOut } from '../../src/nav/sign-out.ts'
 
 describe('signOut', () => {
-  let originalCookie: string
-
   beforeEach(() => {
-    originalCookie = document.cookie
     document.cookie = 'chiaro_skip_calibrate=1; path=/'
   })
 

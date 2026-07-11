@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  parseNyFdsText,
-  type ParsedNyFdsLineItem,
-} from './ny-fds-helpers.ts'
+import { parseNyFdsText } from './ny-fds-helpers.ts'
 
 describe('parseNyFdsText', () => {
   it('returns [] for empty text', () => {
@@ -50,7 +47,7 @@ Sources of Income
 `
     const items = parseNyFdsText(text)
     expect(items).toHaveLength(3)
-    expect(items.map(i => i.income_kind)).toEqual(['salary', 'consulting', 'rental'])
+    expect(items.map((i) => i.income_kind)).toEqual(['salary', 'consulting', 'rental'])
   })
 
   it('handles "Less than $X" amount form', () => {
@@ -100,7 +97,9 @@ Sources of Income
   })
 
   it('falls back to "other" for unrecognized income kind', () => {
-    const items = parseNyFdsText('Sources of Income\n1. Lottery winnings, Dec 2024: $5,000 - $10,000')
+    const items = parseNyFdsText(
+      'Sources of Income\n1. Lottery winnings, Dec 2024: $5,000 - $10,000',
+    )
     expect(items[0]?.income_kind).toBe('other')
   })
 
@@ -111,7 +110,7 @@ Sources of Income
 2. Consulting: $1,000 - $5,000
 `
     const items = parseNyFdsText(text)
-    expect(items).toHaveLength(1)  // Only line 2 has a parseable range
+    expect(items).toHaveLength(1) // Only line 2 has a parseable range
     expect(items[0]?.income_kind).toBe('consulting')
   })
 })

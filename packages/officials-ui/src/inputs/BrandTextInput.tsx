@@ -143,6 +143,7 @@ export function BrandTextInput({
         className: `${className}${disabled ? ' disabled' : ''}`,
         'data-testid': testID,
       },
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: CSS-in-JS escape hatch (slice 31/33) — `css` is template-built from brand tokens only, no user input reaches it
       createElement('style', { dangerouslySetInnerHTML: { __html: css } }),
       createElement(
         'div',
@@ -160,11 +161,7 @@ export function BrandTextInput({
           'aria-invalid': error ? true : false,
           'aria-describedby': error ? errorId : undefined,
         }),
-        createElement(
-          'label',
-          { htmlFor: inputId, className: 'brand-text-input__label' },
-          label,
-        ),
+        createElement('label', { htmlFor: inputId, className: 'brand-text-input__label' }, label),
       ),
       error
         ? createElement(

@@ -21,16 +21,41 @@ describe('ingestStateBillsEnrich', () => {
       session: '20252026',
       client,
       adapters: [
-        { state: 'CA', async enrich() { return { state: 'CA', billsUpdated: 2, errors: [] } } },
-        { state: 'NY', async enrich() { return { state: 'NY', billsUpdated: 0, errors: [], skipped: true, skipReason: 'no key' } } },
-        { state: 'FL', async enrich() { return { state: 'FL', billsUpdated: 1, errors: [] } } },
-        { state: 'TX', async enrich() { return { state: 'TX', billsUpdated: 0, errors: [] } } },
-        { state: 'MI', async enrich() { return { state: 'MI', billsUpdated: 3, errors: [] } } },
+        {
+          state: 'CA',
+          async enrich() {
+            return { state: 'CA', billsUpdated: 2, errors: [] }
+          },
+        },
+        {
+          state: 'NY',
+          async enrich() {
+            return { state: 'NY', billsUpdated: 0, errors: [], skipped: true, skipReason: 'no key' }
+          },
+        },
+        {
+          state: 'FL',
+          async enrich() {
+            return { state: 'FL', billsUpdated: 1, errors: [] }
+          },
+        },
+        {
+          state: 'TX',
+          async enrich() {
+            return { state: 'TX', billsUpdated: 0, errors: [] }
+          },
+        },
+        {
+          state: 'MI',
+          async enrich() {
+            return { state: 'MI', billsUpdated: 3, errors: [] }
+          },
+        },
       ] as never,
     })
     expect(stats.totalBillsUpdated).toBe(6)
     expect(stats.byState).toHaveLength(5)
-    expect(stats.byState.find(s => s.state === 'NY')!.skipped).toBe(true)
+    expect(stats.byState.find((s) => s.state === 'NY')!.skipped).toBe(true)
   })
 
   it('one adapter throwing → others still run; error captured', async () => {
@@ -38,13 +63,23 @@ describe('ingestStateBillsEnrich', () => {
       session: '20252026',
       client,
       adapters: [
-        { state: 'CA', async enrich() { throw new Error('CA broke') } },
-        { state: 'NY', async enrich() { return { state: 'NY', billsUpdated: 1, errors: [] } } },
+        {
+          state: 'CA',
+          async enrich() {
+            throw new Error('CA broke')
+          },
+        },
+        {
+          state: 'NY',
+          async enrich() {
+            return { state: 'NY', billsUpdated: 1, errors: [] }
+          },
+        },
       ] as never,
     })
     expect(stats.totalBillsUpdated).toBe(1)
-    expect(stats.byState.find(s => s.state === 'CA')!.errors).toContain('CA broke')
-    expect(stats.byState.find(s => s.state === 'NY')!.billsUpdated).toBe(1)
+    expect(stats.byState.find((s) => s.state === 'CA')!.errors).toContain('CA broke')
+    expect(stats.byState.find((s) => s.state === 'NY')!.billsUpdated).toBe(1)
   })
 
   it('aggregates errors across all adapters', async () => {
@@ -52,8 +87,18 @@ describe('ingestStateBillsEnrich', () => {
       session: '20252026',
       client,
       adapters: [
-        { state: 'CA', async enrich() { return { state: 'CA', billsUpdated: 0, errors: ['CA err 1', 'CA err 2'] } } },
-        { state: 'FL', async enrich() { return { state: 'FL', billsUpdated: 0, errors: ['FL err'] } } },
+        {
+          state: 'CA',
+          async enrich() {
+            return { state: 'CA', billsUpdated: 0, errors: ['CA err 1', 'CA err 2'] }
+          },
+        },
+        {
+          state: 'FL',
+          async enrich() {
+            return { state: 'FL', billsUpdated: 0, errors: ['FL err'] }
+          },
+        },
       ] as never,
     })
     expect(stats.totalErrors).toBe(3)

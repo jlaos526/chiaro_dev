@@ -8,11 +8,11 @@ import { useBrandTokens } from '../brand-hooks.ts'
 const INITIAL_ROW_COUNT = 5
 
 function positionLabel(p: StateVoteWithPosition['position']): string {
-  if (p === 'yes')        return 'yes'
-  if (p === 'no')         return 'no'
-  if (p === 'abstain')    return 'abstain'
+  if (p === 'yes') return 'yes'
+  if (p === 'no') return 'no'
+  if (p === 'abstain') return 'abstain'
   if (p === 'not_voting') return 'missed'
-  if (p === 'present')    return 'present'
+  if (p === 'present') return 'present'
   return p
 }
 
@@ -47,7 +47,7 @@ export function StateVotesEvidence({ votes }: StateVotesEvidenceProps): React.JS
   const hasMore = votes.length > INITIAL_ROW_COUNT
   return (
     <View testID="state-votes-evidence">
-      {visible.map(v => {
+      {visible.map((v) => {
         const split = v.vote.party_vote_split as Record<string, number> | null
         const url = v.vote.source_url ?? null
         const Question = url ? Pressable : View
@@ -69,7 +69,9 @@ export function StateVotesEvidence({ votes }: StateVotesEvidenceProps): React.JS
               {split && (
                 <Text style={metaStyle}>
                   {'  '}
-                  {Object.entries(split).map(([k, n]) => `${k}: ${n}`).join(' · ')}
+                  {Object.entries(split)
+                    .map(([k, n]) => `${k}: ${n}`)
+                    .join(' · ')}
                 </Text>
               )}
             </Text>
@@ -78,7 +80,7 @@ export function StateVotesEvidence({ votes }: StateVotesEvidenceProps): React.JS
       })}
       {hasMore && (
         <Pressable
-          onPress={() => setExpanded(e => !e)}
+          onPress={() => setExpanded((e) => !e)}
           accessibilityRole="button"
           accessibilityState={{ expanded }}
           aria-expanded={expanded}

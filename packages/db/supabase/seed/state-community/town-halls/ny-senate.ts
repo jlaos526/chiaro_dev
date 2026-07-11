@@ -25,11 +25,11 @@ export function deriveExternalId(url: string): string {
 }
 
 export interface ParsedNysenateEvent {
-  full_name: string         // senator name from byline
-  event_date: string        // YYYY-MM-DD
-  city?: string             // city extracted from location text (last comma-separated segment before state)
+  full_name: string // senator name from byline
+  event_date: string // YYYY-MM-DD
+  city?: string // city extracted from location text (last comma-separated segment before state)
   format: 'in_person' | 'virtual' | 'hybrid'
-  detail_url: string        // absolute URL to event detail page
+  detail_url: string // absolute URL to event detail page
 }
 
 /**
@@ -56,18 +56,17 @@ export function parseNysenateEventsHtml(html: string): ParsedNysenateEvent[] {
     const datetime = timeEl.attr('datetime') ?? ''
     const event_date = datetime.split('T')[0] ?? ''
 
-    if (!full_name || !event_date || !title) return  // skip malformed
+    if (!full_name || !event_date || !title) return // skip malformed
 
     const locationText = $(el).find('p.location').text().trim()
-    const city = locationText
-      ? extractCityFromLocation(locationText)
-      : undefined
+    const city = locationText ? extractCityFromLocation(locationText) : undefined
 
     const formatText = $(el).find('p.format').text().trim().toLowerCase()
-    const format: 'in_person' | 'virtual' | 'hybrid' =
-      /hybrid/.test(formatText) ? 'hybrid'
-      : /virtual/.test(formatText) ? 'virtual'
-      : 'in_person'
+    const format: 'in_person' | 'virtual' | 'hybrid' = /hybrid/.test(formatText)
+      ? 'hybrid'
+      : /virtual/.test(formatText)
+        ? 'virtual'
+        : 'in_person'
 
     const detail_url = detailHref.startsWith('http')
       ? detailHref
@@ -87,7 +86,10 @@ export function parseNysenateEventsHtml(html: string): ParsedNysenateEvent[] {
  * segment[0]; otherwise undefined.
  */
 function extractCityFromLocation(text: string): string | undefined {
-  const segments = text.split(',').map(s => s.trim()).filter(Boolean)
+  const segments = text
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
   if (segments.length === 0) return undefined
   // Drop final state-abbrev segment if present (e.g. "NY")
   const lastIsStateCode = segments[segments.length - 1]!.length === 2
@@ -133,12 +135,13 @@ export const nySenateTownHalls: StateCommunityAdapter<NormalizedTownHall> = {
         full_name: p.full_name,
         state: 'NY',
         chamber: 'state_senate',
-        onAmbiguous: () => onSkip?.({
-          adapter: 'ny-senate',
-          stage: 'resolve_ambiguous',
-          legislator: p.full_name,
-          reason: 'ambiguous full_name match (2+ in-office officials)',
-        }),
+        onAmbiguous: () =>
+          onSkip?.({
+            adapter: 'ny-senate',
+            stage: 'resolve_ambiguous',
+            legislator: p.full_name,
+            reason: 'ambiguous full_name match (2+ in-office officials)',
+          }),
       })
       if (!openstates_person_id) {
         onSkip?.({

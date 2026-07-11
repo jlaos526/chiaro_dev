@@ -32,9 +32,7 @@ vi.mock('@chiaro/officials-ui', () => ({
       {label}
     </button>
   ),
-  SettingsToggleRow: ({ label }: { label: string }) => (
-    <div data-row="toggle" data-label={label} />
-  ),
+  SettingsToggleRow: ({ label }: { label: string }) => <div data-row="toggle" data-label={label} />,
   SettingsComingSoonRow: ({ label }: { label: string }) => (
     <div data-row="coming-soon" data-label={label} />
   ),

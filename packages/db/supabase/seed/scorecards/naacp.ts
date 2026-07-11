@@ -17,6 +17,6 @@ export const naacp: ScorecardAdapter = {
       throw new Error('NAACP: live download not implemented yet; use fixturePath for slice 4.')
     }
     const csv = await readFile(opts.fixturePath, 'utf8')
-    return parseBioguideScoreCSV(csv, b => `https://naacp.org/scorecard/${b.toLowerCase()}`)
+    return parseBioguideScoreCSV(csv, (b) => `https://naacp.org/scorecard/${b.toLowerCase()}`)
   },
 }

@@ -29,7 +29,10 @@ export interface AlignmentChipProps {
 }
 
 export function AlignmentChip({
-  label, tier, href, onPress,
+  label,
+  tier,
+  href,
+  onPress,
 }: AlignmentChipProps): React.JSX.Element {
   const { bg, fg } = useAlignmentChipColors(tier)
   const chipStyle = {

@@ -24,14 +24,20 @@ export interface FederalStockTransactionsListProps {
   rows: TxnRow[]
 }
 
-export function FederalStockTransactionsList({ rows }: FederalStockTransactionsListProps): React.JSX.Element {
+export function FederalStockTransactionsList({
+  rows,
+}: FederalStockTransactionsListProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   if (rows.length === 0) {
-    return <Text style={[styles.muted, { color: semantic.text.muted }]}>No stock transactions on file.</Text>
+    return (
+      <Text style={[styles.muted, { color: semantic.text.muted }]}>
+        No stock transactions on file.
+      </Text>
+    )
   }
   return (
     <View style={styles.list}>
-      {rows.map(r => {
+      {rows.map((r) => {
         const low = r.amount_range_low == null ? null : Number(r.amount_range_low)
         const high = r.amount_range_high == null ? null : Number(r.amount_range_high)
         return (
@@ -45,15 +51,21 @@ export function FederalStockTransactionsList({ rows }: FederalStockTransactionsL
                 {r.transaction_date} · {r.asset_ticker ?? r.asset_name ?? 'Unknown asset'}
               </Text>
               <Text style={[styles.meta, { color: semantic.text.muted }]}>
-                {r.transaction_type ? TYPE_LABEL[r.transaction_type] ?? r.transaction_type : 'Type n/a'}
-                {' · '}{formatAmountRange(low, high)}
+                {r.transaction_type
+                  ? (TYPE_LABEL[r.transaction_type] ?? r.transaction_type)
+                  : 'Type n/a'}
+                {' · '}
+                {formatAmountRange(low, high)}
               </Text>
             </View>
             {(r.days_late ?? 0) > 0 && (
               <Text
                 style={[
                   styles.chip,
-                  { color: semantic.alert.warning.fg, backgroundColor: `${semantic.alert.warning.fg}22` },
+                  {
+                    color: semantic.alert.warning.fg,
+                    backgroundColor: `${semantic.alert.warning.fg}22`,
+                  },
                 ]}
               >
                 {r.days_late}d late

@@ -18,7 +18,11 @@ export interface BrandDrawerProps extends Omit<DrawerProps, 'drawerContent' | 's
  * BrandDrawerContent as the custom drawerContent. Children + per-screen
  * overrides are forwarded.
  */
-export function BrandDrawer({ screenOptionsOverride, children, ...rest }: BrandDrawerProps): React.JSX.Element {
+export function BrandDrawer({
+  screenOptionsOverride,
+  children,
+  ...rest
+}: BrandDrawerProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const baseOptions: DrawerProps['screenOptions'] = {
     headerStyle: { backgroundColor: semantic.bg.elevated },
@@ -30,9 +34,7 @@ export function BrandDrawer({ screenOptionsOverride, children, ...rest }: BrandD
     overlayColor: semantic.scrim,
     sceneStyle: { backgroundColor: semantic.bg.app },
   }
-  const merged = screenOptionsOverride
-    ? { ...baseOptions, ...screenOptionsOverride }
-    : baseOptions
+  const merged = screenOptionsOverride ? { ...baseOptions, ...screenOptionsOverride } : baseOptions
   return (
     <Drawer
       drawerContent={(props) => <BrandDrawerContent {...props} />}

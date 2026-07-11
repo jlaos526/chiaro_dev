@@ -92,7 +92,11 @@ describe('FederalVotingBillsCard', () => {
   })
 
   it('Sponsored subsection expands on press', () => {
-    useMetricsMock.mockReturnValue({ data: { attendance_pct: 90 }, isLoading: false, isSuccess: true })
+    useMetricsMock.mockReturnValue({
+      data: { attendance_pct: 90 },
+      isLoading: false,
+      isSuccess: true,
+    })
     useSponsoredMock.mockReturnValue({
       data: [
         {
@@ -126,13 +130,19 @@ const darkWrapper = ({ children }: { children: ReactNode }) =>
 
 describe('FederalVotingBillsCard — mode awareness', () => {
   it('renders under both light and dark wrappers without throwing', () => {
-    useMetricsMock.mockReturnValue({ data: { attendance_pct: 90 }, isLoading: false, isSuccess: true })
+    useMetricsMock.mockReturnValue({
+      data: { attendance_pct: 90 },
+      isLoading: false,
+      isSuccess: true,
+    })
     useSponsoredMock.mockReturnValue({ data: [{ id: 'b1' }], isLoading: false, isSuccess: true })
     useCosponsoredMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
     useMissedMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
     const ui = (
       <ChiaroClientProvider client={mockClient}>
-        <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <QueryClientProvider
+          client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+        >
           <FederalVotingBillsCard officialId="oid" congress="119" />
         </QueryClientProvider>
       </ChiaroClientProvider>

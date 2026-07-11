@@ -59,7 +59,13 @@ describe('scrubAddressInPlace', () => {
     const e: Event = {
       extra: {
         p_selections: [{ topic_slug: 'climate', position: 80 }],
-        rpcArgs: { selections: 'raw', topic_slug: 'guns', lens_slug: 'nra', position: 20, importance: 2 },
+        rpcArgs: {
+          selections: 'raw',
+          topic_slug: 'guns',
+          lens_slug: 'nra',
+          position: 20,
+          importance: 2,
+        },
         display_order: 3,
       },
     }
@@ -80,7 +86,7 @@ describe('scrubAddressInPlace', () => {
     const e: Event = { extra: { nested: cyclic } }
     // If the scrubber doesn't guard against cycles, this will hang the test.
     scrubAddressInPlace(e)
-    expect(((e.extra!.nested as Record<string, unknown>).address)).toBe('[scrubbed]')
+    expect((e.extra!.nested as Record<string, unknown>).address).toBe('[scrubbed]')
     expect((e.extra!.nested as Record<string, unknown>).self).toBe(cyclic)
   })
 })
@@ -97,7 +103,9 @@ describe('beforeSend (C52 — B10 web parity)', () => {
     const poisoned: Record<string, unknown> = {}
     Object.defineProperty(poisoned, 'trap', {
       enumerable: true,
-      get() { throw new Error('getter bomb') },
+      get() {
+        throw new Error('getter bomb')
+      },
     })
     const e: Event = { message: 'boom', level: 'error', extra: poisoned }
     const out = beforeSend(e)
@@ -110,13 +118,20 @@ describe('beforeBreadcrumb (C51 — Supabase URL query-strip)', () => {
   it('strips the query string from *.supabase.co URLs', () => {
     const b: Breadcrumb = {
       category: 'fetch',
-      data: { method: 'GET', url: 'https://ebxlyxxudxapswuoonhm.supabase.co/rest/v1/user_districts?select=district_id&user_id=eq.abc-123' },
+      data: {
+        method: 'GET',
+        url: 'https://ebxlyxxudxapswuoonhm.supabase.co/rest/v1/user_districts?select=district_id&user_id=eq.abc-123',
+      },
     }
-    expect(beforeBreadcrumb(b).data!.url).toBe('https://ebxlyxxudxapswuoonhm.supabase.co/rest/v1/user_districts')
+    expect(beforeBreadcrumb(b).data!.url).toBe(
+      'https://ebxlyxxudxapswuoonhm.supabase.co/rest/v1/user_districts',
+    )
   })
 
   it('strips localhost Supabase URLs too', () => {
-    const b: Breadcrumb = { data: { url: 'http://127.0.0.1:54321/rest/v1/user_locations?id=eq.abc' } }
+    const b: Breadcrumb = {
+      data: { url: 'http://127.0.0.1:54321/rest/v1/user_locations?id=eq.abc' },
+    }
     expect(beforeBreadcrumb(b).data!.url).toBe('http://127.0.0.1:54321/rest/v1/user_locations')
   })
 

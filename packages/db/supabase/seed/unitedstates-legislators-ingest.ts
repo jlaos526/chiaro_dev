@@ -8,8 +8,8 @@ import { Client } from 'pg'
 import { isCliEntry } from './shared/cli.ts'
 import { parse as parseYAML } from 'yaml'
 
-const DB_URL = process.env.SUPABASE_DB_URL
-  ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const DB_URL =
+  process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 
 const LEGISLATORS_CURRENT_URL =
   'https://raw.githubusercontent.com/unitedstates/congress-legislators/main/legislators-current.yaml'
@@ -23,7 +23,15 @@ interface Legislator {
 
 interface DistrictOfficeBlock {
   id: { bioguide: string }
-  offices: Array<{ address?: string; suite?: string; building?: string; city?: string; state?: string; zip?: string; phone?: string }>
+  offices: Array<{
+    address?: string
+    suite?: string
+    building?: string
+    city?: string
+    state?: string
+    zip?: string
+    phone?: string
+  }>
 }
 
 interface IngestArgs {
@@ -42,11 +50,11 @@ export async function ingestLegislators(args: IngestArgs = {}): Promise<{
   leadershipRows: number
   officeRows: number
 }> {
-  const legislatorsYamlText = args.legislatorsYaml ?? await fetchText(LEGISLATORS_CURRENT_URL)
-  const officesYamlText     = args.officesYaml     ?? await fetchText(DISTRICT_OFFICES_URL)
+  const legislatorsYamlText = args.legislatorsYaml ?? (await fetchText(LEGISLATORS_CURRENT_URL))
+  const officesYamlText = args.officesYaml ?? (await fetchText(DISTRICT_OFFICES_URL))
 
   const legislators = parseYAML(legislatorsYamlText) as Legislator[]
-  const officeBlocks = parseYAML(officesYamlText)   as DistrictOfficeBlock[]
+  const officeBlocks = parseYAML(officesYamlText) as DistrictOfficeBlock[]
 
   const client = new Client({ connectionString: DB_URL })
   await client.connect()
@@ -61,7 +69,7 @@ export async function ingestLegislators(args: IngestArgs = {}): Promise<{
     for (const leg of legislators) {
       const bioguide = leg.id.bioguide
       const opensecrets = leg.id.opensecrets ?? null
-      const fec         = (leg.id.fec && leg.id.fec[0]) ?? null
+      const fec = (leg.id.fec && leg.id.fec[0]) ?? null
       // coalesce preserves any existing ID when the YAML drops the field;
       // re-runs cannot null out an ID upstream removed (intentional).
       const res = await client.query(
@@ -87,7 +95,9 @@ export async function ingestLegislators(args: IngestArgs = {}): Promise<{
         } else if (role.chamber === 'senate') {
           chamberValue = 'federal_senate'
         } else {
-          console.warn(`Skipping leadership role with unsupported chamber=${role.chamber} for ${bioguide} (${role.title})`)
+          console.warn(
+            `Skipping leadership role with unsupported chamber=${role.chamber} for ${bioguide} (${role.title})`,
+          )
           continue
         }
         const r = await client.query(

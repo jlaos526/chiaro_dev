@@ -1,4 +1,9 @@
-import { type StateEnrichAdapter, type EnrichStats, updateStateBillAugment, fetchWithRetry } from './shared.ts'
+import {
+  type StateEnrichAdapter,
+  type EnrichStats,
+  updateStateBillAugment,
+  fetchWithRetry,
+} from './shared.ts'
 
 interface TXBillEnvelope {
   bill?: {
@@ -8,16 +13,18 @@ interface TXBillEnvelope {
   }
 }
 
-type TXBillFetcher = (
-  billRef: { bill_type: string; number: number; session: string },
-) => Promise<TXBillEnvelope | null>
+type TXBillFetcher = (billRef: {
+  bill_type: string
+  number: number
+  session: string
+}) => Promise<TXBillEnvelope | null>
 
 const defaultFetcher: TXBillFetcher = async (billRef) => {
   const url = `https://capitol.texas.gov/api/v1/bills/${billRef.session}/${billRef.bill_type}${billRef.number}`
   try {
     const res = await fetchWithRetry(url)
     if (!res.ok) return null
-    return await res.json() as TXBillEnvelope
+    return (await res.json()) as TXBillEnvelope
   } catch {
     return null
   }
@@ -39,17 +46,26 @@ export const enrichTexas: StateEnrichAdapter = {
     for (const b of bills.rows) {
       try {
         const fetched = await fetcher({
-          bill_type: b.bill_type, number: b.number, session: opts.session,
+          bill_type: b.bill_type,
+          number: b.number,
+          session: opts.session,
         })
         if (!fetched?.bill) continue
-        const updated = await updateStateBillAugment(opts.client, {
-          state: 'TX', session: opts.session, bill_type: b.bill_type, number: b.number,
-        }, {
-          status_substage:      fetched.bill.lastActionDescription      ?? null,
-          hearing_date:         fetched.bill.lastActionDate              ?? null,
-          fiscal_impact_amount: fetched.bill.fiscalNote?.totalCost       ?? null,
-          augmented_from:       'tx-capitol',
-        })
+        const updated = await updateStateBillAugment(
+          opts.client,
+          {
+            state: 'TX',
+            session: opts.session,
+            bill_type: b.bill_type,
+            number: b.number,
+          },
+          {
+            status_substage: fetched.bill.lastActionDescription ?? null,
+            hearing_date: fetched.bill.lastActionDate ?? null,
+            fiscal_impact_amount: fetched.bill.fiscalNote?.totalCost ?? null,
+            augmented_from: 'tx-capitol',
+          },
+        )
         if (updated) stats.billsUpdated += 1
       } catch (err) {
         stats.errors.push(`TX ${b.bill_type} ${b.number}: ${(err as Error).message}`)

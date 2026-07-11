@@ -9,7 +9,10 @@ export interface SettingsComingSoonRowProps {
   description?: string
 }
 
-export function SettingsComingSoonRow({ label, description }: SettingsComingSoonRowProps): React.JSX.Element {
+export function SettingsComingSoonRow({
+  label,
+  description,
+}: SettingsComingSoonRowProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   return (
     <SettingsRow>

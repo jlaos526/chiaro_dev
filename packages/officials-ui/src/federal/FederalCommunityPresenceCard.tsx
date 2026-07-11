@@ -2,10 +2,7 @@
 
 import { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
-import {
-  useOfficialDistrictOffices,
-  useOfficialTownHalls,
-} from '@chiaro/officials'
+import { useOfficialDistrictOffices, useOfficialTownHalls } from '@chiaro/officials'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
 import { useChiaroClient } from '../client-context.tsx'
@@ -41,7 +38,9 @@ export function FederalCommunityPresenceCard({
   if (offices.isLoading || halls.isLoading) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Community Presence</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+          Community Presence
+        </Text>
         <Text style={mutedStyle}>Loading community presence…</Text>
       </View>
     )
@@ -55,7 +54,9 @@ export function FederalCommunityPresenceCard({
   if (allEmpty) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Community Presence</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+          Community Presence
+        </Text>
         <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No community-presence data available for this legislator yet.
         </Text>
@@ -65,7 +66,9 @@ export function FederalCommunityPresenceCard({
 
   return (
     <View style={cardStyle}>
-      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Community Presence</Text>
+      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+        Community Presence
+      </Text>
       <Text style={summaryStyle}>
         {`${hallsCount} town hall${hallsCount === 1 ? '' : 's'}`}
         {' · '}
@@ -75,7 +78,7 @@ export function FederalCommunityPresenceCard({
       <CardSubsection
         label={`Town halls (${hallsCount})`}
         open={openHalls}
-        onToggle={() => setOpenHalls(v => !v)}
+        onToggle={() => setOpenHalls((v) => !v)}
       >
         <FederalTownHallsList rows={halls.data ?? []} />
       </CardSubsection>
@@ -83,7 +86,7 @@ export function FederalCommunityPresenceCard({
       <CardSubsection
         label={`District offices (${officesCount})`}
         open={openOffices}
-        onToggle={() => setOpenOffices(v => !v)}
+        onToggle={() => setOpenOffices((v) => !v)}
       >
         <FederalDistrictOfficesList rows={offices.data ?? []} />
       </CardSubsection>

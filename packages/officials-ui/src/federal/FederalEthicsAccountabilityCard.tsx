@@ -52,7 +52,9 @@ export function FederalEthicsAccountabilityCard({
   if (metrics.isLoading || stock.isLoading || holdings.isLoading || other.isLoading) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Ethics & Accountability</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+          Ethics & Accountability
+        </Text>
         <Text style={mutedStyle}>Loading ethics & accountability…</Text>
       </View>
     )
@@ -61,7 +63,7 @@ export function FederalEthicsAccountabilityCard({
   const m = metrics.data ?? null
   const compliancePct = m?.stock_act_compliance_pct ?? null
   const stockCount = stock.data?.length ?? 0
-  const lateCount = stock.data?.filter(t => (t.days_late ?? 0) > 0).length ?? 0
+  const lateCount = stock.data?.filter((t) => (t.days_late ?? 0) > 0).length ?? 0
   const holdingsCount = holdings.data?.length ?? 0
   const otherCount = other.data?.length ?? 0
   const allEmpty =
@@ -70,7 +72,9 @@ export function FederalEthicsAccountabilityCard({
   if (allEmpty) {
     return (
       <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Ethics & Accountability</Text>
+        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+          Ethics & Accountability
+        </Text>
         <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No stock-trade or STOCK-Act-compliance records on file.
         </Text>
@@ -82,21 +86,23 @@ export function FederalEthicsAccountabilityCard({
 
   return (
     <View style={cardStyle}>
-      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>Ethics & Accountability</Text>
+      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
+        Ethics & Accountability
+      </Text>
       <Text style={summaryStyle}>
         {`${stockCount} stock trade${stockCount === 1 ? '' : 's'}`}
         {' · '}
         {`${lateCount} late filing${lateCount === 1 ? '' : 's'}`}
         {' · '}
-        {compliancePct != null ? `${compliancePct}% STOCK Act compliance` : '— STOCK Act compliance'}
+        {compliancePct != null
+          ? `${compliancePct}% STOCK Act compliance`
+          : '— STOCK Act compliance'}
       </Text>
 
       {/* Compliance tile (always visible when pct present) */}
       {compliancePct != null && (
         <View style={[styles.complianceTile, { backgroundColor: semantic.bg.app }]}>
-          <Text style={[styles.compliancePct, { color: compColor }]}>
-            {compliancePct}%
-          </Text>
+          <Text style={[styles.compliancePct, { color: compColor }]}>{compliancePct}%</Text>
           <Text style={[styles.complianceLabel, { color: semantic.text.muted }]}>
             STOCK Act on-time filing compliance (federal 45-day deadline)
           </Text>
@@ -106,7 +112,7 @@ export function FederalEthicsAccountabilityCard({
       <CardSubsection
         label={`Stock trades (${stockCount})`}
         open={openStock}
-        onToggle={() => setOpenStock(v => !v)}
+        onToggle={() => setOpenStock((v) => !v)}
       >
         <FederalStockTransactionsList rows={stock.data ?? []} />
       </CardSubsection>
@@ -114,7 +120,7 @@ export function FederalEthicsAccountabilityCard({
       <CardSubsection
         label={`Holdings (${holdingsCount})`}
         open={openHoldings}
-        onToggle={() => setOpenHoldings(v => !v)}
+        onToggle={() => setOpenHoldings((v) => !v)}
       >
         <FederalHoldingsList rows={holdings.data ?? []} />
       </CardSubsection>
@@ -122,7 +128,7 @@ export function FederalEthicsAccountabilityCard({
       <CardSubsection
         label={`Other Disclosures (${otherCount})`}
         open={openOther}
-        onToggle={() => setOpenOther(v => !v)}
+        onToggle={() => setOpenOther((v) => !v)}
       >
         <FederalDisclosureOtherList rows={other.data ?? []} />
       </CardSubsection>

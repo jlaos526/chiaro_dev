@@ -1,5 +1,5 @@
-export { caFppcComplaints }  from './ca-fppc.ts'
+export { caFppcComplaints } from './ca-fppc.ts'
 export { nyJcopeComplaints } from './ny-jcope.ts'
-export { flCoeComplaints }   from './fl-coe.ts'
-export { txTecComplaints }   from './tx-tec.ts'
+export { flCoeComplaints } from './fl-coe.ts'
+export { txTecComplaints } from './tx-tec.ts'
 export { miBoardComplaints } from './mi-board.ts'

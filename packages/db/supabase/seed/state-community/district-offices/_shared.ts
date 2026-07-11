@@ -192,7 +192,7 @@ export async function fetchPerMemberOffices(
 
     // Audit M5: skip throttle after last iteration (saves ~1s/run).
     if (!opts.fetcher && i < totalRows - 1) {
-      await new Promise(resolve => setTimeout(resolve, RATE_LIMIT_MS))
+      await new Promise((resolve) => setTimeout(resolve, RATE_LIMIT_MS))
     }
   }
 
@@ -262,7 +262,10 @@ export function parseAddressText(raw: string): {
   const addrPart = raw.split(/·|Phone:/i)[0]!.trim()
 
   // Split on commas; expect "Street, City, State Zip" format
-  const segments = addrPart.split(',').map(s => s.trim()).filter(Boolean)
+  const segments = addrPart
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
   if (segments.length < 3) return null
 
   const street_1 = segments[0]!
@@ -274,8 +277,16 @@ export function parseAddressText(raw: string): {
   const state = stateZipMatch[1]!
   const postal_code = stateZipMatch[2]
 
-  const result: { street_1: string; city: string; state: string; postal_code?: string; phone?: string } = {
-    street_1, city, state,
+  const result: {
+    street_1: string
+    city: string
+    state: string
+    postal_code?: string
+    phone?: string
+  } = {
+    street_1,
+    city,
+    state,
   }
   if (postal_code) result.postal_code = postal_code
   if (phone) result.phone = phone

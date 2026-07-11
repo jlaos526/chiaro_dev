@@ -36,12 +36,7 @@ export function FederalVotingBillsCard({
   const [openCosponsored, setOpenCosponsored] = useState(false)
   const [openMissed, setOpenMissed] = useState(false)
 
-  if (
-    sponsored.isLoading
-    || cosponsored.isLoading
-    || missed.isLoading
-    || metrics.isLoading
-  ) {
+  if (sponsored.isLoading || cosponsored.isLoading || missed.isLoading || metrics.isLoading) {
     return (
       <View
         style={[
@@ -49,7 +44,11 @@ export function FederalVotingBillsCard({
           { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
         ]}
       >
-        <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>
+        <Text
+          style={[styles.title, { color: semantic.text.primary }]}
+          accessibilityRole="header"
+          accessibilityLevel={2}
+        >
           Voting & Bills ({congress}th Congress)
         </Text>
         <Text style={[styles.muted, { color: semantic.text.muted }]}>Loading voting & bills…</Text>
@@ -71,7 +70,11 @@ export function FederalVotingBillsCard({
           { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
         ]}
       >
-        <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>
+        <Text
+          style={[styles.title, { color: semantic.text.primary }]}
+          accessibilityRole="header"
+          accessibilityLevel={2}
+        >
           Voting & Bills ({congress}th Congress)
         </Text>
         <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
@@ -88,7 +91,11 @@ export function FederalVotingBillsCard({
         { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
       ]}
     >
-      <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>
+      <Text
+        style={[styles.title, { color: semantic.text.primary }]}
+        accessibilityRole="header"
+        accessibilityLevel={2}
+      >
         Voting & Bills ({congress}th Congress)
       </Text>
       <Text style={[styles.summary, { color: semantic.text.muted }]}>
@@ -102,7 +109,7 @@ export function FederalVotingBillsCard({
       <CardSubsection
         label={`Sponsored bills (${sponsoredCount})`}
         open={openSponsored}
-        onToggle={() => setOpenSponsored(v => !v)}
+        onToggle={() => setOpenSponsored((v) => !v)}
       >
         <FederalSponsoredBillsList rows={sponsored.data ?? []} />
       </CardSubsection>
@@ -110,7 +117,7 @@ export function FederalVotingBillsCard({
       <CardSubsection
         label={`Cosponsored bills (${cosponsoredCount})`}
         open={openCosponsored}
-        onToggle={() => setOpenCosponsored(v => !v)}
+        onToggle={() => setOpenCosponsored((v) => !v)}
       >
         <FederalCosponsoredBillsList rows={cosponsored.data ?? []} />
       </CardSubsection>
@@ -118,7 +125,7 @@ export function FederalVotingBillsCard({
       <CardSubsection
         label={`Missed votes (${missedCount})`}
         open={openMissed}
-        onToggle={() => setOpenMissed(v => !v)}
+        onToggle={() => setOpenMissed((v) => !v)}
       >
         <FederalMissedVotesList rows={missed.data ?? []} />
       </CardSubsection>

@@ -12,8 +12,8 @@
 import { Client } from 'pg'
 import { isCliEntry } from './shared/cli.ts'
 
-const DB_URL = process.env.SUPABASE_DB_URL
-  ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const DB_URL =
+  process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 
 // SF City Hall, near Pelosi's CA-11 district.
 const HOME_LAT = 37.7793
@@ -76,7 +76,8 @@ async function main(): Promise<void> {
     await client.query('COMMIT')
 
     console.log(`\nCalibration complete. ${matched.rows.length} districts matched:`)
-    for (const r of matched.rows) console.log(`  ${r.tier.padEnd(16)} ${r.code.padEnd(10)} ${r.name}`)
+    for (const r of matched.rows)
+      console.log(`  ${r.tier.padEnd(16)} ${r.code.padEnd(10)} ${r.name}`)
     console.log(`\nReload http://localhost:3000 — middleware should now let you through.`)
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {})
@@ -89,5 +90,8 @@ async function main(): Promise<void> {
 if (isCliEntry(import.meta.url)) {
   main()
     .then(() => process.exit(0))
-    .catch((e) => { console.error(e); process.exit(1) })
+    .catch((e) => {
+      console.error(e)
+      process.exit(1)
+    })
 }

@@ -56,7 +56,14 @@ export function IssueRadarChart({
     cy,
   )
   const userPoly = radarPolygon(userValues, r, cx, cy)
-  const repPoly = repValues ? radarPolygon(repValues.map((v) => v ?? 0), r, cx, cy) : null
+  const repPoly = repValues
+    ? radarPolygon(
+        repValues.map((v) => v ?? 0),
+        r,
+        cx,
+        cy,
+      )
+    : null
 
   return (
     <View accessibilityLabel={`Issue priorities radar: ${axisSummary}`}>
@@ -70,13 +77,26 @@ export function IssueRadarChart({
           const p = radarPoint(i, n, 1.18, r, cx, cy)
           const anchor = p.x < cx - 1 ? 'end' : p.x > cx + 1 ? 'start' : 'middle'
           return (
-            <SvgText key={`label-${i}`} x={p.x} y={p.y} fontSize={10} fill={c.grid} textAnchor={anchor}>
+            <SvgText
+              key={`label-${i}`}
+              x={p.x}
+              y={p.y}
+              fontSize={10}
+              fill={c.grid}
+              textAnchor={anchor}
+            >
               {label}
             </SvgText>
           )
         })}
         {repPoly && (
-          <Polygon points={repPoly} fill="none" stroke={c.repStroke} strokeWidth={1.6} strokeDasharray="4 2" />
+          <Polygon
+            points={repPoly}
+            fill="none"
+            stroke={c.repStroke}
+            strokeWidth={1.6}
+            strokeDasharray="4 2"
+          />
         )}
         <Polygon points={userPoly} fill={c.userFill} stroke={c.userStroke} strokeWidth={1.8} />
       </Svg>

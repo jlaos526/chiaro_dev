@@ -2,8 +2,8 @@
 import { Client } from 'pg'
 import { isCliEntry } from './shared/cli.ts'
 
-const DB_URL = process.env.SUPABASE_DB_URL
-  ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const DB_URL =
+  process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 const CONGRESS = '119'
 
 export async function recomputeMetrics() {
@@ -15,7 +15,8 @@ export async function recomputeMetrics() {
     await client.query('BEGIN')
 
     // One big upsert with computed columns
-    const res = await client.query(`
+    const res = await client.query(
+      `
       insert into public.official_metrics (
         official_id, congress,
         attendance_pct, votes_voted_count, votes_missed_count, total_roll_calls,
@@ -101,7 +102,9 @@ export async function recomputeMetrics() {
         stock_act_disclosures_late    = excluded.stock_act_disclosures_late,
         stock_act_compliance_pct      = excluded.stock_act_compliance_pct,
         computed_at = now()
-    `, [CONGRESS])
+    `,
+      [CONGRESS],
+    )
 
     officials = res.rowCount ?? 0
 
@@ -137,6 +140,12 @@ export async function recomputeMetrics() {
 
 if (isCliEntry(import.meta.url)) {
   recomputeMetrics()
-    .then(s => { console.log(JSON.stringify(s, null, 2)); process.exit(0) })
-    .catch(e => { console.error(e); process.exit(2) })
+    .then((s) => {
+      console.log(JSON.stringify(s, null, 2))
+      process.exit(0)
+    })
+    .catch((e) => {
+      console.error(e)
+      process.exit(2)
+    })
 }

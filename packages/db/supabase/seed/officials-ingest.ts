@@ -21,24 +21,24 @@ import {
 } from './officials-config.ts'
 
 export interface IngestArgs {
-  apiKey:               string
-  allowDeactivations?:  number      // explicit ack of expected deactivation count
-  congress?:            string      // override OFFICIALS_CONGRESS (for tests)
-  fetcher?:             typeof fetchMembers   // injection for tests
+  apiKey: string
+  allowDeactivations?: number // explicit ack of expected deactivation count
+  congress?: string // override OFFICIALS_CONGRESS (for tests)
+  fetcher?: typeof fetchMembers // injection for tests
 }
 
 export interface IngestStats {
-  runId:             string
-  fetched:           number
-  ingested:          number
-  unresolved:        Array<{ bioguideId: string; reason: string }>
-  deactivated:       number
-  status:            'completed' | 'failed' | 'aborted'
-  error?:            string
+  runId: string
+  fetched: number
+  ingested: number
+  unresolved: Array<{ bioguideId: string; reason: string }>
+  deactivated: number
+  status: 'completed' | 'failed' | 'aborted'
+  error?: string
 }
 
-type DistrictKey  = string   // 'federal_house:CA:12' or 'federal_senate:CA'
-type DistrictMap  = Map<DistrictKey, string>   // → district.id
+type DistrictKey = string // 'federal_house:CA:12' or 'federal_senate:CA'
+type DistrictMap = Map<DistrictKey, string> // → district.id
 
 // ---- helpers ----
 
@@ -67,7 +67,10 @@ function districtKey(member: NormalizedMember): DistrictKey | null {
 
 async function loadDistrictMap(client: Client): Promise<DistrictMap> {
   const rows = await client.query<{
-    id: string; tier: string; state: string; code: string;
+    id: string
+    tier: string
+    state: string
+    code: string
   }>(`select id, tier, state, code from public.districts
       where tier in ('federal_house','federal_senate')`)
   const map = new Map<DistrictKey, string>()
@@ -95,7 +98,8 @@ async function upsertOfficial(
   districtId: string,
   congress: string,
 ): Promise<void> {
-  await client.query(`
+  await client.query(
+    `
     insert into public.officials (
       bioguide_id, first_name, last_name, full_name, chamber, party, state,
       district_id, senate_class, portrait_url, official_url, twitter_handle,
@@ -116,25 +120,41 @@ async function upsertOfficial(
       next_election  = excluded.next_election,
       in_office      = true,
       source_version = excluded.source_version
-  `, [
-    member.bioguideId, member.firstName, member.lastName, member.fullName,
-    member.chamber, member.party, member.state, districtId, member.senateClass,
-    member.portraitUrl, member.officialUrl, null, member.nextElection,
-    congress,
-  ])
+  `,
+    [
+      member.bioguideId,
+      member.firstName,
+      member.lastName,
+      member.fullName,
+      member.chamber,
+      member.party,
+      member.state,
+      districtId,
+      member.senateClass,
+      member.portraitUrl,
+      member.officialUrl,
+      null,
+      member.nextElection,
+      congress,
+    ],
+  )
 }
 
 // ---- main flow ----
 
 export async function ingestOfficials(args: IngestArgs): Promise<IngestStats> {
   const congress = args.congress ?? OFFICIALS_CONGRESS
-  const fetcher  = args.fetcher  ?? fetchMembers
+  const fetcher = args.fetcher ?? fetchMembers
 
   const client = new Client({ connectionString: OFFICIALS_DB_URL })
   let runId: string | null = null
 
   const stats: IngestStats = {
-    runId: '', fetched: 0, ingested: 0, unresolved: [], deactivated: 0,
+    runId: '',
+    fetched: 0,
+    ingested: 0,
+    unresolved: [],
+    deactivated: 0,
     status: 'completed',
   }
 
@@ -143,19 +163,23 @@ export async function ingestOfficials(args: IngestArgs): Promise<IngestStats> {
 
     // Step 1: open audit run (outside transaction so it persists on failure).
     // Inside try/finally so a failure here still hits client.end().
-    const flags = args.allowDeactivations !== undefined
-      ? [`--allow-deactivations=${args.allowDeactivations}`]
-      : []
-    const openRes = await client.query<{ id: string }>(`
+    const flags =
+      args.allowDeactivations !== undefined
+        ? [`--allow-deactivations=${args.allowDeactivations}`]
+        : []
+    const openRes = await client.query<{ id: string }>(
+      `
       insert into public.officials_ingest_runs (congress, source, status, flags)
       values ($1,$2,'in_progress',$3) returning id
-    `, [congress, OFFICIALS_SOURCE, flags])
+    `,
+      [congress, OFFICIALS_SOURCE, flags],
+    )
     runId = openRes.rows[0]!.id
     stats.runId = runId
 
     // Step 2: fetch both chambers in parallel
     const [house, senate] = await Promise.all([
-      fetcher('federal_house',  congress, args.apiKey),
+      fetcher('federal_house', congress, args.apiKey),
       fetcher('federal_senate', congress, args.apiKey),
     ])
     stats.fetched = house.length + senate.length
@@ -192,10 +216,13 @@ export async function ingestOfficials(args: IngestArgs): Promise<IngestStats> {
     }
 
     // Step 7: compute deactivation set (Improvement 1 — explicit set, not source_version)
-    const toDeactRes = await client.query<{ count: string }>(`
+    const toDeactRes = await client.query<{ count: string }>(
+      `
       select count(*)::text as count from public.officials
         where in_office = true and bioguide_id != all($1::text[])
-    `, [ingestedBioguideIds])
+    `,
+      [ingestedBioguideIds],
+    )
     const toDeactivate = Number(toDeactRes.rows[0]!.count)
 
     // Step 8: threshold guard (Improvement 3)
@@ -208,23 +235,25 @@ export async function ingestOfficials(args: IngestArgs): Promise<IngestStats> {
       Math.ceil(active * DEACTIVATE_THRESHOLD_PCT),
     )
 
-    if (toDeactivate > threshold &&
-        args.allowDeactivations !== toDeactivate) {
+    if (toDeactivate > threshold && args.allowDeactivations !== toDeactivate) {
       throw new Error(
         `Refusing to deactivate ${toDeactivate} officials (threshold=${threshold}). ` +
-        `If this is expected (e.g., congressional turnover), re-run with ` +
-        `--allow-deactivations=${toDeactivate}`,
+          `If this is expected (e.g., congressional turnover), re-run with ` +
+          `--allow-deactivations=${toDeactivate}`,
       )
     }
 
     // Step 9: set-based deactivation
-    const deactRes = await client.query<{ id: string }>(`
+    const deactRes = await client.query<{ id: string }>(
+      `
       update public.officials
         set in_office = false
         where in_office = true
           and bioguide_id != all($1::text[])
         returning id
-    `, [ingestedBioguideIds])
+    `,
+      [ingestedBioguideIds],
+    )
     stats.deactivated = deactRes.rowCount ?? 0
 
     await closeRun(client, runId, stats, 'completed')
@@ -253,36 +282,43 @@ export async function ingestOfficials(args: IngestArgs): Promise<IngestStats> {
 // ---- audit-row writers ----
 
 async function closeRun(
-  client: Client, runId: string, stats: IngestStats,
+  client: Client,
+  runId: string,
+  stats: IngestStats,
   status: 'completed' | 'aborted',
 ): Promise<void> {
-  await client.query(`
+  await client.query(
+    `
     update public.officials_ingest_runs
       set status = $1, completed_at = now(),
           fetched_count = $2, ingested_count = $3, deactivated_count = $4
       where id = $5
-  `, [status, stats.fetched, stats.ingested, stats.deactivated, runId])
+  `,
+    [status, stats.fetched, stats.ingested, stats.deactivated, runId],
+  )
 }
 
-async function failRun(
-  client: Client, runId: string, error: string,
-): Promise<void> {
+async function failRun(client: Client, runId: string, error: string): Promise<void> {
   // Separate transaction — failRun must persist even after ROLLBACK.
-  await client.query(`
+  await client.query(
+    `
     update public.officials_ingest_runs
       set status = 'failed', completed_at = now(), error = $1
       where id = $2
-  `, [error.slice(0, 4000), runId])
+  `,
+    [error.slice(0, 4000), runId],
+  )
 }
 
-async function abortRun(
-  client: Client, runId: string, error: string,
-): Promise<void> {
-  await client.query(`
+async function abortRun(client: Client, runId: string, error: string): Promise<void> {
+  await client.query(
+    `
     update public.officials_ingest_runs
       set status = 'aborted', completed_at = now(), error = $1
       where id = $2
-  `, [error.slice(0, 4000), runId])
+  `,
+    [error.slice(0, 4000), runId],
+  )
 }
 
 // ---- CLI entry ----

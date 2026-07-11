@@ -4,11 +4,11 @@ import { Open } from 'unzipper'
 const BASE_URL = 'https://disclosures-clerk.house.gov/public_disc'
 
 export interface HouseFiling {
-  filingId:    string
+  filingId: string
   bioguideId?: string
-  fullName:    string
-  pdfBytes:    Buffer
-  pdfUrl:      string
+  fullName: string
+  pdfBytes: Buffer
+  pdfUrl: string
 }
 
 export interface HouseZipManifest {
@@ -32,14 +32,14 @@ type CentralFile = Awaited<ReturnType<typeof Open.buffer>>['files'][number]
  * follow-up signal (slice 22 onSkip already wires fetch failures).
  */
 export async function fetchHouseDisclosureZip(opts: {
-  year:     number
+  year: number
   formType: 'ptr' | 'fd'
   fetcher?: typeof fetch
 }): Promise<HouseZipManifest> {
   const fetcher = opts.fetcher ?? fetch
   const path = opts.formType === 'ptr' ? 'ptr-pdfs' : 'financial-pdfs'
-  const url  = `${BASE_URL}/${path}/${opts.year}.zip`
-  const res  = await fetcher(url, { headers: { 'User-Agent': 'ChiaroBot/1.0' } })
+  const url = `${BASE_URL}/${path}/${opts.year}.zip`
+  const res = await fetcher(url, { headers: { 'User-Agent': 'ChiaroBot/1.0' } })
   if (!res.ok) throw new Error(`House ZIP fetch failed: ${res.status} (${url})`)
   const buf = Buffer.from(await res.arrayBuffer())
   const zip = await Open.buffer(buf)
@@ -54,7 +54,10 @@ export async function fetchHouseDisclosureZip(opts: {
       const base = file.path.split(/[\\/]/).pop() ?? file.path
       const filingId = base.replace(/\.pdf$/i, '')
       pdfFiles.set(filingId, file)
-    } else if (!indexEntry && (name.endsWith('.xml') || name.endsWith('.csv') || name.endsWith('.txt'))) {
+    } else if (
+      !indexEntry &&
+      (name.endsWith('.xml') || name.endsWith('.csv') || name.endsWith('.txt'))
+    ) {
       indexEntry = file
     }
   }
@@ -71,10 +74,10 @@ export async function fetchHouseDisclosureZip(opts: {
     if (!pdfFile) continue
     const pdfBytes = await pdfFile.buffer()
     const filing: HouseFiling = {
-      filingId:  entry.filingId,
-      fullName:  entry.fullName,
+      filingId: entry.filingId,
+      fullName: entry.fullName,
       pdfBytes,
-      pdfUrl:    `${BASE_URL}/${path}/${opts.year}/${entry.filingId}.pdf`,
+      pdfUrl: `${BASE_URL}/${path}/${opts.year}/${entry.filingId}.pdf`,
     }
     if (entry.bioguideId) filing.bioguideId = entry.bioguideId
     filings.push(filing)
@@ -84,9 +87,9 @@ export async function fetchHouseDisclosureZip(opts: {
 }
 
 interface IndexEntry {
-  filingId:    string
+  filingId: string
   bioguideId?: string
-  fullName:    string
+  fullName: string
 }
 
 /**
@@ -109,7 +112,7 @@ function parseXmlIndex(text: string): IndexEntry[] {
     const filingId = childText(body, 'FilingID') ?? childText(body, 'DocID')
     if (!filingId) continue
     const first = childText(body, 'First') ?? ''
-    const last  = childText(body, 'Last') ?? ''
+    const last = childText(body, 'Last') ?? ''
     const bioguideId = childText(body, 'BioGuideID') ?? childText(body, 'BioguideID')
     const entry: IndexEntry = {
       filingId,
@@ -128,21 +131,21 @@ function childText(body: string, tag: string): string | undefined {
 }
 
 function parseCsvIndex(text: string): IndexEntry[] {
-  const lines = text.split(/\r?\n/).filter(l => l.trim())
+  const lines = text.split(/\r?\n/).filter((l) => l.trim())
   if (lines.length < 2) return []
-  const header = lines[0]!.split(',').map(h => h.trim().toLowerCase())
-  const filingIdx   = header.findIndex(h => /filing.?id|doc.?id/.test(h))
-  const firstIdx    = header.findIndex(h => /first/.test(h))
-  const lastIdx     = header.findIndex(h => /last/.test(h))
-  const bioguideIdx = header.findIndex(h => /bioguide/.test(h))
+  const header = lines[0]!.split(',').map((h) => h.trim().toLowerCase())
+  const filingIdx = header.findIndex((h) => /filing.?id|doc.?id/.test(h))
+  const firstIdx = header.findIndex((h) => /first/.test(h))
+  const lastIdx = header.findIndex((h) => /last/.test(h))
+  const bioguideIdx = header.findIndex((h) => /bioguide/.test(h))
   if (filingIdx < 0) return []
   const out: IndexEntry[] = []
   for (let i = 1; i < lines.length; i++) {
-    const cols = lines[i]!.split(',').map(c => c.trim())
+    const cols = lines[i]!.split(',').map((c) => c.trim())
     const filingId = cols[filingIdx]
     if (!filingId) continue
-    const first = firstIdx >= 0 ? cols[firstIdx] ?? '' : ''
-    const last  = lastIdx  >= 0 ? cols[lastIdx]  ?? '' : ''
+    const first = firstIdx >= 0 ? (cols[firstIdx] ?? '') : ''
+    const last = lastIdx >= 0 ? (cols[lastIdx] ?? '') : ''
     const bioguideId = bioguideIdx >= 0 ? cols[bioguideIdx] : undefined
     const entry: IndexEntry = {
       filingId,

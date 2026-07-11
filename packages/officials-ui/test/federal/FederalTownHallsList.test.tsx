@@ -11,12 +11,19 @@ describe('FederalTownHallsList', () => {
   })
 
   it('renders rows with format and attendance', () => {
-    const rows = [{
-      id: 't1', official_id: 'oid', event_date: '2026-03-15',
-      city: 'San Jose', state: 'CA', format: 'hybrid',
-      attendance_estimate: 120, source_url: 'https://x',
-      ingested_at: '2026-01-01',
-    }] as never[]
+    const rows = [
+      {
+        id: 't1',
+        official_id: 'oid',
+        event_date: '2026-03-15',
+        city: 'San Jose',
+        state: 'CA',
+        format: 'hybrid',
+        attendance_estimate: 120,
+        source_url: 'https://x',
+        ingested_at: '2026-01-01',
+      },
+    ] as never[]
     const { getByText } = render(<FederalTownHallsList rows={rows} />)
     expect(getByText(/Hybrid/i)).toBeTruthy()
     expect(getByText(/~120 attendees/)).toBeTruthy()
@@ -34,15 +41,20 @@ describe('FederalTownHallsList — mode awareness', () => {
     expect(() =>
       render(<FederalTownHallsList rows={[]} />, { wrapper: lightWrapper }),
     ).not.toThrow()
-    expect(() =>
-      render(<FederalTownHallsList rows={[]} />, { wrapper: darkWrapper }),
-    ).not.toThrow()
-    const sampleRows = [{
-      id: 't1', official_id: 'oid', event_date: '2026-03-15',
-      city: 'San Jose', state: 'CA', format: 'hybrid',
-      attendance_estimate: 120, source_url: 'https://x',
-      ingested_at: '2026-01-01',
-    }] as never[]
+    expect(() => render(<FederalTownHallsList rows={[]} />, { wrapper: darkWrapper })).not.toThrow()
+    const sampleRows = [
+      {
+        id: 't1',
+        official_id: 'oid',
+        event_date: '2026-03-15',
+        city: 'San Jose',
+        state: 'CA',
+        format: 'hybrid',
+        attendance_estimate: 120,
+        source_url: 'https://x',
+        ingested_at: '2026-01-01',
+      },
+    ] as never[]
     expect(() =>
       render(<FederalTownHallsList rows={sampleRows} />, { wrapper: lightWrapper }),
     ).not.toThrow()

@@ -14,7 +14,13 @@ const user = { displayName: 'Sarah', username: 'sarah', initial: 'S' }
 describe('BrandNavRail desktop variant', () => {
   it('renders avatar block with name + @handle', () => {
     const { getByText } = render(
-      <BrandNavRail variant="desktop" user={user} pathname="/" onNavigate={() => {}} onSignOut={() => {}} />,
+      <BrandNavRail
+        variant="desktop"
+        user={user}
+        pathname="/"
+        onNavigate={() => {}}
+        onSignOut={() => {}}
+      />,
       { wrapper: withMode('light') },
     )
     expect(getByText('Sarah')).toBeTruthy()
@@ -24,7 +30,13 @@ describe('BrandNavRail desktop variant', () => {
 
   it('renders 3 nav items (Home / Officials / Settings)', () => {
     const { getByText } = render(
-      <BrandNavRail variant="desktop" user={user} pathname="/" onNavigate={() => {}} onSignOut={() => {}} />,
+      <BrandNavRail
+        variant="desktop"
+        user={user}
+        pathname="/"
+        onNavigate={() => {}}
+        onSignOut={() => {}}
+      />,
       { wrapper: withMode('light') },
     )
     expect(getByText('Home')).toBeTruthy()
@@ -34,18 +46,31 @@ describe('BrandNavRail desktop variant', () => {
 
   it('marks the active item with data-active="true"', () => {
     const { container } = render(
-      <BrandNavRail variant="desktop" user={user} pathname="/officials" onNavigate={() => {}} onSignOut={() => {}} />,
+      <BrandNavRail
+        variant="desktop"
+        user={user}
+        pathname="/officials"
+        onNavigate={() => {}}
+        onSignOut={() => {}}
+      />,
       { wrapper: withMode('light') },
     )
     // Find any element with data-active="true" whose text descendant is "Officials"
-    const officialsActive = Array.from(container.querySelectorAll('[data-active="true"]'))
-      .find(el => el.textContent?.includes('Officials'))
+    const officialsActive = Array.from(container.querySelectorAll('[data-active="true"]')).find(
+      (el) => el.textContent?.includes('Officials'),
+    )
     expect(officialsActive).toBeTruthy()
   })
 
   it('renders Sign out at bottom', () => {
     const { getByText } = render(
-      <BrandNavRail variant="desktop" user={user} pathname="/" onNavigate={() => {}} onSignOut={() => {}} />,
+      <BrandNavRail
+        variant="desktop"
+        user={user}
+        pathname="/"
+        onNavigate={() => {}}
+        onSignOut={() => {}}
+      />,
       { wrapper: withMode('light') },
     )
     expect(getByText('Sign out')).toBeTruthy()
@@ -54,7 +79,13 @@ describe('BrandNavRail desktop variant', () => {
   it('invokes onNavigate when a nav item is pressed', () => {
     const onNavigate = vi.fn()
     const { getByText } = render(
-      <BrandNavRail variant="desktop" user={user} pathname="/" onNavigate={onNavigate} onSignOut={() => {}} />,
+      <BrandNavRail
+        variant="desktop"
+        user={user}
+        pathname="/"
+        onNavigate={onNavigate}
+        onSignOut={() => {}}
+      />,
       { wrapper: withMode('light') },
     )
     fireEvent.click(getByText('Officials'))
@@ -64,7 +95,13 @@ describe('BrandNavRail desktop variant', () => {
   it('invokes onSignOut when Sign out is pressed', () => {
     const onSignOut = vi.fn()
     const { getByText } = render(
-      <BrandNavRail variant="desktop" user={user} pathname="/" onNavigate={() => {}} onSignOut={onSignOut} />,
+      <BrandNavRail
+        variant="desktop"
+        user={user}
+        pathname="/"
+        onNavigate={() => {}}
+        onSignOut={onSignOut}
+      />,
       { wrapper: withMode('light') },
     )
     fireEvent.click(getByText('Sign out'))
@@ -209,7 +246,9 @@ describe('BrandNavRail mobile variant', () => {
       />,
       { wrapper: withMode('light') },
     )
-    expect(container.querySelector('[aria-label="Open menu"]')?.getAttribute('aria-expanded')).toBe('false')
+    expect(container.querySelector('[aria-label="Open menu"]')?.getAttribute('aria-expanded')).toBe(
+      'false',
+    )
     rerender(
       <BrandNavRail
         variant="mobile"
@@ -221,7 +260,9 @@ describe('BrandNavRail mobile variant', () => {
         onSignOut={() => {}}
       />,
     )
-    expect(container.querySelector('[aria-label="Open menu"]')?.getAttribute('aria-expanded')).toBe('true')
+    expect(container.querySelector('[aria-label="Open menu"]')?.getAttribute('aria-expanded')).toBe(
+      'true',
+    )
   })
 
   it('mobile top bar uses position: fixed on web', () => {

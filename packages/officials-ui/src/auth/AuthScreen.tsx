@@ -13,7 +13,10 @@ export interface AuthScreenProps extends AuthFormProps {
   showBranding?: boolean
 }
 
-export function AuthScreen({ showBranding = true, ...formProps }: AuthScreenProps): React.JSX.Element {
+export function AuthScreen({
+  showBranding = true,
+  ...formProps
+}: AuthScreenProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
 
   const card = (

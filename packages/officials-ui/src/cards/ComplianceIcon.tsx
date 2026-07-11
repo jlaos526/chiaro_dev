@@ -9,9 +9,12 @@ export interface ComplianceIconProps {
 // Glyph + label stay as inline constants — they're not palette concerns.
 // Color values come from useAlignmentChipColors via the slice 42 refactor,
 // so dark mode + future palette tweaks track automatically.
-const GLYPH: Record<ComplianceIconProps['state'], { glyph: string; label: string; tier: AlignmentTier }> = {
+const GLYPH: Record<
+  ComplianceIconProps['state'],
+  { glyph: string; label: string; tier: AlignmentTier }
+> = {
   'on-time': { glyph: '✓', label: 'Filed on time', tier: 'strongly-aligned' },
-  'late':    { glyph: '✖', label: 'Late filing',   tier: 'mostly-differs' }, // ✖ = U+2716
+  late: { glyph: '✖', label: 'Late filing', tier: 'mostly-differs' }, // ✖ = U+2716
 }
 
 export function ComplianceIcon({ state }: ComplianceIconProps): React.JSX.Element {

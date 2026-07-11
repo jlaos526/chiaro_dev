@@ -1,4 +1,9 @@
-import type { GeocodioResponse, CalibrateInput, ResolvedDistrict, GeocodioCandidate } from './types.ts'
+import type {
+  GeocodioResponse,
+  CalibrateInput,
+  ResolvedDistrict,
+  GeocodioCandidate,
+} from './types.ts'
 
 export interface GeocodioClient {
   lookup(input: CalibrateInput): Promise<GeocodioResponse>
@@ -10,7 +15,7 @@ export class GeocodioHttpClient implements GeocodioClient {
   async lookup(input: CalibrateInput): Promise<GeocodioResponse> {
     const params = new URLSearchParams({
       api_key: this.apiKey,
-      fields: 'cd,stateleg,census2020',     // pinned field flags
+      fields: 'cd,stateleg,census2020', // pinned field flags
     })
     if ('address' in input) {
       params.set('q', input.address)
@@ -26,7 +31,7 @@ export class GeocodioHttpClient implements GeocodioClient {
       if (!res.ok) {
         throw new GeocodioError(res.status, await res.text())
       }
-      return await res.json() as GeocodioResponse
+      return (await res.json()) as GeocodioResponse
     } finally {
       clearTimeout(t)
     }
@@ -34,7 +39,10 @@ export class GeocodioHttpClient implements GeocodioClient {
 }
 
 export class GeocodioError extends Error {
-  constructor(public readonly status: number, public readonly body: string) {
+  constructor(
+    public readonly status: number,
+    public readonly body: string,
+  ) {
     super(`GeocodIO ${status}: ${body.slice(0, 200)}`)
   }
 }
@@ -98,7 +106,7 @@ export function extractDistricts(c: GeocodioCandidate): ResolvedDistrict[] {
         tier: 'county',
         state,
         code: census.county_fips,
-        name: `County ${census.county_fips}`,        // refined from districts table on lookup
+        name: `County ${census.county_fips}`, // refined from districts table on lookup
       })
     }
     if (census.place?.fips) {

@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url'
 import { ingestOfficials } from './officials-ingest.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const FIX_DIR   = join(__dirname, 'fixtures')
-const DB_URL    = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const FIX_DIR = join(__dirname, 'fixtures')
+const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 
 // Final entry is at-large.
 const TEST_STATES = ['CA', 'TX', 'NY', 'FL', 'WY'] as const
@@ -15,8 +15,7 @@ const TEST_STATES = ['CA', 'TX', 'NY', 'FL', 'WY'] as const
 // Five-square MULTIPOLYGON used as filler geometry for every fixture
 // district. The CHECK constraint on `districts.geometry` requires
 // `geography(MultiPolygon, 4326)`.
-const FIXTURE_GEOM =
-  `MULTIPOLYGON(((-120 35, -119 35, -119 36, -120 36, -120 35)))`
+const FIXTURE_GEOM = `MULTIPOLYGON(((-120 35, -119 35, -119 36, -120 36, -120 35)))`
 
 // ---- fixture generation ----------------------------------------------------
 
@@ -44,12 +43,7 @@ function senatorRecord(
   }
 }
 
-function houseRecord(
-  bioguideId: string,
-  stateCode: string,
-  district: number,
-  partyName: string,
-) {
+function houseRecord(bioguideId: string, stateCode: string, district: number, partyName: string) {
   return {
     bioguideId,
     firstName: 'F' + bioguideId,
@@ -100,9 +94,7 @@ async function ensureFixtures() {
   for (const state of ['CA', 'TX', 'NY', 'FL'] as const) {
     for (let n = 1; n <= 15; n++) {
       const idx = n.toString().padStart(2, '0')
-      houseFull.push(
-        houseRecord(`H${state}${idx}`, state, n, n % 2 ? 'Democratic' : 'Republican'),
-      )
+      houseFull.push(houseRecord(`H${state}${idx}`, state, n, n % 2 ? 'Democratic' : 'Republican'))
     }
   }
   houseFull.push(houseRecord('HWY0AL', 'WY', 0, 'Republican'))
@@ -114,26 +106,17 @@ async function ensureFixtures() {
     houseFull.push(houseRecord(`HPAD${idx}`, 'CA', 1, 'Democratic'))
   }
 
-  await writeJson('congress-gov-house-119-full.json',  pageOf(houseFull))
+  await writeJson('congress-gov-house-119-full.json', pageOf(houseFull))
   await writeJson('congress-gov-senate-119-full.json', pageOf(senateFull))
 
   // 350 < MIN_HOUSE_COUNT (400) — should trigger pre-flight abort.
-  await writeJson(
-    'congress-gov-house-partial.json',
-    pageOf(houseFull.slice(0, 350)),
-  )
+  await writeJson('congress-gov-house-partial.json', pageOf(houseFull.slice(0, 350)))
 
   // 50 members removed from the head → 50 deactivations expected on a re-run.
-  await writeJson(
-    'congress-gov-house-missing-50.json',
-    pageOf(houseFull.slice(50)),
-  )
+  await writeJson('congress-gov-house-missing-50.json', pageOf(houseFull.slice(50)))
 
   // 99 instead of 100 — still ≥ MIN_SENATE_COUNT (95) but drops SCA001.
-  await writeJson(
-    'congress-gov-senate-without-one.json',
-    pageOf(senateFull.slice(1)),
-  )
+  await writeJson('congress-gov-senate-without-one.json', pageOf(senateFull.slice(1)))
 }
 
 // ---- fetcher dispatch ------------------------------------------------------
@@ -242,10 +225,7 @@ describe('officials-ingest — happy path', () => {
   it('ingests full set and writes a completed audit row', async () => {
     const stats = await ingestOfficials({
       apiKey: 'FX',
-      fetcher: fetcherFor(
-        'congress-gov-house-119-full.json',
-        'congress-gov-senate-119-full.json',
-      ),
+      fetcher: fetcherFor('congress-gov-house-119-full.json', 'congress-gov-senate-119-full.json'),
     })
     expect(stats.status).toBe('completed')
     expect(stats.ingested).toBeGreaterThan(500)
@@ -266,10 +246,7 @@ describe('officials-ingest — pre-flight abort (Improvement 2)', () => {
     await expect(
       ingestOfficials({
         apiKey: 'FX',
-        fetcher: fetcherFor(
-          'congress-gov-house-partial.json',
-          'congress-gov-senate-119-full.json',
-        ),
+        fetcher: fetcherFor('congress-gov-house-partial.json', 'congress-gov-senate-119-full.json'),
       }),
     ).rejects.toThrow(/Pre-flight/)
     const after = await client.query(`select count(*)::text from public.officials`)
@@ -288,10 +265,7 @@ describe('officials-ingest — threshold guard (Improvement 3)', () => {
     // Seed with full set.
     await ingestOfficials({
       apiKey: 'FX',
-      fetcher: fetcherFor(
-        'congress-gov-house-119-full.json',
-        'congress-gov-senate-119-full.json',
-      ),
+      fetcher: fetcherFor('congress-gov-house-119-full.json', 'congress-gov-senate-119-full.json'),
     })
 
     // Second run: 50 fewer → exceeds threshold (max(5, ceil(540*0.01))=6).
@@ -314,10 +288,7 @@ describe('officials-ingest — threshold guard (Improvement 3)', () => {
   it('proceeds when --allow-deactivations matches', async () => {
     await ingestOfficials({
       apiKey: 'FX',
-      fetcher: fetcherFor(
-        'congress-gov-house-119-full.json',
-        'congress-gov-senate-119-full.json',
-      ),
+      fetcher: fetcherFor('congress-gov-house-119-full.json', 'congress-gov-senate-119-full.json'),
     })
     const stats2 = await ingestOfficials({
       apiKey: 'FX',
@@ -336,10 +307,7 @@ describe('officials-ingest — within-congress departure (Improvement 1)', () =>
   it('deactivates a member absent from fetch, even if source_version matches', async () => {
     await ingestOfficials({
       apiKey: 'FX',
-      fetcher: fetcherFor(
-        'congress-gov-house-119-full.json',
-        'congress-gov-senate-119-full.json',
-      ),
+      fetcher: fetcherFor('congress-gov-house-119-full.json', 'congress-gov-senate-119-full.json'),
     })
     const stats = await ingestOfficials({
       apiKey: 'FX',
@@ -363,14 +331,9 @@ describe('officials-ingest — transaction atomicity (Improvement 4)', () => {
     // back against.
     await ingestOfficials({
       apiKey: 'FX',
-      fetcher: fetcherFor(
-        'congress-gov-house-119-full.json',
-        'congress-gov-senate-119-full.json',
-      ),
+      fetcher: fetcherFor('congress-gov-house-119-full.json', 'congress-gov-senate-119-full.json'),
     })
-    const beforeRes = await client.query(
-      `select count(*)::text from public.officials`,
-    )
+    const beforeRes = await client.query(`select count(*)::text from public.officials`)
     const before = Number(beforeRes.rows[0].count)
 
     // Broken fetcher: returns the real house fixture (which will be upserted
@@ -396,8 +359,7 @@ describe('officials-ingest — transaction atomicity (Improvement 4)', () => {
           state: 'CA',
           districtNumber: null,
           senateClass: null,
-          portraitUrl:
-            'https://bioguide.congress.gov/bioguide/photo/S/SVIOL001.jpg',
+          portraitUrl: 'https://bioguide.congress.gov/bioguide/photo/S/SVIOL001.jpg',
           officialUrl: null,
           nextElection: null,
         })
@@ -407,20 +369,14 @@ describe('officials-ingest — transaction atomicity (Improvement 4)', () => {
       return j.members.map(normalizeMember)
     }
 
-    await expect(
-      ingestOfficials({ apiKey: 'FX', fetcher: broken }),
-    ).rejects.toThrow()
+    await expect(ingestOfficials({ apiKey: 'FX', fetcher: broken })).rejects.toThrow()
 
     // No rows leaked from the partial transaction.
-    const afterRes = await client.query(
-      `select count(*)::text from public.officials`,
-    )
+    const afterRes = await client.query(`select count(*)::text from public.officials`)
     expect(Number(afterRes.rows[0].count)).toBe(before)
 
     // Bad bioguide_id never landed.
-    const bad = await client.query(
-      `select 1 from public.officials where bioguide_id='SVIOL001'`,
-    )
+    const bad = await client.query(`select 1 from public.officials where bioguide_id='SVIOL001'`)
     expect(bad.rowCount).toBe(0)
 
     // Audit row records the failure.

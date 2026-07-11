@@ -2,7 +2,11 @@ import type { Client } from 'pg'
 import type { SkipReason } from '../shared/instrumentation.ts'
 
 export type ScorecardLean =
-  'progressive' | 'conservative' | 'libertarian' | 'single-issue' | 'centrist'
+  | 'progressive'
+  | 'conservative'
+  | 'libertarian'
+  | 'single-issue'
+  | 'centrist'
 
 export interface NormalizedStateRating {
   openstates_person_id: string
@@ -25,7 +29,7 @@ export interface StateScorecardAdapter {
     client: Client
     session: string
     state?: string
-    fetcher?: () => Promise<NormalizedStateRating[]>  // test injection
+    fetcher?: () => Promise<NormalizedStateRating[]> // test injection
     onSkip?: (reason: SkipReason) => void
   }): Promise<NormalizedStateRating[]>
 }
@@ -50,7 +54,8 @@ export async function upsertStateScorecardOrg(
   adapter: StateScorecardAdapter,
   state: string,
 ): Promise<string> {
-  const result = await client.query<{ id: string }>(`
+  const result = await client.query<{ id: string }>(
+    `
     insert into public.state_scorecard_orgs (
       slug, state, name, issue_area, lean,
       methodology_url, scoring_min, scoring_max, notes
@@ -64,16 +69,19 @@ export async function upsertStateScorecardOrg(
       scoring_max     = excluded.scoring_max,
       notes           = excluded.notes
     returning id
-  `, [
-    adapter.slug, state,
-    adapter.name_template(state),
-    adapter.issue_area,
-    adapter.lean,
-    adapter.methodology_url_template(state),
-    adapter.scoring_min,
-    adapter.scoring_max,
-    adapter.notes ?? null,
-  ])
+  `,
+    [
+      adapter.slug,
+      state,
+      adapter.name_template(state),
+      adapter.issue_area,
+      adapter.lean,
+      adapter.methodology_url_template(state),
+      adapter.scoring_min,
+      adapter.scoring_max,
+      adapter.notes ?? null,
+    ],
+  )
   return result.rows[0]!.id
 }
 
@@ -96,7 +104,8 @@ export async function upsertStateScorecardRating(
   )
   if (off.rowCount === 0) return false
 
-  await client.query(`
+  await client.query(
+    `
     insert into public.state_scorecard_ratings (
       scorecard_id, official_id, session, score, source_url
     ) values ($1, $2, $3, $4, $5)
@@ -104,6 +113,8 @@ export async function upsertStateScorecardRating(
       score       = excluded.score,
       source_url  = excluded.source_url,
       ingested_at = now()
-  `, [scorecardId, off.rows[0]!.id, session, score, source_url])
+  `,
+    [scorecardId, off.rows[0]!.id, session, score, source_url],
+  )
   return true
 }

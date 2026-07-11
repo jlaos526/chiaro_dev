@@ -5,21 +5,27 @@ import { fileURLToPath } from 'node:url'
 import { isCliEntry } from './shared/cli.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DB_URL = process.env.SUPABASE_DB_URL
-  ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const DB_URL =
+  process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 const DEFAULT_CACHE_DIR = join(__dirname, '.cache', 'openstates-committees')
 
 const CHAMBER_MAP: Record<string, 'state_house' | 'state_senate' | 'state_legislature'> = {
-  lower:        'state_house',
-  upper:        'state_senate',
-  legislature:  'state_legislature',
+  lower: 'state_house',
+  upper: 'state_senate',
+  legislature: 'state_legislature',
 }
 
 function normalizeRole(raw: string): 'chair' | 'vice_chair' | 'member' {
   const r = raw.toLowerCase().trim()
   if (r === 'chair' || r === 'chairperson' || r === 'chairman' || r === 'chairwoman') return 'chair'
-  if (r === 'vice chair' || r === 'vice_chair' || r === 'vice-chair'
-      || r === 'vice chairperson' || r === 'vice-chairperson') return 'vice_chair'
+  if (
+    r === 'vice chair' ||
+    r === 'vice_chair' ||
+    r === 'vice-chair' ||
+    r === 'vice chairperson' ||
+    r === 'vice-chairperson'
+  )
+    return 'vice_chair'
   return 'member'
 }
 
@@ -90,17 +96,21 @@ async function processCommittee(
     // on `on conflict` when `session` is NULL. Do a manual check-then-
     // upsert: existing row → UPDATE by primary key, otherwise INSERT
     // (which falls through `on conflict do update` for the non-NULL case).
-    const existing = await client.query<{ id: string }>(`
+    const existing = await client.query<{ id: string }>(
+      `
       select id from public.state_committee_memberships
       where official_id = $1
         and openstates_committee_id = $2
         and role = $3
         and session is not distinct from $4
       limit 1
-    `, [officialId, cmt.id, role, session])
+    `,
+      [officialId, cmt.id, role, session],
+    )
 
     if (existing.rowCount && existing.rowCount > 0) {
-      await client.query(`
+      await client.query(
+        `
         update public.state_committee_memberships
         set committee_name = $2,
             state          = $3,
@@ -108,9 +118,12 @@ async function processCommittee(
             source_url     = $5,
             ingested_at    = now()
         where id = $1
-      `, [existing.rows[0]!.id, cmt.name, state, chamber, sourceUrl])
+      `,
+        [existing.rows[0]!.id, cmt.name, state, chamber, sourceUrl],
+      )
     } else {
-      await client.query(`
+      await client.query(
+        `
         insert into public.state_committee_memberships (
           official_id, openstates_committee_id, committee_name,
           state, chamber, session, role, source_url
@@ -122,10 +135,9 @@ async function processCommittee(
           chamber        = excluded.chamber,
           source_url     = excluded.source_url,
           ingested_at    = now()
-      `, [
-        officialId, cmt.id, cmt.name,
-        state, chamber, session, role, sourceUrl,
-      ])
+      `,
+        [officialId, cmt.id, cmt.name, state, chamber, session, role, sourceUrl],
+      )
     }
     stats.membershipsUpserted += 1
     stats.officialsMatched += 1
@@ -185,7 +197,7 @@ export async function ingestStateCommittees(
 
 if (isCliEntry(import.meta.url)) {
   ingestStateCommittees({})
-    .then(stats => {
+    .then((stats) => {
       console.log('OpenStates committees ingest summary:')
       console.log(`  committees processed:    ${stats.committeesProcessed}`)
       console.log(`  memberships upserted:    ${stats.membershipsUpserted}`)
@@ -195,5 +207,8 @@ if (isCliEntry(import.meta.url)) {
       for (const e of stats.errors) console.log(`    - ${e}`)
       process.exit(stats.errors.length > 0 ? 1 : 0)
     })
-    .catch(err => { console.error(err.message); process.exit(1) })
+    .catch((err) => {
+      console.error(err.message)
+      process.exit(1)
+    })
 }

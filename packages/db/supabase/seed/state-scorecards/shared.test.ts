@@ -19,7 +19,9 @@ const TEST_ADAPTER: StateScorecardAdapter = {
   scoring_min: 0,
   scoring_max: 100,
   covered_states: ['CA'],
-  async fetchRatings() { return [] },
+  async fetchRatings() {
+    return []
+  },
 }
 
 beforeEach(async () => {
@@ -44,7 +46,9 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  await client.query('delete from public.state_scorecard_ratings where official_id = $1', [officialId])
+  await client.query('delete from public.state_scorecard_ratings where official_id = $1', [
+    officialId,
+  ])
   await client.query("delete from public.state_scorecard_orgs where slug = 'aclu' and state = 'CA'")
   await client.query("delete from public.officials where source_version = 'FX-scs'")
   await client.query("delete from public.districts where source_version = 'FX-scs'")
@@ -77,11 +81,17 @@ describe('upsertStateScorecardRating', () => {
   it('returns true and inserts rating for known official', async () => {
     const scorecardId = await upsertStateScorecardOrg(client, TEST_ADAPTER, 'CA')
     const ok = await upsertStateScorecardRating(
-      client, scorecardId, 'ocd-person/fx-scs', '20252026', 85.5, 'https://x',
+      client,
+      scorecardId,
+      'ocd-person/fx-scs',
+      '20252026',
+      85.5,
+      'https://x',
     )
     expect(ok).toBe(true)
     const row = await client.query<{ score: string }>(
-      'select score from public.state_scorecard_ratings where official_id = $1', [officialId],
+      'select score from public.state_scorecard_ratings where official_id = $1',
+      [officialId],
     )
     expect(Number(row.rows[0]!.score)).toBe(85.5)
   })
@@ -89,7 +99,12 @@ describe('upsertStateScorecardRating', () => {
   it('returns false for unknown openstates_person_id (does not insert)', async () => {
     const scorecardId = await upsertStateScorecardOrg(client, TEST_ADAPTER, 'CA')
     const ok = await upsertStateScorecardRating(
-      client, scorecardId, 'ocd-person/UNKNOWN', '20252026', 50, 'https://x',
+      client,
+      scorecardId,
+      'ocd-person/UNKNOWN',
+      '20252026',
+      50,
+      'https://x',
     )
     expect(ok).toBe(false)
     const c = await client.query<{ c: number }>(
@@ -101,10 +116,25 @@ describe('upsertStateScorecardRating', () => {
 
   it('idempotent: second call updates score', async () => {
     const scorecardId = await upsertStateScorecardOrg(client, TEST_ADAPTER, 'CA')
-    await upsertStateScorecardRating(client, scorecardId, 'ocd-person/fx-scs', '20252026', 50, 'https://x')
-    await upsertStateScorecardRating(client, scorecardId, 'ocd-person/fx-scs', '20252026', 75, 'https://y')
+    await upsertStateScorecardRating(
+      client,
+      scorecardId,
+      'ocd-person/fx-scs',
+      '20252026',
+      50,
+      'https://x',
+    )
+    await upsertStateScorecardRating(
+      client,
+      scorecardId,
+      'ocd-person/fx-scs',
+      '20252026',
+      75,
+      'https://y',
+    )
     const row = await client.query<{ score: string; source_url: string }>(
-      'select score, source_url from public.state_scorecard_ratings where official_id = $1', [officialId],
+      'select score, source_url from public.state_scorecard_ratings where official_id = $1',
+      [officialId],
     )
     expect(Number(row.rows[0]!.score)).toBe(75)
     expect(row.rows[0]!.source_url).toBe('https://y')

@@ -49,11 +49,7 @@ export function BrandImageProvider({
   component,
   children,
 }: BrandImageProviderProps): React.JSX.Element {
-  return (
-    <BrandImageContext.Provider value={component}>
-      {children}
-    </BrandImageContext.Provider>
-  )
+  return <BrandImageContext.Provider value={component}>{children}</BrandImageContext.Provider>
 }
 
 export function useBrandImage(): BrandImageComponent {

@@ -16,7 +16,16 @@ const wrap = (ui: ReactElement) =>
 
 const ALIGNED: RepAlignment = {
   overallPct: 72,
-  axes: [{ topicSlug: 'environment', label: 'Environment', alignmentPct: 80, dot: 'aligned', userPos: 90, repPos: 80 }],
+  axes: [
+    {
+      topicSlug: 'environment',
+      label: 'Environment',
+      alignmentPct: 80,
+      dot: 'aligned',
+      userPos: 90,
+      repPos: 80,
+    },
+  ],
 }
 
 describe('RepAlignmentStrip', () => {
@@ -44,12 +53,7 @@ describe('RepAlignmentStrip', () => {
   it('calls onExpand when the aligned strip is pressed', () => {
     const onExpand = vi.fn()
     const { getByText } = wrap(
-      <RepAlignmentStrip
-        hasSelections
-        onExpand={onExpand}
-        onSetup={vi.fn()}
-        alignment={ALIGNED}
-      />,
+      <RepAlignmentStrip hasSelections onExpand={onExpand} onSetup={vi.fn()} alignment={ALIGNED} />,
     )
     fireEvent.click(getByText('72%'))
     expect(onExpand).toHaveBeenCalled()
@@ -79,9 +83,30 @@ describe('RepAlignmentStrip', () => {
         alignment={{
           overallPct: 50,
           axes: [
-            { topicSlug: 'a', label: 'A', alignmentPct: 90, dot: 'aligned', userPos: 90, repPos: 85 },
-            { topicSlug: 'b', label: 'B', alignmentPct: 50, dot: 'partial', userPos: 50, repPos: 40 },
-            { topicSlug: 'c', label: 'C', alignmentPct: 10, dot: 'differs', userPos: 10, repPos: 80 },
+            {
+              topicSlug: 'a',
+              label: 'A',
+              alignmentPct: 90,
+              dot: 'aligned',
+              userPos: 90,
+              repPos: 85,
+            },
+            {
+              topicSlug: 'b',
+              label: 'B',
+              alignmentPct: 50,
+              dot: 'partial',
+              userPos: 50,
+              repPos: 40,
+            },
+            {
+              topicSlug: 'c',
+              label: 'C',
+              alignmentPct: 10,
+              dot: 'differs',
+              userPos: 10,
+              repPos: 80,
+            },
           ],
         }}
       />,
@@ -96,7 +121,19 @@ describe('RepAlignmentStrip', () => {
         hasSelections
         onExpand={vi.fn()}
         onSetup={vi.fn()}
-        alignment={{ overallPct: null, axes: [{ topicSlug: 'x', label: 'X', alignmentPct: null, dot: 'none', userPos: null, repPos: null }] }}
+        alignment={{
+          overallPct: null,
+          axes: [
+            {
+              topicSlug: 'x',
+              label: 'X',
+              alignmentPct: null,
+              dot: 'none',
+              userPos: null,
+              repPos: null,
+            },
+          ],
+        }}
       />,
     )
     expect(getByText(/no comparable record/i)).toBeTruthy()
@@ -120,9 +157,17 @@ describe('RepAlignmentStrip', () => {
     const darkWrapper = ({ children }: { children: ReactNode }) =>
       createElement(BrandModeOverrideContext.Provider, { value: 'dark' }, children)
     expect(() =>
-      render(<RepAlignmentStrip hasSelections onExpand={vi.fn()} onSetup={vi.fn()} alignment={ALIGNED} />, {
-        wrapper: darkWrapper,
-      }),
+      render(
+        <RepAlignmentStrip
+          hasSelections
+          onExpand={vi.fn()}
+          onSetup={vi.fn()}
+          alignment={ALIGNED}
+        />,
+        {
+          wrapper: darkWrapper,
+        },
+      ),
     ).not.toThrow()
   })
 })

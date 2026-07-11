@@ -64,7 +64,7 @@ export function StateDonorsEvidence({ donors }: StateDonorsEvidenceProps): React
       })}
       {hasMore && (
         <Pressable
-          onPress={() => setExpanded(e => !e)}
+          onPress={() => setExpanded((e) => !e)}
           style={moreButtonStyle}
           accessibilityRole="button"
           accessibilityState={{ expanded }}

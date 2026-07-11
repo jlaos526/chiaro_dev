@@ -55,12 +55,15 @@ beforeEach(async () => {
   )
 
   for (let i = 0; i < 4; i++) {
-    const v = await client.query<{ id: string }>(`
+    const v = await client.query<{ id: string }>(
+      `
       insert into public.state_votes (openstates_vote_id, bill_id, state, session, chamber,
         vote_date, question, result, source_url)
       values ($1, $2, 'CA', '20252026', 'state_senate', '2025-03-01', 'Q', 'passed', 'https://x')
       returning id
-    `, [`ocd-vote/rm-${i}`, b1.rows[0]!.id])
+    `,
+      [`ocd-vote/rm-${i}`, b1.rows[0]!.id],
+    )
     const pos = i === 3 ? 'not_voting' : 'yes'
     await client.query(
       'insert into public.state_vote_positions (vote_id, official_id, position) values ($1, $2, $3)',
@@ -69,14 +72,17 @@ beforeEach(async () => {
   }
 
   // Slice 5F: committee membership (chair) for committee_chair_count
-  await client.query(`
+  await client.query(
+    `
     insert into public.state_committee_memberships (
       official_id, openstates_committee_id, committee_name,
       state, chamber, role, source_url
     )
     values ($1, 'ocd-committee/rm-test-1', 'RM Test Chair Cmt',
             'CA', 'state_senate', 'chair', 'https://x')
-  `, [officialId])
+  `,
+    [officialId],
+  )
 
   // Slice 5F: mark first sponsored bill as 'Chaptered' (CA passage convention)
   // and add a hearing date + subject tags
@@ -96,24 +102,33 @@ beforeEach(async () => {
   `)
 
   // Slice 5F: state finance summary so fiscal_impact_per_dollar_raised is computed
-  await client.query(`
+  await client.query(
+    `
     insert into public.state_finance_summaries (
       official_id, cycle, total_raised, total_disbursed, source, source_url
     )
     values ($1, '2024', 50000, 35000, 'ca-cal-access', 'https://x')
-  `, [officialId])
+  `,
+    [officialId],
+  )
 })
 
 afterEach(async () => {
-  await client.query("delete from public.state_vote_positions where official_id = $1", [officialId])
+  await client.query('delete from public.state_vote_positions where official_id = $1', [officialId])
   await client.query("delete from public.state_votes where openstates_vote_id like 'ocd-vote/rm-%'")
-  await client.query("delete from public.state_committee_memberships where official_id = $1", [officialId])
-  await client.query("delete from public.state_bill_sponsors where official_id = $1", [officialId])
-  await client.query("delete from public.state_bill_subjects where bill_id in (select id from public.state_bills where openstates_bill_id like 'ocd-bill/rm-%')")
-  await client.query("delete from public.state_finance_summaries where official_id = $1", [officialId])
+  await client.query('delete from public.state_committee_memberships where official_id = $1', [
+    officialId,
+  ])
+  await client.query('delete from public.state_bill_sponsors where official_id = $1', [officialId])
+  await client.query(
+    "delete from public.state_bill_subjects where bill_id in (select id from public.state_bills where openstates_bill_id like 'ocd-bill/rm-%')",
+  )
+  await client.query('delete from public.state_finance_summaries where official_id = $1', [
+    officialId,
+  ])
   await client.query("delete from public.state_bills where openstates_bill_id like 'ocd-bill/rm-%'")
-  await client.query("delete from public.official_metrics where official_id = $1", [officialId])
-  await client.query("delete from public.officials where id = $1", [officialId])
+  await client.query('delete from public.official_metrics where official_id = $1', [officialId])
+  await client.query('delete from public.officials where id = $1', [officialId])
   await client.query("delete from public.districts where source_version = 'FX-rm'")
   await client.end()
 })
@@ -124,7 +139,10 @@ describe('recomputeStateMetrics', () => {
     const m = await client.query<{
       bills_sponsored_count: number
       bills_cosponsored_count: number
-    }>('select bills_sponsored_count, bills_cosponsored_count from public.official_metrics where official_id = $1', [officialId])
+    }>(
+      'select bills_sponsored_count, bills_cosponsored_count from public.official_metrics where official_id = $1',
+      [officialId],
+    )
     expect(m.rows[0]!.bills_sponsored_count).toBe(1)
     expect(m.rows[0]!.bills_cosponsored_count).toBe(1)
   })
@@ -136,10 +154,13 @@ describe('recomputeStateMetrics', () => {
       votes_missed_count: number
       total_roll_calls: number
       attendance_pct: string
-    }>(`
+    }>(
+      `
       select votes_voted_count, votes_missed_count, total_roll_calls, attendance_pct
       from public.official_metrics where official_id = $1
-    `, [officialId])
+    `,
+      [officialId],
+    )
     expect(m.rows[0]!.votes_voted_count).toBe(3)
     expect(m.rows[0]!.votes_missed_count).toBe(1)
     expect(m.rows[0]!.total_roll_calls).toBe(4)
@@ -186,10 +207,9 @@ describe('recomputeStateMetrics', () => {
 
   it('committee_chair_count: NULL when no memberships exist for the state', async () => {
     // Delete the seeded membership; no other CA memberships exist in test scope.
-    await client.query(
-      "delete from public.state_committee_memberships where official_id = $1",
-      [officialId],
-    )
+    await client.query('delete from public.state_committee_memberships where official_id = $1', [
+      officialId,
+    ])
     await recomputeStateMetrics({ session: '20252026' })
     const m = await client.query<{ committee_chair_count: number | null }>(
       'select committee_chair_count from public.official_metrics where official_id = $1',

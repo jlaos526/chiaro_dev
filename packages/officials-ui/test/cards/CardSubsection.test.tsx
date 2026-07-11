@@ -106,9 +106,7 @@ describe('CardSubsection', () => {
         <Text>row 1</Text>
       </CardSubsection>,
     )
-    expect(
-      container.querySelector('[role="button"]')?.getAttribute('aria-expanded'),
-    ).toBe('true')
+    expect(container.querySelector('[role="button"]')?.getAttribute('aria-expanded')).toBe('true')
   })
 })
 

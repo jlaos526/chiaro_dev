@@ -1,16 +1,66 @@
-import type {
-  StateCommunityAdapter,
-  NormalizedCommitteeHearing,
-} from '../shared.ts'
+import type { StateCommunityAdapter, NormalizedCommitteeHearing } from '../shared.ts'
 import { readFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 
-const ALL_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY']
+const ALL_STATES = [
+  'AL',
+  'AK',
+  'AZ',
+  'AR',
+  'CA',
+  'CO',
+  'CT',
+  'DE',
+  'FL',
+  'GA',
+  'HI',
+  'ID',
+  'IL',
+  'IN',
+  'IA',
+  'KS',
+  'KY',
+  'LA',
+  'ME',
+  'MD',
+  'MA',
+  'MI',
+  'MN',
+  'MS',
+  'MO',
+  'MT',
+  'NE',
+  'NV',
+  'NH',
+  'NJ',
+  'NM',
+  'NY',
+  'NC',
+  'ND',
+  'OH',
+  'OK',
+  'OR',
+  'PA',
+  'RI',
+  'SC',
+  'SD',
+  'TN',
+  'TX',
+  'UT',
+  'VT',
+  'VA',
+  'WA',
+  'WV',
+  'WI',
+  'WY',
+]
 
 function cacheDir(): string {
-  return process.env.OPENSTATES_COMMITTEES_CACHE_DIR
-    ?? join(process.cwd(), 'packages', 'db', 'supabase', 'seed', '.cache', 'openstates', 'committees')
+  return (
+    process.env.OPENSTATES_COMMITTEES_CACHE_DIR ??
+    join(process.cwd(), 'packages', 'db', 'supabase', 'seed', '.cache', 'openstates', 'committees')
+  )
 }
 
 /**
@@ -57,7 +107,7 @@ export const openstatesV3Hearings: StateCommunityAdapter<NormalizedCommitteeHear
               ...(m.agenda_topic !== undefined ? { agenda_topic: m.agenda_topic } : {}),
               source_url: `https://v3.openstates.org/committees/${c.id}`,
               attendees_openstates_person_ids: (m.attendance ?? [])
-                .map(a => a.person?.id)
+                .map((a) => a.person?.id)
                 .filter((id): id is string => !!id),
             })
           }

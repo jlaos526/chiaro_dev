@@ -38,7 +38,7 @@ export function TopAmountBreakdown({
   const financeAccent = useCategoryAccent('finance')
   const [expanded, setExpanded] = useState(false)
   const total = rows.reduce((s, r) => s + r.amount, 0)
-  const max = Math.max(...rows.map(r => r.amount), 1)
+  const max = Math.max(...rows.map((r) => r.amount), 1)
   const visible = expanded ? rows : rows.slice(0, 5)
   const showToggle = rows.length > 5
 
@@ -60,7 +60,13 @@ export function TopAmountBreakdown({
           const isTop = idx === 0
           return (
             <View key={r.label}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'baseline',
+                }}
+              >
                 <Text
                   style={{
                     fontWeight: isTop ? '700' : '600',
@@ -71,11 +77,20 @@ export function TopAmountBreakdown({
                   {r.label}
                 </Text>
                 <View style={{ flexDirection: 'row' }}>
-                  <Text style={{ fontWeight: '700', color: semantic.text.primary }}>{formatMoney(r.amount)}</Text>
+                  <Text style={{ fontWeight: '700', color: semantic.text.primary }}>
+                    {formatMoney(r.amount)}
+                  </Text>
                   <Text style={{ color: semantic.text.muted, fontSize: 11 }}> · {pct}%</Text>
                 </View>
               </View>
-              <View style={{ marginTop: 4, height: 6, backgroundColor: semantic.border.default, borderRadius: 3 }}>
+              <View
+                style={{
+                  marginTop: 4,
+                  height: 6,
+                  backgroundColor: semantic.border.default,
+                  borderRadius: 3,
+                }}
+              >
                 <View
                   style={{
                     backgroundColor: semantic.signal.success,
@@ -91,7 +106,7 @@ export function TopAmountBreakdown({
       </View>
       {showToggle ? (
         <Pressable
-          onPress={() => setExpanded(v => !v)}
+          onPress={() => setExpanded((v) => !v)}
           accessibilityRole="button"
           accessibilityState={{ expanded }}
           aria-expanded={expanded}
@@ -130,9 +145,7 @@ export function TopAmountBreakdown({
             display: 'inline-block',
           }}
         >
-          <Text
-            style={{ fontSize: 12, color: semantic.link.fg, textDecorationLine: 'underline' }}
-          >
+          <Text style={{ fontSize: 12, color: semantic.link.fg, textDecorationLine: 'underline' }}>
             → full breakdown on OpenSecrets
           </Text>
         </SmartAnchor>

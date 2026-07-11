@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  parseTxTecOrderText,
-  type ParsedTxTecOrder,
-} from './pdf-helpers.ts'
+import { parseTxTecOrderText } from './pdf-helpers.ts'
 
 describe('parseTxTecOrderText', () => {
   it('returns empty result for empty text', () => {

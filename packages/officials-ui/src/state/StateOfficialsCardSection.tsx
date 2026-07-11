@@ -36,7 +36,7 @@ export function StateOfficialsCardSection({
         State
       </Text>
       <View style={{ gap: 8 }}>
-        {officials.map(o => (
+        {officials.map((o) => (
           <Pressable
             key={o.id}
             onPress={() => onSelect({ officialId: o.id })}
@@ -48,11 +48,14 @@ export function StateOfficialsCardSection({
               backgroundColor: semantic.bg.app,
             }}
           >
-            <Text style={{ fontSize: 12, color: semantic.text.muted }}>
-              {chamberLabelFor(o)}
-            </Text>
+            <Text style={{ fontSize: 12, color: semantic.text.muted }}>{chamberLabelFor(o)}</Text>
             <Text
-              style={{ fontSize: 16, fontWeight: '600', color: semantic.text.primary, marginTop: 2 }}
+              style={{
+                fontSize: 16,
+                fontWeight: '600',
+                color: semantic.text.primary,
+                marginTop: 2,
+              }}
             >
               {o.full_name}
             </Text>

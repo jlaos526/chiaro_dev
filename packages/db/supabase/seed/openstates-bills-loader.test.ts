@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { loadOpenStatesBillsDir, loadOpenStatesVotesDir, parseBillIdentifier, parseJurisdictionState } from './openstates-bills-loader.ts'
+import {
+  loadOpenStatesBillsDir,
+  loadOpenStatesVotesDir,
+  parseBillIdentifier,
+  parseJurisdictionState,
+} from './openstates-bills-loader.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const FIXTURE_DIR = join(__dirname, 'fixtures', 'openstates-bills')
@@ -19,7 +24,7 @@ describe('openstates-bills-loader', () => {
 
   it('returns CA assembly bill with normalized fields', async () => {
     const bills = await loadOpenStatesBillsDir(FIXTURE_DIR)
-    const ab123 = bills.find(b => b.id === 'ocd-bill/00000000-0000-0000-0000-00000000b001')!
+    const ab123 = bills.find((b) => b.id === 'ocd-bill/00000000-0000-0000-0000-00000000b001')!
     expect(ab123.session).toBe('20252026')
     expect(ab123.identifier).toBe('AB 123')
     expect(ab123.subject).toContain('Air quality')
@@ -29,9 +34,9 @@ describe('openstates-bills-loader', () => {
 
   it('parses MD multi-sponsor bill (1 primary + 1 cosponsor)', async () => {
     const bills = await loadOpenStatesBillsDir(FIXTURE_DIR)
-    const md = bills.find(b => b.id === 'ocd-bill/00000000-0000-0000-0000-00000000b004')!
+    const md = bills.find((b) => b.id === 'ocd-bill/00000000-0000-0000-0000-00000000b004')!
     expect(md.sponsorships).toHaveLength(2)
-    const roles = md.sponsorships!.map(s => s.classification)
+    const roles = md.sponsorships!.map((s) => s.classification)
     expect(roles).toContain('primary')
     expect(roles).toContain('cosponsor')
   })

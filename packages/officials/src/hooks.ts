@@ -2,14 +2,20 @@ import { useQuery, type UseQueryResult } from '@tanstack/react-query'
 import type { ChiaroClient } from '@chiaro/supabase-client'
 import { officialsKeys } from './keys.ts'
 import {
-  fetchMyOfficials, fetchOfficial,
-  fetchOfficialMetrics, fetchOfficialScorecardRatings,
-  fetchOfficialFinance, fetchOfficialDistrictOffices,
-  fetchOfficialTownHalls, fetchOfficialStockTransactions,
+  fetchMyOfficials,
+  fetchOfficial,
+  fetchOfficialMetrics,
+  fetchOfficialScorecardRatings,
+  fetchOfficialFinance,
+  fetchOfficialDistrictOffices,
+  fetchOfficialTownHalls,
+  fetchOfficialStockTransactions,
   fetchOfficialLeadershipHistory,
-  fetchOfficialStateFinanceSummary, fetchOfficialStateDonors,
+  fetchOfficialStateFinanceSummary,
+  fetchOfficialStateDonors,
   fetchOfficialStateScorecardRatings,
-  fetchOfficialStateTownHalls, fetchOfficialStateDistrictOffices,
+  fetchOfficialStateTownHalls,
+  fetchOfficialStateDistrictOffices,
   fetchOfficialStateCommitteeHearings,
   fetchOfficialStateFinancialDisclosures,
   fetchOfficialStateEthicsComplaints,
@@ -55,7 +61,8 @@ export function useOfficialMetrics(client: ChiaroClient, officialId: string) {
   return useQuery({
     queryKey: officialsKeys.metrics(officialId),
     queryFn: () => fetchOfficialMetrics(client, officialId),
-    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
     enabled: !!officialId,
   })
 }
@@ -64,7 +71,8 @@ export function useOfficialScorecardRatings(client: ChiaroClient, officialId: st
   return useQuery({
     queryKey: officialsKeys.scorecards(officialId),
     queryFn: () => fetchOfficialScorecardRatings(client, officialId),
-    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
     enabled: !!officialId,
   })
 }
@@ -73,73 +81,93 @@ export function useOfficialFinance(client: ChiaroClient, officialId: string, cyc
   return useQuery({
     queryKey: officialsKeys.finance(officialId, cycle),
     queryFn: () => fetchOfficialFinance(client, officialId, cycle),
-    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
     enabled: !!officialId && !!cycle,
   })
 }
 
 export function useOfficialDistrictOffices(
-  client: ChiaroClient, officialId: string, opts?: { enabled?: boolean },
+  client: ChiaroClient,
+  officialId: string,
+  opts?: { enabled?: boolean },
 ) {
   return useQuery({
     queryKey: officialsKeys.districtOffices(officialId),
     queryFn: () => fetchOfficialDistrictOffices(client, officialId),
-    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
     enabled: opts?.enabled !== false && !!officialId,
   })
 }
 
 export function useOfficialTownHalls(
-  client: ChiaroClient, officialId: string, congress: string, opts?: { enabled?: boolean },
+  client: ChiaroClient,
+  officialId: string,
+  congress: string,
+  opts?: { enabled?: boolean },
 ) {
   return useQuery({
     queryKey: officialsKeys.townHalls(officialId, congress),
     queryFn: () => fetchOfficialTownHalls(client, officialId, congress),
-    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
     enabled: opts?.enabled !== false && !!officialId,
   })
 }
 
 export function useOfficialStockTransactions(
-  client: ChiaroClient, officialId: string, opts?: { enabled?: boolean },
+  client: ChiaroClient,
+  officialId: string,
+  opts?: { enabled?: boolean },
 ) {
   return useQuery({
     queryKey: officialsKeys.stockTransactions(officialId),
     queryFn: () => fetchOfficialStockTransactions(client, officialId),
-    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
     enabled: opts?.enabled !== false && !!officialId,
   })
 }
 
 export function useOfficialHoldings(
-  client: ChiaroClient, officialId: string, opts?: { enabled?: boolean },
+  client: ChiaroClient,
+  officialId: string,
+  opts?: { enabled?: boolean },
 ) {
   return useQuery({
     queryKey: officialsKeys.holdings(officialId),
     queryFn: () => fetchOfficialHoldings(client, officialId),
-    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
     enabled: opts?.enabled !== false && !!officialId,
   })
 }
 
 export function useOfficialDisclosureOther(
-  client: ChiaroClient, officialId: string, opts?: { enabled?: boolean },
+  client: ChiaroClient,
+  officialId: string,
+  opts?: { enabled?: boolean },
 ) {
   return useQuery({
     queryKey: officialsKeys.disclosureOther(officialId),
     queryFn: () => fetchOfficialDisclosureOther(client, officialId),
-    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
     enabled: opts?.enabled !== false && !!officialId,
   })
 }
 
 export function useOfficialLeadershipHistory(
-  client: ChiaroClient, officialId: string, opts?: { enabled?: boolean },
+  client: ChiaroClient,
+  officialId: string,
+  opts?: { enabled?: boolean },
 ) {
   return useQuery({
     queryKey: officialsKeys.leadershipHistory(officialId),
     queryFn: () => fetchOfficialLeadershipHistory(client, officialId),
-    staleTime: FIVE_MIN, gcTime: THIRTY_MIN,
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
     enabled: opts?.enabled !== false && !!officialId,
   })
 }

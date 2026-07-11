@@ -41,12 +41,14 @@ describe('lcv adapter', () => {
   })
 
   it('fetchRatings with injected fetcher prop returns its output', async () => {
-    const fixture = [{
-      openstates_person_id: 'osp-fixture',
-      state: 'MI',
-      score: 95,
-      source_url: 'fixture://lcv',
-    }]
+    const fixture = [
+      {
+        openstates_person_id: 'osp-fixture',
+        state: 'MI',
+        score: 95,
+        source_url: 'fixture://lcv',
+      },
+    ]
     const result = await lcv.fetchRatings({
       session: '2025-2026',
       fetcher: async () => fixture,

@@ -13,19 +13,19 @@ export type DistrictTierKey =
   | 'place'
 
 export const DISTRICT_TIER_COLOR: Record<DistrictTierKey, string> = {
-  federal_house:  '#5b6cff',
+  federal_house: '#5b6cff',
   federal_senate: '#1f9b88',
-  state_senate:   '#9c64b9',
-  state_house:    '#7e54a8',
-  county:         '#7a8d4b',
-  place:          '#c9a84c',
+  state_senate: '#9c64b9',
+  state_house: '#7e54a8',
+  county: '#7a8d4b',
+  place: '#c9a84c',
 } as const
 
 export const DISTRICT_TIER_COLOR_DARK: Record<DistrictTierKey, string> = {
-  federal_house:  '#8a96ff',
+  federal_house: '#8a96ff',
   federal_senate: '#4fc4b0',
-  state_senate:   '#c08fd9',
-  state_house:    '#a87fd0',
-  county:         '#a8bd75',
-  place:          '#e0c06a',
+  state_senate: '#c08fd9',
+  state_house: '#a87fd0',
+  county: '#a8bd75',
+  place: '#e0c06a',
 } as const

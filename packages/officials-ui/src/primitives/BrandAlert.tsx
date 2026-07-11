@@ -32,11 +32,14 @@ export interface BrandAlertProps {
 //
 // - `titleDark` mirrors alert.fg.dark byte-for-byte (the slice 41
 //   SUB_CASCADE_ACCENT_DARK family is already a legible-on-slate variant).
-const SEVERITY_BANDS: Record<BrandAlertSeverity, { band: string; glyph: string; titleLight: string; titleDark: string }> = {
-  danger:  { band: '#8a3a4d', glyph: '!', titleLight: '#8a3a4d', titleDark: '#c89aa8' },
+const SEVERITY_BANDS: Record<
+  BrandAlertSeverity,
+  { band: string; glyph: string; titleLight: string; titleDark: string }
+> = {
+  danger: { band: '#8a3a4d', glyph: '!', titleLight: '#8a3a4d', titleDark: '#c89aa8' },
   warning: { band: '#c89a4e', glyph: '!', titleLight: '#7c5a1e', titleDark: '#e1c896' },
   success: { band: '#1a8f5a', glyph: '✓', titleLight: '#0f5a4f', titleDark: '#7eb898' },
-  info:    { band: '#b86340', glyph: 'i', titleLight: '#7a3e23', titleDark: '#e0b8a0' },
+  info: { band: '#b86340', glyph: 'i', titleLight: '#7a3e23', titleDark: '#e0b8a0' },
 }
 
 /**
@@ -65,7 +68,15 @@ export function BrandAlert({ severity, title, children }: BrandAlertProps): Reac
         alignItems: 'stretch',
       }}
     >
-      <View style={{ paddingTop: 6, paddingBottom: 6, paddingLeft: 6, alignItems: 'center', justifyContent: 'center' }}>
+      <View
+        style={{
+          paddingTop: 6,
+          paddingBottom: 6,
+          paddingLeft: 6,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <View
           style={{
             width: 7,
@@ -75,7 +86,16 @@ export function BrandAlert({ severity, title, children }: BrandAlertProps): Reac
           }}
         />
       </View>
-      <View style={{ flex: 1, paddingVertical: 10, paddingRight: 14, paddingLeft: 4, flexDirection: 'row', alignItems: 'flex-start' }}>
+      <View
+        style={{
+          flex: 1,
+          paddingVertical: 10,
+          paddingRight: 14,
+          paddingLeft: 4,
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+        }}
+      >
         <View
           style={{
             width: 18,
@@ -88,7 +108,9 @@ export function BrandAlert({ severity, title, children }: BrandAlertProps): Reac
             marginTop: 1,
           }}
         >
-          <Text style={{ color: semantic.text.onAccent, fontSize: 11, fontWeight: '800' }}>{sev.glyph}</Text>
+          <Text style={{ color: semantic.text.onAccent, fontSize: 11, fontWeight: '800' }}>
+            {sev.glyph}
+          </Text>
         </View>
         <View style={{ flex: 1 }}>
           {title ? (

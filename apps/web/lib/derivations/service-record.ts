@@ -34,7 +34,7 @@ export function tenureByChamber(rows: ReadonlyArray<LeadershipRow>): TenureByCha
     else if (r.chamber === 'federal_senate') acc.senate += years
   }
   return {
-    house:  Math.round(acc.house * 10) / 10,
+    house: Math.round(acc.house * 10) / 10,
     senate: Math.round(acc.senate * 10) / 10,
   }
 }

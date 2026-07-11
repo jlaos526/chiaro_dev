@@ -67,7 +67,10 @@ export interface IssueWelcomeScreenProps {
  * {@link MAX_TOPICS}) but never locks them — the user can adjust in later
  * steps. Presentational; wizard state lives in {@link useIssueFlow}.
  */
-export function IssueWelcomeScreen({ catalog, onStart }: IssueWelcomeScreenProps): React.JSX.Element {
+export function IssueWelcomeScreen({
+  catalog,
+  onStart,
+}: IssueWelcomeScreenProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const { selectedTopics, toggleTopic, toggleLens, reset } = useIssueFlow()
 
@@ -94,15 +97,17 @@ export function IssueWelcomeScreen({ catalog, onStart }: IssueWelcomeScreenProps
         <View style={[styles.card, { backgroundColor: semantic.bg.elevated }]}>
           <BrandHeading level={1}>Set your issue priorities</BrandHeading>
           <BrandBodyText muted>
-            Tell us what you care about and we&apos;ll show how your elected officials line up with your
-            views. Start from a quick pick below, or build your own on the next screens.
+            Tell us what you care about and we&apos;ll show how your elected officials line up with
+            your views. Start from a quick pick below, or build your own on the next screens.
           </BrandBodyText>
 
           <Text style={[styles.chipsLabel, { color: semantic.text.muted }]}>Quick start</Text>
           <View style={styles.chips}>
             {QUICK_START_PRESETS.map((preset) => {
               // A chip reads as "active" when all its topics are currently picked.
-              const active = Object.keys(preset.lenses).every((slug) => selectedTopics.includes(slug))
+              const active = Object.keys(preset.lenses).every((slug) =>
+                selectedTopics.includes(slug),
+              )
               return (
                 <Pressable
                   key={preset.label}

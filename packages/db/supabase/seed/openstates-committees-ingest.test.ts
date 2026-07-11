@@ -58,11 +58,11 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await client.query(
-    "delete from public.state_committee_memberships where official_id in ($1, $2, $3)",
+    'delete from public.state_committee_memberships where official_id in ($1, $2, $3)',
     [asmChairId, asmVcId, asmMemId],
   )
-  await client.query("delete from public.officials where source_version = $1", ['FX-cmt-ingest'])
-  await client.query("delete from public.districts where source_version = $1", ['FX-cmt-ingest'])
+  await client.query('delete from public.officials where source_version = $1', ['FX-cmt-ingest'])
+  await client.query('delete from public.districts where source_version = $1', ['FX-cmt-ingest'])
   await client.end()
   await rm(cacheDir, { recursive: true, force: true })
 })
@@ -74,12 +74,14 @@ function writeCommittee(filename: string, body: object) {
 describe('ingestStateCommittees', () => {
   it('chair role mapping: "Chair" → chair', async () => {
     await writeCommittee('CA-c1.json', {
-      id: 'ocd-committee/c1', name: 'Test',
-      jurisdiction: { id: 'ocd-jurisdiction/country:us/state:ca/government', classification: 'state' },
+      id: 'ocd-committee/c1',
+      name: 'Test',
+      jurisdiction: {
+        id: 'ocd-jurisdiction/country:us/state:ca/government',
+        classification: 'state',
+      },
       chamber: 'lower',
-      memberships: [
-        { person_id: 'ocd-person/fx-chair', name: 'FX Asm Chair', role: 'Chair' },
-      ],
+      memberships: [{ person_id: 'ocd-person/fx-chair', name: 'FX Asm Chair', role: 'Chair' }],
       sources: [{ url: 'https://x' }],
     })
     const stats = await ingestStateCommittees({ cacheDir, client })
@@ -89,7 +91,7 @@ describe('ingestStateCommittees', () => {
     expect(stats.officialsUnmatched).toEqual([])
     expect(stats.errors).toEqual([])
     const row = await client.query<{ role: string }>(
-      "select role from public.state_committee_memberships where official_id = $1",
+      'select role from public.state_committee_memberships where official_id = $1',
       [asmChairId],
     )
     expect(row.rows[0]!.role).toBe('chair')
@@ -98,11 +100,14 @@ describe('ingestStateCommittees', () => {
   it('vice_chair role mapping handles "Vice Chair", "vice_chair", "vice-chair"', async () => {
     await writeCommittee('CA-vc.json', {
       id: 'ocd-committee/vc',
-      jurisdiction: { id: 'ocd-jurisdiction/country:us/state:ca/government', classification: 'state' },
+      jurisdiction: {
+        id: 'ocd-jurisdiction/country:us/state:ca/government',
+        classification: 'state',
+      },
       chamber: 'lower',
       memberships: [
-        { person_id: 'ocd-person/fx-vc',    name: 'X', role: 'Vice Chair' },
-        { person_id: 'ocd-person/fx-mem',   name: 'X', role: 'vice-chair' },
+        { person_id: 'ocd-person/fx-vc', name: 'X', role: 'Vice Chair' },
+        { person_id: 'ocd-person/fx-mem', name: 'X', role: 'vice-chair' },
       ],
       sources: [{ url: 'https://x' }],
       name: 'X',
@@ -110,27 +115,28 @@ describe('ingestStateCommittees', () => {
     const stats = await ingestStateCommittees({ cacheDir, client })
     expect(stats.membershipsUpserted).toBe(2)
     const rows = await client.query<{ role: string }>(
-      "select role from public.state_committee_memberships where official_id in ($1, $2)",
+      'select role from public.state_committee_memberships where official_id in ($1, $2)',
       [asmVcId, asmMemId],
     )
-    expect(rows.rows.every(r => r.role === 'vice_chair')).toBe(true)
+    expect(rows.rows.every((r) => r.role === 'vice_chair')).toBe(true)
   })
 
   it('unknown roles fold to member (e.g. "Ranking Member")', async () => {
     await writeCommittee('CA-rm.json', {
       id: 'ocd-committee/rm',
-      jurisdiction: { id: 'ocd-jurisdiction/country:us/state:ca/government', classification: 'state' },
+      jurisdiction: {
+        id: 'ocd-jurisdiction/country:us/state:ca/government',
+        classification: 'state',
+      },
       chamber: 'lower',
-      memberships: [
-        { person_id: 'ocd-person/fx-mem', name: 'X', role: 'Ranking Member' },
-      ],
+      memberships: [{ person_id: 'ocd-person/fx-mem', name: 'X', role: 'Ranking Member' }],
       sources: [{ url: 'https://x' }],
       name: 'X',
     })
     const stats = await ingestStateCommittees({ cacheDir, client })
     expect(stats.membershipsUpserted).toBe(1)
     const row = await client.query<{ role: string }>(
-      "select role from public.state_committee_memberships where official_id = $1",
+      'select role from public.state_committee_memberships where official_id = $1',
       [asmMemId],
     )
     expect(row.rows[0]!.role).toBe('member')
@@ -139,11 +145,12 @@ describe('ingestStateCommittees', () => {
   it('unmatched person_id surfaces to officialsUnmatched', async () => {
     await writeCommittee('CA-unmatched.json', {
       id: 'ocd-committee/unmatched',
-      jurisdiction: { id: 'ocd-jurisdiction/country:us/state:ca/government', classification: 'state' },
+      jurisdiction: {
+        id: 'ocd-jurisdiction/country:us/state:ca/government',
+        classification: 'state',
+      },
       chamber: 'lower',
-      memberships: [
-        { person_id: 'ocd-person/UNKNOWN-1', name: 'Nobody', role: 'Chair' },
-      ],
+      memberships: [{ person_id: 'ocd-person/UNKNOWN-1', name: 'Nobody', role: 'Chair' }],
       sources: [{ url: 'https://x' }],
       name: 'X',
     })
@@ -155,18 +162,19 @@ describe('ingestStateCommittees', () => {
   it('idempotent re-run: same fixture twice → 1 membership row', async () => {
     await writeCommittee('CA-idem.json', {
       id: 'ocd-committee/idem',
-      jurisdiction: { id: 'ocd-jurisdiction/country:us/state:ca/government', classification: 'state' },
+      jurisdiction: {
+        id: 'ocd-jurisdiction/country:us/state:ca/government',
+        classification: 'state',
+      },
       chamber: 'lower',
-      memberships: [
-        { person_id: 'ocd-person/fx-chair', name: 'X', role: 'Chair' },
-      ],
+      memberships: [{ person_id: 'ocd-person/fx-chair', name: 'X', role: 'Chair' }],
       sources: [{ url: 'https://x' }],
       name: 'X',
     })
     await ingestStateCommittees({ cacheDir, client })
     await ingestStateCommittees({ cacheDir, client })
     const c = await client.query<{ c: number }>(
-      "select count(*)::int as c from public.state_committee_memberships where official_id = $1",
+      'select count(*)::int as c from public.state_committee_memberships where official_id = $1',
       [asmChairId],
     )
     expect(c.rows[0]!.c).toBe(1)
@@ -175,11 +183,12 @@ describe('ingestStateCommittees', () => {
   it('joint chamber: logged + skipped, doesnt insert', async () => {
     await writeCommittee('CA-joint.json', {
       id: 'ocd-committee/joint',
-      jurisdiction: { id: 'ocd-jurisdiction/country:us/state:ca/government', classification: 'state' },
+      jurisdiction: {
+        id: 'ocd-jurisdiction/country:us/state:ca/government',
+        classification: 'state',
+      },
       chamber: 'joint',
-      memberships: [
-        { person_id: 'ocd-person/fx-chair', name: 'X', role: 'Chair' },
-      ],
+      memberships: [{ person_id: 'ocd-person/fx-chair', name: 'X', role: 'Chair' }],
       sources: [{ url: 'https://x' }],
       name: 'X',
     })

@@ -14,11 +14,7 @@ export function ChiaroClientProvider({
   client,
   children,
 }: ChiaroClientProviderProps): React.JSX.Element {
-  return (
-    <ChiaroClientContext.Provider value={client}>
-      {children}
-    </ChiaroClientContext.Provider>
-  )
+  return <ChiaroClientContext.Provider value={client}>{children}</ChiaroClientContext.Provider>
 }
 
 export function useChiaroClient(): ChiaroClient {

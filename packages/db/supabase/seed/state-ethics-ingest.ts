@@ -1,11 +1,15 @@
 import { Client } from 'pg'
 import { hasFlag, isCliEntry, parseFlag } from './shared/cli.ts'
 import {
-  type EthicsComponent, type StateEthicsAdapter, type StateEthicsStats,
+  type EthicsComponent,
+  type StateEthicsAdapter,
+  type StateEthicsStats,
   upsertFinancialDisclosure,
-  upsertEthicsComplaint, upsertOfficialEvent,
+  upsertEthicsComplaint,
+  upsertOfficialEvent,
   type NormalizedFinancialDisclosure,
-  type NormalizedEthicsComplaint, type NormalizedOfficialEvent,
+  type NormalizedEthicsComplaint,
+  type NormalizedOfficialEvent,
 } from './state-ethics/shared.ts'
 import {
   createSkipCollector,
@@ -13,25 +17,53 @@ import {
   type SkipSummary,
 } from './shared/instrumentation.ts'
 import { openstatesEndReason } from './state-ethics/events/openstates-end-reason.ts'
-import { ballotpediaRecalls }  from './state-ethics/events/ballotpedia-recalls.ts'
-import { caFppcEvents, nyJcopeEvents, flCoeEvents, txTecEvents, miBoardEvents }
-  from './state-ethics/events/index.ts'
-import { caFppcDisclosures, nyJcopeDisclosures, flCoeDisclosures, txTecDisclosures, miBoardDisclosures }
-  from './state-ethics/disclosures/index.ts'
-import { caFppcComplaints, nyJcopeComplaints, flCoeComplaints, txTecComplaints, miBoardComplaints }
-  from './state-ethics/complaints/index.ts'
+import { ballotpediaRecalls } from './state-ethics/events/ballotpedia-recalls.ts'
+import {
+  caFppcEvents,
+  nyJcopeEvents,
+  flCoeEvents,
+  txTecEvents,
+  miBoardEvents,
+} from './state-ethics/events/index.ts'
+import {
+  caFppcDisclosures,
+  nyJcopeDisclosures,
+  flCoeDisclosures,
+  txTecDisclosures,
+  miBoardDisclosures,
+} from './state-ethics/disclosures/index.ts'
+import {
+  caFppcComplaints,
+  nyJcopeComplaints,
+  flCoeComplaints,
+  txTecComplaints,
+  miBoardComplaints,
+} from './state-ethics/complaints/index.ts'
 
-const DB_URL = process.env.SUPABASE_DB_URL
-  ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const DB_URL =
+  process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 
 const ADAPTERS_DEFAULT: StateEthicsAdapter[] = [
   // disclosures
-  caFppcDisclosures, nyJcopeDisclosures, flCoeDisclosures, txTecDisclosures, miBoardDisclosures,
+  caFppcDisclosures,
+  nyJcopeDisclosures,
+  flCoeDisclosures,
+  txTecDisclosures,
+  miBoardDisclosures,
   // complaints
-  caFppcComplaints, nyJcopeComplaints, flCoeComplaints, txTecComplaints, miBoardComplaints,
+  caFppcComplaints,
+  nyJcopeComplaints,
+  flCoeComplaints,
+  txTecComplaints,
+  miBoardComplaints,
   // events — OpenStates FIRST (resignation/death), then Ballotpedia (recalls), then per-state finance violations
-  openstatesEndReason, ballotpediaRecalls,
-  caFppcEvents, nyJcopeEvents, flCoeEvents, txTecEvents, miBoardEvents,
+  openstatesEndReason,
+  ballotpediaRecalls,
+  caFppcEvents,
+  nyJcopeEvents,
+  flCoeEvents,
+  txTecEvents,
+  miBoardEvents,
 ]
 
 export interface IngestStateEthicsOpts {
@@ -62,10 +94,10 @@ export async function ingestStateEthics(
   let adapters = opts.adapters ?? ADAPTERS_DEFAULT
   const wantedComponent = opts.component && opts.component !== 'all' ? opts.component : undefined
   if (wantedComponent) {
-    adapters = adapters.filter(a => a.component === wantedComponent)
+    adapters = adapters.filter((a) => a.component === wantedComponent)
   }
   if (opts.state) {
-    adapters = adapters.filter(a => a.covered_states.includes(opts.state!))
+    adapters = adapters.filter((a) => a.covered_states.includes(opts.state!))
   }
 
   const client = opts.client ?? new Client({ connectionString: DB_URL })
@@ -81,7 +113,9 @@ export async function ingestStateEthics(
       const adapterStats: StateEthicsStats = {
         component: adapter.component,
         adapter_slug: adapter.slug,
-        rowsUpserted: 0, officialsMatched: 0, officialsUnmatched: [],
+        rowsUpserted: 0,
+        officialsMatched: 0,
+        officialsUnmatched: [],
         errors: [],
       }
       try {
@@ -108,7 +142,8 @@ export async function ingestStateEthics(
             adapterStats.rowsUpserted += 1
             adapterStats.officialsMatched += 1
           } else {
-            const pid = (event as { official_openstates_person_id?: string }).official_openstates_person_id
+            const pid = (event as { official_openstates_person_id?: string })
+              .official_openstates_person_id
             if (pid) adapterStats.officialsUnmatched.push(pid)
           }
         }
@@ -124,10 +159,10 @@ export async function ingestStateEthics(
   }
 
   return {
-    adaptersAttempted:        byAdapter.length,
-    adaptersOk:               byAdapter.filter(s => s.errors.length === 0).length,
-    totalRowsUpserted:        byAdapter.reduce((a, s) => a + s.rowsUpserted, 0),
-    totalOfficialsUnmatched:  byAdapter.reduce((a, s) => a + s.officialsUnmatched.length, 0),
+    adaptersAttempted: byAdapter.length,
+    adaptersOk: byAdapter.filter((s) => s.errors.length === 0).length,
+    totalRowsUpserted: byAdapter.reduce((a, s) => a + s.rowsUpserted, 0),
+    totalOfficialsUnmatched: byAdapter.reduce((a, s) => a + s.officialsUnmatched.length, 0),
     byAdapter,
     ...(collector ? { skipSummary: collector.summary() } : {}),
   }
@@ -135,8 +170,8 @@ export async function ingestStateEthics(
 
 if (isCliEntry(import.meta.url)) {
   const skipOnError = hasFlag('skip-on-error')
-  const instrument  = hasFlag('instrument')
-  const noApply     = hasFlag('no-apply')
+  const instrument = hasFlag('instrument')
+  const noApply = hasFlag('no-apply')
 
   const component = (parseFlag('component') ?? 'all') as EthicsComponent | 'all'
   const state = parseFlag('state')
@@ -148,11 +183,13 @@ if (isCliEntry(import.meta.url)) {
     instrument,
     noApply,
   })
-    .then(stats => {
+    .then((stats) => {
       console.log(`State ethics ingest summary:`)
       console.log(`  adapters attempted:        ${stats.adaptersAttempted}`)
       console.log(`  adapters ok:               ${stats.adaptersOk}`)
-      console.log(`  total rows upserted:       ${stats.totalRowsUpserted}${noApply ? ' (dry-run; no DB writes)' : ''}`)
+      console.log(
+        `  total rows upserted:       ${stats.totalRowsUpserted}${noApply ? ' (dry-run; no DB writes)' : ''}`,
+      )
       console.log(`  total officials unmatched: ${stats.totalOfficialsUnmatched}`)
       for (const s of stats.byAdapter) {
         const tag = s.errors.length > 0 ? `errors=${s.errors.length}` : 'ok'
@@ -164,5 +201,8 @@ if (isCliEntry(import.meta.url)) {
       }
       process.exit(stats.adaptersOk === stats.adaptersAttempted ? 0 : 1)
     })
-    .catch(err => { console.error(err.message); process.exit(1) })
+    .catch((err) => {
+      console.error(err.message)
+      process.exit(1)
+    })
 }

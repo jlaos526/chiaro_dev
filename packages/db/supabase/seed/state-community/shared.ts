@@ -81,10 +81,7 @@ export interface StateCommunityStats {
  * Dedup via (source, external_id) UNIQUE; when external_id is null,
  * inserts always create a new row (NULLs distinct per Postgres default).
  */
-export async function upsertTownHall(
-  client: Client,
-  th: NormalizedTownHall,
-): Promise<boolean> {
+export async function upsertTownHall(client: Client, th: NormalizedTownHall): Promise<boolean> {
   if (!th.official_openstates_person_id) {
     return false
   }
@@ -94,7 +91,8 @@ export async function upsertTownHall(
   )
   if (off.rowCount === 0) return false
 
-  await client.query(`
+  await client.query(
+    `
     insert into public.state_town_halls (
       official_id, event_date, city, state, format,
       attendance_estimate, source_url, source, external_id
@@ -107,10 +105,19 @@ export async function upsertTownHall(
       attendance_estimate = excluded.attendance_estimate,
       source_url          = excluded.source_url,
       ingested_at         = now()
-  `, [
-    off.rows[0]!.id, th.event_date, th.city ?? null, th.state, th.format ?? null,
-    th.attendance_estimate ?? null, th.source_url, th.source, th.external_id ?? null,
-  ])
+  `,
+    [
+      off.rows[0]!.id,
+      th.event_date,
+      th.city ?? null,
+      th.state,
+      th.format ?? null,
+      th.attendance_estimate ?? null,
+      th.source_url,
+      th.source,
+      th.external_id ?? null,
+    ],
+  )
   return true
 }
 
@@ -126,10 +133,7 @@ export async function upsertTownHall(
  * still emits ("row repair" — no cleanup migration needed since no production
  * DB exists yet). Single query via = any($1).
  */
-export async function clearDistrictOfficesFor(
-  client: Client,
-  personIds: string[],
-): Promise<void> {
+export async function clearDistrictOfficesFor(client: Client, personIds: string[]): Promise<void> {
   if (personIds.length === 0) return
   await client.query(
     `delete from public.state_district_offices
@@ -156,16 +160,27 @@ export async function upsertDistrictOffice(
   )
   if (o.rowCount === 0) return false
 
-  await client.query(`
+  await client.query(
+    `
     insert into public.state_district_offices (
       official_id, kind, street_1, street_2, city, state,
       postal_code, phone, email, hours_text, source_url
     ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-  `, [
-    o.rows[0]!.id, off.kind, off.street_1, off.street_2 ?? null,
-    off.city, off.state, off.postal_code ?? null, off.phone ?? null,
-    off.email ?? null, off.hours_text ?? null, off.source_url,
-  ])
+  `,
+    [
+      o.rows[0]!.id,
+      off.kind,
+      off.street_1,
+      off.street_2 ?? null,
+      off.city,
+      off.state,
+      off.postal_code ?? null,
+      off.phone ?? null,
+      off.email ?? null,
+      off.hours_text ?? null,
+      off.source_url,
+    ],
+  )
   return true
 }
 
@@ -189,14 +204,24 @@ export async function upsertCommitteeHearing(
     if ((existing.rowCount ?? 0) > 0) {
       hearingId = existing.rows[0]!.id
     } else {
-      const ins = await client.query<{ id: string }>(`
+      const ins = await client.query<{ id: string }>(
+        `
         insert into public.state_committee_hearings (
           openstates_committee_id, state, session, hearing_date,
           location, agenda_topic, source_url
         ) values ($1, $2, $3, $4, $5, $6, $7)
         returning id
-      `, [h.openstates_committee_id, h.state, h.session, h.hearing_date,
-          h.location ?? null, h.agenda_topic ?? null, h.source_url])
+      `,
+        [
+          h.openstates_committee_id,
+          h.state,
+          h.session,
+          h.hearing_date,
+          h.location ?? null,
+          h.agenda_topic ?? null,
+          h.source_url,
+        ],
+      )
       hearingId = ins.rows[0]!.id
     }
   } else {
@@ -212,14 +237,23 @@ export async function upsertCommitteeHearing(
     if ((existing.rowCount ?? 0) > 0) {
       hearingId = existing.rows[0]!.id
     } else {
-      const ins = await client.query<{ id: string }>(`
+      const ins = await client.query<{ id: string }>(
+        `
         insert into public.state_committee_hearings (
           openstates_committee_id, state, session, hearing_date,
           location, agenda_topic, source_url
         ) values (null, $1, $2, $3, $4, $5, $6)
         returning id
-      `, [h.state, h.session, h.hearing_date,
-          h.location ?? null, h.agenda_topic ?? null, h.source_url])
+      `,
+        [
+          h.state,
+          h.session,
+          h.hearing_date,
+          h.location ?? null,
+          h.agenda_topic ?? null,
+          h.source_url,
+        ],
+      )
       hearingId = ins.rows[0]!.id
     }
   }
@@ -235,11 +269,14 @@ export async function upsertCommitteeHearing(
       unmatched.push(personId)
       continue
     }
-    await client.query(`
+    await client.query(
+      `
       insert into public.state_committee_hearing_attendance (hearing_id, official_id)
       values ($1, $2)
       on conflict (hearing_id, official_id) do nothing
-    `, [hearingId, off.rows[0]!.id])
+    `,
+      [hearingId, off.rows[0]!.id],
+    )
     matched += 1
   }
   return { matched, unmatched }

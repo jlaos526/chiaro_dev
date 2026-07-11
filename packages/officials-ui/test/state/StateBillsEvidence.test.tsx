@@ -44,7 +44,9 @@ describe('StateBillsEvidence', () => {
 
   it('does not call openURL for a null source_url row, does for a valid one (B6)', () => {
     const spy = vi.spyOn(Linking, 'openURL').mockResolvedValue(true)
-    const { unmount } = render(<StateBillsEvidence bills={[makeBill('nullrow', { source_url: null })]} />)
+    const { unmount } = render(
+      <StateBillsEvidence bills={[makeBill('nullrow', { source_url: null })]} />,
+    )
     fireEvent.click(screen.getByText(/AB 101: Title nullrow/))
     expect(spy).not.toHaveBeenCalled()
     unmount()
@@ -76,7 +78,11 @@ const darkWrapper = ({ children }: { children: ReactNode }) =>
 describe('StateBillsEvidence — mode awareness', () => {
   it('renders under both light and dark wrappers without throwing', () => {
     const bills = [makeBill('b1')]
-    expect(() => render(<StateBillsEvidence bills={bills} />, { wrapper: lightWrapper })).not.toThrow()
-    expect(() => render(<StateBillsEvidence bills={bills} />, { wrapper: darkWrapper })).not.toThrow()
+    expect(() =>
+      render(<StateBillsEvidence bills={bills} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<StateBillsEvidence bills={bills} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
   })
 })

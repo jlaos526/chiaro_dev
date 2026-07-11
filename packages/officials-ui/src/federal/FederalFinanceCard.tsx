@@ -41,7 +41,13 @@ export function FederalFinanceCard({
           { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
         ]}
       >
-        <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>Finance ({cycle})</Text>
+        <Text
+          style={[styles.title, { color: semantic.text.primary }]}
+          accessibilityRole="header"
+          accessibilityLevel={2}
+        >
+          Finance ({cycle})
+        </Text>
         <Text style={[styles.muted, { color: semantic.text.muted }]}>Loading finance…</Text>
       </View>
     )
@@ -56,7 +62,13 @@ export function FederalFinanceCard({
           { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
         ]}
       >
-        <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>Finance ({cycle})</Text>
+        <Text
+          style={[styles.title, { color: semantic.text.primary }]}
+          accessibilityRole="header"
+          accessibilityLevel={2}
+        >
+          Finance ({cycle})
+        </Text>
         <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
           No finance data available for this legislator and cycle.
         </Text>
@@ -75,7 +87,13 @@ export function FederalFinanceCard({
         { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
       ]}
     >
-      <Text style={[styles.title, { color: semantic.text.primary }]} accessibilityRole="header" accessibilityLevel={2}>Finance ({cycle})</Text>
+      <Text
+        style={[styles.title, { color: semantic.text.primary }]}
+        accessibilityRole="header"
+        accessibilityLevel={2}
+      >
+        Finance ({cycle})
+      </Text>
       <Text style={[styles.summary, { color: semantic.text.muted }]}>
         {fmtAmount(totalRaised)} raised
         {' · '}
@@ -87,7 +105,7 @@ export function FederalFinanceCard({
       <CardSubsection
         label={`Top individual donors (${donorCount})`}
         open={openDonors}
-        onToggle={() => setOpenDonors(v => !v)}
+        onToggle={() => setOpenDonors((v) => !v)}
       >
         <FederalDonorsList finance={f} />
       </CardSubsection>
@@ -95,7 +113,7 @@ export function FederalFinanceCard({
       <CardSubsection
         label={`Top PACs (${pacCount})`}
         open={openPACs}
-        onToggle={() => setOpenPACs(v => !v)}
+        onToggle={() => setOpenPACs((v) => !v)}
       >
         <FederalPACsList finance={f} />
       </CardSubsection>

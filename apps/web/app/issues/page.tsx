@@ -33,15 +33,9 @@ export default function IssuesPage(): React.JSX.Element {
       {step === 'welcome' && (
         <IssueWelcomeScreen catalog={catalog} onStart={() => setStep('topics')} />
       )}
-      {step === 'topics' && (
-        <TopicPickerScreen topics={catalog} onNext={() => setStep('lenses')} />
-      )}
-      {step === 'lenses' && (
-        <LensPickerScreen catalog={catalog} onNext={() => setStep('quiz')} />
-      )}
-      {step === 'quiz' && (
-        <IssueQuizScreen catalog={catalog} onFinish={() => setStep('radar')} />
-      )}
+      {step === 'topics' && <TopicPickerScreen topics={catalog} onNext={() => setStep('lenses')} />}
+      {step === 'lenses' && <LensPickerScreen catalog={catalog} onNext={() => setStep('quiz')} />}
+      {step === 'quiz' && <IssueQuizScreen catalog={catalog} onFinish={() => setStep('radar')} />}
       {step === 'radar' && (
         <IssueRadarResultScreen
           catalog={catalog}

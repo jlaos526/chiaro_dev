@@ -48,7 +48,9 @@ let mockUserResult: { data: { user: { id: string } | null } } = { data: { user: 
 let mockLocationCount = 0
 let mockSessionResult: { data: { session: unknown } } = { data: { session: null } }
 
-const mockEq = jest.fn((_col: string, _val: string) => Promise.resolve({ count: mockLocationCount }))
+const mockEq = jest.fn((_col: string, _val: string) =>
+  Promise.resolve({ count: mockLocationCount }),
+)
 const mockSelect = jest.fn((_cols: string, _opts: unknown) => ({ eq: mockEq }))
 const mockFrom = jest.fn((_table: string) => ({ select: mockSelect }))
 

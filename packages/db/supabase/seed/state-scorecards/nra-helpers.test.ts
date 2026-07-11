@@ -77,9 +77,21 @@ describe('parseNraGradesHtml', () => {
     `
     const rows = parseNraGradesHtml(html)
     expect(rows.length).toBe(3)
-    expect(rows[0]).toEqual({ name: 'Jane Doe',  chamberLabel: 'State Senate', letterGrade: 'A+' } as ParsedNraRow)
-    expect(rows[1]).toEqual({ name: 'John Smith', chamberLabel: 'State Senate', letterGrade: 'F' } as ParsedNraRow)
-    expect(rows[2]).toEqual({ name: 'Pat Lee',   chamberLabel: 'State House',  letterGrade: 'B+' } as ParsedNraRow)
+    expect(rows[0]).toEqual({
+      name: 'Jane Doe',
+      chamberLabel: 'State Senate',
+      letterGrade: 'A+',
+    } as ParsedNraRow)
+    expect(rows[1]).toEqual({
+      name: 'John Smith',
+      chamberLabel: 'State Senate',
+      letterGrade: 'F',
+    } as ParsedNraRow)
+    expect(rows[2]).toEqual({
+      name: 'Pat Lee',
+      chamberLabel: 'State House',
+      letterGrade: 'B+',
+    } as ParsedNraRow)
   })
 
   it('skips rows with blank grade', () => {

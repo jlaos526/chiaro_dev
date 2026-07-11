@@ -3,9 +3,15 @@ import { BRAND, getSemantic, logoGeometry } from '../src/index.ts'
 
 describe('BRAND root object', () => {
   it('exposes all 7 sub-namespaces', () => {
-    expect(Object.keys(BRAND).sort()).toEqual(
-      ['logo', 'palette', 'radii', 'semantic', 'shadow', 'space', 'type']
-    )
+    expect(Object.keys(BRAND).sort()).toEqual([
+      'logo',
+      'palette',
+      'radii',
+      'semantic',
+      'shadow',
+      'space',
+      'type',
+    ])
   })
 
   it('BRAND.palette has light + dark', () => {

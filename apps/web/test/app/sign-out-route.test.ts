@@ -17,13 +17,17 @@ describe('POST /sign-out', () => {
     // '' is falsy for ?? only via delete; stub to undefined instead:
     vi.unstubAllEnvs()
     delete process.env.NEXT_PUBLIC_SITE_URL
-    const res = await POST(new Request('https://chiaro-dev-web.vercel.app/sign-out', { method: 'POST' }))
+    const res = await POST(
+      new Request('https://chiaro-dev-web.vercel.app/sign-out', { method: 'POST' }),
+    )
     expect(res.headers.get('location')).toBe('https://chiaro-dev-web.vercel.app/sign-in')
   })
 
   it('honors NEXT_PUBLIC_SITE_URL as an explicit override', async () => {
     vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'https://chiaro.example.com')
-    const res = await POST(new Request('https://chiaro-dev-web.vercel.app/sign-out', { method: 'POST' }))
+    const res = await POST(
+      new Request('https://chiaro-dev-web.vercel.app/sign-out', { method: 'POST' }),
+    )
     expect(res.headers.get('location')).toBe('https://chiaro.example.com/sign-in')
   })
 })

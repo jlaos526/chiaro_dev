@@ -3,7 +3,7 @@ import type { StateEthicsAdapter, NormalizedFinancialDisclosure } from '../share
 import { fetchPdf, extractPdfText } from '../../shared/pdf.ts'
 import { deriveMiPfdUrl, parseMiPfdText } from './mi-pfd-helpers.ts'
 
-const FILING_YEAR_DEFAULT = 2024  // v1 hardcodes current cycle; backfill is a future slice
+const FILING_YEAR_DEFAULT = 2024 // v1 hardcodes current cycle; backfill is a future slice
 const RATE_LIMIT_MS = 1000
 
 /**
@@ -132,7 +132,7 @@ export const miBoardDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosur
 
       // Audit M5 pattern: throttle after every iteration except the last.
       if (i < totalRows - 1) {
-        await new Promise(resolve => setTimeout(resolve, RATE_LIMIT_MS))
+        await new Promise((resolve) => setTimeout(resolve, RATE_LIMIT_MS))
       }
     }
 

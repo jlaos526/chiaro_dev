@@ -4,10 +4,23 @@ import type { OfficialWithDistrict } from '@chiaro/officials'
 
 function mkOfficial(chamber: OfficialWithDistrict['chamber'], name: string): OfficialWithDistrict {
   return {
-    id: name, bioguide_id: name, full_name: name, first_name: name, last_name: '',
-    chamber, party: 'D', state: 'CA', district_id: 'd', in_office: true,
-    senate_class: null, source_version: 'x', opensecrets_id: null, fec_candidate_id: null,
-    openstates_person_id: null, district_code: null, title: null,
+    id: name,
+    bioguide_id: name,
+    full_name: name,
+    first_name: name,
+    last_name: '',
+    chamber,
+    party: 'D',
+    state: 'CA',
+    district_id: 'd',
+    in_office: true,
+    senate_class: null,
+    source_version: 'x',
+    opensecrets_id: null,
+    fec_candidate_id: null,
+    openstates_person_id: null,
+    district_code: null,
+    title: null,
     district: { id: 'd', tier: 'federal_house', state: 'CA', code: 'CA-12', name: 'CA-12' },
   } as unknown as OfficialWithDistrict
 }
@@ -25,8 +38,8 @@ describe('groupOfficialsByLevel', () => {
       mkOfficial('state_senate', 'Sen'),
     ]
     const grouped = groupOfficialsByLevel(officials)
-    expect(grouped.federal.map(o => o.full_name)).toEqual(['Pelosi', 'Padilla'])
-    expect(grouped.state.map(o => o.full_name)).toEqual(['Asm', 'Sen'])
+    expect(grouped.federal.map((o) => o.full_name)).toEqual(['Pelosi', 'Padilla'])
+    expect(grouped.state.map((o) => o.full_name)).toEqual(['Asm', 'Sen'])
   })
 
   it('state_legislature (NE) classified as state', () => {
@@ -43,7 +56,7 @@ describe('groupOfficialsByLevel', () => {
       mkOfficial('state_house', 'S-Rep'),
     ]
     const grouped = groupOfficialsByLevel(officials)
-    expect(grouped.federal.map(o => o.full_name)).toEqual(['F-Rep', 'F-Sen'])
-    expect(grouped.state.map(o => o.full_name)).toEqual(['S-Rep', 'S-Sen', 'NE'])
+    expect(grouped.federal.map((o) => o.full_name)).toEqual(['F-Rep', 'F-Sen'])
+    expect(grouped.state.map((o) => o.full_name)).toEqual(['S-Rep', 'S-Sen', 'NE'])
   })
 })

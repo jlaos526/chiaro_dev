@@ -5,23 +5,23 @@
 
 import type { Database } from '../../src/index.ts'
 
-type BillType   = Database['public']['Enums']['bill_type']
+type BillType = Database['public']['Enums']['bill_type']
 type BillStatus = Database['public']['Enums']['bill_status']
 
 export interface NormalizedBill {
-  congress:         string
-  bill_type:        BillType
-  number:           number
-  title:            string
-  short_title:      string | null
-  policy_area:      string | null
-  status:           BillStatus
-  introduced_date:  string
-  latest_action:    string | null
-  source_url:       string
+  congress: string
+  bill_type: BillType
+  number: number
+  title: string
+  short_title: string | null
+  policy_area: string | null
+  status: BillStatus
+  introduced_date: string
+  latest_action: string | null
+  source_url: string
   congress_gov_url: string | null
-  sponsors:         Array<{ bioguide_id: string; role: 'sponsor' | 'cosponsor'; added_date: string | null }>
-  subjects:         string[]
+  sponsors: Array<{ bioguide_id: string; role: 'sponsor' | 'cosponsor'; added_date: string | null }>
+  subjects: string[]
 }
 
 const API_BASE = 'https://api.congress.gov/v3'
@@ -32,13 +32,14 @@ export async function fetchBills(
   opts?: { since?: string; limit?: number },
 ): Promise<NormalizedBill[]> {
   const out: NormalizedBill[] = []
-  let url: string | null = `${API_BASE}/bill?congress=${congress}&limit=${opts?.limit ?? 250}&offset=0`
+  let url: string | null =
+    `${API_BASE}/bill?congress=${congress}&limit=${opts?.limit ?? 250}&offset=0`
   if (opts?.since) url += `&fromDateTime=${encodeURIComponent(opts.since)}`
 
   while (url) {
     const res = await fetch(url, { headers: { 'X-API-Key': apiKey, Accept: 'application/json' } })
     if (!res.ok) throw new Error(`Congress.gov bills ${res.status}: ${await res.text()}`)
-    const page = await res.json() as {
+    const page = (await res.json()) as {
       bills: Array<{ congress: number; type: string; number: number; url: string }>
       pagination?: { next: string | null }
     }
@@ -52,9 +53,11 @@ export async function fetchBills(
 }
 
 async function fetchBillDetail(detailUrl: string, apiKey: string): Promise<NormalizedBill> {
-  const res = await fetch(detailUrl, { headers: { 'X-API-Key': apiKey, Accept: 'application/json' } })
+  const res = await fetch(detailUrl, {
+    headers: { 'X-API-Key': apiKey, Accept: 'application/json' },
+  })
   if (!res.ok) throw new Error(`Congress.gov bill detail ${res.status}: ${detailUrl}`)
-  const d = await res.json() as any
+  const d = (await res.json()) as any
   const bill = d.bill
   return {
     congress: String(bill.congress),
@@ -89,13 +92,13 @@ async function fetchBillDetail(detailUrl: string, apiKey: string): Promise<Norma
 // passed_chamber, passed_both, enrolled, signed, vetoed, became_law, died.
 function mapStatus(bill: any): BillStatus {
   const text = (bill.latestAction?.text ?? '').toLowerCase()
-  if (text.includes('became public law'))                              return 'became_law'
-  if (text.includes('vetoed'))                                         return 'vetoed'
-  if (text.includes('signed by president'))                            return 'signed'
-  if (text.includes('presented to president'))                         return 'enrolled'
+  if (text.includes('became public law')) return 'became_law'
+  if (text.includes('vetoed')) return 'vetoed'
+  if (text.includes('signed by president')) return 'signed'
+  if (text.includes('presented to president')) return 'enrolled'
   if (text.includes('passed senate') && text.includes('passed house')) return 'passed_both'
   if (text.includes('passed senate') || text.includes('passed house')) return 'passed_chamber'
-  if (text.includes('reported'))                                       return 'reported'
-  if (text.includes('committee'))                                      return 'in_committee'
+  if (text.includes('reported')) return 'reported'
+  if (text.includes('committee')) return 'in_committee'
   return 'introduced'
 }

@@ -53,7 +53,13 @@ describe('TopAmountBreakdown', () => {
 
   it('renders source-URL link + opens via Linking.openURL', () => {
     const spy = vi.spyOn(Linking, 'openURL').mockResolvedValue(true)
-    render(<TopAmountBreakdown rows={TEN} noun={NOUN_INDUSTRY} sourceUrl="https://www.opensecrets.org/example" />)
+    render(
+      <TopAmountBreakdown
+        rows={TEN}
+        noun={NOUN_INDUSTRY}
+        sourceUrl="https://www.opensecrets.org/example"
+      />,
+    )
     fireEvent.click(screen.getByText(/full breakdown on OpenSecrets/))
     expect(spy).toHaveBeenCalledWith('https://www.opensecrets.org/example')
   })
@@ -96,14 +102,27 @@ describe('TopAmountBreakdown', () => {
       />,
     )
     const anchor = container.querySelector('a[href="https://www.opensecrets.org/example"]')!
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, metaKey: true })
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      metaKey: true,
+    })
     const notPrevented = anchor.dispatchEvent(event)
     expect(notPrevented).toBe(true)
     expect(spy).not.toHaveBeenCalled()
   })
 
   it('renders percent next to dollar value', () => {
-    render(<TopAmountBreakdown rows={[{ label: 'A', amount: 500 }, { label: 'B', amount: 500 }]} noun={NOUN_INDUSTRY} />)
+    render(
+      <TopAmountBreakdown
+        rows={[
+          { label: 'A', amount: 500 },
+          { label: 'B', amount: 500 },
+        ]}
+        noun={NOUN_INDUSTRY}
+      />,
+    )
     const pcts = screen.getAllByText(/50%/)
     expect(pcts.length).toBe(2)
   })
@@ -114,8 +133,8 @@ describe('TopAmountBreakdown', () => {
     const outer = container.firstElementChild as HTMLElement | null
     expect(outer).not.toBeNull()
     const style = outer?.getAttribute('style') ?? ''
-    expect(style).toMatch(/background-color:\s*rgb\(255,\s*250,\s*242\)/)  // #fffaf2
-    expect(style).toMatch(/border-top-color:\s*rgb\(26,\s*143,\s*90\)/)    // CATEGORY_ACCENT.finance #1a8f5a
+    expect(style).toMatch(/background-color:\s*rgb\(255,\s*250,\s*242\)/) // #fffaf2
+    expect(style).toMatch(/border-top-color:\s*rgb\(26,\s*143,\s*90\)/) // CATEGORY_ACCENT.finance #1a8f5a
     expect(style).toMatch(/border-top-width:\s*3px/)
   })
 

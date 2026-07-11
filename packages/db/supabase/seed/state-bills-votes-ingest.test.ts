@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { ingestStateBillsVotes } from './state-bills-votes-ingest.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DB_URL    = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 const FIXTURE_DIR = join(__dirname, 'fixtures', 'openstates-bills')
 
 let client: Client
@@ -47,12 +47,20 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  await client.query("delete from public.state_vote_positions where official_id in (select id from public.officials where openstates_person_id like 'ocd-person/00000000-0000-0000-0000-%')")
+  await client.query(
+    "delete from public.state_vote_positions where official_id in (select id from public.officials where openstates_person_id like 'ocd-person/00000000-0000-0000-0000-%')",
+  )
   await client.query("delete from public.state_votes where state in ('CA','NE','MD')")
-  await client.query("delete from public.state_bill_sponsors where official_id in (select id from public.officials where openstates_person_id like 'ocd-person/00000000-0000-0000-0000-%')")
-  await client.query("delete from public.state_bill_subjects where bill_id in (select id from public.state_bills where state in ('CA','NE','MD'))")
+  await client.query(
+    "delete from public.state_bill_sponsors where official_id in (select id from public.officials where openstates_person_id like 'ocd-person/00000000-0000-0000-0000-%')",
+  )
+  await client.query(
+    "delete from public.state_bill_subjects where bill_id in (select id from public.state_bills where state in ('CA','NE','MD'))",
+  )
   await client.query("delete from public.state_bills where state in ('CA','NE','MD')")
-  await client.query("delete from public.officials where openstates_person_id like 'ocd-person/00000000-0000-0000-0000-%' and source_version = 'FX-bills'")
+  await client.query(
+    "delete from public.officials where openstates_person_id like 'ocd-person/00000000-0000-0000-0000-%' and source_version = 'FX-bills'",
+  )
   await client.query("delete from public.districts where source_version = 'FX-bills'")
   await client.end()
 })
@@ -76,7 +84,7 @@ describe('ingestStateBillsVotes', () => {
       where b.state = 'MD' and b.bill_type = 'HB' and b.number = 1
       order by sps.role
     `)
-    const roles = sponsors.rows.map(r => r.role)
+    const roles = sponsors.rows.map((r) => r.role)
     expect(roles).toContain('sponsor')
     expect(roles).toContain('cosponsor')
   })
@@ -88,7 +96,7 @@ describe('ingestStateBillsVotes', () => {
       join public.state_bills b on b.id = s.bill_id
       where b.state = 'CA' and b.bill_type = 'AB' and b.number = 123
     `)
-    const set = new Set(subjects.rows.map(r => r.subject))
+    const set = new Set(subjects.rows.map((r) => r.subject))
     expect(set).toContain('Air quality')
     expect(set).toContain('Environmental protection')
   })
@@ -119,7 +127,9 @@ describe('ingestStateBillsVotes', () => {
 
   it('--skip-bills: only votes ingested', async () => {
     await ingestStateBillsVotes({ fixturesDir: FIXTURE_DIR, minStateBillsCount: 0 })
-    await client.query("delete from public.state_vote_positions where vote_id in (select id from public.state_votes where state = 'CA')")
+    await client.query(
+      "delete from public.state_vote_positions where vote_id in (select id from public.state_votes where state = 'CA')",
+    )
     await client.query("delete from public.state_votes where state = 'CA'")
     const stats = await ingestStateBillsVotes({
       fixturesDir: FIXTURE_DIR,
@@ -176,7 +186,7 @@ describe('ingestStateBillsVotes', () => {
       select distinct state, session from public.state_bills where state in ('CA','NE','MD')
       order by state
     `)
-    const map = Object.fromEntries(sessions.rows.map(r => [r.state, r.session]))
+    const map = Object.fromEntries(sessions.rows.map((r) => [r.state, r.session]))
     expect(map.CA).toBe('20252026')
     expect(map.NE).toBe('109')
     expect(map.MD).toBe('2025rs')

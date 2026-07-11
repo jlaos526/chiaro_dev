@@ -45,7 +45,9 @@ export default function AppLayout() {
     if (calibrationStatus !== 'unknown') return
     let mounted = true
     check(() => mounted)
-    return () => { mounted = false }
+    return () => {
+      mounted = false
+    }
   }, [calibrationStatus, check])
 
   // Audit U1: leaving /calibrate with a stale non-calibrated status used to

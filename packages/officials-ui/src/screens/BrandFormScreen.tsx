@@ -22,12 +22,13 @@ export interface BrandFormScreenProps {
   children: ReactNode
 }
 
-const WEB_RAIL_AWARE_PADDING = Platform.OS === 'web'
-  ? ({
-      paddingLeft: 'calc(16px + var(--chiaro-rail-width, 0px))' as unknown as number,
-      paddingTop: 'calc(24px + var(--chiaro-rail-topbar, 0px))' as unknown as number,
-    })
-  : null
+const WEB_RAIL_AWARE_PADDING =
+  Platform.OS === 'web'
+    ? {
+        paddingLeft: 'calc(16px + var(--chiaro-rail-width, 0px))' as unknown as number,
+        paddingTop: 'calc(24px + var(--chiaro-rail-topbar, 0px))' as unknown as number,
+      }
+    : null
 
 /**
  * Centered-card form shell. Consumed by `/profile/edit`, `/settings/address`.
@@ -57,7 +58,9 @@ export function BrandFormScreen({
       <BrandHeading level={1}>{title}</BrandHeading>
       {subtitle ? (
         <View style={styles.subtitleWrap}>
-          <BrandBodyText size="sm" muted>{subtitle}</BrandBodyText>
+          <BrandBodyText size="sm" muted>
+            {subtitle}
+          </BrandBodyText>
         </View>
       ) : null}
       <View style={styles.formChildrenWrap}>{children}</View>

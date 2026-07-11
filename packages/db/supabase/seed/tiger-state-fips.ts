@@ -53,10 +53,10 @@ export const STATE_FIPS: Array<{ fips: string; state: string; name: string }> = 
   { fips: '54', state: 'WV', name: 'West Virginia' },
   { fips: '55', state: 'WI', name: 'Wisconsin' },
   { fips: '56', state: 'WY', name: 'Wyoming' },
-];
+]
 
 // States without a state house (unicameral). Nebraska as of 2026.
-export const NO_STATE_HOUSE = new Set(['NE']);
+export const NO_STATE_HOUSE = new Set(['NE'])
 
 // DC has no state legislature at all.
-export const NO_STATE_LEGISLATURE = new Set(['DC']);
+export const NO_STATE_LEGISLATURE = new Set(['DC'])

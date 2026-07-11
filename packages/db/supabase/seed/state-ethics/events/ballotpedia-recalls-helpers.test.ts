@@ -63,19 +63,34 @@ describe('extractDate', () => {
 
 describe('parseLegislatorName', () => {
   it('strips "State Sen." prefix', () => {
-    expect(parseLegislatorName('State Sen. Jane Doe')).toEqual({ name: 'Jane Doe', chamber: 'state_senate' })
+    expect(parseLegislatorName('State Sen. Jane Doe')).toEqual({
+      name: 'Jane Doe',
+      chamber: 'state_senate',
+    })
   })
   it('strips "State Rep." prefix', () => {
-    expect(parseLegislatorName('State Rep. John Smith')).toEqual({ name: 'John Smith', chamber: 'state_house' })
+    expect(parseLegislatorName('State Rep. John Smith')).toEqual({
+      name: 'John Smith',
+      chamber: 'state_house',
+    })
   })
   it('strips "State Del." prefix → state_house', () => {
-    expect(parseLegislatorName('State Del. Pat Lee')).toEqual({ name: 'Pat Lee', chamber: 'state_house' })
+    expect(parseLegislatorName('State Del. Pat Lee')).toEqual({
+      name: 'Pat Lee',
+      chamber: 'state_house',
+    })
   })
   it('strips "State Senator" word', () => {
-    expect(parseLegislatorName('State Senator Maria Lopez')).toEqual({ name: 'Maria Lopez', chamber: 'state_senate' })
+    expect(parseLegislatorName('State Senator Maria Lopez')).toEqual({
+      name: 'Maria Lopez',
+      chamber: 'state_senate',
+    })
   })
   it('strips "Assemblymember" → state_house', () => {
-    expect(parseLegislatorName('Assemblymember Carlos Reyes')).toEqual({ name: 'Carlos Reyes', chamber: 'state_house' })
+    expect(parseLegislatorName('Assemblymember Carlos Reyes')).toEqual({
+      name: 'Carlos Reyes',
+      chamber: 'state_house',
+    })
   })
   it('returns null for federal title (Senator without "State" prefix)', () => {
     expect(parseLegislatorName('Senator Elizabeth Warren')).toBeNull()

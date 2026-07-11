@@ -60,7 +60,10 @@ export function isCliEntry(importMetaUrl: string): boolean {
  * No current flag carries `=` in its value, so behaviour is identical for
  * every real input.
  */
-export function parseFlag(name: string, argv: readonly string[] = process.argv): string | undefined {
+export function parseFlag(
+  name: string,
+  argv: readonly string[] = process.argv,
+): string | undefined {
   const prefix = `--${name}=`
   const match = argv.find((a) => a.startsWith(prefix))
   return match === undefined ? undefined : match.slice(prefix.length)

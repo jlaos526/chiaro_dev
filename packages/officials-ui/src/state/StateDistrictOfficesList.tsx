@@ -5,9 +5,9 @@ import type { StateDistrictOfficeRow } from '@chiaro/officials'
 import { useBrandTokens } from '../brand-hooks.ts'
 
 const KIND_LABEL: Record<string, string> = {
-  district:  'District Office',
+  district: 'District Office',
   satellite: 'Satellite Office',
-  capitol:   'Capitol Office',
+  capitol: 'Capitol Office',
 }
 
 export interface StateDistrictOfficesListProps {
@@ -27,7 +27,7 @@ export function StateDistrictOfficesList({
   }
   return (
     <View style={styles.list}>
-      {rows.map(r => (
+      {rows.map((r) => (
         <View key={r.id} style={styles.row}>
           <Text style={[styles.title, { color: semantic.text.primary }]}>
             {KIND_LABEL[r.kind] ?? r.kind} · {r.city}, {r.state}

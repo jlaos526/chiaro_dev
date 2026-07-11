@@ -19,15 +19,30 @@ const chipBase = {
 }
 
 export function BioIdentityRow({
-  party, chamber, stateName, stateAbbrev, districtNumber, atLarge,
+  party,
+  chamber,
+  stateName,
+  stateAbbrev,
+  districtNumber,
+  atLarge,
 }: BioIdentityRowProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const partyColor = usePartyColor(party)
   const partyLabel = PARTY_SHORT[party as keyof typeof PARTY_SHORT] ?? party
   return (
-    <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+    <View
+      style={{
+        flexDirection: 'row',
+        gap: 6,
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
       <View style={[chipBase, { backgroundColor: partyColor }]}>
-        <Text style={{ color: semantic.bg.elevated, fontWeight: '600', fontSize: 12 }}>{partyLabel}</Text>
+        <Text style={{ color: semantic.bg.elevated, fontWeight: '600', fontSize: 12 }}>
+          {partyLabel}
+        </Text>
       </View>
       <View style={[chipBase, { backgroundColor: semantic.bg.subtle }]}>
         <Text style={{ color: semantic.text.body, fontSize: 12 }}>

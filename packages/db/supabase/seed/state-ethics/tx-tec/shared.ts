@@ -98,12 +98,13 @@ function mapStatus(text: string): NormalizedEthicsComplaint['status'] {
   if (norm.includes('dismiss')) return 'dismissed'
   if (norm.includes('settle')) return 'settled'
   if (
-    norm.includes('resolved')
-    || norm.includes('final order')
-    || norm.includes('agreed order')
-    || norm.includes('penalty order')
-    || norm.includes('sanction')
-  ) return 'sanctioned'
+    norm.includes('resolved') ||
+    norm.includes('final order') ||
+    norm.includes('agreed order') ||
+    norm.includes('penalty order') ||
+    norm.includes('sanction')
+  )
+    return 'sanctioned'
   if (norm.includes('closed') || norm.includes('no action')) return 'closed_no_action'
   return 'closed_no_action'
 }
@@ -162,19 +163,21 @@ export async function fetchSwornComplaintOrders(
       continue
     }
 
-    const chamber: 'state_house' | 'state_senate' =
-      /House/i.test(row.agency) ? 'state_house' : 'state_senate'
+    const chamber: 'state_house' | 'state_senate' = /House/i.test(row.agency)
+      ? 'state_house'
+      : 'state_senate'
 
     const openstates_person_id = await resolveOpenstatesPersonId(client, {
       full_name: row.respondent,
       state: 'TX',
       chamber,
-      onAmbiguous: () => opts.onSkip?.({
-        adapter: 'tx-tec',
-        stage: 'resolve_ambiguous',
-        legislator: row.respondent,
-        reason: 'ambiguous full_name match (2+ in-office officials)',
-      }),
+      onAmbiguous: () =>
+        opts.onSkip?.({
+          adapter: 'tx-tec',
+          stage: 'resolve_ambiguous',
+          legislator: row.respondent,
+          reason: 'ambiguous full_name match (2+ in-office officials)',
+        }),
     })
     if (!openstates_person_id) {
       opts.onSkip?.({
@@ -269,7 +272,7 @@ export async function fetchSwornComplaintOrders(
     }
 
     if (!testMode && i < pdfBudget - 1) {
-      await new Promise(resolve => setTimeout(resolve, PDF_RATE_LIMIT_MS))
+      await new Promise((resolve) => setTimeout(resolve, PDF_RATE_LIMIT_MS))
     }
   }
 

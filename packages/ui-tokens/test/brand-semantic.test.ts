@@ -132,63 +132,75 @@ describe('BRAND_SEMANTIC.dark → palette references', () => {
 
 describe('semantic parity between modes', () => {
   it('light and dark expose identical top-level keys', () => {
-    expect(Object.keys(BRAND_SEMANTIC.light).sort())
-      .toEqual(Object.keys(BRAND_SEMANTIC.dark).sort())
+    expect(Object.keys(BRAND_SEMANTIC.light).sort()).toEqual(
+      Object.keys(BRAND_SEMANTIC.dark).sort(),
+    )
   })
 
   it('text.* keys are identical between modes', () => {
-    expect(Object.keys(BRAND_SEMANTIC.light.text).sort())
-      .toEqual(Object.keys(BRAND_SEMANTIC.dark.text).sort())
+    expect(Object.keys(BRAND_SEMANTIC.light.text).sort()).toEqual(
+      Object.keys(BRAND_SEMANTIC.dark.text).sort(),
+    )
   })
 
   it('bg.* keys are identical between modes', () => {
-    expect(Object.keys(BRAND_SEMANTIC.light.bg).sort())
-      .toEqual(Object.keys(BRAND_SEMANTIC.dark.bg).sort())
+    expect(Object.keys(BRAND_SEMANTIC.light.bg).sort()).toEqual(
+      Object.keys(BRAND_SEMANTIC.dark.bg).sort(),
+    )
   })
 
   it('accent.* keys are identical between modes', () => {
-    expect(Object.keys(BRAND_SEMANTIC.light.accent).sort())
-      .toEqual(Object.keys(BRAND_SEMANTIC.dark.accent).sort())
+    expect(Object.keys(BRAND_SEMANTIC.light.accent).sort()).toEqual(
+      Object.keys(BRAND_SEMANTIC.dark.accent).sort(),
+    )
   })
 
   it('alert.* variant keys are identical between modes', () => {
-    expect(Object.keys(BRAND_SEMANTIC.light.alert).sort())
-      .toEqual(Object.keys(BRAND_SEMANTIC.dark.alert).sort())
+    expect(Object.keys(BRAND_SEMANTIC.light.alert).sort()).toEqual(
+      Object.keys(BRAND_SEMANTIC.dark.alert).sort(),
+    )
   })
 
   it('alert.danger fg/bg/border keys are identical between modes', () => {
-    expect(Object.keys(BRAND_SEMANTIC.light.alert.danger).sort())
-      .toEqual(Object.keys(BRAND_SEMANTIC.dark.alert.danger).sort())
+    expect(Object.keys(BRAND_SEMANTIC.light.alert.danger).sort()).toEqual(
+      Object.keys(BRAND_SEMANTIC.dark.alert.danger).sort(),
+    )
   })
 
   it('alert.warning fg/bg/border keys are identical between modes', () => {
-    expect(Object.keys(BRAND_SEMANTIC.light.alert.warning).sort())
-      .toEqual(Object.keys(BRAND_SEMANTIC.dark.alert.warning).sort())
+    expect(Object.keys(BRAND_SEMANTIC.light.alert.warning).sort()).toEqual(
+      Object.keys(BRAND_SEMANTIC.dark.alert.warning).sort(),
+    )
   })
 
   it('alert.success fg/bg/border keys are identical between modes', () => {
-    expect(Object.keys(BRAND_SEMANTIC.light.alert.success).sort())
-      .toEqual(Object.keys(BRAND_SEMANTIC.dark.alert.success).sort())
+    expect(Object.keys(BRAND_SEMANTIC.light.alert.success).sort()).toEqual(
+      Object.keys(BRAND_SEMANTIC.dark.alert.success).sort(),
+    )
   })
 
   it('signal.* keys are identical between modes', () => {
-    expect(Object.keys(BRAND_SEMANTIC.light.signal).sort())
-      .toEqual(Object.keys(BRAND_SEMANTIC.dark.signal).sort())
+    expect(Object.keys(BRAND_SEMANTIC.light.signal).sort()).toEqual(
+      Object.keys(BRAND_SEMANTIC.dark.signal).sort(),
+    )
   })
 
   it('link.* keys are identical between modes', () => {
-    expect(Object.keys(BRAND_SEMANTIC.light.link).sort())
-      .toEqual(Object.keys(BRAND_SEMANTIC.dark.link).sort())
+    expect(Object.keys(BRAND_SEMANTIC.light.link).sort()).toEqual(
+      Object.keys(BRAND_SEMANTIC.dark.link).sort(),
+    )
   })
 
   it('portrait keys are identical between modes', () => {
-    expect(Object.keys(BRAND_SEMANTIC.light.portrait).sort())
-      .toEqual(Object.keys(BRAND_SEMANTIC.dark.portrait).sort())
+    expect(Object.keys(BRAND_SEMANTIC.light.portrait).sort()).toEqual(
+      Object.keys(BRAND_SEMANTIC.dark.portrait).sort(),
+    )
   })
 
   it('portrait.gradient keys are identical between modes', () => {
-    expect(Object.keys(BRAND_SEMANTIC.light.portrait.gradient).sort())
-      .toEqual(Object.keys(BRAND_SEMANTIC.dark.portrait.gradient).sort())
+    expect(Object.keys(BRAND_SEMANTIC.light.portrait.gradient).sort()).toEqual(
+      Object.keys(BRAND_SEMANTIC.dark.portrait.gradient).sort(),
+    )
   })
 })
 

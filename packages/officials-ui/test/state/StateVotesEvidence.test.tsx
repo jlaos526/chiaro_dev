@@ -81,7 +81,11 @@ const darkWrapper = ({ children }: { children: ReactNode }) =>
 describe('StateVotesEvidence — mode awareness', () => {
   it('renders under both light and dark wrappers without throwing', () => {
     const votes = [makeVote('v1', 'yes')]
-    expect(() => render(<StateVotesEvidence votes={votes} />, { wrapper: lightWrapper })).not.toThrow()
-    expect(() => render(<StateVotesEvidence votes={votes} />, { wrapper: darkWrapper })).not.toThrow()
+    expect(() =>
+      render(<StateVotesEvidence votes={votes} />, { wrapper: lightWrapper }),
+    ).not.toThrow()
+    expect(() =>
+      render(<StateVotesEvidence votes={votes} />, { wrapper: darkWrapper }),
+    ).not.toThrow()
   })
 })

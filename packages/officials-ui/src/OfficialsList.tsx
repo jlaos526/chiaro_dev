@@ -36,9 +36,13 @@ function Section({
   if (items.length === 0) return null
   return (
     <View accessibilityLabel={title} style={{ marginBottom: 24 }}>
-      <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, color: semantic.text.primary }}>{title}</Text>
+      <Text
+        style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, color: semantic.text.primary }}
+      >
+        {title}
+      </Text>
       <View style={{ gap: 12 }}>
-        {items.map(o => {
+        {items.map((o) => {
           const handlePress = () => onSelect({ officialId: o.id })
           const href = getHref?.({ officialId: o.id })
 
@@ -46,7 +50,9 @@ function Section({
             <>
               <OfficialAvatar fullName={o.full_name} portraitUrl={o.portrait_url} size={48} />
               <View style={{ flex: 1 }}>
-                <Text style={{ fontWeight: '600', color: semantic.text.primary }}>{o.full_name}</Text>
+                <Text style={{ fontWeight: '600', color: semantic.text.primary }}>
+                  {o.full_name}
+                </Text>
                 <PartyBadge party={o.party as Party} />
                 <OfficialMeta official={o} />
               </View>
@@ -114,7 +120,12 @@ export function OfficialsList({
     return (
       <View style={{ gap: 8 }}>
         <Text style={{ color: semantic.text.muted }}>Couldn&apos;t load officials.</Text>
-        <Pressable onPress={() => { void refetch() }} accessibilityRole="button">
+        <Pressable
+          onPress={() => {
+            void refetch()
+          }}
+          accessibilityRole="button"
+        >
           <Text style={{ color: semantic.accent.primary, fontWeight: '600' }}>Retry</Text>
         </Pressable>
       </View>
@@ -155,12 +166,17 @@ export function OfficialsList({
     )
   }
 
-  const senate = data.filter(o => o.chamber === 'federal_senate')
-  const house = data.filter(o => o.chamber === 'federal_house')
+  const senate = data.filter((o) => o.chamber === 'federal_senate')
+  const house = data.filter((o) => o.chamber === 'federal_house')
 
   return (
     <View>
-      <Section title="Senate" items={senate} onSelect={onSelect} {...(getHref ? { getHref } : {})} />
+      <Section
+        title="Senate"
+        items={senate}
+        onSelect={onSelect}
+        {...(getHref ? { getHref } : {})}
+      />
       <Section title="House" items={house} onSelect={onSelect} {...(getHref ? { getHref } : {})} />
     </View>
   )

@@ -10,15 +10,16 @@ export type { RailUser } from './BrandNavRailBody.tsx'
 // Web: position the mobile top bar as fixed so it stays at the top of the
 // viewport while the user scrolls. zIndex 5 keeps it above page content but
 // below the overlay rail (zIndex 11) and scrim (zIndex 10).
-const WEB_FIXED_TOP_BAR = Platform.OS === 'web'
-  ? {
-      position: 'fixed' as unknown as 'absolute',
-      top: 0 as number,
-      left: 0 as number,
-      right: 0 as number,
-      zIndex: 5 as number,
-    }
-  : null
+const WEB_FIXED_TOP_BAR =
+  Platform.OS === 'web'
+    ? {
+        position: 'fixed' as unknown as 'absolute',
+        top: 0 as number,
+        left: 0 as number,
+        right: 0 as number,
+        zIndex: 5 as number,
+      }
+    : null
 
 interface RailCommonProps {
   user: import('./BrandNavRailBody.tsx').RailUser
@@ -63,7 +64,12 @@ type Semantic = ReturnType<typeof useBrandTokens>['semantic']
 
 // ─── Desktop variant ────────────────────────────────────────────────────────
 
-function DesktopRail({ user, pathname, onNavigate, onSignOut }: RailDesktopProps): React.JSX.Element {
+function DesktopRail({
+  user,
+  pathname,
+  onNavigate,
+  onSignOut,
+}: RailDesktopProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   return (
     <View

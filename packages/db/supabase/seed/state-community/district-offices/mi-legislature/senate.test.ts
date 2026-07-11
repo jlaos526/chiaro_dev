@@ -5,7 +5,15 @@ import { fileURLToPath } from 'node:url'
 import { parseMiSenatorProfileHtml, fetchMiSenateOffices, deriveMiSenatorUrl } from './senate.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const FIXTURE = join(__dirname, '..', '..', '..', 'fixtures', 'state-community', 'mi-senator-detail.html')
+const FIXTURE = join(
+  __dirname,
+  '..',
+  '..',
+  '..',
+  'fixtures',
+  'state-community',
+  'mi-senator-detail.html',
+)
 
 describe('parseMiSenatorProfileHtml', () => {
   it('extracts Lansing + District address blocks', async () => {
@@ -32,7 +40,9 @@ describe('parseMiSenatorProfileHtml', () => {
       </section>
     `
     const parsed = parseMiSenatorProfileHtml(html)
-    expect(parsed.lansing_office).toBe('Farnum Building, P.O. Box 30036, Lansing, MI 48909, Phone: (517) 373-7350')
+    expect(parsed.lansing_office).toBe(
+      'Farnum Building, P.O. Box 30036, Lansing, MI 48909, Phone: (517) 373-7350',
+    )
   })
 })
 
@@ -42,15 +52,21 @@ describe('deriveMiSenatorUrl', () => {
   })
 
   it('handles middle name', () => {
-    expect(deriveMiSenatorUrl('Mary Jo Smith')).toBe('https://senate.michigan.gov/senators/mary-jo-smith/')
+    expect(deriveMiSenatorUrl('Mary Jo Smith')).toBe(
+      'https://senate.michigan.gov/senators/mary-jo-smith/',
+    )
   })
 
   it('strips non-alphanumeric characters', () => {
-    expect(deriveMiSenatorUrl("Pat O'Brien")).toBe('https://senate.michigan.gov/senators/pat-obrien/')
+    expect(deriveMiSenatorUrl("Pat O'Brien")).toBe(
+      'https://senate.michigan.gov/senators/pat-obrien/',
+    )
   })
 
   it('preserves accented characters as ASCII transliterations (Audit Bug 1 fix)', () => {
-    expect(deriveMiSenatorUrl('José Smith')).toBe('https://senate.michigan.gov/senators/jose-smith/')
+    expect(deriveMiSenatorUrl('José Smith')).toBe(
+      'https://senate.michigan.gov/senators/jose-smith/',
+    )
   })
 })
 
@@ -74,15 +90,17 @@ describe('fetchMiSenateOffices', () => {
     const rows = await fetchMiSenateOffices(client as never, { fetcher: async () => html })
     // 2 senators × 2 offices = 4 rows
     expect(rows).toHaveLength(4)
-    expect(rows.filter(r => r.kind === 'capitol').length).toBe(2)
-    expect(rows.filter(r => r.kind === 'district').length).toBe(2)
+    expect(rows.filter((r) => r.kind === 'capitol').length).toBe(2)
+    expect(rows.filter((r) => r.kind === 'district').length).toBe(2)
   })
 
   it('returns [] when no MI senators in officials table', async () => {
     const client = {
       query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0 }),
     }
-    const rows = await fetchMiSenateOffices(client as never, { fetcher: async () => '<html></html>' })
+    const rows = await fetchMiSenateOffices(client as never, {
+      fetcher: async () => '<html></html>',
+    })
     expect(rows).toEqual([])
   })
 
@@ -110,6 +128,6 @@ describe('fetchMiSenateOffices', () => {
         return fixtureHtml
       },
     })
-    expect(rows).toHaveLength(2)  // first errors, second succeeds → 2 rows
+    expect(rows).toHaveLength(2) // first errors, second succeeds → 2 rows
   })
 })

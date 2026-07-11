@@ -50,7 +50,8 @@ export async function upsertStateFinance(
   summary: StateFinanceSummaryPayload,
   donors: IndividualDonorPayload[],
 ): Promise<string> {
-  const upsert = await client.query<{ id: string }>(`
+  const upsert = await client.query<{ id: string }>(
+    `
     insert into public.state_finance_summaries (
       official_id, cycle, total_raised, total_disbursed,
       small_donor_pct, in_state_pct, source, source_url
@@ -65,12 +66,18 @@ export async function upsertStateFinance(
       source_url      = excluded.source_url,
       ingested_at     = now()
     returning id
-  `, [
-    key.official_id, key.cycle,
-    summary.total_raised, summary.total_disbursed,
-    summary.small_donor_pct, summary.in_state_pct,
-    summary.source, summary.source_url,
-  ])
+  `,
+    [
+      key.official_id,
+      key.cycle,
+      summary.total_raised,
+      summary.total_disbursed,
+      summary.small_donor_pct,
+      summary.in_state_pct,
+      summary.source,
+      summary.source_url,
+    ],
+  )
   const summaryId = upsert.rows[0]!.id
 
   await client.query(
@@ -78,18 +85,25 @@ export async function upsertStateFinance(
     [summaryId],
   )
   for (const d of donors) {
-    await client.query(`
+    await client.query(
+      `
       insert into public.state_finance_individual_donors (
         state_finance_summary_id, rank, donor_name, amount,
         employer, occupation, city, donor_state
       ) values ($1, $2, $3, $4, $5, $6, $7, $8)
-    `, [
-      summaryId, d.rank, d.donor_name, d.amount,
-      d.employer ?? null, d.occupation ?? null,
-      d.city ?? null, d.donor_state ?? null,
-    ])
+    `,
+      [
+        summaryId,
+        d.rank,
+        d.donor_name,
+        d.amount,
+        d.employer ?? null,
+        d.occupation ?? null,
+        d.city ?? null,
+        d.donor_state ?? null,
+      ],
+    )
   }
 
   return summaryId
 }
-

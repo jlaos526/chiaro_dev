@@ -15,7 +15,7 @@ export function serviceRecordTeaser(args: {
 
 export function issuePositionsTeaser(args: {
   topAlignedIssue: string | null
-  topDifferIssue:  string | null
+  topDifferIssue: string | null
 }): string | null {
   const aligned = args.topAlignedIssue ? titleCaseIssueArea(args.topAlignedIssue) : null
   const differs = args.topDifferIssue ? titleCaseIssueArea(args.topDifferIssue) : null
@@ -40,7 +40,7 @@ export function communityPresenceTeaser(args: {
 
 function formatMillions(n: number): string {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`
-  if (n >= 1_000)     return `$${Math.round(n / 1_000)}K`
+  if (n >= 1_000) return `$${Math.round(n / 1_000)}K`
   return `$${n}`
 }
 

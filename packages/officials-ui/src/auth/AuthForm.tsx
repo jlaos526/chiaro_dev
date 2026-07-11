@@ -102,7 +102,11 @@ export function AuthForm(props: AuthFormProps): React.JSX.Element {
 
   return (
     <View style={styles.form} testID={props.testID}>
-      <Text accessibilityRole="header" accessibilityLevel={1} style={[styles.headline, { color: semantic.text.primary }]}>
+      <Text
+        accessibilityRole="header"
+        accessibilityLevel={1}
+        style={[styles.headline, { color: semantic.text.primary }]}
+      >
         {copy.headline}
       </Text>
       <Text style={[styles.subhead, { color: semantic.text.muted }]}>{copy.subhead}</Text>
@@ -140,7 +144,10 @@ export function AuthForm(props: AuthFormProps): React.JSX.Element {
       )}
 
       {error ? (
-        <View style={[styles.errorBanner, { backgroundColor: semantic.alert.danger.bg }]} accessibilityRole="alert">
+        <View
+          style={[styles.errorBanner, { backgroundColor: semantic.alert.danger.bg }]}
+          accessibilityRole="alert"
+        >
           <Text style={[styles.errorBannerText, { color: semantic.alert.danger.fg }]}>{error}</Text>
         </View>
       ) : null}
@@ -149,21 +156,30 @@ export function AuthForm(props: AuthFormProps): React.JSX.Element {
         <View
           style={[
             styles.noticeBanner,
-            { backgroundColor: semantic.alert.success.bg, borderColor: semantic.alert.success.border },
+            {
+              backgroundColor: semantic.alert.success.bg,
+              borderColor: semantic.alert.success.border,
+            },
           ]}
           role="status"
           aria-live="polite"
           accessibilityLiveRegion="polite"
           testID="auth-notice"
         >
-          <Text style={[styles.noticeBannerText, { color: semantic.alert.success.fg }]}>{notice}</Text>
+          <Text style={[styles.noticeBannerText, { color: semantic.alert.success.fg }]}>
+            {notice}
+          </Text>
         </View>
       ) : null}
 
       <Pressable
         onPress={handleSubmit}
         disabled={submitting}
-        style={[styles.cta, { backgroundColor: semantic.accent.primary }, submitting ? styles.ctaDisabled : null]}
+        style={[
+          styles.cta,
+          { backgroundColor: semantic.accent.primary },
+          submitting ? styles.ctaDisabled : null,
+        ]}
         accessibilityRole="button"
         accessibilityLabel={submitting ? copy.ctaLoad : copy.cta}
         testID="auth-submit"

@@ -23,13 +23,15 @@ export default function EditAddressPage(): React.JSX.Element {
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient()
-    getMyLocation(supabase as never).then(loc => {
-      if (loc) {
-        setAddress(loc.home_address_text)
-        setCalibratedAt(loc.calibrated_at)
-      }
-      setBootstrapping(false)
-    }).catch(() => setBootstrapping(false))
+    getMyLocation(supabase as never)
+      .then((loc) => {
+        if (loc) {
+          setAddress(loc.home_address_text)
+          setCalibratedAt(loc.calibrated_at)
+        }
+        setBootstrapping(false)
+      })
+      .catch(() => setBootstrapping(false))
   }, [])
 
   async function handleSubmit() {
@@ -62,7 +64,9 @@ export default function EditAddressPage(): React.JSX.Element {
     )
   }
 
-  const subtitle = calibratedAt ? `Last updated ${new Date(calibratedAt).toLocaleString()}` : undefined
+  const subtitle = calibratedAt
+    ? `Last updated ${new Date(calibratedAt).toLocaleString()}`
+    : undefined
 
   return (
     <BrandFormScreen
@@ -72,7 +76,11 @@ export default function EditAddressPage(): React.JSX.Element {
       {...(subtitle ? { subtitle } : {})}
     >
       <BrandTextInput label="Address" value={address} onChangeText={setAddress} required />
-      {error ? <BrandAlert severity="danger" title="Couldn't save">{error}</BrandAlert> : null}
+      {error ? (
+        <BrandAlert severity="danger" title="Couldn't save">
+          {error}
+        </BrandAlert>
+      ) : null}
       <BrandButton variant="primary" disabled={loading} onPress={handleSubmit}>
         {loading ? 'Saving…' : 'Save'}
       </BrandButton>

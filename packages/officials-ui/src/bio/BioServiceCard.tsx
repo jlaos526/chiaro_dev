@@ -21,10 +21,24 @@ export function BioServiceCard({ role, firstElectedYear }: BioServiceCardProps):
         alignSelf: 'center',
       }}
     >
-      <Text style={{ fontSize: 11, textTransform: 'uppercase', color: semantic.text.muted, letterSpacing: 0.5 }}>
+      <Text
+        style={{
+          fontSize: 11,
+          textTransform: 'uppercase',
+          color: semantic.text.muted,
+          letterSpacing: 0.5,
+        }}
+      >
         CURRENT ROLE
       </Text>
-      <View style={{ backgroundColor: semantic.text.primary, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 4 }}>
+      <View
+        style={{
+          backgroundColor: semantic.text.primary,
+          paddingHorizontal: 8,
+          paddingVertical: 2,
+          borderRadius: 4,
+        }}
+      >
         <Text style={{ color: semantic.bg.elevated, fontSize: 12, fontWeight: '600' }}>{role}</Text>
       </View>
       {firstElectedYear != null ? (

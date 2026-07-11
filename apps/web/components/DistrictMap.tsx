@@ -45,10 +45,8 @@ export function DistrictMap({
   // Slice 67 (audit C9): memoize the bounds walk so layer-toggle setState
   // doesn't re-iterate every vertex; <GeoJSON data> already gets a stable ref.
   const bounds = useMemo(() => {
-    const countyDistricts = districts.filter(d => d.tier === 'county')
-    return countyDistricts.length > 0
-      ? computeBounds(countyDistricts)
-      : computeBounds(districts)
+    const countyDistricts = districts.filter((d) => d.tier === 'county')
+    return countyDistricts.length > 0 ? computeBounds(countyDistricts) : computeBounds(districts)
   }, [districts])
 
   if (districts.length === 0) return null
@@ -57,13 +55,16 @@ export function DistrictMap({
     <div>
       <fieldset>
         <legend>Show on map</legend>
-        {DISTRICT_GROUPS.map(group => {
-          const inGroup = group.tiers.flatMap(tier =>
-            districts.filter(d => d.tier === tier).sort((a, b) => a.code.localeCompare(b.code))
+        {DISTRICT_GROUPS.map((group) => {
+          const inGroup = group.tiers.flatMap((tier) =>
+            districts.filter((d) => d.tier === tier).sort((a, b) => a.code.localeCompare(b.code)),
           )
           if (inGroup.length === 0) return null
           return (
-            <div key={group.heading} style={{ display: 'flex', alignItems: 'baseline', gap: 12, margin: '4px 0' }}>
+            <div
+              key={group.heading}
+              style={{ display: 'flex', alignItems: 'baseline', gap: 12, margin: '4px 0' }}
+            >
               <span
                 style={{
                   fontSize: '0.75rem',
@@ -76,12 +77,14 @@ export function DistrictMap({
                 {group.heading}
               </span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 12px' }}>
-                {inGroup.map(d => (
+                {inGroup.map((d) => (
                   <label key={d.id} style={{ display: 'inline-flex', gap: 4 }}>
                     <input
                       type="checkbox"
                       checked={!!enabled[d.id]}
-                      onChange={e => setEnabled(prev => ({ ...prev, [d.id]: e.target.checked }))}
+                      onChange={(e) =>
+                        setEnabled((prev) => ({ ...prev, [d.id]: e.target.checked }))
+                      }
                     />
                     <span style={{ color: tierColors[d.tier] }}>{TIER_LABEL[d.tier]}</span>
                     <span>{d.code}</span>
@@ -98,23 +101,32 @@ export function DistrictMap({
         scrollWheelZoom={false}
       >
         <TileLayer
-          attribution='&copy; OpenStreetMap'
+          attribution="&copy; OpenStreetMap"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {districts.filter(d => enabled[d.id]).map(d => (
-          <GeoJSON
-            key={d.id}
-            data={d.geometry as GeoJSON.GeoJsonObject}
-            style={{ color: tierColors[d.tier], weight: 1.5, fillOpacity: 0.15 }}
-          />
-        ))}
+        {districts
+          .filter((d) => enabled[d.id])
+          .map((d) => (
+            <GeoJSON
+              key={d.id}
+              data={d.geometry as GeoJSON.GeoJsonObject}
+              style={{ color: tierColors[d.tier], weight: 1.5, fillOpacity: 0.15 }}
+            />
+          ))}
         {homePoint && (
           <CircleMarker
             center={[homePoint.lat, homePoint.lng]}
             radius={6}
-            pathOptions={{ color: mapColors.districtStroke, fillColor: mapColors.districtFill, weight: 2, fillOpacity: 1 }}
+            pathOptions={{
+              color: mapColors.districtStroke,
+              fillColor: mapColors.districtFill,
+              weight: 2,
+              fillOpacity: 1,
+            }}
           >
-            <Tooltip permanent={false} direction="top">Home</Tooltip>
+            <Tooltip permanent={false} direction="top">
+              Home
+            </Tooltip>
           </CircleMarker>
         )}
       </MapContainer>
@@ -123,17 +135,23 @@ export function DistrictMap({
 }
 
 function defaultEnabled(districts: DistrictMapDistrict[]): Record<string, boolean> {
-  return Object.fromEntries(districts.map(d => [d.id, d.tier !== 'federal_senate']))
+  return Object.fromEntries(districts.map((d) => [d.id, d.tier !== 'federal_senate']))
 }
 
 // Stable identity of the district *set* (order-independent), used to detect when
 // an in-place prop change warrants re-seeding the toggle defaults.
 function districtIdSignature(districts: DistrictMapDistrict[]): string {
-  return districts.map(d => d.id).sort().join(',')
+  return districts
+    .map((d) => d.id)
+    .sort()
+    .join(',')
 }
 
 function computeBounds(districts: DistrictMapDistrict[]): [[number, number], [number, number]] {
-  let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180
+  let minLat = 90,
+    maxLat = -90,
+    minLng = 180,
+    maxLng = -180
   for (const d of districts) {
     forEachCoord(d.geometry, (lng, lat) => {
       if (lat < minLat) minLat = lat
@@ -143,11 +161,21 @@ function computeBounds(districts: DistrictMapDistrict[]): [[number, number], [nu
     })
   }
   // fall back to a continental US bbox if degenerate
-  if (minLat > maxLat) return [[24, -125], [49, -66]]
-  return [[minLat, minLng], [maxLat, maxLng]]
+  if (minLat > maxLat)
+    return [
+      [24, -125],
+      [49, -66],
+    ]
+  return [
+    [minLat, minLng],
+    [maxLat, maxLng],
+  ]
 }
 
-function forEachCoord(geom: GeoJSON.Polygon | GeoJSON.MultiPolygon, cb: (lng: number, lat: number) => void) {
+function forEachCoord(
+  geom: GeoJSON.Polygon | GeoJSON.MultiPolygon,
+  cb: (lng: number, lat: number) => void,
+) {
   const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates
   for (const poly of polys) {
     for (const ring of poly) {

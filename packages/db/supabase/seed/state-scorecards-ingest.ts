@@ -12,12 +12,10 @@ import { nra } from './state-scorecards/nra.ts'
 import { plannedParenthood } from './state-scorecards/planned-parenthood.ts'
 import { afp } from './state-scorecards/afp.ts'
 
-const DB_URL = process.env.SUPABASE_DB_URL
-  ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const DB_URL =
+  process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 
-const ADAPTERS_DEFAULT: StateScorecardAdapter[] = [
-  aclu, lcv, nra, plannedParenthood, afp,
-]
+const ADAPTERS_DEFAULT: StateScorecardAdapter[] = [aclu, lcv, nra, plannedParenthood, afp]
 
 export interface IngestStateScorecardsOpts {
   session: string
@@ -43,10 +41,10 @@ export async function ingestStateScorecards(
 ): Promise<IngestStateScorecardsStats> {
   let adapters = opts.adapters ?? ADAPTERS_DEFAULT
   if (opts.org) {
-    adapters = adapters.filter(a => a.slug === opts.org)
+    adapters = adapters.filter((a) => a.slug === opts.org)
   }
   if (opts.state) {
-    adapters = adapters.filter(a => a.covered_states.includes(opts.state!))
+    adapters = adapters.filter((a) => a.covered_states.includes(opts.state!))
   }
 
   const client = opts.client ?? new Client({ connectionString: DB_URL })
@@ -65,11 +63,11 @@ export async function ingestStateScorecards(
         errors: [],
       }
       try {
-        const targetStates = opts.state
-          ? [opts.state]
-          : adapter.covered_states
+        const targetStates = opts.state ? [opts.state] : adapter.covered_states
         const ratings = await adapter.fetchRatings({
-          client, session: opts.session, ...(opts.state !== undefined ? { state: opts.state } : {}),
+          client,
+          session: opts.session,
+          ...(opts.state !== undefined ? { state: opts.state } : {}),
         })
         // Upsert per-state org rows for each state in scope.
         const orgIdByState = new Map<string, string>()
@@ -86,7 +84,12 @@ export async function ingestStateScorecards(
             continue
           }
           const ok = await upsertStateScorecardRating(
-            client, orgId, r.openstates_person_id, opts.session, r.score, r.source_url,
+            client,
+            orgId,
+            r.openstates_person_id,
+            opts.session,
+            r.score,
+            r.source_url,
           )
           if (ok) {
             orgStats.ratingsUpserted += 1
@@ -108,10 +111,10 @@ export async function ingestStateScorecards(
 
   return {
     session: opts.session,
-    adaptersAttempted:       byOrg.length,
-    adaptersOk:              byOrg.filter(s => s.errors.length === 0).length,
-    totalOrgsUpserted:       byOrg.reduce((acc, s) => acc + s.orgsUpserted, 0),
-    totalRatingsUpserted:    byOrg.reduce((acc, s) => acc + s.ratingsUpserted, 0),
+    adaptersAttempted: byOrg.length,
+    adaptersOk: byOrg.filter((s) => s.errors.length === 0).length,
+    totalOrgsUpserted: byOrg.reduce((acc, s) => acc + s.orgsUpserted, 0),
+    totalRatingsUpserted: byOrg.reduce((acc, s) => acc + s.ratingsUpserted, 0),
     totalOfficialsUnmatched: byOrg.reduce((acc, s) => acc + s.officialsUnmatched.length, 0),
     byOrg,
   }
@@ -119,11 +122,13 @@ export async function ingestStateScorecards(
 
 if (isCliEntry(import.meta.url)) {
   const session = parseFlag('session')
-  const state   = parseFlag('state')
-  const org     = parseFlag('org')
+  const state = parseFlag('state')
+  const org = parseFlag('org')
   const skipOnError = hasFlag('skip-on-error')
   if (session === undefined) {
-    console.error('usage: tsx state-scorecards-ingest.ts --session=YYYY [--state=XX] [--org=SLUG] [--skip-on-error]')
+    console.error(
+      'usage: tsx state-scorecards-ingest.ts --session=YYYY [--state=XX] [--org=SLUG] [--skip-on-error]',
+    )
     process.exit(2)
   }
 
@@ -133,7 +138,7 @@ if (isCliEntry(import.meta.url)) {
     ...(org !== undefined ? { org } : {}),
     skipOnError,
   })
-    .then(stats => {
+    .then((stats) => {
       console.log(`State scorecards ingest summary (session ${stats.session}):`)
       console.log(`  adapters attempted:       ${stats.adaptersAttempted}`)
       console.log(`  adapters ok:              ${stats.adaptersOk}`)
@@ -142,9 +147,14 @@ if (isCliEntry(import.meta.url)) {
       console.log(`  total officials unmatched: ${stats.totalOfficialsUnmatched}`)
       for (const s of stats.byOrg) {
         const tag = s.errors.length > 0 ? `errors=${s.errors.length}` : 'ok'
-        console.log(`  ${s.org_slug}: ${s.orgsUpserted} orgs / ${s.ratingsUpserted} ratings / ${tag}`)
+        console.log(
+          `  ${s.org_slug}: ${s.orgsUpserted} orgs / ${s.ratingsUpserted} ratings / ${tag}`,
+        )
       }
       process.exit(stats.adaptersOk === stats.adaptersAttempted ? 0 : 1)
     })
-    .catch(err => { console.error(err.message); process.exit(1) })
+    .catch((err) => {
+      console.error(err.message)
+      process.exit(1)
+    })
 }

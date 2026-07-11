@@ -15,8 +15,8 @@
  */
 import { Client } from 'pg'
 
-const DB_URL = process.env.SUPABASE_DB_URL
-  ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const DB_URL =
+  process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 
 async function main(): Promise<void> {
   const client = new Client({ connectionString: DB_URL })

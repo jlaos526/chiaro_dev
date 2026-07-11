@@ -14,7 +14,7 @@ const describeLive = describe.skipIf(!live)
 if (!live) {
   console.warn(
     '[@chiaro/profile] SUPABASE_ANON_KEY not set — skipping integration suite. ' +
-    'Run `pnpm db:start`, then export keys from `supabase status --output env` (ANON_KEY).'
+      'Run `pnpm db:start`, then export keys from `supabase status --output env` (ANON_KEY).',
   )
 }
 
@@ -30,8 +30,12 @@ function makeMemoryStorage() {
   const store = new Map<string, string>()
   return {
     getItem: (k: string) => store.get(k) ?? null,
-    setItem: (k: string, v: string) => { store.set(k, v) },
-    removeItem: (k: string) => { store.delete(k) },
+    setItem: (k: string, v: string) => {
+      store.set(k, v)
+    },
+    removeItem: (k: string) => {
+      store.delete(k)
+    },
   }
 }
 
@@ -64,7 +68,7 @@ afterAll(async () => {
     // Cleanup is best-effort; without service role we can't admin.deleteUser.
     console.warn(
       '[profile integration] SUPABASE_SERVICE_ROLE_KEY not set — skipping auth.users cleanup. ' +
-      `${createdUserIds.length} test users will persist in local Supabase.`,
+        `${createdUserIds.length} test users will persist in local Supabase.`,
     )
     return
   }
@@ -117,13 +121,15 @@ describeLive('profile integration', () => {
     const { client: clientA } = await newSignedInUser('dup-a')
     await updateMyProfile(clientA, { display_name: 'A', username: taken })
     const { client: clientB } = await newSignedInUser('dup-b')
-    await expect(updateMyProfile(clientB, { display_name: 'B', username: taken }))
-      .rejects.toMatchObject({ message: 'Username taken' })
+    await expect(
+      updateMyProfile(clientB, { display_name: 'B', username: taken }),
+    ).rejects.toMatchObject({ message: 'Username taken' })
   })
 
   it('anonymous client throws "Not signed in"', async () => {
     const client = newClient()
-    await expect(updateMyProfile(client, { display_name: 'X', username: 'xxx' }))
-      .rejects.toBeInstanceOf(ProfileError)
+    await expect(
+      updateMyProfile(client, { display_name: 'X', username: 'xxx' }),
+    ).rejects.toBeInstanceOf(ProfileError)
   })
 })

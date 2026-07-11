@@ -16,10 +16,12 @@ describe('profileFormSchema', () => {
   })
 
   it('rejects too-long display_name (>50)', () => {
-    expect(() => profileFormSchema.parse({
-      display_name: 'a'.repeat(51),
-      username: 'alice',
-    })).toThrow()
+    expect(() =>
+      profileFormSchema.parse({
+        display_name: 'a'.repeat(51),
+        username: 'alice',
+      }),
+    ).toThrow()
   })
 
   it('rejects username with disallowed characters', () => {
@@ -31,6 +33,8 @@ describe('profileFormSchema', () => {
   })
 
   it('rejects username longer than 20', () => {
-    expect(() => profileFormSchema.parse({ display_name: 'Alice', username: 'a'.repeat(21) })).toThrow()
+    expect(() =>
+      profileFormSchema.parse({ display_name: 'Alice', username: 'a'.repeat(21) }),
+    ).toThrow()
   })
 })

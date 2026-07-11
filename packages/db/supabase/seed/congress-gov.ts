@@ -2,11 +2,11 @@ import type { NormalizedMember, Chamber, Party } from './normalize.ts'
 
 const API_BASE = 'https://api.congress.gov/v3'
 const PAGE_SIZE = 250
-const DETAIL_CONCURRENCY = 5  // parallel detail fetches per batch
+const DETAIL_CONCURRENCY = 5 // parallel detail fetches per batch
 
 type ListItem = {
   bioguideId: string
-  url: string  // detail endpoint
+  url: string // detail endpoint
 }
 
 type ListPage = {
@@ -87,20 +87,18 @@ async function fetchListPage(url: string, apiKey: string): Promise<ListPage> {
   if (!res.ok) {
     throw new Error(`Congress.gov list ${res.status}: ${await res.text()}`)
   }
-  return await res.json() as ListPage
+  return (await res.json()) as ListPage
 }
 
 async function fetchDetail(detailUrl: string, apiKey: string): Promise<DetailMember> {
-  const u = detailUrl.includes('?')
-    ? `${detailUrl}&format=json`
-    : `${detailUrl}?format=json`
+  const u = detailUrl.includes('?') ? `${detailUrl}&format=json` : `${detailUrl}?format=json`
   const res = await fetch(u, {
     headers: { 'X-API-Key': apiKey, Accept: 'application/json' },
   })
   if (!res.ok) {
     throw new Error(`Congress.gov detail ${res.status}: ${detailUrl}`)
   }
-  const body = await res.json() as { member: DetailMember }
+  const body = (await res.json()) as { member: DetailMember }
   return body.member
 }
 
@@ -118,7 +116,10 @@ async function fetchDetail(detailUrl: string, apiKey: string): Promise<DetailMem
 //       == 5 → Class 2   (term starts 2015, 2021, 2027, ...)
 //       == 1 → Class 3   (term starts 2017, 2023, 2029, ...)
 function deriveSenateClass(allTerms: DetailTerm[]): 1 | 2 | 3 | null {
-  const senateTerms = allTerms.filter(t => normalizeChamberString(t.chamber) === 'federal_senate' && typeof t.startYear === 'number')
+  const senateTerms = allTerms.filter(
+    (t) =>
+      normalizeChamberString(t.chamber) === 'federal_senate' && typeof t.startYear === 'number',
+  )
   if (senateTerms.length === 0) return null
 
   // Find contiguous run ending at the last senate term — walk back while each
@@ -132,7 +133,10 @@ function deriveSenateClass(allTerms: DetailTerm[]): 1 | 2 | 3 | null {
     const prevStart = prev.startYear!
     const candEnd = cand.endYear
     // Contiguous if cand's endYear matches prev's startYear (or is adjacent).
-    if (typeof candEnd === 'number' && (candEnd === prevStart || candEnd === prevStart - 1 || candEnd === prevStart + 1)) {
+    if (
+      typeof candEnd === 'number' &&
+      (candEnd === prevStart || candEnd === prevStart - 1 || candEnd === prevStart + 1)
+    ) {
       contiguous.push(cand)
     } else if (typeof candEnd !== 'number' && cand.startYear === prevStart - 2) {
       // Fallback: candidate's term is 2 years before prev — likely contiguous.
@@ -145,7 +149,7 @@ function deriveSenateClass(allTerms: DetailTerm[]): 1 | 2 | 3 | null {
   // Latest 3 contiguous (or fewer); earliest startYear in this slice is the
   // current 6-year term's start.
   const window = contiguous.slice(0, 3)
-  const earliestStart = Math.min(...window.map(t => t.startYear!))
+  const earliestStart = Math.min(...window.map((t) => t.startYear!))
   const m = earliestStart % 6
   if (m === 3) return 1
   if (m === 5) return 2
@@ -158,7 +162,7 @@ function detailToNormalized(d: DetailMember, expectedChamber: Chamber): Normaliz
 
   // Pick the most-recent term to derive chamber + stateCode. Detail's `terms`
   // is an array sorted oldest → newest. Use the last entry (current term).
-  const terms = (d.terms ?? []).filter(t => normalizeChamberString(t.chamber) !== null)
+  const terms = (d.terms ?? []).filter((t) => normalizeChamberString(t.chamber) !== null)
   const current = terms[terms.length - 1]
   if (!current) return null
   const chamber = normalizeChamberString(current.chamber)
@@ -191,7 +195,8 @@ function detailToNormalized(d: DetailMember, expectedChamber: Chamber): Normaliz
     chamber,
     party,
     state: stateCode,
-    districtNumber: chamber === 'federal_senate' ? null : (typeof d.district === 'number' ? d.district : null),
+    districtNumber:
+      chamber === 'federal_senate' ? null : typeof d.district === 'number' ? d.district : null,
     senateClass,
     portraitUrl: buildPortraitUrl(d.bioguideId),
     officialUrl: d.officialWebsiteUrl ?? null,
@@ -208,15 +213,20 @@ async function fetchDetailsBatched(
   const out: NormalizedMember[] = []
   for (let i = 0; i < items.length; i += DETAIL_CONCURRENCY) {
     const slice = items.slice(i, i + DETAIL_CONCURRENCY)
-    const results = await Promise.all(slice.map(async (it) => {
-      try {
-        const detail = await fetchDetail(it.url, apiKey)
-        return detailToNormalized(detail, expectedChamber)
-      } catch (err) {
-        console.error(`  detail fetch failed for ${it.bioguideId}:`, err instanceof Error ? err.message : err)
-        return null
-      }
-    }))
+    const results = await Promise.all(
+      slice.map(async (it) => {
+        try {
+          const detail = await fetchDetail(it.url, apiKey)
+          return detailToNormalized(detail, expectedChamber)
+        } catch (err) {
+          console.error(
+            `  detail fetch failed for ${it.bioguideId}:`,
+            err instanceof Error ? err.message : err,
+          )
+          return null
+        }
+      }),
+    )
     for (const r of results) if (r) out.push(r)
   }
   return out
@@ -237,10 +247,14 @@ export async function fetchMembers(
     }
     url = page.pagination?.next ?? null
   }
-  console.log(`Congress.gov ${chamber}: ${listItems.length} list items; fetching details (concurrency=${DETAIL_CONCURRENCY})...`)
+  console.log(
+    `Congress.gov ${chamber}: ${listItems.length} list items; fetching details (concurrency=${DETAIL_CONCURRENCY})...`,
+  )
 
   // 2. Fan out per-bioguide detail fetches with concurrency cap.
   const members = await fetchDetailsBatched(listItems, apiKey, chamber)
-  console.log(`Congress.gov ${chamber}: ${members.length} members normalized (${listItems.length - members.length} skipped/failed).`)
+  console.log(
+    `Congress.gov ${chamber}: ${members.length} members normalized (${listItems.length - members.length} skipped/failed).`,
+  )
   return members
 }

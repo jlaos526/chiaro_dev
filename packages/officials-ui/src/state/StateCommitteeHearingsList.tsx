@@ -24,7 +24,7 @@ export function StateCommitteeHearingsList({
   const visible = showAll ? rows : rows.slice(0, 3)
   return (
     <View style={styles.list}>
-      {visible.map(r => (
+      {visible.map((r) => (
         <View key={r.id} style={[styles.row, { backgroundColor: semantic.bg.elevated }]}>
           <Text style={[styles.title, { color: semantic.text.primary }]}>
             {r.hearing_date}

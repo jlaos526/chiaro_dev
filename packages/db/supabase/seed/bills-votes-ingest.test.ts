@@ -19,20 +19,29 @@ beforeEach(async () => {
     on conflict (tier,code) do nothing
   `)
   const d = await client.query("select id from public.districts where code='CA-S1-bvfix'")
-  await client.query(`
+  await client.query(
+    `
     insert into public.officials (bioguide_id, first_name, last_name, full_name,
       chamber, party, state, district_id, senate_class, source_version)
     values ('BVTEST1','BV','One','BV One','federal_senate','D','CA',$1::uuid,1,'119')
     on conflict (bioguide_id) do nothing
-  `, [d.rows[0].id])
+  `,
+    [d.rows[0].id],
+  )
 })
 
 afterEach(async () => {
   // Clean up everything we inserted (and that the orchestrator inserted via FKs).
-  await client.query("delete from public.vote_positions where vote_id in (select id from public.votes where congress = '119' and roll_call in (101))")
+  await client.query(
+    "delete from public.vote_positions where vote_id in (select id from public.votes where congress = '119' and roll_call in (101))",
+  )
   await client.query("delete from public.votes where congress = '119' and roll_call = 101")
-  await client.query("delete from public.bill_subjects where bill_id in (select id from public.bills where congress = '119' and number in (9001))")
-  await client.query("delete from public.bill_sponsors where bill_id in (select id from public.bills where congress = '119' and number in (9001))")
+  await client.query(
+    "delete from public.bill_subjects where bill_id in (select id from public.bills where congress = '119' and number in (9001))",
+  )
+  await client.query(
+    "delete from public.bill_sponsors where bill_id in (select id from public.bills where congress = '119' and number in (9001))",
+  )
   await client.query("delete from public.bills where congress = '119' and number in (9001)")
   await client.query("delete from public.officials where bioguide_id = 'BVTEST1'")
   await client.query("delete from public.districts where code = 'CA-S1-bvfix'")
@@ -41,27 +50,44 @@ afterEach(async () => {
 
 describe('ingestBillsAndVotes', () => {
   it('upserts bills + subjects + sponsors + votes + positions from injected fetchers', async () => {
-    const fakeBills: NormalizedBill[] = [{
-      congress: '119', bill_type: 's', number: 9001, title: 'Test Bill',
-      short_title: null, policy_area: 'Environment', status: 'introduced',
-      introduced_date: '2026-01-15', latest_action: 'Referred to committee',
-      source_url: 'https://congress.gov/bill/9001', congress_gov_url: 'https://api/x',
-      sponsors: [{ bioguide_id: 'BVTEST1', role: 'sponsor', added_date: '2026-01-15' }],
-      subjects: ['Environmental protection', 'Air quality'],
-    }]
+    const fakeBills: NormalizedBill[] = [
+      {
+        congress: '119',
+        bill_type: 's',
+        number: 9001,
+        title: 'Test Bill',
+        short_title: null,
+        policy_area: 'Environment',
+        status: 'introduced',
+        introduced_date: '2026-01-15',
+        latest_action: 'Referred to committee',
+        source_url: 'https://congress.gov/bill/9001',
+        congress_gov_url: 'https://api/x',
+        sponsors: [{ bioguide_id: 'BVTEST1', role: 'sponsor', added_date: '2026-01-15' }],
+        subjects: ['Environmental protection', 'Air quality'],
+      },
+    ]
     const fakeHouseVotes: NormalizedVote[] = []
-    const fakeSenateVotes: NormalizedVote[] = [{
-      congress: '119', chamber: 'federal_senate', session: 1, roll_call: 101,
-      vote_date: '2026-01-20', question: 'On Passage', result: 'Passed',
-      bill_ref: { type: 's', number: 9001 },
-      source_url: 'https://congress.gov/vote/101',
-      positions: [{ bioguide_id: 'BVTEST1', position: 'yes' }],
-    }]
+    const fakeSenateVotes: NormalizedVote[] = [
+      {
+        congress: '119',
+        chamber: 'federal_senate',
+        session: 1,
+        roll_call: 101,
+        vote_date: '2026-01-20',
+        question: 'On Passage',
+        result: 'Passed',
+        bill_ref: { type: 's', number: 9001 },
+        source_url: 'https://congress.gov/vote/101',
+        positions: [{ bioguide_id: 'BVTEST1', position: 'yes' }],
+      },
+    ]
 
     const stats = await ingestBillsAndVotes({
       apiKey: 'unused',
       billsFetcher: async () => fakeBills,
-      votesFetcher: async (chamber) => chamber === 'federal_house' ? fakeHouseVotes : fakeSenateVotes,
+      votesFetcher: async (chamber) =>
+        chamber === 'federal_house' ? fakeHouseVotes : fakeSenateVotes,
     })
 
     expect(stats.status).toBe('completed')
@@ -85,7 +111,7 @@ describe('ingestBillsAndVotes', () => {
     expect(vote.rows[0].bill_id).toBe(bill.rows[0].id)
 
     const positions = await client.query(
-      "select position from public.vote_positions where vote_id = $1",
+      'select position from public.vote_positions where vote_id = $1',
       [vote.rows[0].id],
     )
     expect(positions.rows.length).toBe(1)
@@ -95,7 +121,8 @@ describe('ingestBillsAndVotes', () => {
     const stats2 = await ingestBillsAndVotes({
       apiKey: 'unused',
       billsFetcher: async () => fakeBills,
-      votesFetcher: async (chamber) => chamber === 'federal_house' ? fakeHouseVotes : fakeSenateVotes,
+      votesFetcher: async (chamber) =>
+        chamber === 'federal_house' ? fakeHouseVotes : fakeSenateVotes,
     })
     expect(stats2.status).toBe('completed')
 
@@ -104,7 +131,7 @@ describe('ingestBillsAndVotes', () => {
     )
     expect(billsAfter.rows[0].c).toBe(1)
     const positionsAfter = await client.query(
-      "select count(*)::int as c from public.vote_positions where vote_id = $1",
+      'select count(*)::int as c from public.vote_positions where vote_id = $1',
       [vote.rows[0].id],
     )
     expect(positionsAfter.rows[0].c).toBe(1)

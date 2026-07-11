@@ -7,7 +7,7 @@ export const DISTRICT_TIERS = [
   'place',
 ] as const
 
-export type DistrictTier = typeof DISTRICT_TIERS[number]
+export type DistrictTier = (typeof DISTRICT_TIERS)[number]
 
 export type DistrictRow = {
   id: string

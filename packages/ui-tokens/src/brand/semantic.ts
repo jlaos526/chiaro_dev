@@ -7,48 +7,48 @@ const buildSemantic = (mode: BrandMode) => {
   const p = BRAND_PALETTE[mode]
   return {
     text: {
-      primary:  p.ink[1000],
-      body:     p.ink[700],
-      muted:    p.ink[500],
+      primary: p.ink[1000],
+      body: p.ink[700],
+      muted: p.ink[500],
       disabled: p.ink[300],
       onAccent: mode === 'light' ? '#ffffff' : p.ink[1000],
     },
     bg: {
-      app:      p.surface.base,
-      card:     p.surface.card,
+      app: p.surface.base,
+      card: p.surface.card,
       elevated: p.surface.elevated,
-      subtle:   p.surface.subtle,
+      subtle: p.surface.subtle,
     },
     border: {
       default: p.border.default,
-      strong:  p.border.strong,
-      focus:   p.accent[500],
+      strong: p.border.strong,
+      focus: p.accent[500],
     },
     accent: {
-      primary:   p.accent[500],
+      primary: p.accent[500],
       secondary: p.accent[400],
-      pressed:   p.accent[600],
-      bg:        p.accent[100],
+      pressed: p.accent[600],
+      bg: p.accent[100],
     },
     alert: {
       danger: {
-        fg:     p.alert.danger.fg,
-        bg:     p.alert.danger.bg,
+        fg: p.alert.danger.fg,
+        bg: p.alert.danger.bg,
         border: p.alert.danger.border,
       },
       warning: {
-        fg:     p.alert.warning.fg,
-        bg:     p.alert.warning.bg,
+        fg: p.alert.warning.fg,
+        bg: p.alert.warning.bg,
         border: p.alert.warning.border,
       },
       success: {
-        fg:     p.alert.success.fg,
-        bg:     p.alert.success.bg,
+        fg: p.alert.success.fg,
+        bg: p.alert.success.bg,
         border: p.alert.success.border,
       },
       info: {
-        fg:     p.alert.info.fg,
-        bg:     p.alert.info.bg,
+        fg: p.alert.info.fg,
+        bg: p.alert.info.bg,
         border: p.alert.info.border,
       },
     },
@@ -71,7 +71,7 @@ const buildSemantic = (mode: BrandMode) => {
 
 export const BRAND_SEMANTIC = {
   light: buildSemantic('light'),
-  dark:  buildSemantic('dark'),
+  dark: buildSemantic('dark'),
 } as const
 
 export type BrandSemantic = (typeof BRAND_SEMANTIC)['light']

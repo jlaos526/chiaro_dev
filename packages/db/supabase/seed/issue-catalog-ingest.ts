@@ -18,7 +18,7 @@ function createServiceClient(): IssueCatalogUpsertClient {
   if (!SERVICE_ROLE_KEY) {
     throw new Error(
       'SUPABASE_SERVICE_ROLE_KEY not set — required for issue-catalog ingest. ' +
-      'Pull it from `supabase status --output env --workdir packages/db` (SERVICE_ROLE_KEY) and export before running.',
+        'Pull it from `supabase status --output env --workdir packages/db` (SERVICE_ROLE_KEY) and export before running.',
     )
   }
   return createClient(URL, SERVICE_ROLE_KEY, {
@@ -30,11 +30,16 @@ async function main(): Promise<void> {
   const client = createServiceClient()
   await ingestIssueCatalog(client)
   const lensCount = ISSUE_CATALOG.reduce((n, t) => n + t.lenses.length, 0)
-  console.log(`Issue catalog ingest: upserted ${ISSUE_CATALOG.length} topics / ${lensCount} lenses.`)
+  console.log(
+    `Issue catalog ingest: upserted ${ISSUE_CATALOG.length} topics / ${lensCount} lenses.`,
+  )
 }
 
 if (isCliEntry(import.meta.url)) {
   main()
     .then(() => process.exit(0))
-    .catch((err) => { console.error((err as Error).message); process.exit(1) })
+    .catch((err) => {
+      console.error((err as Error).message)
+      process.exit(1)
+    })
 }

@@ -18,18 +18,17 @@ export default function TermsOfService() {
         }}
       >
         <Text style={{ color: semantic.text.body, fontSize: 14, lineHeight: 20 }}>
-          Chiaro's full terms of service are still being written. Until then, the
-          short version: use the app in good faith, don't try to break things, and
-          remember that elected-official records are aggregated from public sources
-          and may contain errors.
+          Chiaro's full terms of service are still being written. Until then, the short version: use
+          the app in good faith, don't try to break things, and remember that elected-official
+          records are aggregated from public sources and may contain errors.
         </Text>
         <Text style={{ color: semantic.text.body, fontSize: 14, lineHeight: 20 }}>
-          You can delete your account at any time from the settings page. We'll
-          remove your home address and any related calibration data within 30 days.
+          You can delete your account at any time from the settings page. We'll remove your home
+          address and any related calibration data within 30 days.
         </Text>
         <Text style={{ color: semantic.text.muted, fontSize: 13, lineHeight: 18 }}>
-          Last updated: placeholder. Full terms with liability + arbitration clauses
-          coming before public launch.
+          Last updated: placeholder. Full terms with liability + arbitration clauses coming before
+          public launch.
         </Text>
       </View>
     </SettingsScreen>

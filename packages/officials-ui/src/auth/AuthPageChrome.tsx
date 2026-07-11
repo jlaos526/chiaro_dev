@@ -28,6 +28,10 @@ export function AuthPageChrome({ rightCrossLink }: AuthPageChromeProps): React.J
       },
     },
     createElement(AuthWordmark, { size: 'sm' }),
-    createElement(AuthCrossLink, { mode: rightCrossLink.mode, onPress: rightCrossLink.onPress, href: rightCrossLink.href }),
+    createElement(AuthCrossLink, {
+      mode: rightCrossLink.mode,
+      onPress: rightCrossLink.onPress,
+      href: rightCrossLink.href,
+    }),
   )
 }

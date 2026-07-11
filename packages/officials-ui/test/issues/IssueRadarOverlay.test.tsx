@@ -6,14 +6,30 @@ import { IssueRadarOverlay } from '../../src/issues/IssueRadarOverlay.tsx'
 import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
 
 const wrap = (ui: ReactElement) =>
-  render(ui, { wrapper: ({ children }: { children: ReactNode }) =>
-    createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children) })
+  render(ui, {
+    wrapper: ({ children }: { children: ReactNode }) =>
+      createElement(BrandModeOverrideContext.Provider, { value: 'light' }, children),
+  })
 
 const alignment: RepAlignment = {
   overallPct: 70,
   axes: [
-    { topicSlug: 'environment', label: 'Environment', alignmentPct: 80, dot: 'aligned', userPos: 90, repPos: 80 },
-    { topicSlug: 'gun-policy', label: 'Gun Policy', alignmentPct: null, dot: 'none', userPos: 60, repPos: null },
+    {
+      topicSlug: 'environment',
+      label: 'Environment',
+      alignmentPct: 80,
+      dot: 'aligned',
+      userPos: 90,
+      repPos: 80,
+    },
+    {
+      topicSlug: 'gun-policy',
+      label: 'Gun Policy',
+      alignmentPct: null,
+      dot: 'none',
+      userPos: 60,
+      repPos: null,
+    },
   ],
 }
 
@@ -23,7 +39,9 @@ describe('IssueRadarOverlay', () => {
     expect(container.querySelectorAll('polygon').length).toBeGreaterThanOrEqual(3)
   })
   it('renders a You vs rep legend', () => {
-    const { getByText, getAllByText } = wrap(<IssueRadarOverlay alignment={alignment} repName="Jane Doe" />)
+    const { getByText, getAllByText } = wrap(
+      <IssueRadarOverlay alignment={alignment} repName="Jane Doe" />,
+    )
     expect(getByText('You')).toBeTruthy()
     // The rep name appears in both the caption and the legend row.
     expect(getAllByText(/Jane Doe/).length).toBeGreaterThanOrEqual(1)

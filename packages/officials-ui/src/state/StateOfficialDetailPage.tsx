@@ -113,7 +113,7 @@ export function StateOfficialDetailPage({
       {offices.length > 0 && (
         <View testID="offices-section" style={styles.officesSection}>
           <Text style={officesHeadingStyle}>Offices</Text>
-          {offices.map(office => (
+          {offices.map((office) => (
             <View key={office.id} style={officeCardStyle}>
               <Text style={officeAddressStyle}>{office.address}</Text>
               {office.phone && <Text style={officePhoneStyle}>{office.phone}</Text>}
@@ -130,7 +130,7 @@ export function StateOfficialDetailPage({
         <StateCommunityPresenceCard officialId={official.id} />
         <StateFinancialActivityCard officialId={official.id} />
         <StateConductCard officialId={official.id} />
-        {PLACEHOLDER_CATEGORIES.map(cat => (
+        {PLACEHOLDER_CATEGORIES.map((cat) => (
           <ComingSoonCard key={cat} category={cat} />
         ))}
       </View>

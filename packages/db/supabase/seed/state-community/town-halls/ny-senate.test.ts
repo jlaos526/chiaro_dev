@@ -6,7 +6,14 @@ import { nySenateTownHalls, parseNysenateEventsHtml, deriveExternalId } from './
 import type { SkipReason } from '../../shared/instrumentation.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const FIXTURE_PATH = join(__dirname, '..', '..', 'fixtures', 'state-community', 'ny-senate-events.html')
+const FIXTURE_PATH = join(
+  __dirname,
+  '..',
+  '..',
+  'fixtures',
+  'state-community',
+  'ny-senate-events.html',
+)
 
 describe('parseNysenateEventsHtml', () => {
   it('extracts 4 events from fixture (skips 1 malformed)', async () => {
@@ -26,21 +33,21 @@ describe('parseNysenateEventsHtml', () => {
   it('maps "Virtual" format text to virtual enum', async () => {
     const html = await readFile(FIXTURE_PATH, 'utf8')
     const parsed = parseNysenateEventsHtml(html)
-    const virtual = parsed.find(p => p.full_name === 'Alex Smith')
+    const virtual = parsed.find((p) => p.full_name === 'Alex Smith')
     expect(virtual?.format).toBe('virtual')
   })
 
   it('maps "Hybrid" format text to hybrid enum', async () => {
     const html = await readFile(FIXTURE_PATH, 'utf8')
     const parsed = parseNysenateEventsHtml(html)
-    const hybrid = parsed.find(p => p.full_name === 'Maria Chen')
+    const hybrid = parsed.find((p) => p.full_name === 'Maria Chen')
     expect(hybrid?.format).toBe('hybrid')
   })
 
   it('handles missing location (city is undefined)', async () => {
     const html = await readFile(FIXTURE_PATH, 'utf8')
     const parsed = parseNysenateEventsHtml(html)
-    const noLoc = parsed.find(p => p.full_name === 'Bob Jones')
+    const noLoc = parsed.find((p) => p.full_name === 'Bob Jones')
     expect(noLoc?.city).toBeUndefined()
   })
 
@@ -62,8 +69,9 @@ describe('parseNysenateEventsHtml', () => {
 
 describe('deriveExternalId (C33 vector c)', () => {
   it('takes the last path segment of a normal detail URL', () => {
-    expect(deriveExternalId('https://www.nysenate.gov/events/jane-doe-coffee'))
-      .toBe('jane-doe-coffee')
+    expect(deriveExternalId('https://www.nysenate.gov/events/jane-doe-coffee')).toBe(
+      'jane-doe-coffee',
+    )
   })
 
   it('trailing-slash URL still yields a non-empty deterministic id (never omitted)', () => {
@@ -134,8 +142,12 @@ describe('nySenateTownHalls onSkip instrumentation (slice 23)', () => {
     const skips: SkipReason[] = []
     const rows = await nySenateTownHalls.fetchEvents({
       client: client as never,
-      pageFetcher: async () => { throw new Error('network down') },
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      pageFetcher: async () => {
+        throw new Error('network down')
+      },
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     } as never)
     expect(rows).toEqual([])
     expect(skips).toHaveLength(1)
@@ -155,12 +167,14 @@ describe('nySenateTownHalls onSkip instrumentation (slice 23)', () => {
     const rows = await nySenateTownHalls.fetchEvents({
       client: client as never,
       pageFetcher: async () => html,
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     } as never)
     expect(rows).toEqual([])
     // 4 parseable events × 1 unresolved senator each = 4 resolve skips
     expect(skips).toHaveLength(4)
-    expect(skips.every(s => s.adapter === 'ny-senate' && s.stage === 'resolve')).toBe(true)
+    expect(skips.every((s) => s.adapter === 'ny-senate' && s.stage === 'resolve')).toBe(true)
   })
 
   it('omitting onSkip preserves silent-skip behavior (back-compat)', async () => {

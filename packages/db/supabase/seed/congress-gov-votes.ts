@@ -7,16 +7,16 @@ type Chamber = Database['public']['Enums']['official_chamber']
 type VotePos = Database['public']['Enums']['vote_position']
 
 export interface NormalizedVote {
-  congress:   string
-  chamber:    Chamber
-  session:    number
-  roll_call:  number
-  vote_date:  string
-  question:   string
-  result:     string
-  bill_ref:   { type: string; number: number } | null
+  congress: string
+  chamber: Chamber
+  session: number
+  roll_call: number
+  vote_date: string
+  question: string
+  result: string
+  bill_ref: { type: string; number: number } | null
   source_url: string
-  positions:  Array<{ bioguide_id: string; position: VotePos }>
+  positions: Array<{ bioguide_id: string; position: VotePos }>
 }
 
 const API_BASE = 'https://api.congress.gov/v3'
@@ -34,7 +34,7 @@ export async function fetchVotes(
   while (url) {
     const res = await fetch(url, { headers: { 'X-API-Key': apiKey, Accept: 'application/json' } })
     if (!res.ok) throw new Error(`Congress.gov votes ${res.status}: ${await res.text()}`)
-    const page = await res.json() as any
+    const page = (await res.json()) as any
     const votes: any[] = page.votes ?? page[endpoint + 'Votes'] ?? []
     for (const v of votes) {
       const members = await fetchMembers(
@@ -50,7 +50,9 @@ export async function fetchVotes(
         question: v.voteQuestion ?? '',
         result: v.result ?? '',
         bill_ref: v.bill ? { type: v.bill.type, number: v.bill.number } : null,
-        source_url: v.url ?? `https://www.congress.gov/vote/${congress}/${apiToken}/${v.session}/${v.rollCallNumber}`,
+        source_url:
+          v.url ??
+          `https://www.congress.gov/vote/${congress}/${apiToken}/${v.session}/${v.rollCallNumber}`,
         positions: members,
       })
     }
@@ -62,9 +64,9 @@ export async function fetchVotes(
 async function fetchMembers(url: string, apiKey: string): Promise<NormalizedVote['positions']> {
   const res = await fetch(url, { headers: { 'X-API-Key': apiKey, Accept: 'application/json' } })
   if (!res.ok) throw new Error(`Congress.gov vote members ${res.status}: ${url}`)
-  const d = await res.json() as any
+  const d = (await res.json()) as any
   const items: any[] = d.members ?? d.results ?? []
-  return items.map(m => ({
+  return items.map((m) => ({
     bioguide_id: m.bioguideId,
     position: normalizePosition(m.votePosition),
   }))
@@ -72,9 +74,16 @@ async function fetchMembers(url: string, apiKey: string): Promise<NormalizedVote
 
 function normalizePosition(raw: string): VotePos {
   switch (raw?.toLowerCase()) {
-    case 'yea': case 'aye': case 'yes': return 'yes'
-    case 'nay': case 'no':              return 'no'
-    case 'present':                     return 'present'
-    default:                            return 'not_voting'
+    case 'yea':
+    case 'aye':
+    case 'yes':
+      return 'yes'
+    case 'nay':
+    case 'no':
+      return 'no'
+    case 'present':
+      return 'present'
+    default:
+      return 'not_voting'
   }
 }

@@ -14,7 +14,12 @@ const user = { displayName: 'Sarah', username: 'sarah', initial: 'S' }
 describe('BrandNavRailBody', () => {
   it('renders avatar + name + handle from user prop', () => {
     const { getByText } = render(
-      <BrandNavRailBody user={user} activeRouteKey="home" onNavigate={() => {}} onSignOut={() => {}} />,
+      <BrandNavRailBody
+        user={user}
+        activeRouteKey="home"
+        onNavigate={() => {}}
+        onSignOut={() => {}}
+      />,
       { wrapper: withMode('light') },
     )
     expect(getByText('Sarah')).toBeTruthy()
@@ -24,7 +29,12 @@ describe('BrandNavRailBody', () => {
 
   it('renders 3 nav items (Home / Officials / Settings) + Sign out', () => {
     const { getByText } = render(
-      <BrandNavRailBody user={user} activeRouteKey="home" onNavigate={() => {}} onSignOut={() => {}} />,
+      <BrandNavRailBody
+        user={user}
+        activeRouteKey="home"
+        onNavigate={() => {}}
+        onSignOut={() => {}}
+      />,
       { wrapper: withMode('light') },
     )
     expect(getByText('Home')).toBeTruthy()
@@ -35,17 +45,28 @@ describe('BrandNavRailBody', () => {
 
   it('marks the active item via data-active="true"', () => {
     const { container } = render(
-      <BrandNavRailBody user={user} activeRouteKey="officials" onNavigate={() => {}} onSignOut={() => {}} />,
+      <BrandNavRailBody
+        user={user}
+        activeRouteKey="officials"
+        onNavigate={() => {}}
+        onSignOut={() => {}}
+      />,
       { wrapper: withMode('light') },
     )
-    const officialsActive = Array.from(container.querySelectorAll('[data-active="true"]'))
-      .find(el => el.textContent?.includes('Officials'))
+    const officialsActive = Array.from(container.querySelectorAll('[data-active="true"]')).find(
+      (el) => el.textContent?.includes('Officials'),
+    )
     expect(officialsActive).toBeTruthy()
   })
 
   it('does not mark any item active when activeRouteKey is null', () => {
     const { container } = render(
-      <BrandNavRailBody user={user} activeRouteKey={null} onNavigate={() => {}} onSignOut={() => {}} />,
+      <BrandNavRailBody
+        user={user}
+        activeRouteKey={null}
+        onNavigate={() => {}}
+        onSignOut={() => {}}
+      />,
       { wrapper: withMode('light') },
     )
     const anyActive = container.querySelectorAll('[data-active="true"]')
@@ -55,7 +76,12 @@ describe('BrandNavRailBody', () => {
   it('invokes onNavigate with the correct key', () => {
     const onNavigate = vi.fn()
     const { getByText } = render(
-      <BrandNavRailBody user={user} activeRouteKey="home" onNavigate={onNavigate} onSignOut={() => {}} />,
+      <BrandNavRailBody
+        user={user}
+        activeRouteKey="home"
+        onNavigate={onNavigate}
+        onSignOut={() => {}}
+      />,
       { wrapper: withMode('light') },
     )
     fireEvent.click(getByText('Officials'))
@@ -65,7 +91,12 @@ describe('BrandNavRailBody', () => {
   it('invokes onSignOut on Sign out press', () => {
     const onSignOut = vi.fn()
     const { getByText } = render(
-      <BrandNavRailBody user={user} activeRouteKey="home" onNavigate={() => {}} onSignOut={onSignOut} />,
+      <BrandNavRailBody
+        user={user}
+        activeRouteKey="home"
+        onNavigate={() => {}}
+        onSignOut={onSignOut}
+      />,
       { wrapper: withMode('light') },
     )
     fireEvent.click(getByText('Sign out'))

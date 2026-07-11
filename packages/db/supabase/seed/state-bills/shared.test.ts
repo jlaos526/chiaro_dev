@@ -19,20 +19,29 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  await client.query("delete from public.state_bills where openstates_bill_id = 'ocd-bill/test-shared'")
+  await client.query(
+    "delete from public.state_bills where openstates_bill_id = 'ocd-bill/test-shared'",
+  )
   await client.end()
 })
 
 describe('updateStateBillAugment', () => {
   it('updates augment fields on a matching bill', async () => {
-    const ok = await updateStateBillAugment(client, {
-      state: 'CA', session: '20252026', bill_type: 'AB', number: 999,
-    }, {
-      status_substage: 'Senate Appropriations Committee',
-      fiscal_impact_amount: 1_000_000,
-      party_vote_split: { 'D-yes': 12, 'D-no': 0 },
-      augmented_from: 'ca-leginfo',
-    })
+    const ok = await updateStateBillAugment(
+      client,
+      {
+        state: 'CA',
+        session: '20252026',
+        bill_type: 'AB',
+        number: 999,
+      },
+      {
+        status_substage: 'Senate Appropriations Committee',
+        fiscal_impact_amount: 1_000_000,
+        party_vote_split: { 'D-yes': 12, 'D-no': 0 },
+        augmented_from: 'ca-leginfo',
+      },
+    )
     expect(ok).toBe(true)
     const row = await client.query<{
       status_substage: string | null
@@ -50,27 +59,48 @@ describe('updateStateBillAugment', () => {
   })
 
   it('returns false when no matching bill', async () => {
-    const ok = await updateStateBillAugment(client, {
-      state: 'XX', session: '0000', bill_type: 'AB', number: 0,
-    }, {
-      augmented_from: 'never',
-    })
+    const ok = await updateStateBillAugment(
+      client,
+      {
+        state: 'XX',
+        session: '0000',
+        bill_type: 'AB',
+        number: 0,
+      },
+      {
+        augmented_from: 'never',
+      },
+    )
     expect(ok).toBe(false)
   })
 
   it('preserves existing fields when augment passes null', async () => {
-    await updateStateBillAugment(client, {
-      state: 'CA', session: '20252026', bill_type: 'AB', number: 999,
-    }, {
-      status_substage: 'Initial',
-      augmented_from: 'ca-leginfo',
-    })
-    await updateStateBillAugment(client, {
-      state: 'CA', session: '20252026', bill_type: 'AB', number: 999,
-    }, {
-      fiscal_impact_amount: 50_000,
-      augmented_from: 'ca-leginfo',
-    })
+    await updateStateBillAugment(
+      client,
+      {
+        state: 'CA',
+        session: '20252026',
+        bill_type: 'AB',
+        number: 999,
+      },
+      {
+        status_substage: 'Initial',
+        augmented_from: 'ca-leginfo',
+      },
+    )
+    await updateStateBillAugment(
+      client,
+      {
+        state: 'CA',
+        session: '20252026',
+        bill_type: 'AB',
+        number: 999,
+      },
+      {
+        fiscal_impact_amount: 50_000,
+        augmented_from: 'ca-leginfo',
+      },
+    )
     const row = await client.query<{ status_substage: string | null }>(
       `select status_substage from public.state_bills where openstates_bill_id = 'ocd-bill/test-shared'`,
     )

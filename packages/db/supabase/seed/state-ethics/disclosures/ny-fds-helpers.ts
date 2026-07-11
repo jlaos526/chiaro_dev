@@ -12,7 +12,8 @@ const AMOUNT_RANGE_RE = /\$?([\d,]+)\s*[-–—]\s*\$?([\d,]+)/
 const LESS_THAN_RE = /less than \$?([\d,]+)/i
 const OVER_RE = /over \$?([\d,]+)/i
 
-const SECTION_HEADER_RE = /^(sources of income|schedule of income|part iii\.?\s*schedule of income)/i
+const SECTION_HEADER_RE =
+  /^(sources of income|schedule of income|part iii\.?\s*schedule of income)/i
 
 function parseAmount(numStr: string): number {
   return Number.parseInt(numStr.replace(/,/g, ''), 10)
@@ -44,7 +45,7 @@ export function parseNyFdsText(text: string): ParsedNyFdsLineItem[] {
 
   // Section header detection: split into blocks, find the Sources/Schedule
   // of Income block, walk numbered lines within it.
-  const lines = text.split('\n').map(l => l.trim())
+  const lines = text.split('\n').map((l) => l.trim())
   let inIncomeSection = false
   const out: ParsedNyFdsLineItem[] = []
 

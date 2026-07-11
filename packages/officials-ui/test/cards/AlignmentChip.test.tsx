@@ -34,7 +34,11 @@ describe('AlignmentChip — inert + Pressable fallback', () => {
 describe('AlignmentChip — web smart-anchor (href present)', () => {
   it('renders a real <a href> when href is provided on web', () => {
     const { container } = render(
-      <AlignmentChip label="Environment" tier="strongly-aligned" href="/officials/123?issue=environment" />
+      <AlignmentChip
+        label="Environment"
+        tier="strongly-aligned"
+        href="/officials/123?issue=environment"
+      />,
     )
     const anchor = container.querySelector('a')
     expect(anchor).not.toBeNull()
@@ -45,7 +49,7 @@ describe('AlignmentChip — web smart-anchor (href present)', () => {
   it('plain left-click on anchor calls preventDefault + invokes onPress', () => {
     const onPress = vi.fn()
     const { container } = render(
-      <AlignmentChip label="Environment" tier="strongly-aligned" href="/x" onPress={onPress} />
+      <AlignmentChip label="Environment" tier="strongly-aligned" href="/x" onPress={onPress} />,
     )
     const anchor = container.querySelector('a')!
     const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 })
@@ -57,10 +61,15 @@ describe('AlignmentChip — web smart-anchor (href present)', () => {
   it('cmd-click falls through to browser default (does NOT call onPress)', () => {
     const onPress = vi.fn()
     const { container } = render(
-      <AlignmentChip label="Environment" tier="strongly-aligned" href="/x" onPress={onPress} />
+      <AlignmentChip label="Environment" tier="strongly-aligned" href="/x" onPress={onPress} />,
     )
     const anchor = container.querySelector('a')!
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, metaKey: true })
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      metaKey: true,
+    })
     anchor.dispatchEvent(event)
     expect(onPress).not.toHaveBeenCalled()
   })
@@ -68,10 +77,15 @@ describe('AlignmentChip — web smart-anchor (href present)', () => {
   it('ctrl-click falls through to browser default', () => {
     const onPress = vi.fn()
     const { container } = render(
-      <AlignmentChip label="Environment" tier="strongly-aligned" href="/x" onPress={onPress} />
+      <AlignmentChip label="Environment" tier="strongly-aligned" href="/x" onPress={onPress} />,
     )
     const anchor = container.querySelector('a')!
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, ctrlKey: true })
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      ctrlKey: true,
+    })
     anchor.dispatchEvent(event)
     expect(onPress).not.toHaveBeenCalled()
   })
@@ -79,10 +93,15 @@ describe('AlignmentChip — web smart-anchor (href present)', () => {
   it('shift-click falls through to browser default', () => {
     const onPress = vi.fn()
     const { container } = render(
-      <AlignmentChip label="Environment" tier="strongly-aligned" href="/x" onPress={onPress} />
+      <AlignmentChip label="Environment" tier="strongly-aligned" href="/x" onPress={onPress} />,
     )
     const anchor = container.querySelector('a')!
-    const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0, shiftKey: true })
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      shiftKey: true,
+    })
     anchor.dispatchEvent(event)
     expect(onPress).not.toHaveBeenCalled()
   })
@@ -90,7 +109,7 @@ describe('AlignmentChip — web smart-anchor (href present)', () => {
   it('middle-click (button=1) falls through to browser default', () => {
     const onPress = vi.fn()
     const { container } = render(
-      <AlignmentChip label="Environment" tier="strongly-aligned" href="/x" onPress={onPress} />
+      <AlignmentChip label="Environment" tier="strongly-aligned" href="/x" onPress={onPress} />,
     )
     const anchor = container.querySelector('a')!
     const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 1 })
@@ -100,7 +119,7 @@ describe('AlignmentChip — web smart-anchor (href present)', () => {
 
   it('renders <a href> WITHOUT onPress: browser handles plain click (no preventDefault)', () => {
     const { container } = render(
-      <AlignmentChip label="Environment" tier="strongly-aligned" href="/officials/123" />
+      <AlignmentChip label="Environment" tier="strongly-aligned" href="/officials/123" />,
     )
     const anchor = container.querySelector('a')!
     expect(anchor.getAttribute('href')).toBe('/officials/123')

@@ -1,10 +1,6 @@
 import type { Client } from 'pg'
 import type { StateScorecardAdapter, NormalizedStateRating } from './shared.ts'
-import {
-  STATE_2_TO_NAME,
-  inferChamberFromNraTable,
-  parseNraGradesHtml,
-} from './nra-helpers.ts'
+import { STATE_2_TO_NAME, inferChamberFromNraTable, parseNraGradesHtml } from './nra-helpers.ts'
 import type { Chamber } from '../shared/officials.ts'
 import type { SkipReason } from '../shared/instrumentation.ts'
 
@@ -17,8 +13,11 @@ const FETCH_TIMEOUT_MS = 5000
 const US_STATE_NAMES: Record<string, string> = Object.fromEntries(
   Object.entries(STATE_2_TO_NAME).map(([code, slug]) => [
     code,
-    slug.split('-').map(s => s[0]!.toUpperCase() + s.slice(1)).join(' '),
-  ])
+    slug
+      .split('-')
+      .map((s) => s[0]!.toUpperCase() + s.slice(1))
+      .join(' '),
+  ]),
 )
 
 /**
@@ -28,11 +27,19 @@ const US_STATE_NAMES: Record<string, string> = Object.fromEntries(
 export function letterToNumeric(letter: string): number | null {
   const normalized = letter.trim().toUpperCase()
   const map: Record<string, number> = {
-    'A+': 100, 'A': 100, 'A-': 92,
-    'B+':  85, 'B':  80, 'B-': 72,
-    'C+':  65, 'C':  60, 'C-': 52,
-    'D+':  45, 'D':  40, 'D-': 32,
-    'F':   20,
+    'A+': 100,
+    A: 100,
+    'A-': 92,
+    'B+': 85,
+    B: 80,
+    'B-': 72,
+    'C+': 65,
+    C: 60,
+    'C-': 52,
+    'D+': 45,
+    D: 40,
+    'D-': 32,
+    F: 20,
   }
   return normalized in map ? map[normalized]! : null
 }
@@ -139,7 +146,7 @@ export async function fetchNraRatingsForState(
         legislator: row.name,
         reason: `letter-grade parse failed (${state}): "${row.letterGrade}"`,
       })
-      continue   // skips AQ, blank, unknown
+      continue // skips AQ, blank, unknown
     }
 
     const openstatesPersonId = await resolveOpenstatesPersonId(client, {
@@ -177,7 +184,7 @@ export const nra: StateScorecardAdapter = {
   scoring_min: 0,
   scoring_max: 100,
   notes: 'NRA-PVF grades letters A-F (mapped to 0-100; A=100, F=20). UI reverse-maps for display.',
-  covered_states: ALL_STATES,  // expanded from 6 → 50 in slice 9
+  covered_states: ALL_STATES, // expanded from 6 → 50 in slice 9
 
   async fetchRatings(opts): Promise<NormalizedStateRating[]> {
     const fetcher = (opts as never as { fetcher?: () => Promise<NormalizedStateRating[]> }).fetcher

@@ -4,18 +4,15 @@ import type { Chamber } from '../../shared/officials.ts'
 export const BROWSER_USER_AGENT =
   'Mozilla/5.0 (compatible; ChiaroBot/1.0; +https://chiaro.example.com/bot)'
 
-type EventType =
-  | 'recall_attempt'
-  | 'recall_succeeded'
-  | 'recall_failed'
+type EventType = 'recall_attempt' | 'recall_succeeded' | 'recall_failed'
 
 const SUCCESS_RE = /\brecalled\b|removed from office/i
-const FAILED_RE  = /\bretained\b|petition\s+(?:failed|withdrew)|insufficient signatures|withdrew/i
+const FAILED_RE = /\bretained\b|petition\s+(?:failed|withdrew)|insufficient signatures|withdrew/i
 const ATTEMPT_RE = /\bactive\b|\bpending\b|petition\s+filed|election scheduled/i
 
 export function mapOutcomeToEventType(status: string): EventType | null {
   if (SUCCESS_RE.test(status)) return 'recall_succeeded'
-  if (FAILED_RE.test(status))  return 'recall_failed'
+  if (FAILED_RE.test(status)) return 'recall_failed'
   if (ATTEMPT_RE.test(status)) return 'recall_attempt'
   return null
 }
@@ -74,7 +71,7 @@ export function parseRecallYearLinks(html: string): ParsedRecallYearLink[] {
   })
   // Dedupe by year (a single year might appear in multiple link contexts)
   const seen = new Set<number>()
-  return out.filter(l => {
+  return out.filter((l) => {
     if (seen.has(l.year)) return false
     seen.add(l.year)
     return true

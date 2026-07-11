@@ -26,7 +26,7 @@ export const houseEfdPtr: PtrAdapter = {
     let manifest
     try {
       const zipOpts: Parameters<typeof fetchHouseDisclosureZip>[0] = {
-        year:     opts.year,
+        year: opts.year,
         formType: 'ptr',
       }
       if (opts.fetcher) zipOpts.fetcher = opts.fetcher
@@ -34,9 +34,9 @@ export const houseEfdPtr: PtrAdapter = {
     } catch (err) {
       opts.onSkip?.({
         adapter: 'house-efd-ptr',
-        stage:   'fetch',
-        reason:  `house-ptr ZIP fetch ${opts.year} failed`,
-        detail:  err instanceof Error ? err.message : String(err),
+        stage: 'fetch',
+        reason: `house-ptr ZIP fetch ${opts.year} failed`,
+        detail: err instanceof Error ? err.message : String(err),
       })
       return []
     }
@@ -48,30 +48,30 @@ export const houseEfdPtr: PtrAdapter = {
         text = await extractPdfText(f.pdfBytes)
       } catch (err) {
         opts.onSkip?.({
-          adapter:    'house-efd-ptr',
-          stage:      'extract',
+          adapter: 'house-efd-ptr',
+          stage: 'extract',
           legislator: f.fullName,
-          reason:     `house-ptr ${f.filingId}: extractPdfText threw`,
-          detail:     err instanceof Error ? err.message : String(err),
+          reason: `house-ptr ${f.filingId}: extractPdfText threw`,
+          detail: err instanceof Error ? err.message : String(err),
         })
         continue
       }
       if (!text) {
         opts.onSkip?.({
-          adapter:    'house-efd-ptr',
-          stage:      'extract',
+          adapter: 'house-efd-ptr',
+          stage: 'extract',
           legislator: f.fullName,
-          reason:     `house-ptr ${f.filingId}: empty extract`,
+          reason: `house-ptr ${f.filingId}: empty extract`,
         })
         continue
       }
       const { trades } = parsePtrText(text, { filing_year: opts.year, source_url: f.pdfUrl })
       if (trades.length === 0) {
         opts.onSkip?.({
-          adapter:    'house-efd-ptr',
-          stage:      'parse',
+          adapter: 'house-efd-ptr',
+          stage: 'parse',
           legislator: f.fullName,
-          reason:     `house-ptr ${f.filingId}: zero trades`,
+          reason: `house-ptr ${f.filingId}: zero trades`,
         })
         continue
       }
@@ -79,7 +79,7 @@ export const houseEfdPtr: PtrAdapter = {
         const row: NormalizedPtr = {
           ...trades[i]!,
           official_full_name: f.fullName,
-          external_id:        `house-ptr-${f.filingId}-${i + 1}`,
+          external_id: `house-ptr-${f.filingId}-${i + 1}`,
         }
         if (f.bioguideId) row.official_bioguide_id = f.bioguideId
         out.push(row)

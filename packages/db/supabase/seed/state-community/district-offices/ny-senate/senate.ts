@@ -4,8 +4,7 @@ import type { NormalizedDistrictOffice } from '../../shared.ts'
 import { fetchPerMemberOffices } from '../_shared.ts'
 import type { SkipReason } from '../../../shared/instrumentation.ts'
 
-const SENATOR_CONTACT_URL = (slug: string) =>
-  `https://www.nysenate.gov/senators/${slug}/contact`
+const SENATOR_CONTACT_URL = (slug: string) => `https://www.nysenate.gov/senators/${slug}/contact`
 
 export interface ParsedSenatorContact {
   albany_office?: string
@@ -24,7 +23,8 @@ export interface ParsedSenatorContact {
 export function deriveSenatorSlug(full_name: string): string {
   return full_name
     .toLowerCase()
-    .normalize('NFD').replace(/\p{Diacritic}/gu, '')
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
 }
@@ -57,12 +57,10 @@ export function parseNySenatorContactHtml(html: string): ParsedSenatorContact {
         .root()
         .text()
         .split('\n')
-        .map(line => line.trim())
+        .map((line) => line.trim())
         .filter(Boolean)
       // Drop the leading "Senator <name>" line if present (it's not part of the address).
-      const addressLines = lines[0]?.startsWith('Senator ')
-        ? lines.slice(1)
-        : lines
+      const addressLines = lines[0]?.startsWith('Senator ') ? lines.slice(1) : lines
       const blockText = addressLines.join(', ')
       if (blockText) {
         if (headingText === 'Albany Office' && !out.albany_office) {

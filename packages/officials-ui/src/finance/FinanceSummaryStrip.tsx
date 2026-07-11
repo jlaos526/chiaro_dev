@@ -24,13 +24,25 @@ function Cell({
   label,
   value,
   headline,
-}: { label: string; value: string; headline?: boolean }): React.JSX.Element {
+}: {
+  label: string
+  value: string
+  headline?: boolean
+}): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const dotColor = semantic.signal.success
   return (
     <View style={{ flex: headline ? 1.3 : 1, paddingHorizontal: 12 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <View style={{ width: 5, height: 5, borderRadius: 2.5, backgroundColor: dotColor, marginRight: 5 }} />
+        <View
+          style={{
+            width: 5,
+            height: 5,
+            borderRadius: 2.5,
+            backgroundColor: dotColor,
+            marginRight: 5,
+          }}
+        />
         <Text
           style={{
             fontSize: 11,

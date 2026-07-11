@@ -50,11 +50,7 @@ export function Logo({
 
   if (variant === 'mark') {
     if (isWeb) {
-      return createElement(
-        'div',
-        { 'aria-label': label, style: { display: 'inline-flex' } },
-        mark,
-      )
+      return createElement('div', { 'aria-label': label, style: { display: 'inline-flex' } }, mark)
     }
     return <View accessibilityLabel={label}>{mark}</View>
   }
@@ -62,7 +58,8 @@ export function Logo({
   // Lockup: mark + CHIARO wordmark (+ optional tagline)
   // wordmarkSize prop (slice 47) decouples wordmark from mark; falls back to brand book §8.3 default.
   const effectiveWordmarkSize = wordmarkSize ?? size * 0.65
-  const wordmarkTracking = effectiveWordmarkSize >= 48 ? 0.06 : effectiveWordmarkSize >= 24 ? 0.07 : 0.08
+  const wordmarkTracking =
+    effectiveWordmarkSize >= 48 ? 0.06 : effectiveWordmarkSize >= 24 ? 0.07 : 0.08
   const gap = Math.max(size, effectiveWordmarkSize) * 0.4
   const taglineSize = effectiveWordmarkSize * 0.45
   const taglineGap = effectiveWordmarkSize * 0.13
@@ -131,10 +128,7 @@ interface BracketSpec {
   borderBottom?: number
 }
 
-function renderMark(
-  g: ReturnType<typeof logoGeometry>,
-  isWeb: boolean,
-): React.JSX.Element {
+function renderMark(g: ReturnType<typeof logoGeometry>, isWeb: boolean): React.JSX.Element {
   // Solid color fallback for native (no alpha gradients in core RN).
   const backFill = isWeb ? LOGO_FILLS.backSquare : LOGO_FILLS.borderColor
   const frontFill = isWeb ? LOGO_FILLS.frontSquare : BRAND_PALETTE.light.accent[400]
@@ -173,7 +167,12 @@ function renderMark(
     { left: overlapLeft, top: overlapTop, borderLeft: stroke, borderTop: stroke }, // TL
     { left: overlapRight - arm, top: overlapTop, borderRight: stroke, borderTop: stroke }, // TR
     { left: overlapLeft, top: overlapBottom - arm, borderLeft: stroke, borderBottom: stroke }, // BL
-    { left: overlapRight - arm, top: overlapBottom - arm, borderRight: stroke, borderBottom: stroke }, // BR
+    {
+      left: overlapRight - arm,
+      top: overlapBottom - arm,
+      borderRight: stroke,
+      borderBottom: stroke,
+    }, // BR
   ]
 
   if (isWeb) {

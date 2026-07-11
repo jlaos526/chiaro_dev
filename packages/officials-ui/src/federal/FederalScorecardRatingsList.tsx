@@ -53,10 +53,10 @@ export function FederalScorecardRatingsList({
   // here, drop the lean grouping and float matched rows to the top with a tag.
   const priority = priorityOrgSlugs ?? new Set<string>()
   if (priority.size > 0) {
-    const ordered = sortPriorityFirst(rows, r => r.org?.slug, priority)
+    const ordered = sortPriorityFirst(rows, (r) => r.org?.slug, priority)
     return (
       <View style={styles.list}>
-        {ordered.map(r => {
+        {ordered.map((r) => {
           const isPriority = r.org?.slug != null && priority.has(r.org.slug)
           return (
             <View key={r.id} style={[styles.row, { backgroundColor: semantic.bg.app }]}>
@@ -90,17 +90,12 @@ export function FederalScorecardRatingsList({
 
   return (
     <View style={styles.list}>
-      {LEAN_GROUP_ORDER.filter(l => byLean.has(l)).map(lean => (
+      {LEAN_GROUP_ORDER.filter((l) => byLean.has(l)).map((lean) => (
         <View key={lean} style={styles.group}>
-          <Text
-            style={[
-              styles.groupHeader,
-              { color: leanColors[lean] ?? semantic.text.muted },
-            ]}
-          >
+          <Text style={[styles.groupHeader, { color: leanColors[lean] ?? semantic.text.muted }]}>
             {SCORECARD_LEAN_LABEL[lean as keyof typeof SCORECARD_LEAN_LABEL] ?? lean}
           </Text>
-          {byLean.get(lean)!.map(r => (
+          {byLean.get(lean)!.map((r) => (
             <View key={r.id} style={[styles.row, { backgroundColor: semantic.bg.app }]}>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.name, { color: semantic.text.primary }]}>

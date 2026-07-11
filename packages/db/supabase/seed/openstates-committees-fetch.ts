@@ -61,7 +61,7 @@ async function isFresh(path: string, ttlMs: number): Promise<boolean> {
 }
 
 async function sleep(ms: number): Promise<void> {
-  await new Promise(resolve => setTimeout(resolve, ms))
+  await new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function fetchPage(
@@ -190,7 +190,7 @@ if (isCliEntry(import.meta.url)) {
     process.exit(2)
   }
   fetchOpenStatesCommittees({ state, force })
-    .then(stats => {
+    .then((stats) => {
       console.log('OpenStates committees fetch summary:')
       console.log(`  state:                  ${stats.state}`)
       console.log(`  pages fetched:          ${stats.pagesFetched}`)
@@ -200,5 +200,8 @@ if (isCliEntry(import.meta.url)) {
       for (const e of stats.errors) console.log(`    - ${e}`)
       process.exit(stats.errors.length > 0 ? 1 : 0)
     })
-    .catch(err => { console.error(err.message); process.exit(1) })
+    .catch((err) => {
+      console.error(err.message)
+      process.exit(1)
+    })
 }

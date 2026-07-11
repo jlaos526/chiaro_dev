@@ -2,7 +2,11 @@ import { resolveUserId, type ChiaroClient } from '@chiaro/supabase-client'
 import type { ProfileFormInput } from './schema.ts'
 import { ProfileError, mapProfileError } from './errors.ts'
 
-export async function updateMyProfile(client: ChiaroClient, input: ProfileFormInput, userId?: string) {
+export async function updateMyProfile(
+  client: ChiaroClient,
+  input: ProfileFormInput,
+  userId?: string,
+) {
   const uid = await resolveUserId(client, userId)
   if (!uid) throw new ProfileError('Not signed in')
   const { data, error } = await client

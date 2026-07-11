@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url'
 import { enrichNewYork } from './enrich-ny.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const DB_URL    = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
-const FIXTURE   = join(__dirname, '..', 'fixtures', 'state-bills-enrich', 'ny-senate-S5678.json')
+const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const FIXTURE = join(__dirname, '..', 'fixtures', 'state-bills-enrich', 'ny-senate-S5678.json')
 
 let client: Client
 
@@ -26,7 +26,9 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  await client.query("delete from public.state_bills where openstates_bill_id like 'ocd-bill/test-ny-%'")
+  await client.query(
+    "delete from public.state_bills where openstates_bill_id like 'ocd-bill/test-ny-%'",
+  )
   await client.end()
 })
 
@@ -35,7 +37,8 @@ describe('enrichNewYork', () => {
     process.env.NY_SENATE_API_KEY = 'test-key'
     const fixture = JSON.parse(await readFile(FIXTURE, 'utf8'))
     const stats = await enrichNewYork.enrich({
-      client, session: '2025',
+      client,
+      session: '2025',
       fetcher: async () => fixture,
     } as never)
     expect(stats.state).toBe('NY')
@@ -59,7 +62,9 @@ describe('enrichNewYork', () => {
   it('missing NY_SENATE_API_KEY → skipped with reason', async () => {
     delete process.env.NY_SENATE_API_KEY
     const stats = await enrichNewYork.enrich({
-      client, session: '2025', fetcher: async () => null,
+      client,
+      session: '2025',
+      fetcher: async () => null,
     } as never)
     expect(stats.skipped).toBe(true)
     expect(stats.skipReason).toMatch(/NY_SENATE_API_KEY/)

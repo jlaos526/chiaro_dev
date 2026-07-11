@@ -5,10 +5,14 @@ export const RATE_LIMIT_MS = 1000
 
 export function normalizePartyChar(char: string): string {
   switch (char.trim().toUpperCase()) {
-    case 'D': return 'Democratic'
-    case 'R': return 'Republican'
-    case 'I': return 'Independent'
-    default: return char
+    case 'D':
+      return 'Democratic'
+    case 'R':
+      return 'Republican'
+    case 'I':
+      return 'Independent'
+    default:
+      return char
   }
 }
 

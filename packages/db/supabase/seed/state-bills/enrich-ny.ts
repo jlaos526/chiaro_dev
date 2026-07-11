@@ -1,4 +1,9 @@
-import { type StateEnrichAdapter, type EnrichStats, updateStateBillAugment, fetchWithRetry } from './shared.ts'
+import {
+  type StateEnrichAdapter,
+  type EnrichStats,
+  updateStateBillAugment,
+  fetchWithRetry,
+} from './shared.ts'
 
 interface NYSenateBillEnvelope {
   result?: {
@@ -14,20 +19,24 @@ interface NYSenateBillEnvelope {
   }
 }
 
-type NYBillFetcher = (
-  billRef: { bill_type: string; number: number; session: string },
-) => Promise<NYSenateBillEnvelope | null>
+type NYBillFetcher = (billRef: {
+  bill_type: string
+  number: number
+  session: string
+}) => Promise<NYSenateBillEnvelope | null>
 
-const defaultFetcher = (apiKey: string): NYBillFetcher => async (billRef) => {
-  const url = `https://api.nysenate.gov/api/3/bills/${billRef.session}/${billRef.bill_type}${billRef.number}?key=${apiKey}`
-  try {
-    const res = await fetchWithRetry(url)
-    if (!res.ok) return null
-    return await res.json() as NYSenateBillEnvelope
-  } catch {
-    return null
+const defaultFetcher =
+  (apiKey: string): NYBillFetcher =>
+  async (billRef) => {
+    const url = `https://api.nysenate.gov/api/3/bills/${billRef.session}/${billRef.bill_type}${billRef.number}?key=${apiKey}`
+    try {
+      const res = await fetchWithRetry(url)
+      if (!res.ok) return null
+      return (await res.json()) as NYSenateBillEnvelope
+    } catch {
+      return null
+    }
   }
-}
 
 export const enrichNewYork: StateEnrichAdapter = {
   state: 'NY',
@@ -56,7 +65,9 @@ export const enrichNewYork: StateEnrichAdapter = {
     for (const b of bills.rows) {
       try {
         const fetched = await fetcher({
-          bill_type: b.bill_type, number: b.number, session: opts.session,
+          bill_type: b.bill_type,
+          number: b.number,
+          session: opts.session,
         })
         if (!fetched?.result) continue
         const status = fetched.result.status
@@ -66,15 +77,22 @@ export const enrichNewYork: StateEnrichAdapter = {
           ? Object.fromEntries(Object.entries(voteItems).map(([k, v]) => [k, v.count]))
           : null
 
-        const updated = await updateStateBillAugment(opts.client, {
-          state: 'NY', session: opts.session, bill_type: b.bill_type, number: b.number,
-        }, {
-          status_substage:      status?.statusDesc ?? null,
-          hearing_date:         status?.actionDate ?? null,
-          fiscal_impact_amount: fiscalNote?.totalCost ?? null,
-          party_vote_split:     partyVoteSplit ?? null,
-          augmented_from:       'ny-senate-api',
-        })
+        const updated = await updateStateBillAugment(
+          opts.client,
+          {
+            state: 'NY',
+            session: opts.session,
+            bill_type: b.bill_type,
+            number: b.number,
+          },
+          {
+            status_substage: status?.statusDesc ?? null,
+            hearing_date: status?.actionDate ?? null,
+            fiscal_impact_amount: fiscalNote?.totalCost ?? null,
+            party_vote_split: partyVoteSplit ?? null,
+            augmented_from: 'ny-senate-api',
+          },
+        )
         if (updated) stats.billsUpdated += 1
       } catch (err) {
         stats.errors.push(`NY ${b.bill_type} ${b.number}: ${(err as Error).message}`)

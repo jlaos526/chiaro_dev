@@ -7,9 +7,9 @@ export type AlignmentTier =
 
 export const ALIGNMENT_LABEL: Record<AlignmentTier, string> = {
   'strongly-aligned': 'Strongly Aligned',
-  'mostly-aligned':   'Mostly Aligned',
-  'mixed':            'Mixed',
-  'mostly-differs':   'Mostly Differs',
+  'mostly-aligned': 'Mostly Aligned',
+  mixed: 'Mixed',
+  'mostly-differs': 'Mostly Differs',
   'strongly-differs': 'Strongly Differs',
 }
 
@@ -19,11 +19,11 @@ export const ALIGNMENT_LABEL: Record<AlignmentTier, string> = {
 // Mixed bg #eedbb5 borrows the slice 41 Service Record gold family,
 // solving the slice 37 "Mixed blends into cream page bg" problem.
 export const ALIGNMENT_CHIP_COLORS: Record<AlignmentTier, { bg: string; fg: string }> = {
-  'strongly-aligned': { bg: '#a8d4b0', fg: '#0f3a1c' },  // V2 deeper emerald
-  'mostly-aligned':   { bg: '#d8ecda', fg: '#2a6b30' },
-  'mixed':            { bg: '#eedbb5', fg: '#7c5a1e' },  // gold pivot (Service Record family)
-  'mostly-differs':   { bg: '#f0d3c0', fg: '#6a3e1c' },
-  'strongly-differs': { bg: '#dca088', fg: '#4a1e0c' },  // V2 deeper terracotta
+  'strongly-aligned': { bg: '#a8d4b0', fg: '#0f3a1c' }, // V2 deeper emerald
+  'mostly-aligned': { bg: '#d8ecda', fg: '#2a6b30' },
+  mixed: { bg: '#eedbb5', fg: '#7c5a1e' }, // gold pivot (Service Record family)
+  'mostly-differs': { bg: '#f0d3c0', fg: '#6a3e1c' },
+  'strongly-differs': { bg: '#dca088', fg: '#4a1e0c' }, // V2 deeper terracotta
 }
 
 // Slice 42: dark-mode chip palette. Same cool-to-warm thermal structure as
@@ -31,11 +31,11 @@ export const ALIGNMENT_CHIP_COLORS: Record<AlignmentTier, { bg: string; fg: stri
 // #23211a matches CATEGORY_CARD_BG_SOLID_DARK['service-record'] byte-for-byte —
 // shared gold-tinted-slate identity with the slice 41 Service Record card.
 export const ALIGNMENT_CHIP_COLORS_DARK: Record<AlignmentTier, { bg: string; fg: string }> = {
-  'strongly-aligned': { bg: '#143020', fg: '#a8e0b0' },  // V2 deeper emerald slate
-  'mostly-aligned':   { bg: '#24462d', fg: '#a8c9af' },
-  'mixed':            { bg: '#23211a', fg: '#e1c896' },  // gold-tinted cool slate
-  'mostly-differs':   { bg: '#3e2820', fg: '#e0a890' },
-  'strongly-differs': { bg: '#5e2418', fg: '#f5a888' },  // V2 deeper terracotta slate
+  'strongly-aligned': { bg: '#143020', fg: '#a8e0b0' }, // V2 deeper emerald slate
+  'mostly-aligned': { bg: '#24462d', fg: '#a8c9af' },
+  mixed: { bg: '#23211a', fg: '#e1c896' }, // gold-tinted cool slate
+  'mostly-differs': { bg: '#3e2820', fg: '#e0a890' },
+  'strongly-differs': { bg: '#5e2418', fg: '#f5a888' }, // V2 deeper terracotta slate
 }
 
 export function scoreToTier(score: number, scoringMax: number): AlignmentTier {
@@ -64,28 +64,28 @@ export const ALIGNMENT_DOT: Record<AlignmentDotLevel, string> = {
   aligned: '#1a8f5a',
   partial: '#c89a4e',
   differs: '#b0413e',
-  none:    '#9a948a',
+  none: '#9a948a',
 }
 
 export const ALIGNMENT_DOT_DARK: Record<AlignmentDotLevel, string> = {
   aligned: '#4fb98a',
   partial: '#dcc079',
   differs: '#d98a86',
-  none:    '#7c776e',
+  none: '#7c776e',
 }
 
 export const RADAR = {
-  grid:        '#e2ddd3',
+  grid: '#e2ddd3',
   // The rep polygon is stroke-only / dashed by design (see IssueRadarOverlay) —
   // there is intentionally no `repFill`; the asymmetry is deliberate, not an omission.
-  userFill:    'rgba(91,108,255,0.28)',
-  userStroke:  '#5b6cff',
-  repStroke:   '#c46a2a',
+  userFill: 'rgba(91,108,255,0.28)',
+  userStroke: '#5b6cff',
+  repStroke: '#c46a2a',
 } as const
 
 export const RADAR_DARK = {
-  grid:        '#2a2d33',
-  userFill:    'rgba(124,138,255,0.30)',
-  userStroke:  '#7c8aff',
-  repStroke:   '#e8a060',
+  grid: '#2a2d33',
+  userFill: 'rgba(124,138,255,0.30)',
+  userStroke: '#7c8aff',
+  repStroke: '#e8a060',
 } as const

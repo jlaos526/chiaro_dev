@@ -82,7 +82,7 @@ export async function loadOpenStatesVotesDir(dir: string): Promise<OpenStatesVot
 async function safeReaddir(dir: string): Promise<string[]> {
   try {
     const entries = await readdir(dir)
-    return entries.filter(f => /\.(ya?ml|json)$/i.test(f)).sort()
+    return entries.filter((f) => /\.(ya?ml|json)$/i.test(f)).sort()
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') return []
     throw err
@@ -102,7 +102,9 @@ async function safeParse(path: string): Promise<unknown> {
 }
 
 // Helper: split OpenStates identifier ('AB 123') into bill_type + number.
-export function parseBillIdentifier(identifier: string): { bill_type: string; number: number } | null {
+export function parseBillIdentifier(
+  identifier: string,
+): { bill_type: string; number: number } | null {
   const match = identifier.match(/^([A-Za-z]+)\s*(\d+)$/)
   if (!match) return null
   return { bill_type: match[1]!.toUpperCase(), number: parseInt(match[2]!, 10) }

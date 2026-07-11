@@ -23,7 +23,9 @@ describe('BrandButton', () => {
   })
 
   it('primary variant uses accent.primary bg in light mode', () => {
-    const { container } = render(<BrandButton onPress={() => {}}>Save</BrandButton>, { wrapper: lightWrapper })
+    const { container } = render(<BrandButton onPress={() => {}}>Save</BrandButton>, {
+      wrapper: lightWrapper,
+    })
     const btn = container.firstElementChild as HTMLElement | null
     expect(btn).not.toBeNull()
     const style = btn?.getAttribute('style') ?? ''
@@ -32,7 +34,9 @@ describe('BrandButton', () => {
   })
 
   it('primary variant uses slate-blue accent.primary bg in dark mode', () => {
-    const { container } = render(<BrandButton onPress={() => {}}>Save</BrandButton>, { wrapper: darkWrapper })
+    const { container } = render(<BrandButton onPress={() => {}}>Save</BrandButton>, {
+      wrapper: darkWrapper,
+    })
     const btn = container.firstElementChild as HTMLElement | null
     expect(btn).not.toBeNull()
     const style = btn?.getAttribute('style') ?? ''
@@ -41,7 +45,12 @@ describe('BrandButton', () => {
   })
 
   it('secondary variant renders transparent bg + colored border', () => {
-    const { container } = render(<BrandButton variant="secondary" onPress={() => {}}>Save</BrandButton>, { wrapper: lightWrapper })
+    const { container } = render(
+      <BrandButton variant="secondary" onPress={() => {}}>
+        Save
+      </BrandButton>,
+      { wrapper: lightWrapper },
+    )
     const btn = container.firstElementChild as HTMLElement | null
     const style = btn?.getAttribute('style') ?? ''
     expect(style).toMatch(/background-color:\s*(transparent|rgba\(0,\s*0,\s*0,\s*0\))/)
@@ -56,7 +65,11 @@ describe('BrandButton', () => {
 
   it('disabled prop sets aria-disabled + does NOT call onPress when clicked', () => {
     const onPress = vi.fn()
-    render(<BrandButton onPress={onPress} disabled>Save</BrandButton>)
+    render(
+      <BrandButton onPress={onPress} disabled>
+        Save
+      </BrandButton>,
+    )
     const btn = screen.getByText('Save').closest('[role="button"]') as HTMLElement | null
     expect(btn?.getAttribute('aria-disabled')).toBe('true')
     fireEvent.click(btn!)
@@ -64,13 +77,21 @@ describe('BrandButton', () => {
   })
 
   it('size sm renders 32px height', () => {
-    const { container } = render(<BrandButton size="sm" onPress={() => {}}>Save</BrandButton>)
+    const { container } = render(
+      <BrandButton size="sm" onPress={() => {}}>
+        Save
+      </BrandButton>,
+    )
     const btn = container.firstElementChild as HTMLElement | null
     expect(btn?.getAttribute('style') ?? '').toMatch(/height:\s*32px/)
   })
 
   it('size lg renders 48px height', () => {
-    const { container } = render(<BrandButton size="lg" onPress={() => {}}>Save</BrandButton>)
+    const { container } = render(
+      <BrandButton size="lg" onPress={() => {}}>
+        Save
+      </BrandButton>,
+    )
     const btn = container.firstElementChild as HTMLElement | null
     expect(btn?.getAttribute('style') ?? '').toMatch(/height:\s*48px/)
   })

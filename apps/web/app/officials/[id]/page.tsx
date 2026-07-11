@@ -18,7 +18,9 @@ import type { Database } from '@chiaro/db'
 const CURRENT_CYCLE = '2024'
 const CURRENT_CONGRESS = '119'
 
-interface Params { id: string }
+interface Params {
+  id: string
+}
 
 type OfficialRow = Database['public']['Tables']['officials']['Row']
 type DistrictRow = Database['public']['Tables']['districts']['Row']
@@ -29,14 +31,19 @@ interface DistrictParts {
   atLarge: boolean
 }
 
-function parseDistrictCode(chamber: OfficialRow['chamber'], code: string | null | undefined): DistrictParts {
+function parseDistrictCode(
+  chamber: OfficialRow['chamber'],
+  code: string | null | undefined,
+): DistrictParts {
   if (chamber !== 'federal_house' || !code) return { districtNumber: null, atLarge: false }
   // House codes: STATE-XX (zero-padded number) or STATE-AL (at-large)
   const suffix = code.split('-')[1]
   if (!suffix) return { districtNumber: null, atLarge: false }
   if (suffix === 'AL') return { districtNumber: null, atLarge: true }
   const num = Number.parseInt(suffix, 10)
-  return Number.isFinite(num) ? { districtNumber: num, atLarge: false } : { districtNumber: null, atLarge: false }
+  return Number.isFinite(num)
+    ? { districtNumber: num, atLarge: false }
+    : { districtNumber: null, atLarge: false }
 }
 
 interface BuildBioInput {
@@ -68,12 +75,16 @@ function deriveBioProps(input: BuildBioInput) {
   }
 }
 
-export default async function OfficialPage(
-  { params }: { params: Promise<Params> },
-): Promise<React.JSX.Element> {
+export default async function OfficialPage({
+  params,
+}: {
+  params: Promise<Params>
+}): Promise<React.JSX.Element> {
   const { id } = await params
   const supabase = await createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) redirect('/sign-in')
 
   const { data: official } = await supabase
@@ -108,8 +119,9 @@ export default async function OfficialPage(
   const leadershipRows: LeadershipRow[] = (leadershipRes.data ?? []) as LeadershipRow[]
   const scorecards = scorecardsRes.data ?? []
   const chips = selectTopAlignmentChips(scorecards as Parameters<typeof selectTopAlignmentChips>[0])
-  const currentRole = leadershipRows.find((r) => r.end_date == null)?.role
-    ?? (official.chamber === 'federal_house' ? 'Representative' : 'Senator')
+  const currentRole =
+    leadershipRows.find((r) => r.end_date == null)?.role ??
+    (official.chamber === 'federal_house' ? 'Representative' : 'Senator')
   const firstElectedYearValue = deriveFirstElectedYear(leadershipRows)
 
   const bioProps = deriveBioProps({

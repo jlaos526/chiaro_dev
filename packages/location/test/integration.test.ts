@@ -13,10 +13,12 @@ const describeGeocodio = describe.skipIf(!live || !process.env.GEOCODIO_KEY)
 if (!live) {
   console.warn(
     '[@chiaro/location] SUPABASE_SERVICE_ROLE_KEY not set — skipping integration suite. ' +
-    'Run `pnpm db:start`, then export keys from `supabase status --output env`.'
+      'Run `pnpm db:start`, then export keys from `supabase status --output env`.',
   )
 } else if (!process.env.GEOCODIO_KEY) {
-  console.warn('[@chiaro/location] GEOCODIO_KEY not set — skipping the live-GeocodIO Edge Function block.')
+  console.warn(
+    '[@chiaro/location] GEOCODIO_KEY not set — skipping the live-GeocodIO Edge Function block.',
+  )
 }
 
 afterAll(async () => {
@@ -52,7 +54,7 @@ describeGeocodio('calibrate-location Edge Function (live GeocodIO)', () => {
     expect(loc?.home_address_text).toBe(URBAN_ADDRESS)
 
     const districts = await getMyDistricts(client as never)
-    const tiers = new Set(districts.map(d => d.tier))
+    const tiers = new Set(districts.map((d) => d.tier))
     expect(tiers).toContain('federal_house')
     expect(tiers).toContain('federal_senate')
     expect(tiers).toContain('county')
@@ -62,7 +64,7 @@ describeGeocodio('calibrate-location Edge Function (live GeocodIO)', () => {
     const { client, userId } = await makeAuthedUser('cal-recal')
     await client.functions.invoke('calibrate-location', { body: { address: URBAN_ADDRESS } })
     const before = await getMyDistricts(client as never)
-    const beforeFedHouseCode = before.find(d => d.tier === 'federal_house')?.code
+    const beforeFedHouseCode = before.find((d) => d.tier === 'federal_house')?.code
 
     // Back-date calibrated_at past the 60s throttle so the next call isn't
     // rate-limited. apply_calibration's rate limit is enforced server-side;
@@ -76,18 +78,22 @@ describeGeocodio('calibrate-location Edge Function (live GeocodIO)', () => {
 
     await client.functions.invoke('calibrate-location', { body: { address: RURAL_ADDRESS } })
     const after = await getMyDistricts(client as never)
-    const afterFedHouseCode = after.find(d => d.tier === 'federal_house')?.code
+    const afterFedHouseCode = after.find((d) => d.tier === 'federal_house')?.code
 
     expect(afterFedHouseCode).not.toBe(beforeFedHouseCode)
-    expect(after.find(d => d.code === beforeFedHouseCode)).toBeUndefined()
+    expect(after.find((d) => d.code === beforeFedHouseCode)).toBeUndefined()
   })
 
   it('second calibrate-location call within 60s returns 429', async () => {
     const { client } = await makeAuthedUser('cal-throttle')
-    const first = await client.functions.invoke('calibrate-location', { body: { address: URBAN_ADDRESS } })
+    const first = await client.functions.invoke('calibrate-location', {
+      body: { address: URBAN_ADDRESS },
+    })
     expect(first.error).toBeNull()
 
-    const second = await client.functions.invoke('calibrate-location', { body: { address: URBAN_ADDRESS } })
+    const second = await client.functions.invoke('calibrate-location', {
+      body: { address: URBAN_ADDRESS },
+    })
     expect(second.error).not.toBeNull()
     expect((second.error as { context?: { status?: number } }).context?.status).toBe(429)
   })

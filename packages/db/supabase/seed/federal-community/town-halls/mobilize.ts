@@ -15,16 +15,56 @@ const PER_PAGE = 100
 // Full state-name → 2-letter code, used as fallback when event.location is null
 // (e.g., virtual events). Mirrors slice 7 state mobilize adapter pattern.
 const STATE_NAME_TO_CODE: Record<string, string> = {
-  'Alabama':'AL','Alaska':'AK','Arizona':'AZ','Arkansas':'AR','California':'CA',
-  'Colorado':'CO','Connecticut':'CT','Delaware':'DE','Florida':'FL','Georgia':'GA',
-  'Hawaii':'HI','Idaho':'ID','Illinois':'IL','Indiana':'IN','Iowa':'IA',
-  'Kansas':'KS','Kentucky':'KY','Louisiana':'LA','Maine':'ME','Maryland':'MD',
-  'Massachusetts':'MA','Michigan':'MI','Minnesota':'MN','Mississippi':'MS','Missouri':'MO',
-  'Montana':'MT','Nebraska':'NE','Nevada':'NV','New Hampshire':'NH','New Jersey':'NJ',
-  'New Mexico':'NM','New York':'NY','North Carolina':'NC','North Dakota':'ND','Ohio':'OH',
-  'Oklahoma':'OK','Oregon':'OR','Pennsylvania':'PA','Rhode Island':'RI','South Carolina':'SC',
-  'South Dakota':'SD','Tennessee':'TN','Texas':'TX','Utah':'UT','Vermont':'VT',
-  'Virginia':'VA','Washington':'WA','West Virginia':'WV','Wisconsin':'WI','Wyoming':'WY',
+  Alabama: 'AL',
+  Alaska: 'AK',
+  Arizona: 'AZ',
+  Arkansas: 'AR',
+  California: 'CA',
+  Colorado: 'CO',
+  Connecticut: 'CT',
+  Delaware: 'DE',
+  Florida: 'FL',
+  Georgia: 'GA',
+  Hawaii: 'HI',
+  Idaho: 'ID',
+  Illinois: 'IL',
+  Indiana: 'IN',
+  Iowa: 'IA',
+  Kansas: 'KS',
+  Kentucky: 'KY',
+  Louisiana: 'LA',
+  Maine: 'ME',
+  Maryland: 'MD',
+  Massachusetts: 'MA',
+  Michigan: 'MI',
+  Minnesota: 'MN',
+  Mississippi: 'MS',
+  Missouri: 'MO',
+  Montana: 'MT',
+  Nebraska: 'NE',
+  Nevada: 'NV',
+  'New Hampshire': 'NH',
+  'New Jersey': 'NJ',
+  'New Mexico': 'NM',
+  'New York': 'NY',
+  'North Carolina': 'NC',
+  'North Dakota': 'ND',
+  Ohio: 'OH',
+  Oklahoma: 'OK',
+  Oregon: 'OR',
+  Pennsylvania: 'PA',
+  'Rhode Island': 'RI',
+  'South Carolina': 'SC',
+  'South Dakota': 'SD',
+  Tennessee: 'TN',
+  Texas: 'TX',
+  Utah: 'UT',
+  Vermont: 'VT',
+  Virginia: 'VA',
+  Washington: 'WA',
+  'West Virginia': 'WV',
+  Wisconsin: 'WI',
+  Wyoming: 'WY',
 }
 
 function extractStateFromText(text: string): string | null {
@@ -98,8 +138,8 @@ export async function parseFederalMobilizeEvents(
     const description = event.description ?? ''
     if (!isFederalLegislatorEvent(event.title, description)) continue
 
-    const name = extractFederalLegislatorName(event.title)
-      ?? extractFederalLegislatorName(description)
+    const name =
+      extractFederalLegislatorName(event.title) ?? extractFederalLegislatorName(description)
     if (!name) continue
 
     // Prefer location.region (2-letter code). Fall back to scanning description
@@ -114,13 +154,16 @@ export async function parseFederalMobilizeEvents(
     if (!chamber) continue
 
     const officialId = await resolveOfficialByName(client, {
-      full_name: name, state, chamber,
-      onAmbiguous: () => onSkip?.({
-        adapter: 'mobilize',
-        stage: 'resolve_ambiguous',
-        legislator: name,
-        reason: 'ambiguous full_name match (2+ in-office officials)',
-      }),
+      full_name: name,
+      state,
+      chamber,
+      onAmbiguous: () =>
+        onSkip?.({
+          adapter: 'mobilize',
+          stage: 'resolve_ambiguous',
+          legislator: name,
+          reason: 'ambiguous full_name match (2+ in-office officials)',
+        }),
     })
     if (!officialId) continue
 
@@ -165,7 +208,7 @@ export async function fetchAndNormalizeFederal(client: Client): Promise<FederalT
     try {
       const resp = await fetch(url)
       if (!resp.ok) break
-      body = await resp.json() as MobilizeListResponse
+      body = (await resp.json()) as MobilizeListResponse
     } catch {
       break
     }

@@ -28,7 +28,7 @@ const FIXTURE = join(__dirname, '..', '..', 'fixtures', 'state-ethics', 'ny-fds-
 describe('parseNyFdsIndexHtml', () => {
   it('extracts 6 rows from fixture', async () => {
     const html = await readFile(FIXTURE, 'utf8')
-    const { rows, nextPageHref } = parseNyFdsIndexHtml(html)
+    const { rows } = parseNyFdsIndexHtml(html)
     expect(rows).toHaveLength(6)
   })
 
@@ -47,11 +47,15 @@ describe('parseNyFdsIndexHtml', () => {
   it('extracts next-page href when present', async () => {
     const html = await readFile(FIXTURE, 'utf8')
     const { nextPageHref } = parseNyFdsIndexHtml(html)
-    expect(nextPageHref).toBe('https://ethics.ny.gov/financial-disclosure-statements-elected-officials?year=2024&page=2')
+    expect(nextPageHref).toBe(
+      'https://ethics.ny.gov/financial-disclosure-statements-elected-officials?year=2024&page=2',
+    )
   })
 
   it('returns null nextPageHref when missing', () => {
-    const { nextPageHref } = parseNyFdsIndexHtml('<div><table class="filings-table"><tbody></tbody></table></div>')
+    const { nextPageHref } = parseNyFdsIndexHtml(
+      '<div><table class="filings-table"><tbody></tbody></table></div>',
+    )
     expect(nextPageHref).toBeNull()
   })
 })
@@ -105,8 +109,10 @@ describe('fetchAllPages', () => {
       </tbody></table>
       <nav class="pagination"><a class="next-page" href="/next">Next</a></nav>
     </div>`
-    const allRows = await fetchAllPages('https://ethics.ny.gov/start', async () => html, { maxPages: 3 })
-    expect(allRows).toHaveLength(3)  // 3 pages × 1 row each = capped at 3
+    const allRows = await fetchAllPages('https://ethics.ny.gov/start', async () => html, {
+      maxPages: 3,
+    })
+    expect(allRows).toHaveLength(3) // 3 pages × 1 row each = capped at 3
   })
 })
 
@@ -118,13 +124,15 @@ describe('nyJcopeDisclosures adapter', () => {
   })
 
   it('injected fetcher short-circuits adapter dispatch', async () => {
-    const fixture = [{
-      official_openstates_person_id: 'x',
-      filing_year: 2024,
-      state: 'NY',
-      source_url: 'u',
-      source: 'ny-jcope',
-    }]
+    const fixture = [
+      {
+        official_openstates_person_id: 'x',
+        filing_year: 2024,
+        state: 'NY',
+        source_url: 'u',
+        source: 'ny-jcope',
+      },
+    ]
     const result = await nyJcopeDisclosures.fetchEvents({
       fetcher: async () => fixture as never,
     } as never)
@@ -138,7 +146,9 @@ describe('nyJcopeDisclosures adapter', () => {
         const name = String(params[0]).toLowerCase()
         if (name.includes('unknown')) return Promise.resolve({ rows: [], rowCount: 0 })
         return Promise.resolve({
-          rows: [{ openstates_person_id: `ocd-person/ny-${Math.random().toString(36).slice(2, 6)}` }],
+          rows: [
+            { openstates_person_id: `ocd-person/ny-${Math.random().toString(36).slice(2, 6)}` },
+          ],
           rowCount: 1,
         })
       }),
@@ -178,14 +188,14 @@ describe('nyJcopeDisclosures adapter', () => {
       }),
     }
     let n = 0
-    const result = await nyJcopeDisclosures.fetchEvents({
+    const result = (await nyJcopeDisclosures.fetchEvents({
       client: client as never,
       pageFetcher: async () => {
         n += 1
         if (n === 1) return html
         return '<div><table class="filings-table"><tbody></tbody></table></div>'
       },
-    } as never) as Array<{ external_id?: string }>
+    } as never)) as Array<{ external_id?: string }>
     expect(result[0]!.external_id).toBe('filing-AM-12345')
   })
 
@@ -198,14 +208,18 @@ describe('nyJcopeDisclosures adapter', () => {
       }),
     }
     let n = 0
-    const result = await nyJcopeDisclosures.fetchEvents({
+    const result = (await nyJcopeDisclosures.fetchEvents({
       client: client as never,
       pageFetcher: async () => {
         n += 1
         if (n === 1) return html
         return '<div><table class="filings-table"><tbody></tbody></table></div>'
       },
-    } as never) as Array<{ income_source?: string; income_kind?: string; amount_range_low?: number }>
+    } as never)) as Array<{
+      income_source?: string
+      income_kind?: string
+      amount_range_low?: number
+    }>
     expect(result[0]!.income_source).toBeUndefined()
     expect(result[0]!.income_kind).toBeUndefined()
     expect(result[0]!.amount_range_low).toBeUndefined()
@@ -236,14 +250,14 @@ describe('ny-jcope slice 20 PDF line-item fill', () => {
     )
 
     let n = 0
-    const result = await nyJcopeDisclosures.fetchEvents({
+    const result = (await nyJcopeDisclosures.fetchEvents({
       client: client as never,
       pageFetcher: async () => {
         n += 1
         if (n === 1) return html
         return '<div><table class="filings-table"><tbody></tbody></table></div>'
       },
-    } as never) as Array<{ external_id?: string; income_kind?: string }>
+    } as never)) as Array<{ external_id?: string; income_kind?: string }>
 
     // Fixture: 4 resolvable filings (LG chamber null + Unknown Stranger
     // unresolved both skipped). Each resolved filing gets:
@@ -256,8 +270,8 @@ describe('ny-jcope slice 20 PDF line-item fill', () => {
     // placeholder = filing-{id} → 3 segments after split('-') (filing + id-parts);
     // line-item = filing-{id}-{lineNo} → 4 segments.
     // (Substring includes('-1') is unsafe — filing IDs contain digits.)
-    const placeholders = result.filter(r => /^filing-[A-Z]+-\d+$/.test(r.external_id ?? ''))
-    const lineItems = result.filter(r => /^filing-[A-Z]+-\d+-\d+$/.test(r.external_id ?? ''))
+    const placeholders = result.filter((r) => /^filing-[A-Z]+-\d+$/.test(r.external_id ?? ''))
+    const lineItems = result.filter((r) => /^filing-[A-Z]+-\d+-\d+$/.test(r.external_id ?? ''))
     expect(placeholders).toHaveLength(4)
     expect(lineItems).toHaveLength(8)
     expect(lineItems[0]?.income_kind).toBe('salary')
@@ -273,21 +287,21 @@ describe('ny-jcope slice 20 PDF line-item fill', () => {
       }),
     }
     mockedFetchPdf.mockRejectedValue(new Error('404'))
-    mockedExtractPdfText.mockResolvedValue('')  // never reached
+    mockedExtractPdfText.mockResolvedValue('') // never reached
 
     let n = 0
-    const result = await nyJcopeDisclosures.fetchEvents({
+    const result = (await nyJcopeDisclosures.fetchEvents({
       client: client as never,
       pageFetcher: async () => {
         n += 1
         if (n === 1) return html
         return '<div><table class="filings-table"><tbody></tbody></table></div>'
       },
-    } as never) as Array<{ external_id?: string }>
+    } as never)) as Array<{ external_id?: string }>
 
     // 4 resolvable filings × 1 placeholder each, no line items
     expect(result).toHaveLength(4)
-    expect(result.every(r => r.external_id?.match(/^filing-[A-Z]+-\d+$/))).toBe(true)
+    expect(result.every((r) => r.external_id?.match(/^filing-[A-Z]+-\d+$/))).toBe(true)
   })
 
   it('emits only placeholder when extractPdfText returns empty', async () => {
@@ -326,9 +340,7 @@ describe('ny-jcope slice 20 PDF line-item fill', () => {
       }),
     }
     mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
-    mockedExtractPdfText.mockResolvedValue(
-      'Sources of Income\n1. Salary: $50,000 - $100,000',
-    )
+    mockedExtractPdfText.mockResolvedValue('Sources of Income\n1. Salary: $50,000 - $100,000')
 
     let n = 0
     const result = await nyJcopeDisclosures.fetchEvents({
@@ -356,22 +368,22 @@ describe('ny-jcope slice 20 PDF line-item fill', () => {
       }),
     }
     mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
-    mockedExtractPdfText.mockResolvedValue(
-      'Sources of Income\n1. Salary: $50,000 - $100,000',
-    )
+    mockedExtractPdfText.mockResolvedValue('Sources of Income\n1. Salary: $50,000 - $100,000')
 
     let n = 0
-    const result = await nyJcopeDisclosures.fetchEvents({
+    const result = (await nyJcopeDisclosures.fetchEvents({
       client: client as never,
       pageFetcher: async () => {
         n += 1
         if (n === 1) return html
         return '<div><table class="filings-table"><tbody></tbody></table></div>'
       },
-    } as never) as Array<{ external_id?: string }>
+    } as never)) as Array<{ external_id?: string }>
 
     // First filing's line item has external_id = filing-AM-12345-1
-    const lineItem = result.find(r => r.external_id?.includes('-1') && r.external_id !== 'filing-AM-12345')
+    const lineItem = result.find(
+      (r) => r.external_id?.includes('-1') && r.external_id !== 'filing-AM-12345',
+    )
     expect(lineItem?.external_id).toBe('filing-AM-12345-1')
   })
 
@@ -401,9 +413,7 @@ describe('ny-jcope slice 22 onSkip instrumentation', () => {
     }
     // Stub PDF mocks so per-filing PDF pass doesn't generate extra skips.
     mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
-    mockedExtractPdfText.mockResolvedValue(
-      'Sources of Income\n1. Salary: $50,000 - $100,000',
-    )
+    mockedExtractPdfText.mockResolvedValue('Sources of Income\n1. Salary: $50,000 - $100,000')
     const skips: SkipReason[] = []
     let n = 0
     await nyJcopeDisclosures.fetchEvents({
@@ -413,11 +423,13 @@ describe('ny-jcope slice 22 onSkip instrumentation', () => {
         if (n === 1) return html
         return '<div><table class="filings-table"><tbody></tbody></table></div>'
       },
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     } as never)
 
     // Pat Mystery (Lieutenant Governor) → chamber null → filter skip
-    const filterSkip = skips.find(s => s.stage === 'filter' && s.legislator === 'Pat Mystery')
+    const filterSkip = skips.find((s) => s.stage === 'filter' && s.legislator === 'Pat Mystery')
     expect(filterSkip).toBeDefined()
     expect(filterSkip).toMatchObject({
       adapter: 'ny-jcope',
@@ -437,9 +449,7 @@ describe('ny-jcope slice 22 onSkip instrumentation', () => {
       }),
     }
     mockedFetchPdf.mockResolvedValue(Buffer.from('fake-pdf'))
-    mockedExtractPdfText.mockResolvedValue(
-      'Sources of Income\n1. Salary: $50,000 - $100,000',
-    )
+    mockedExtractPdfText.mockResolvedValue('Sources of Income\n1. Salary: $50,000 - $100,000')
     const skips: SkipReason[] = []
     let n = 0
     await nyJcopeDisclosures.fetchEvents({
@@ -449,11 +459,15 @@ describe('ny-jcope slice 22 onSkip instrumentation', () => {
         if (n === 1) return html
         return '<div><table class="filings-table"><tbody></tbody></table></div>'
       },
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     } as never)
 
     // Unknown Stranger → resolveOpenstatesPersonId returns null → resolve skip
-    const resolveSkip = skips.find(s => s.stage === 'resolve' && s.legislator === 'Unknown Stranger')
+    const resolveSkip = skips.find(
+      (s) => s.stage === 'resolve' && s.legislator === 'Unknown Stranger',
+    )
     expect(resolveSkip).toBeDefined()
     expect(resolveSkip).toMatchObject({
       adapter: 'ny-jcope',
@@ -481,11 +495,13 @@ describe('ny-jcope slice 22 onSkip instrumentation', () => {
         if (n === 1) return html
         return '<div><table class="filings-table"><tbody></tbody></table></div>'
       },
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     } as never)
 
     // 4 resolvable filings, all fail fetchPdf → 4 fetch skips
-    const fetchSkips = skips.filter(s => s.stage === 'fetch')
+    const fetchSkips = skips.filter((s) => s.stage === 'fetch')
     expect(fetchSkips.length).toBe(4)
     expect(fetchSkips[0]).toMatchObject({
       adapter: 'ny-jcope',
@@ -514,10 +530,12 @@ describe('ny-jcope slice 22 onSkip instrumentation', () => {
         if (n === 1) return html
         return '<div><table class="filings-table"><tbody></tbody></table></div>'
       },
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     } as never)
 
-    const extractSkips = skips.filter(s => s.stage === 'extract')
+    const extractSkips = skips.filter((s) => s.stage === 'extract')
     expect(extractSkips.length).toBe(4)
     expect(extractSkips[0]).toMatchObject({
       adapter: 'ny-jcope',
@@ -546,10 +564,12 @@ describe('ny-jcope slice 22 onSkip instrumentation', () => {
         if (n === 1) return html
         return '<div><table class="filings-table"><tbody></tbody></table></div>'
       },
-      onSkip: (r: SkipReason) => { skips.push(r) },
+      onSkip: (r: SkipReason) => {
+        skips.push(r)
+      },
     } as never)
 
-    const parseSkips = skips.filter(s => s.stage === 'parse')
+    const parseSkips = skips.filter((s) => s.stage === 'parse')
     expect(parseSkips.length).toBe(4)
     expect(parseSkips[0]).toMatchObject({
       adapter: 'ny-jcope',

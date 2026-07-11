@@ -28,7 +28,7 @@ export function FederalTownHallsList({ rows }: FederalTownHallsListProps): React
   }
   return (
     <View style={styles.list}>
-      {rows.map(r => (
+      {rows.map((r) => (
         <Pressable
           key={r.id}
           onPress={() => Linking.openURL(r.source_url).catch(() => {})}
@@ -39,7 +39,7 @@ export function FederalTownHallsList({ rows }: FederalTownHallsListProps): React
             {r.city ? ` · ${r.city}, ${r.state ?? ''}` : r.state ? ` · ${r.state}` : ''}
           </Text>
           <Text style={[styles.meta, { color: semantic.text.muted }]}>
-            {r.format ? FORMAT_LABEL[r.format] ?? r.format : 'Format n/a'}
+            {r.format ? (FORMAT_LABEL[r.format] ?? r.format) : 'Format n/a'}
             {r.attendance_estimate != null && ` · ~${r.attendance_estimate} attendees`}
           </Text>
         </Pressable>

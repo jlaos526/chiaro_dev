@@ -17,6 +17,6 @@ export const lcv: ScorecardAdapter = {
       throw new Error('LCV: live download not implemented yet; use fixturePath for slice 4.')
     }
     const csv = await readFile(opts.fixturePath, 'utf8')
-    return parseBioguideScoreCSV(csv, b => `https://scorecard.lcv.org/moc/${b.toLowerCase()}`)
+    return parseBioguideScoreCSV(csv, (b) => `https://scorecard.lcv.org/moc/${b.toLowerCase()}`)
   },
 }

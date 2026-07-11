@@ -13,7 +13,8 @@ vi.mock('expo-router', () => ({
 }))
 
 let mockProfile: { display_name: string | null; username: string | null } | null = {
-  display_name: 'Sarah', username: 'sarah',
+  display_name: 'Sarah',
+  username: 'sarah',
 }
 vi.mock('@chiaro/profile', () => ({
   getMyProfile: vi.fn(async () => mockProfile),
@@ -27,7 +28,10 @@ vi.mock('@react-navigation/drawer', () => ({
 }))
 
 const fakeClient = {
-  auth: { getUser: vi.fn(async () => ({ data: { user: { id: 'u1' } } })), signOut: vi.fn(async () => ({})) },
+  auth: {
+    getUser: vi.fn(async () => ({ data: { user: { id: 'u1' } } })),
+    signOut: vi.fn(async () => ({})),
+  },
 } as never
 
 function wrap(mode: 'light' | 'dark' = 'light') {
@@ -77,8 +81,9 @@ describe('BrandDrawerContent', () => {
     const props = makeDrawerProps('index')
     const { container, findByText } = render(<BrandDrawerContent {...props} />, { wrapper: wrap() })
     await findByText('Sarah')
-    const homeActive = Array.from(container.querySelectorAll('[data-active="true"]'))
-      .find(el => el.textContent?.includes('Home'))
+    const homeActive = Array.from(container.querySelectorAll('[data-active="true"]')).find((el) =>
+      el.textContent?.includes('Home'),
+    )
     expect(homeActive).toBeTruthy()
   })
 
@@ -87,8 +92,9 @@ describe('BrandDrawerContent', () => {
     const props = makeDrawerProps('officials/index')
     const { container, findByText } = render(<BrandDrawerContent {...props} />, { wrapper: wrap() })
     await findByText('Sarah')
-    const officialsActive = Array.from(container.querySelectorAll('[data-active="true"]'))
-      .find(el => el.textContent?.includes('Officials'))
+    const officialsActive = Array.from(container.querySelectorAll('[data-active="true"]')).find(
+      (el) => el.textContent?.includes('Officials'),
+    )
     expect(officialsActive).toBeTruthy()
   })
 
@@ -98,7 +104,11 @@ describe('BrandDrawerContent', () => {
     const { findByText } = render(<BrandDrawerContent {...props} />, { wrapper: wrap() })
     await findByText('Sarah')
     fireEvent.click(await findByText('Sign out'))
-    await waitFor(() => expect((fakeClient as { auth: { signOut: ReturnType<typeof vi.fn> } }).auth.signOut).toHaveBeenCalled())
+    await waitFor(() =>
+      expect(
+        (fakeClient as { auth: { signOut: ReturnType<typeof vi.fn> } }).auth.signOut,
+      ).toHaveBeenCalled(),
+    )
     expect(props.navigation.closeDrawer).toHaveBeenCalled()
   })
 })

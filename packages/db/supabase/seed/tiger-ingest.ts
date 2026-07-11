@@ -9,8 +9,8 @@ import { TIGER_SOURCES, FEDERAL_SENATE_SOURCE, TIGER_VERSION } from './tiger-con
 import { STATE_FIPS } from './tiger-state-fips.ts'
 import { loadTigerZip, evictTigerCache, tigerCacheDir } from './tiger-cache.ts'
 
-const DB_URL = process.env.SUPABASE_DB_URL
-  ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
+const DB_URL =
+  process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 
 type FeatureInsert = {
   tier: string
@@ -38,7 +38,7 @@ type IngestCtx = {
 async function loadSkipSet(client: Client): Promise<IngestCtx['skip']> {
   const result = await client.query<{ tier: string; state: string }>(
     `select distinct tier, state from public.districts where source_version = $1`,
-    [TIGER_VERSION]
+    [TIGER_VERSION],
   )
   const tierStates = new Set<string>()
   const tiers = new Set<string>()
@@ -95,7 +95,8 @@ async function downloadAndUnzip(
     }
   }
 
-  let shpPath = '', dbfPath = ''
+  let shpPath = '',
+    dbfPath = ''
   for (const entry of dir.files) {
     const lower = entry.path.toLowerCase()
     if (lower.endsWith('.shp')) {
@@ -114,7 +115,7 @@ async function downloadAndUnzip(
   return { shp: shpPath, dbf: dbfPath }
 }
 
-async function ingestSource(ctx: IngestCtx, source: typeof TIGER_SOURCES[number]) {
+async function ingestSource(ctx: IngestCtx, source: (typeof TIGER_SOURCES)[number]) {
   let tierTotal = 0
   for (const { url, stateFips } of source.urls()) {
     // Per-URL skip key: per-state URLs use "tier:state"; nationwide URLs
@@ -122,7 +123,7 @@ async function ingestSource(ctx: IngestCtx, source: typeof TIGER_SOURCES[number]
     let skipKey: string
     let isStateKeyed: boolean
     if (stateFips) {
-      const stateInfo = STATE_FIPS.find(s => s.fips === stateFips)
+      const stateInfo = STATE_FIPS.find((s) => s.fips === stateFips)
       skipKey = `${source.tier}:${stateInfo?.state ?? '??'}`
       isStateKeyed = true
     } else {
@@ -153,9 +154,8 @@ async function ingestSource(ctx: IngestCtx, source: typeof TIGER_SOURCES[number]
       if (!meta) continue
       const geom = result.value.geometry
       if (geom.type !== 'MultiPolygon' && geom.type !== 'Polygon') continue
-      const geometry = geom.type === 'Polygon'
-        ? { type: 'MultiPolygon', coordinates: [geom.coordinates] }
-        : geom
+      const geometry =
+        geom.type === 'Polygon' ? { type: 'MultiPolygon', coordinates: [geom.coordinates] } : geom
       inserts.push({ tier: source.tier, ...meta, geometryGeoJSON: geometry })
     }
 
@@ -165,7 +165,7 @@ async function ingestSource(ctx: IngestCtx, source: typeof TIGER_SOURCES[number]
   }
   ctx.stats.ingestedByTier.set(
     source.tier,
-    (ctx.stats.ingestedByTier.get(source.tier) ?? 0) + tierTotal
+    (ctx.stats.ingestedByTier.get(source.tier) ?? 0) + tierTotal,
   )
   console.log(`  ${source.tier}: ${tierTotal} features ingested`)
 }
@@ -183,9 +183,7 @@ async function ingestFederalSenate(ctx: IngestCtx) {
   const reader = await shapefile.open(downloaded.shp, downloaded.dbf)
   const inserts: FeatureInsert[] = []
   // DC has no senators — exclude it from the synthesis.
-  const fipsToState = new Map(
-    STATE_FIPS.filter(s => s.state !== 'DC').map(s => [s.fips, s])
-  )
+  const fipsToState = new Map(STATE_FIPS.filter((s) => s.state !== 'DC').map((s) => [s.fips, s]))
   while (true) {
     const r = await reader.read()
     if (r.done) break
@@ -194,9 +192,10 @@ async function ingestFederalSenate(ctx: IngestCtx) {
     const stateInfo = fipsToState.get(stateFp)
     if (!stateInfo) continue
     if (r.value.geometry.type !== 'MultiPolygon' && r.value.geometry.type !== 'Polygon') continue
-    const geometry = r.value.geometry.type === 'Polygon'
-      ? { type: 'MultiPolygon', coordinates: [r.value.geometry.coordinates] }
-      : r.value.geometry
+    const geometry =
+      r.value.geometry.type === 'Polygon'
+        ? { type: 'MultiPolygon', coordinates: [r.value.geometry.coordinates] }
+        : r.value.geometry
     for (const seat of ['S1', 'S2']) {
       inserts.push({
         tier: 'federal_senate',
@@ -222,7 +221,7 @@ async function flushInserts(client: Client, rows: FeatureInsert[]) {
     slice.forEach((r, idx) => {
       const o = idx * 6
       placeholders.push(
-        `($${o+1}, $${o+2}, $${o+3}, $${o+4}, ST_GeomFromGeoJSON($${o+5})::geography, $${o+6})`
+        `($${o + 1}, $${o + 2}, $${o + 3}, $${o + 4}, ST_GeomFromGeoJSON($${o + 5})::geography, $${o + 6})`,
       )
       values.push(r.tier, r.state, r.code, r.name, JSON.stringify(r.geometryGeoJSON), TIGER_VERSION)
     })
@@ -234,7 +233,7 @@ async function flushInserts(client: Client, rows: FeatureInsert[]) {
              name = excluded.name,
              geometry = excluded.geometry,
              source_version = excluded.source_version`,
-      values
+      values,
     )
   }
 }
@@ -275,7 +274,9 @@ async function main() {
   }
   const skip = await loadSkipSet(client)
   if (skip.tierStates.size > 0 || skip.tiers.size > 0) {
-    console.log(`Resume: ${skip.tierStates.size} (tier, state) tuples already present at ${TIGER_VERSION}`)
+    console.log(
+      `Resume: ${skip.tierStates.size} (tier, state) tuples already present at ${TIGER_VERSION}`,
+    )
   }
   const workDir = await mkdtemp(join(tmpdir(), 'tiger-'))
   const cacheDir = tigerCacheDir()
@@ -308,7 +309,7 @@ async function main() {
   }
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error(err)
   process.exit(1)
 })
