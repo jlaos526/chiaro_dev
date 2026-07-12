@@ -35,6 +35,7 @@ let districtHouseCA12: string
 let districtStateHouseCA: string
 let stateAsmId: string
 let stateFinanceSummaryId: string
+let pelosiMetricsOfficialId: string
 
 beforeAll(async () => {
   if (!live) return
@@ -69,6 +70,23 @@ beforeAll(async () => {
   // scorecard_ratings FKs officials with RESTRICT; deleting the test org
   // CASCADEs its ratings, clearing the path for the officials delete.
   await svc.from('scorecard_orgs').delete().eq('slug', 's79-integ-org')
+  // official_metrics.official_id is RESTRICT (migration 0026, NOT the 0022
+  // cascade) — the slice-79 metrics seed must be swept before officials, or
+  // the delete below silently no-ops and the districts sweep fails in turn
+  // (leftover federal_senate:CA breaks the NEXT run's district insert).
+  const leftoverIds = await svc
+    .from('officials')
+    .select('id')
+    .in('bioguide_id', ['P000197', 'F000062', 'P000145'])
+  if (leftoverIds.data && leftoverIds.data.length > 0) {
+    await svc
+      .from('official_metrics')
+      .delete()
+      .in(
+        'official_id',
+        leftoverIds.data.map((o) => o.id),
+      )
+  }
   await svc.from('officials').delete().in('bioguide_id', ['P000197', 'F000062', 'P000145'])
   // Same defensive pre-clean for the state official keyed by openstates_person_id.
   await svc
@@ -196,6 +214,7 @@ beforeAll(async () => {
     .eq('bioguide_id', 'P000197')
     .single()
   const pelosiSeedId = pelosiSeedRow.data!.id
+  pelosiMetricsOfficialId = pelosiSeedId
   const { error: omErr } = await svc.from('official_metrics').insert({
     official_id: pelosiSeedId,
     congress: '119',
@@ -364,8 +383,13 @@ afterAll(async () => {
   // FK RESTRICT — must precede officials delete (slice 26).
   await svc.from('federal_holdings').delete().eq('source', 'integ')
   await svc.from('federal_disclosure_other').delete().eq('source', 'integ')
-  // Slice 79: org delete CASCADEs its ratings (which RESTRICT officials).
+  // Slice 79: org delete CASCADEs its ratings (which RESTRICT officials); the
+  // metrics row is RESTRICT too (migration 0026) — both must go first or the
+  // officials delete silently no-ops and the districts FX sweep fails after it.
   await svc.from('scorecard_orgs').delete().eq('slug', 's79-integ-org')
+  if (pelosiMetricsOfficialId) {
+    await svc.from('official_metrics').delete().eq('official_id', pelosiMetricsOfficialId)
+  }
   await svc.from('officials').delete().in('bioguide_id', ['P000197', 'F000062', 'P000145'])
   // State official keyed by openstates_person_id (no bioguide_id on state rows).
   await svc

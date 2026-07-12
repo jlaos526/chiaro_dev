@@ -1,10 +1,5 @@
 import type { ChiaroClient } from '@chiaro/supabase-client'
-import type {
-  IssueTopic,
-  RepAlignment,
-  RepWatchlistFlag,
-  UserIssueSelectionRow,
-} from './types.ts'
+import type { IssueTopic, RepAlignment, RepWatchlistFlag, UserIssueSelectionRow } from './types.ts'
 
 export async function fetchCatalog(client: ChiaroClient): Promise<IssueTopic[]> {
   // Slice 79 (audit C18): one request — lenses ride as an embed on topics.
