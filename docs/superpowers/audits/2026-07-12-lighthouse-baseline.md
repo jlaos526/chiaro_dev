@@ -26,6 +26,16 @@ without a session until the S83 Playwright harness can capture authenticated pag
   (Inter font swap + the auth card mounting after hydration are the likely
   contributors). This is exactly S80 card-shell territory; carry it into that
   slice as a measurable target (< 0.1).
+  - **RESOLVED in S80 (2026-07-12, same day):** puppeteer layout-shift probe
+    against a local prod build pinned the exact mechanism — raw HTML elements
+    (smart-anchor `<a>`s, BrandTextInput fields) inherit the body's next/font
+    Inter; under `display: 'swap'` they first-paint in the wider fallback,
+    wrapping the auth top bar one line taller (~21px), and the Inter swap then
+    shrank it and slid the whole 100vh container up (measured single shift
+    0.352). Fix: `display: 'optional'` (font is self-hosted + preloaded so it
+    virtually always makes first paint; a very slow load keeps the
+    metric-adjusted fallback for that navigation). **Local prod-build result:
+    CLS 0.385 → 0, perf 63 → 95.** Re-capture live post-merge.
 - TBT 430 ms on emulated mobile: hydration cost of the RNW bundle on a
   low-end profile. The S70 bundle cuts (74–135 kB/route) landed before this
   baseline, so this IS the improved number — no "before" exists.
