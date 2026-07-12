@@ -4,6 +4,7 @@ import { getSemantic, BRAND_TYPE_FAMILY_WEB } from '@chiaro/ui-tokens'
 import { QueryProvider } from '@/lib/query-client'
 import { readBrandModeCookie } from '@/lib/brand-mode-cookie'
 import { ClientBrandModeWiring } from '@/lib/brand-mode-client-wiring'
+import { RNWServerStyles } from '@/lib/rnw-ssr-styles'
 
 // Brand font (slice 70, audit C6). next/font self-hosts the woff2 at build
 // time (no runtime Google request) and exposes it via the --font-inter CSS
@@ -66,9 +67,14 @@ export default async function RootLayout({
             for route exclusions + client-side auth transitions (its inline
             documentElement.style wins over this stylesheet default). */}
         <style>{`@media (min-width: 768px) { html.chiaro-authed { --chiaro-rail-width: 200px; } }`}</style>
-        <ClientBrandModeWiring defaultMode={defaultMode}>
-          <QueryProvider initialHasUser={initialHasUser}>{children}</QueryProvider>
-        </ClientBrandModeWiring>
+        {/* Slice 80: stream RNW's accumulated atomic CSS into the SSR HTML —
+            without it every page first paints unstyled until hydration
+            (the /sign-in CLS 0.385 + a sitewide FOUC). */}
+        <RNWServerStyles>
+          <ClientBrandModeWiring defaultMode={defaultMode}>
+            <QueryProvider initialHasUser={initialHasUser}>{children}</QueryProvider>
+          </ClientBrandModeWiring>
+        </RNWServerStyles>
       </body>
     </html>
   )
