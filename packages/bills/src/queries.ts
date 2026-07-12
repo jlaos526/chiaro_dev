@@ -47,6 +47,52 @@ export async function fetchOfficialCosponsoredBills(
   return (data ?? []) as BillRow[]
 }
 
+/**
+ * Slice 75 (audit C12): head-only count queries for the collapsed-by-default
+ * subsection labels. The full-row fetchers above download every row just to
+ * print "N sponsored" — these transfer zero rows. The `bills!inner` /
+ * `votes!inner` embeds apply the same congress filter as the list fetchers so
+ * label counts always match what expanding reveals.
+ */
+export async function fetchOfficialSponsoredBillsCount(
+  client: ChiaroClient,
+  officialId: string,
+  congress: string,
+  role: 'sponsor' | 'cosponsor' = 'sponsor',
+): Promise<number> {
+  const { count, error } = await client
+    .from('bill_sponsors')
+    .select('bill:bills!inner(id)', { count: 'exact', head: true })
+    .eq('official_id', officialId)
+    .eq('role', role)
+    .eq('bill.congress', congress)
+  if (error) throw error
+  return count ?? 0
+}
+
+export async function fetchOfficialCosponsoredBillsCount(
+  client: ChiaroClient,
+  officialId: string,
+  congress: string,
+): Promise<number> {
+  return fetchOfficialSponsoredBillsCount(client, officialId, congress, 'cosponsor')
+}
+
+export async function fetchOfficialMissedVotesCount(
+  client: ChiaroClient,
+  officialId: string,
+  congress: string,
+): Promise<number> {
+  const { count, error } = await client
+    .from('vote_positions')
+    .select('vote:votes!inner(id)', { count: 'exact', head: true })
+    .eq('official_id', officialId)
+    .eq('position', 'not_voting')
+    .eq('vote.congress', congress)
+  if (error) throw error
+  return count ?? 0
+}
+
 export async function fetchOfficialMissedVotes(
   client: ChiaroClient,
   officialId: string,

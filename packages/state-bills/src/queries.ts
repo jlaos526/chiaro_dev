@@ -71,36 +71,68 @@ export async function fetchOfficialCosponsoredStateBills(
   ) as StateBillWithSponsors[]
 }
 
+/**
+ * Slice 75 (audit C11/C20): cap on the most-recent votes a detail page pulls.
+ * A productive CA/NY legislator casts hundreds-to-1000+ positions per session;
+ * the old shape transferred ALL of them (PostgREST max-rows permitting) and
+ * sorted client-side. Sized well above the evidence panel's show-more depth.
+ */
+const STATE_VOTES_LIMIT = 200
+
+type StateVoteAnchoredRow = StateVoteWithBill & {
+  positions: Array<{ position: StateVotePositionRow['position'] }>
+}
+
+function toVoteWithPosition(row: StateVoteAnchoredRow): StateVoteWithPosition {
+  const { positions, ...vote } = row
+  return {
+    vote: vote as StateVoteWithBill,
+    position: positions[0]!.position,
+  } as StateVoteWithPosition
+}
+
 export async function fetchOfficialStateVotes(
   client: ChiaroClient,
   officialId: string,
 ): Promise<StateVoteWithPosition[]> {
+  // Anchored on state_votes so ORDER BY runs server-side on the parent's own
+  // vote_date — which makes the .limit take the most-recent N instead of an
+  // arbitrary subset. `positions:state_vote_positions!inner` constrains to
+  // votes this official has a position on; (vote_id, official_id) uniqueness
+  // makes it a 1-element array.
   const { data, error } = await client
-    .from('state_vote_positions')
+    .from('state_votes')
     .select(`
-      position,
-      vote:state_votes!state_vote_positions_vote_id_fkey(
-        *,
-        bill:state_bills!state_votes_bill_id_fkey(id, state, session, bill_type, number, title)
-      )
+      *,
+      bill:state_bills!state_votes_bill_id_fkey(id, state, session, bill_type, number, title),
+      positions:state_vote_positions!inner(position)
     `)
-    .eq('official_id', officialId)
+    .eq('positions.official_id', officialId)
+    .order('vote_date', { ascending: false, nullsFirst: false })
+    .limit(STATE_VOTES_LIMIT)
   if (error) throw error
-  // Sort client-side by vote_date desc (Supabase can't order via joined column reliably).
-  const rows = (data ?? []).map((row) => ({
-    vote: (row as { vote: StateVoteWithBill }).vote,
-    position: (row as { position: StateVotePositionRow['position'] }).position,
-  }))
-  rows.sort((a, b) => (b.vote.vote_date ?? '').localeCompare(a.vote.vote_date ?? ''))
-  return rows as StateVoteWithPosition[]
+  return ((data ?? []) as unknown as StateVoteAnchoredRow[]).map(toVoteWithPosition)
 }
 
 export async function fetchOfficialMissedStateVotes(
   client: ChiaroClient,
   officialId: string,
 ): Promise<StateVoteWithPosition[]> {
-  const all = await fetchOfficialStateVotes(client, officialId)
-  return all.filter((v) => v.position === 'not_voting' || v.position === 'abstain')
+  // Slice 75: was fetch-everything-then-filter in JS; the position filter now
+  // rides the same anchored single request.
+  const { data, error } = await client
+    .from('state_votes')
+    .select(`
+      *,
+      bill:state_bills!state_votes_bill_id_fkey(id, state, session, bill_type, number, title),
+      positions:state_vote_positions!inner(position)
+    `)
+    .eq('positions.official_id', officialId)
+    .in('positions.position', ['not_voting', 'abstain'])
+    .order('vote_date', { ascending: false, nullsFirst: false })
+    .limit(STATE_VOTES_LIMIT)
+  if (error) throw error
+  return ((data ?? []) as unknown as StateVoteAnchoredRow[]).map(toVoteWithPosition)
 }
 
 /**
@@ -116,40 +148,31 @@ export async function fetchOfficialStateVotesOnSubject(
 ): Promise<StateVoteWithPosition[]> {
   if (subjects.length === 0) return []
 
-  // Step 1: find bill ids matching any candidate subject.
-  const billRows = await client
-    .from('state_bill_subjects')
-    .select('bill_id')
-    .in('subject', subjects)
-  if (billRows.error) throw billRows.error
-  const billIds = Array.from(new Set((billRows.data ?? []).map((r) => r.bill_id)))
-  if (billIds.length === 0) return []
-
-  // Step 2: find vote ids on those bills.
-  const voteRows = await client.from('state_votes').select('id').in('bill_id', billIds)
-  if (voteRows.error) throw voteRows.error
-  const voteIds = (voteRows.data ?? []).map((r) => r.id)
-  if (voteIds.length === 0) return []
-
-  // Step 3: find vote positions for this official on those votes.
+  // Slice 75 (audit C19): was a 3-step waterfall whose intermediate bill/vote
+  // UUID sets crossed the wire and were re-sent in GET query strings — a
+  // popular subject across 5 states produces thousands of ids (URL-length
+  // failure). One request: the nested `!inner` chain constrains parent votes
+  // to bills tagged with a candidate subject, server-side. Filters on the
+  // bill's subjects use the nested alias path; the bill embed carries a
+  // second, unfiltered `subjects` alias purely for row data. Proven against
+  // real PostgREST in queries.integration.test.ts. Migration 0064 adds the
+  // subject-leading index the old step-1 seq-scanned without.
   const { data, error } = await client
-    .from('state_vote_positions')
+    .from('state_votes')
     .select(`
-      position,
-      vote:state_votes!state_vote_positions_vote_id_fkey(
-        *,
-        bill:state_bills!state_votes_bill_id_fkey(id, state, session, bill_type, number, title)
-      )
+      *,
+      bill:state_bills!state_votes_bill_id_fkey!inner(
+        id, state, session, bill_type, number, title,
+        matched:state_bill_subjects!inner(subject)
+      ),
+      positions:state_vote_positions!inner(position)
     `)
-    .eq('official_id', officialId)
-    .in('vote_id', voteIds)
+    .eq('positions.official_id', officialId)
+    .in('bill.matched.subject', subjects)
+    .order('vote_date', { ascending: false, nullsFirst: false })
+    .limit(STATE_VOTES_LIMIT)
   if (error) throw error
-  const rows = (data ?? []).map((row) => ({
-    vote: (row as { vote: StateVoteWithBill }).vote,
-    position: (row as { position: StateVotePositionRow['position'] }).position,
-  }))
-  rows.sort((a, b) => (b.vote.vote_date ?? '').localeCompare(a.vote.vote_date ?? ''))
-  return rows as StateVoteWithPosition[]
+  return ((data ?? []) as unknown as StateVoteAnchoredRow[]).map(toVoteWithPosition)
 }
 
 // Internal helper: normalize the joined Supabase result into StateBillWithSponsors shape.

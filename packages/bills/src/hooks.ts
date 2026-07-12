@@ -5,6 +5,9 @@ import {
   fetchOfficialSponsoredBills,
   fetchOfficialCosponsoredBills,
   fetchOfficialMissedVotes,
+  fetchOfficialSponsoredBillsCount,
+  fetchOfficialCosponsoredBillsCount,
+  fetchOfficialMissedVotesCount,
 } from './queries.ts'
 
 const FIVE_MIN = 5 * 60 * 1000
@@ -52,5 +55,48 @@ export function useOfficialMissedVotes(
     staleTime: FIVE_MIN,
     gcTime: THIRTY_MIN,
     enabled: opts?.enabled !== false && !!officialId,
+  })
+}
+
+// Slice 75 (audit C12): head-only counts for collapsed subsection labels.
+export function useOfficialSponsoredBillsCount(
+  client: ChiaroClient,
+  officialId: string,
+  congress: string,
+) {
+  return useQuery({
+    queryKey: billsKeys.officialSponsoredCount(officialId, congress),
+    queryFn: () => fetchOfficialSponsoredBillsCount(client, officialId, congress),
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
+    enabled: !!officialId,
+  })
+}
+
+export function useOfficialCosponsoredBillsCount(
+  client: ChiaroClient,
+  officialId: string,
+  congress: string,
+) {
+  return useQuery({
+    queryKey: billsKeys.officialCosponsoredCount(officialId, congress),
+    queryFn: () => fetchOfficialCosponsoredBillsCount(client, officialId, congress),
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
+    enabled: !!officialId,
+  })
+}
+
+export function useOfficialMissedVotesCount(
+  client: ChiaroClient,
+  officialId: string,
+  congress: string,
+) {
+  return useQuery({
+    queryKey: votesKeys.officialMissedCount(officialId, congress),
+    queryFn: () => fetchOfficialMissedVotesCount(client, officialId, congress),
+    staleTime: FIVE_MIN,
+    gcTime: THIRTY_MIN,
+    enabled: !!officialId,
   })
 }
