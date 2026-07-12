@@ -35,6 +35,12 @@ export {
 } from './cards/ComingSoonCard.tsx'
 export { DistrictBadge, type DistrictBadgeProps } from './cards/DistrictBadge.tsx'
 
+// cards/* shared shell primitives (slice 80, audit C25 + U2) — the 12
+// federal/state detail cards render through DetailCardShell; row-shaped
+// event/office lists render through EventRowList.
+export { DetailCardShell, type DetailCardShellProps } from './cards/DetailCardShell.tsx'
+export { EventRowList, FORMAT_LABEL, type EventRowListProps } from './cards/EventRowList.tsx'
+
 // cards/AlignmentChip (Task 6 — accepts `onPress` callback so consumers wire
 // platform-specific router navigation)
 export { AlignmentChip, type AlignmentChipProps } from './cards/AlignmentChip.tsx'
