@@ -15,14 +15,10 @@ import {
   ALIGNMENT_DOT,
   ALIGNMENT_DOT_DARK,
   BRAND_PALETTE,
-  CATEGORY_ACCENT,
-  CATEGORY_ACCENT_DARK,
   CATEGORY_CARD_BG,
   CATEGORY_CARD_BG_DARK,
   DISTRICT_TIER_COLOR,
   DISTRICT_TIER_COLOR_DARK,
-  FINANCE_SUB_SECTION_SHADES,
-  FINANCE_SUB_SECTION_SHADES_DARK,
   MAP_COLORS,
   MAP_COLORS_DARK,
   PARTY_COLOR,
@@ -36,9 +32,7 @@ import {
   type AlignmentTier,
   type BrandMode,
   type BrandSemantic,
-  type CategoryId,
   type DistrictTierKey,
-  type FinanceSubSectionShade,
   type PartyCode,
   type ScorecardLean,
 } from '@chiaro/ui-tokens'
@@ -117,23 +111,9 @@ export function useScorecardLeanColor(lean: ScorecardLean): string {
   return mode === 'dark' ? SCORECARD_LEAN_COLOR_DARK[lean] : SCORECARD_LEAN_COLOR[lean]
 }
 
-/**
- * Returns the category accent (saturated semantic hue) for the active mode.
- */
-export function useCategoryAccent(categoryId: CategoryId): string {
-  const { mode } = useBrandTokens()
-  return mode === 'dark' ? CATEGORY_ACCENT_DARK[categoryId] : CATEGORY_ACCENT[categoryId]
-}
-
-/**
- * Returns the `{ accent, heading }` shade pair for a finance sub-section in
- * the active mode, or `undefined` if the category key is not recognized.
- */
-export function useFinanceSubSectionShade(category: string): FinanceSubSectionShade | undefined {
-  const { mode } = useBrandTokens()
-  const table = mode === 'dark' ? FINANCE_SUB_SECTION_SHADES_DARK : FINANCE_SUB_SECTION_SHADES
-  return (table as Record<string, FinanceSubSectionShade>)[category]
-}
+// useCategoryAccent + useFinanceSubSectionShade DELETED in slice 77 (audit
+// C24): their only consumers were the orphaned MetricCardShell/finance-atom
+// family removed in the same slice.
 
 /**
  * Returns the `{ districtStroke, districtFill }` map color pair for the
@@ -157,9 +137,8 @@ export function useDistrictTierColors(): Record<DistrictTierKey, string> {
 
 /**
  * Returns the universal category card background color for the active brand
- * mode (slice 43). Replaces the slice 41 per-category `useCategoryCardBgSolid`
- * + `useCategoryCardGradient` pair. The stripe color now comes from
- * `useCategoryAccent(id)` and is applied as `borderTopColor` on the card.
+ * mode (slice 43). Survives the slice-77 C24 purge because BrandAlert
+ * consumes it directly.
  */
 export function useCategoryCardBg(): string {
   const { mode } = useBrandTokens()

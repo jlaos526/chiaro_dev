@@ -82,3 +82,5 @@ export type { AlignmentChipRow, OfficialsByLevel } from './derivations.ts'
 export { selectTopAlignmentChips, groupOfficialsByLevel } from './derivations.ts'
 
 export { STATE_NAMES } from './state-names.ts'
+
+export { CURRENT_CONGRESS, CURRENT_CYCLE } from './constants.ts'

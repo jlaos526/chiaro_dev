@@ -5,14 +5,10 @@ import {
   ALIGNMENT_CHIP_COLORS,
   ALIGNMENT_CHIP_COLORS_DARK,
   BRAND_PALETTE,
-  CATEGORY_ACCENT,
-  CATEGORY_ACCENT_DARK,
   CATEGORY_CARD_BG,
   CATEGORY_CARD_BG_DARK,
   DISTRICT_TIER_COLOR,
   DISTRICT_TIER_COLOR_DARK,
-  FINANCE_SUB_SECTION_SHADES,
-  FINANCE_SUB_SECTION_SHADES_DARK,
   MAP_COLORS,
   MAP_COLORS_DARK,
   PARTY_COLOR,
@@ -25,10 +21,8 @@ import {
   BrandModeOverrideContext,
   useAlignmentChipColors,
   useBrandTokens,
-  useCategoryAccent,
   useCategoryCardBg,
   useDistrictTierColors,
-  useFinanceSubSectionShade,
   useMapColors,
   usePartyColor,
   useScorecardLeanColor,
@@ -133,41 +127,8 @@ describe('useScorecardLeanColor', () => {
   })
 })
 
-describe('useCategoryAccent', () => {
-  it('returns light accent when mode is light', () => {
-    const { result } = renderHook(() => useCategoryAccent('voting-bills'), {
-      wrapper: wrapper('light'),
-    })
-    expect(result.current).toBe(CATEGORY_ACCENT['voting-bills'])
-  })
-  it('returns dark accent when mode is dark', () => {
-    const { result } = renderHook(() => useCategoryAccent('voting-bills'), {
-      wrapper: wrapper('dark'),
-    })
-    expect(result.current).toBe(CATEGORY_ACCENT_DARK['voting-bills'])
-  })
-})
-
-describe('useFinanceSubSectionShade', () => {
-  it('returns light shade for contributors in light mode', () => {
-    const { result } = renderHook(() => useFinanceSubSectionShade('contributors'), {
-      wrapper: wrapper('light'),
-    })
-    expect(result.current).toEqual(FINANCE_SUB_SECTION_SHADES.contributors)
-  })
-  it('returns dark shade for topDonor in dark mode', () => {
-    const { result } = renderHook(() => useFinanceSubSectionShade('topDonor'), {
-      wrapper: wrapper('dark'),
-    })
-    expect(result.current).toEqual(FINANCE_SUB_SECTION_SHADES_DARK.topDonor)
-  })
-  it('returns undefined for unknown category', () => {
-    const { result } = renderHook(() => useFinanceSubSectionShade('nope'), {
-      wrapper: wrapper('light'),
-    })
-    expect(result.current).toBeUndefined()
-  })
-})
+// useCategoryAccent + useFinanceSubSectionShade blocks removed in slice 77
+// (audit C24) with the hooks themselves.
 
 describe('useMapColors', () => {
   it('returns light map palette when mode is light', () => {

@@ -11,7 +11,7 @@ import rules the package manifest can't fully express (audit C27; slice 70).
 |---|---|---|
 | tokens/hooks | `brand-hooks.ts`, `theme-context.tsx`, `image-context.tsx`, `client-context.tsx`, `types/` | `@chiaro/ui-tokens` only |
 | primitives | `primitives/` (BrandButton, BrandHeading, BrandBodyText, BrandLink, BrandAlert, SmartAnchor) | tokens/hooks |
-| atoms | `inputs/`, `bio/`, `cards/` (CardSubsection, MetricCardShell…), `AlignmentChip`, `OfficialAvatar` | primitives + tokens |
+| atoms | `inputs/`, `bio/`, `cards/` (CardSubsection, DistrictBadge, ComingSoonCard), `AlignmentChip`, `OfficialAvatar` | primitives + tokens |
 | domain cards | `federal/`, `state/`, `finance/`, `issues/` | atoms + domain packages (`@chiaro/officials`, `@chiaro/bills`, `@chiaro/state-bills`, `@chiaro/issues`, `@chiaro/profile`) |
 | screens/nav | `screens/`, `settings/`, `auth/`, `calibrate/`, `nav/` | everything below |
 
