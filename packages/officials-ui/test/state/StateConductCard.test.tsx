@@ -40,7 +40,8 @@ describe('StateConductCard', () => {
     useComplaintsMock.mockReturnValue({ data: undefined, isLoading: true })
     useEventsMock.mockReturnValue({ data: [], isLoading: false })
     const { getByText } = wrap(<StateConductCard officialId="oid" />)
-    expect(getByText(/Loading conduct records/i)).toBeTruthy()
+    // Slice 80: DetailCardShell owns the loading branch with uniform copy.
+    expect(getByText('Loading…')).toBeTruthy()
   })
 
   it('renders empty when no complaints and no events', () => {

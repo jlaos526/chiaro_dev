@@ -8,6 +8,7 @@ import {
   type OfficialWithDistrict,
 } from '@chiaro/officials'
 import { useBrandTokens } from '../brand-hooks.ts'
+import { DetailCardShell } from '../cards/DetailCardShell.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { StateDonorsEvidence } from './StateDonorsEvidence.tsx'
 
@@ -43,10 +44,6 @@ export function StateFinanceCard({ official }: StateFinanceCardProps): React.JSX
 
   if (!isStateLevel(official.chamber)) return null
 
-  const cardColors = {
-    backgroundColor: semantic.bg.app,
-    borderColor: semantic.border.default,
-  }
   const titleColor = { color: semantic.text.primary }
   const mutedColor = { color: semantic.text.muted }
   const sourcePillColors = {
@@ -56,85 +53,71 @@ export function StateFinanceCard({ official }: StateFinanceCardProps): React.JSX
   const rowLabelColor = { color: semantic.text.muted }
   const rowValueColor = { color: semantic.text.primary }
 
-  if (summaryQ.isLoading) {
-    return (
-      <View style={[styles.card, cardColors]}>
-        <Text style={[styles.title, titleColor]} accessibilityRole="header" accessibilityLevel={2}>
-          Finance
-        </Text>
-        <Text style={[styles.emptyMuted, mutedColor]}>Loading finance…</Text>
-      </View>
-    )
-  }
-
-  const summary = summaryQ.data
-  if (!summary) {
-    return (
-      <View style={[styles.card, cardColors]}>
-        <Text style={[styles.title, titleColor]} accessibilityRole="header" accessibilityLevel={2}>
-          Finance
-        </Text>
-        <Text style={[styles.emptyMuted, mutedColor]}>
-          No state finance data yet for this legislator.
-        </Text>
-      </View>
-    )
-  }
-
-  const sourceLabel = SOURCE_LABEL[summary.source] ?? summary.source
+  const summary = summaryQ.data ?? null
 
   return (
-    <View style={[styles.card, cardColors]}>
-      <View style={styles.header}>
-        <View>
+    <DetailCardShell
+      title="Finance"
+      // Slice-57 B5 semantics preserved: only the summary query gates the
+      // loading branch (donors render "(0)" while they trickle in).
+      isLoading={summaryQ.isLoading}
+      isError={summaryQ.isError || donorsQ.isError}
+      onRetry={() => {
+        void summaryQ.refetch()
+        void donorsQ.refetch()
+      }}
+      isEmpty={!summary}
+      emptyText="No state finance data yet for this legislator."
+    >
+      {/* Children are constructed even when the shell renders another branch,
+          so the data body is guarded on `summary` (null while loading/empty). */}
+      {summary ? (
+        <>
+          <View style={styles.header}>
+            <Text style={[styles.subtitle, mutedColor]}>{summary.cycle} cycle</Text>
+            <Text style={[styles.sourcePill, sourcePillColors]}>
+              {SOURCE_LABEL[summary.source] ?? summary.source}
+            </Text>
+          </View>
+
+          <View style={{ gap: 8 }}>
+            <ScalarRow
+              label="Total raised"
+              value={fmtDollars(summary.total_raised)}
+              labelColor={rowLabelColor}
+              valueColor={rowValueColor}
+            />
+            <ScalarRow
+              label="Total disbursed"
+              value={fmtDollars(summary.total_disbursed)}
+              labelColor={rowLabelColor}
+              valueColor={rowValueColor}
+            />
+            <ScalarRow
+              label="Small-donor %"
+              value={fmtPct(summary.small_donor_pct)}
+              labelColor={rowLabelColor}
+              valueColor={rowValueColor}
+            />
+            <ScalarRow
+              label="In-state %"
+              value={fmtPct(summary.in_state_pct)}
+              labelColor={rowLabelColor}
+              valueColor={rowValueColor}
+            />
+          </View>
+
           <Text
-            style={[styles.title, titleColor]}
+            style={[styles.donorsHeading, titleColor]}
             accessibilityRole="header"
-            accessibilityLevel={2}
+            accessibilityLevel={3}
           >
-            Finance
+            Top donors ({donorsQ.data?.length ?? 0})
           </Text>
-          <Text style={[styles.subtitle, mutedColor]}>{summary.cycle} cycle</Text>
-        </View>
-        <Text style={[styles.sourcePill, sourcePillColors]}>{sourceLabel}</Text>
-      </View>
-
-      <View style={{ gap: 8 }}>
-        <ScalarRow
-          label="Total raised"
-          value={fmtDollars(summary.total_raised)}
-          labelColor={rowLabelColor}
-          valueColor={rowValueColor}
-        />
-        <ScalarRow
-          label="Total disbursed"
-          value={fmtDollars(summary.total_disbursed)}
-          labelColor={rowLabelColor}
-          valueColor={rowValueColor}
-        />
-        <ScalarRow
-          label="Small-donor %"
-          value={fmtPct(summary.small_donor_pct)}
-          labelColor={rowLabelColor}
-          valueColor={rowValueColor}
-        />
-        <ScalarRow
-          label="In-state %"
-          value={fmtPct(summary.in_state_pct)}
-          labelColor={rowLabelColor}
-          valueColor={rowValueColor}
-        />
-      </View>
-
-      <Text
-        style={[styles.donorsHeading, titleColor]}
-        accessibilityRole="header"
-        accessibilityLevel={3}
-      >
-        Top donors ({donorsQ.data?.length ?? 0})
-      </Text>
-      <StateDonorsEvidence donors={donorsQ.data ?? []} />
-    </View>
+          <StateDonorsEvidence donors={donorsQ.data ?? []} />
+        </>
+      ) : null}
+    </DetailCardShell>
   )
 }
 
@@ -164,24 +147,14 @@ function ScalarRow({
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'baseline',
     marginBottom: 12,
   },
-  title: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
   subtitle: {
     fontSize: 12,
-    marginTop: 2,
   },
   sourcePill: {
     fontSize: 11,
@@ -189,11 +162,6 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 4,
     borderWidth: 1,
-  },
-  emptyMuted: {
-    marginTop: 8,
-    fontSize: 13,
-    fontStyle: 'italic',
   },
   donorsHeading: {
     marginTop: 12,
