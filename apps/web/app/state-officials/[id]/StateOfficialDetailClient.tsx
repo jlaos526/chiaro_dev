@@ -6,7 +6,10 @@ import { StateOfficialDetailPage, type StateOfficialDetailPageProps } from '@chi
 /** Client wrapper injecting a router-bound `/issues` nav callback into the
  *  shared StateOfficialDetailPage (which renders the rep alignment strip). */
 export function StateOfficialDetailClient(
-  props: Omit<StateOfficialDetailPageProps, 'onSetupIssues' | 'setupIssuesHref'>,
+  props: Omit<
+    StateOfficialDetailPageProps,
+    'onSetupIssues' | 'setupIssuesHref' | 'onSetupIssuesPrefetch'
+  >,
 ): React.JSX.Element {
   const router = useRouter()
   return (
@@ -14,6 +17,7 @@ export function StateOfficialDetailClient(
       {...props}
       onSetupIssues={() => router.push('/issues')}
       setupIssuesHref="/issues"
+      onSetupIssuesPrefetch={() => router.prefetch('/issues')}
     />
   )
 }

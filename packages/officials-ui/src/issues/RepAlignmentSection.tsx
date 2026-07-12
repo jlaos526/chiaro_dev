@@ -20,6 +20,11 @@ export interface RepAlignmentSectionProps {
    * Omitted on native → the strip's `<Pressable>` CTA.
    */
   setupHref?: string
+  /**
+   * Slice 79 (audit C7): hover/focus route prefetch for the setup CTA — web
+   * wrappers pass `() => router.prefetch(setupHref)`. Web-only; native ignores.
+   */
+  onSetupPrefetch?: () => void
 }
 
 /**
@@ -39,6 +44,7 @@ export function RepAlignmentSection({
   repName,
   onSetup,
   setupHref,
+  onSetupPrefetch,
 }: RepAlignmentSectionProps): React.JSX.Element {
   const client = useChiaroClient()
   const { data: alignment = null } = useRepAlignment(client, officialId)
@@ -53,6 +59,7 @@ export function RepAlignmentSection({
         hasSelections={hasSelections}
         onSetup={onSetup}
         {...(setupHref ? { setupHref } : {})}
+        {...(onSetupPrefetch ? { onSetupPrefetch } : {})}
         onExpand={() => setExpanded((e) => !e)}
         expanded={expanded}
       />

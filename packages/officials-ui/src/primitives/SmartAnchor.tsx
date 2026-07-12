@@ -7,6 +7,13 @@ export interface SmartAnchorProps {
   children: ReactNode
   href: string
   onPress?: () => void
+  /**
+   * Slice 79 (audit C7): fired on `mouseenter`/`focus` in the WEB branch only —
+   * hover/focus-gated route prefetch. Web wrappers pass
+   * `() => router.prefetch(href)`; the shared package stays next-free. No
+   * viewport-based prefetch by design (N-row fan-out). Native ignores it.
+   */
+  onPrefetch?: () => void
   style?: Record<string, unknown>
   accessibilityLabel?: string
 }
@@ -24,6 +31,7 @@ export function SmartAnchor({
   children,
   href,
   onPress,
+  onPrefetch,
   style,
   accessibilityLabel,
 }: SmartAnchorProps): React.JSX.Element {
@@ -43,6 +51,7 @@ export function SmartAnchor({
             Linking.openURL(href).catch(() => {})
           }
         },
+        ...(onPrefetch ? { onMouseEnter: onPrefetch, onFocus: onPrefetch } : {}),
         style: { textDecoration: 'none', color: 'inherit', ...style },
       },
       children,

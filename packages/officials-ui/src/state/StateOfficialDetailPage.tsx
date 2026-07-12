@@ -33,6 +33,11 @@ export interface StateOfficialDetailPageProps {
    */
   setupIssuesHref?: string
   /**
+   * Slice 79 (audit C7): hover/focus route prefetch for the setup CTA — web
+   * wrappers pass `() => router.prefetch(setupIssuesHref)`. Web-only.
+   */
+  onSetupIssuesPrefetch?: () => void
+  /**
    * Native-only: passed through to the underlying ScrollView so the host
    * screen can wire pull-to-refresh (audit U2-rider). Never applied on web —
    * RefreshControl is unsupported on RNW.
@@ -57,6 +62,7 @@ export function StateOfficialDetailPage({
   offices,
   onSetupIssues,
   setupIssuesHref,
+  onSetupIssuesPrefetch,
   refreshControl,
 }: StateOfficialDetailPageProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
@@ -105,6 +111,7 @@ export function StateOfficialDetailPage({
             repName={official.full_name}
             onSetup={onSetupIssues}
             {...(setupIssuesHref ? { setupHref: setupIssuesHref } : {})}
+            {...(onSetupIssuesPrefetch ? { onSetupPrefetch: onSetupIssuesPrefetch } : {})}
           />
         </View>
       )}

@@ -19,6 +19,11 @@ export interface RepAlignmentStripProps {
    * Native (or web without it): the existing `<Pressable onPress={onSetup}>`.
    */
   setupHref?: string
+  /**
+   * Slice 79 (audit C7): hover/focus route prefetch for the setup CTA — web
+   * wrappers pass `() => router.prefetch(setupHref)`. Web-only; native ignores.
+   */
+  onSetupPrefetch?: () => void
   /** Tapped the strip to open the radar overlay. */
   onExpand: () => void
   /** Whether the overlay is currently open (drives aria-expanded + chevron). */
@@ -44,6 +49,7 @@ export function RepAlignmentStrip({
   hasSelections,
   onSetup,
   setupHref,
+  onSetupPrefetch,
   onExpand,
   expanded = false,
 }: RepAlignmentStripProps): React.JSX.Element {
@@ -67,6 +73,7 @@ export function RepAlignmentStrip({
         <SmartAnchor
           href={setupHref}
           onPress={onSetup}
+          {...(onSetupPrefetch ? { onPrefetch: onSetupPrefetch } : {})}
           accessibilityLabel="Set your issue priorities"
           style={StyleSheet.flatten([...stripStyle, { display: 'flex', cursor: 'pointer' }])}
         >

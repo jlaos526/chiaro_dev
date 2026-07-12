@@ -17,6 +17,7 @@ export function MyIssuesCardClient(): React.JSX.Element {
       catalog={catalog}
       onEdit={() => router.push('/issues')}
       editHref="/issues"
+      onEditPrefetch={() => router.prefetch('/issues')}
     />
   )
 }
