@@ -10,11 +10,14 @@ import { OfficialsList } from '@chiaro/officials-ui'
  * plain left-click stays SPA-client-side via `router.push`. */
 export function OfficialsListClient(): React.JSX.Element {
   const router = useRouter()
+  // Slice 79.5 (audit U4): state rows route to their own detail page.
+  const pathFor = ({ officialId, level }: { officialId: string; level: 'federal' | 'state' }) =>
+    level === 'state' ? `/state-officials/${officialId}` : `/officials/${officialId}`
   return (
     <OfficialsList
-      onSelect={({ officialId }) => router.push(`/officials/${officialId}`)}
+      onSelect={(target) => router.push(pathFor(target))}
       onCalibrate={() => router.push('/calibrate')}
-      getHref={({ officialId }) => `/officials/${officialId}`}
+      getHref={pathFor}
       calibrateHref="/calibrate"
     />
   )

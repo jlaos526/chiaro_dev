@@ -18,10 +18,17 @@ export default function SignUp() {
     return undefined
   }
 
+  // Slice 79.5 (demo readiness): mirrors the web resend path.
+  async function handleResend(email: string) {
+    const { error } = await supabase.auth.resend({ type: 'signup', email })
+    if (error) throw new Error(error.message)
+  }
+
   return (
     <AuthScreen
       mode="sign-up"
       onSubmit={handleSubmit}
+      onResend={handleResend}
       onCrossLinkPress={() => router.push('/(auth)/sign-in')}
       showBranding
     />

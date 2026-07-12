@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { CalibrateScreen } from '@chiaro/officials-ui'
+import { CalibrateScreen, SAMPLE_CALIBRATE_ADDRESS } from '@chiaro/officials-ui'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { addressInputSchema } from '@chiaro/location'
 import { mapCalibrateError } from '@/lib/calibrate-error'
@@ -30,5 +30,12 @@ export default function CalibratePage(): React.JSX.Element {
     router.push('/')
   }
 
-  return <CalibrateScreen onSubmit={handleSubmit} onSkip={handleSkip} />
+  return (
+    <CalibrateScreen
+      onSubmit={handleSubmit}
+      onSkip={handleSkip}
+      sampleAddress={SAMPLE_CALIBRATE_ADDRESS}
+      sampleLabel="Or try a sample address (San Francisco City Hall)"
+    />
+  )
 }

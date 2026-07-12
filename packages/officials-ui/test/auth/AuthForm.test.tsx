@@ -125,6 +125,80 @@ describe('AuthForm', () => {
     expect(container.querySelector('[role="alert"]')).toBeNull()
   })
 
+  it('resend action: renders inside the notice banner, calls onResend with the email (slice 79.5)', async () => {
+    const onSubmit = vi.fn(async () => ({ notice: 'Check your email to confirm your account.' }))
+    const onResend = vi.fn(async () => {})
+    const { container, getByTestId } = render(
+      <AuthForm
+        mode="sign-up"
+        onSubmit={onSubmit}
+        onResend={onResend}
+        onCrossLinkPress={() => {}}
+      />,
+    )
+    const inputs = container.querySelectorAll('input')
+    fireEvent.change(inputs[0]!, { target: { value: 'a@b.com' } })
+    fireEvent.change(inputs[1]!, { target: { value: 'password123' } })
+    fireEvent.change(inputs[2]!, { target: { value: 'password123' } })
+    await act(async () => {
+      fireEvent.click(getByTestId('auth-submit'))
+      await flush()
+    })
+    const resend = getByTestId('auth-resend')
+    expect(resend.textContent).toContain('Resend email')
+    await act(async () => {
+      fireEvent.click(resend)
+      await flush()
+    })
+    expect(onResend).toHaveBeenCalledWith('a@b.com')
+    expect(getByTestId('auth-resend').textContent).toContain('Email re-sent')
+  })
+
+  it('resend action: onResend throw surfaces in the danger banner and re-arms the button', async () => {
+    const onSubmit = vi.fn(async () => ({ notice: 'Check your email.' }))
+    const onResend = vi.fn(async () => {
+      throw new Error('Rate limited')
+    })
+    const { container, getByTestId } = render(
+      <AuthForm
+        mode="sign-up"
+        onSubmit={onSubmit}
+        onResend={onResend}
+        onCrossLinkPress={() => {}}
+      />,
+    )
+    const inputs = container.querySelectorAll('input')
+    fireEvent.change(inputs[0]!, { target: { value: 'a@b.com' } })
+    fireEvent.change(inputs[1]!, { target: { value: 'password123' } })
+    fireEvent.change(inputs[2]!, { target: { value: 'password123' } })
+    await act(async () => {
+      fireEvent.click(getByTestId('auth-submit'))
+      await flush()
+    })
+    await act(async () => {
+      fireEvent.click(getByTestId('auth-resend'))
+      await flush()
+    })
+    expect(container.querySelector('[role="alert"]')!.textContent).toContain('Rate limited')
+    expect(getByTestId('auth-resend').textContent).toContain('Resend email')
+  })
+
+  it('resend action: absent without the onResend prop', async () => {
+    const onSubmit = vi.fn(async () => ({ notice: 'Check your email.' }))
+    const { container, queryByTestId, getByTestId } = render(
+      <AuthForm mode="sign-up" onSubmit={onSubmit} onCrossLinkPress={() => {}} />,
+    )
+    const inputs = container.querySelectorAll('input')
+    fireEvent.change(inputs[0]!, { target: { value: 'a@b.com' } })
+    fireEvent.change(inputs[1]!, { target: { value: 'password123' } })
+    fireEvent.change(inputs[2]!, { target: { value: 'password123' } })
+    await act(async () => {
+      fireEvent.click(getByTestId('auth-submit'))
+      await flush()
+    })
+    expect(queryByTestId('auth-resend')).toBeNull()
+  })
+
   it('notice channel: void resolution renders no status banner', async () => {
     const onSubmit = vi.fn(async () => {})
     const { container } = render(

@@ -1,22 +1,34 @@
 import { createElement } from 'react'
 import { Platform, Pressable, Text, View } from 'react-native'
-import { useMyOfficials, type OfficialWithDistrict, type Party } from '@chiaro/officials'
+import {
+  isStateLevel,
+  useMyOfficials,
+  type OfficialWithDistrict,
+  type Party,
+} from '@chiaro/officials'
 import { useBrandTokens } from './brand-hooks.ts'
 import { OfficialAvatar } from './OfficialAvatar.tsx'
 import { PartyBadge } from './PartyBadge.tsx'
 import { OfficialMeta } from './OfficialMeta.tsx'
 import { useChiaroClient } from './client-context.tsx'
 
+/** Slice 79.5 (audit U4): rows carry their tier so consumers can route
+ * federal rows to `/officials/[id]` and state rows to `/state-officials/[id]`. */
+export interface OfficialsListTarget {
+  officialId: string
+  level: 'federal' | 'state'
+}
+
 export interface OfficialsListProps {
   /** Invoked when an official row is tapped. Consumers wire router
-   * navigation (e.g. `/officials/[id]`) here. */
-  onSelect: (target: { officialId: string }) => void
+   * navigation (`/officials/[id]` or `/state-officials/[id]` by level) here. */
+  onSelect: (target: OfficialsListTarget) => void
   /** Invoked when the calibrate prompt (shown when user has no officials) is tapped. */
   onCalibrate: () => void
   /** Optional URL builder for the per-row link href (web a11y restoration;
    * native ignored). When provided, official rows render real `<a href>`
    * on web with plain left-click intercepted to `onSelect`. */
-  getHref?: (target: { officialId: string }) => string
+  getHref?: (target: OfficialsListTarget) => string
   /** Optional URL for the calibrate prompt (web a11y restoration; native ignored). */
   calibrateHref?: string
 }
@@ -29,8 +41,8 @@ function Section({
 }: {
   title: string
   items: OfficialWithDistrict[]
-  onSelect: (target: { officialId: string }) => void
-  getHref?: (target: { officialId: string }) => string
+  onSelect: (target: OfficialsListTarget) => void
+  getHref?: (target: OfficialsListTarget) => string
 }): React.JSX.Element | null {
   const { semantic } = useBrandTokens()
   if (items.length === 0) return null
@@ -43,8 +55,9 @@ function Section({
       </Text>
       <View style={{ gap: 12 }}>
         {items.map((o) => {
-          const handlePress = () => onSelect({ officialId: o.id })
-          const href = getHref?.({ officialId: o.id })
+          const level = isStateLevel(o.chamber) ? ('state' as const) : ('federal' as const)
+          const handlePress = () => onSelect({ officialId: o.id, level })
+          const href = getHref?.({ officialId: o.id, level })
 
           const inner = (
             <>
@@ -168,6 +181,12 @@ export function OfficialsList({
 
   const senate = data.filter((o) => o.chamber === 'federal_senate')
   const house = data.filter((o) => o.chamber === 'federal_house')
+  // Slice 79.5 (audit U4): state legislators were silently dropped — the
+  // page rendered federal-only while useMyOfficials returned both tiers.
+  const stateSenate = data.filter((o) => o.chamber === 'state_senate')
+  const stateHouse = data.filter((o) => o.chamber === 'state_house')
+  // NE unicameral (chamber state_legislature) — its own section label.
+  const stateLegislature = data.filter((o) => o.chamber === 'state_legislature')
 
   return (
     <View>
@@ -178,6 +197,24 @@ export function OfficialsList({
         {...(getHref ? { getHref } : {})}
       />
       <Section title="House" items={house} onSelect={onSelect} {...(getHref ? { getHref } : {})} />
+      <Section
+        title="State Senate"
+        items={stateSenate}
+        onSelect={onSelect}
+        {...(getHref ? { getHref } : {})}
+      />
+      <Section
+        title="State House"
+        items={stateHouse}
+        onSelect={onSelect}
+        {...(getHref ? { getHref } : {})}
+      />
+      <Section
+        title="State Legislature"
+        items={stateLegislature}
+        onSelect={onSelect}
+        {...(getHref ? { getHref } : {})}
+      />
     </View>
   )
 }

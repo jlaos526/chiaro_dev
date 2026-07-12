@@ -9,7 +9,11 @@ export default function OfficialsScreen() {
       <Drawer.Screen options={{ title: 'Officials' }} />
       <BrandPageScreen>
         <OfficialsList
-          onSelect={({ officialId }) => router.push(`/officials/${officialId}`)}
+          onSelect={({ officialId, level }) =>
+            router.push(
+              level === 'state' ? `/state-officials/${officialId}` : `/officials/${officialId}`,
+            )
+          }
           onCalibrate={() => router.push('/calibrate')}
         />
       </BrandPageScreen>

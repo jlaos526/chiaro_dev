@@ -17,12 +17,14 @@ function deriveInitial(p: { display_name: string | null; username: string | null
 const ROUTE_TO_KEY: Record<string, RailRouteKey> = {
   index: 'home',
   'officials/index': 'officials',
+  issues: 'issues',
   'settings/index': 'settings',
 }
 
 const KEY_TO_ROUTE: Record<RailRouteKey, string> = {
   home: 'index',
   officials: 'officials/index',
+  issues: 'issues',
   settings: 'settings/index',
 }
 

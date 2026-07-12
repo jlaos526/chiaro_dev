@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { act, fireEvent, render, waitFor } from '@testing-library/react'
 import { createElement, type ReactNode } from 'react'
 import { BrandModeOverrideContext } from '../../src/brand-hooks.ts'
-import { CalibrateScreen } from '../../src/calibrate/CalibrateScreen.tsx'
+import { CalibrateScreen, SAMPLE_CALIBRATE_ADDRESS } from '../../src/calibrate/CalibrateScreen.tsx'
 
 function withMode(mode: 'light' | 'dark') {
   return ({ children }: { children: ReactNode }) =>
@@ -117,5 +117,42 @@ describe('CalibrateScreen', () => {
       fireEvent.click(getByText('Use my current location'))
     })
     expect(await findByText('Location access denied')).toBeTruthy()
+  })
+
+  it('omits the sample-address affordance without the prop', () => {
+    const { queryByText } = render(<CalibrateScreen onSubmit={vi.fn()} />, {
+      wrapper: withMode('light'),
+    })
+    expect(queryByText(/sample address/i)).toBeNull()
+  })
+
+  it('sample-address press fills the input and submits the sample (slice 79.5)', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    const { getByText, container } = render(
+      <CalibrateScreen
+        onSubmit={onSubmit}
+        sampleAddress={SAMPLE_CALIBRATE_ADDRESS}
+        sampleLabel="Or try a sample address"
+      />,
+      { wrapper: withMode('light') },
+    )
+    await act(async () => {
+      fireEvent.click(getByText('Or try a sample address'))
+    })
+    expect(onSubmit).toHaveBeenCalledWith(SAMPLE_CALIBRATE_ADDRESS)
+    const input = container.querySelector('input') as HTMLInputElement
+    expect(input.value).toBe(SAMPLE_CALIBRATE_ADDRESS)
+  })
+
+  it('sample-address submit surfaces onSubmit errors in the alert element', async () => {
+    const onSubmit = vi.fn().mockRejectedValue(new Error('Rate limited'))
+    const { getByText, findByText } = render(
+      <CalibrateScreen onSubmit={onSubmit} sampleAddress={SAMPLE_CALIBRATE_ADDRESS} />,
+      { wrapper: withMode('light') },
+    )
+    await act(async () => {
+      fireEvent.click(getByText(/sample address/i))
+    })
+    expect(await findByText('Rate limited')).toBeTruthy()
   })
 })

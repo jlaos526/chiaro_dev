@@ -119,7 +119,7 @@ describe('OfficialsList', () => {
     expect(getByText('Pelosi')).toBeTruthy()
   })
 
-  it('fires onSelect with officialId when row tapped', () => {
+  it('fires onSelect with officialId + level when row tapped', () => {
     useMyOfficialsMock.mockReturnValue({
       data: [mkOfficial('federal_house', 'Pelosi', 'oid-pelosi')],
       isLoading: false,
@@ -128,7 +128,25 @@ describe('OfficialsList', () => {
     const onSelect = vi.fn()
     const { getByText } = wrap(<OfficialsList onSelect={onSelect} onCalibrate={vi.fn()} />)
     fireEvent.click(getByText('Pelosi'))
-    expect(onSelect).toHaveBeenCalledWith({ officialId: 'oid-pelosi' })
+    expect(onSelect).toHaveBeenCalledWith({ officialId: 'oid-pelosi', level: 'federal' })
+  })
+
+  it('renders state sections and fires onSelect with level state (slice 79.5 U4)', () => {
+    useMyOfficialsMock.mockReturnValue({
+      data: [
+        mkOfficial('federal_house', 'Pelosi', 'oid-pelosi'),
+        mkOfficial('state_house', 'Asm Doe', 'oid-asm'),
+        mkOfficial('state_senate', 'Sen Roe', 'oid-sen'),
+      ],
+      isLoading: false,
+      error: null,
+    })
+    const onSelect = vi.fn()
+    const { getByText } = wrap(<OfficialsList onSelect={onSelect} onCalibrate={vi.fn()} />)
+    expect(getByText('State House')).toBeTruthy()
+    expect(getByText('State Senate')).toBeTruthy()
+    fireEvent.click(getByText('Asm Doe'))
+    expect(onSelect).toHaveBeenCalledWith({ officialId: 'oid-asm', level: 'state' })
   })
 
   it('omits Senate section when no senators', () => {
@@ -181,7 +199,7 @@ describe('OfficialsList — smart-anchor (row link)', () => {
     const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 })
     const notPrevented = anchor.dispatchEvent(event)
     expect(notPrevented).toBe(false)
-    expect(onSelect).toHaveBeenCalledWith({ officialId: 'oid-pelosi' })
+    expect(onSelect).toHaveBeenCalledWith({ officialId: 'oid-pelosi', level: 'federal' })
   })
 
   it('cmd-click on row anchor falls through to browser default', () => {
