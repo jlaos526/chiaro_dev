@@ -21,10 +21,10 @@ export default function SettingsIndex() {
   async function handleSignOut() {
     await AsyncStorage.removeItem('chiaro_skip_calibrate')
     await supabase.auth.signOut()
-    // `/sign-in` lives under the `(auth)` group; typed-routes manifest doesn't
-    // expose the bare path. Cast follows the existing `as never` convention
-    // documented at apps/mobile/app/(app)/officials/[id].tsx:43 et al.
-    router.replace('/sign-in' as never)
+    // `/sign-in` lives under the `(auth)` group (group segments are elided
+    // from the URL path). Slice 78 removed the app-wide as-never href
+    // convention — plain paths typecheck and a CI guard keeps casts out.
+    router.replace('/sign-in')
   }
 
   return (
@@ -58,17 +58,11 @@ export default function SettingsIndex() {
 
         <SettingsSection title="About">
           <SettingsValueRow label="Version" value={APP_VERSION} />
-          {/* /legal/privacy + /legal/terms are not yet in the routes manifest;
-            casting per existing apps/mobile/ convention until the legal pages
-            ship (tracked as slice 39 follow-up). */}
-          <SettingsNavRow
-            label="Privacy policy"
-            onPress={() => router.push('/legal/privacy' as never)}
-          />
-          <SettingsNavRow
-            label="Terms of service"
-            onPress={() => router.push('/legal/terms' as never)}
-          />
+          {/* Slice 78 (audit C26): these rows pushed routes that DIDN'T EXIST
+            on mobile — the `as never` casts hid the dead links since slice 39.
+            The (app)/legal screens now exist, mirroring the web placeholders. */}
+          <SettingsNavRow label="Privacy policy" onPress={() => router.push('/legal/privacy')} />
+          <SettingsNavRow label="Terms of service" onPress={() => router.push('/legal/terms')} />
         </SettingsSection>
       </SettingsScreen>
     </>

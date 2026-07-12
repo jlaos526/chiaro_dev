@@ -9,8 +9,8 @@ export default function OfficialsScreen() {
       <Drawer.Screen options={{ title: 'Officials' }} />
       <BrandPageScreen>
         <OfficialsList
-          onSelect={({ officialId }) => router.push(`/officials/${officialId}` as never)}
-          onCalibrate={() => router.push('/calibrate' as never)}
+          onSelect={({ officialId }) => router.push(`/officials/${officialId}`)}
+          onCalibrate={() => router.push('/calibrate')}
         />
       </BrandPageScreen>
     </>

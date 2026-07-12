@@ -54,7 +54,7 @@ export default function Home() {
         <BrandHeading level={1}>{greeting}</BrandHeading>
         {profile && !profile.completed ? (
           <BrandAlert severity="info" title="Complete your profile">
-            <BrandLink href="/profile/edit" onPress={() => router.push('/profile/edit' as never)}>
+            <BrandLink href="/profile/edit" onPress={() => router.push('/profile/edit')}>
               Add your display name and username →
             </BrandLink>
           </BrandAlert>
@@ -63,18 +63,18 @@ export default function Home() {
         <OfficialsCard
           onSelect={({ officialId, subCascadeSlug }) =>
             router.push(
-              (subCascadeSlug
+              subCascadeSlug
                 ? `/officials/${officialId}?cat=issue-positions&sub=${subCascadeSlug}`
-                : `/officials/${officialId}`) as never,
+                : `/officials/${officialId}`,
             )
           }
-          onSeeAll={() => router.push('/officials' as never)}
-          onCalibrate={() => router.push('/calibrate' as never)}
+          onSeeAll={() => router.push('/officials')}
+          onCalibrate={() => router.push('/calibrate')}
         />
         <MyIssuesCard
           selections={issueSelections}
           catalog={issueCatalog}
-          onEdit={() => router.push('/issues' as never)}
+          onEdit={() => router.push('/issues')}
         />
       </BrandPageScreen>
     </>

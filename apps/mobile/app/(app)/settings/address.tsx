@@ -21,7 +21,7 @@ export default function EditAddressScreen() {
   const [bootstrapping, setBootstrapping] = useState(true)
 
   useEffect(() => {
-    getMyLocation(supabase as never)
+    getMyLocation(supabase)
       .then((loc) => {
         if (loc) {
           setAddress(loc.home_address_text)
@@ -51,7 +51,7 @@ export default function EditAddressScreen() {
       else setError('Could not save.')
       return
     }
-    router.push('/settings' as never)
+    router.push('/settings')
   }
 
   const drawerScreen = (

@@ -52,7 +52,7 @@ export default function StateOfficialDetailScreen() {
 
   // Cross-route guard: federal IDs land on /officials/[id]
   if (!isStateLevel(officialQ.data.chamber)) {
-    return <Redirect href={`/officials/${officialId}` as never} />
+    return <Redirect href={`/officials/${officialId}`} />
   }
 
   return (
@@ -68,7 +68,7 @@ export default function StateOfficialDetailScreen() {
         <StateOfficialDetailPage
           official={officialQ.data}
           offices={officesQ.data ?? []}
-          onSetupIssues={() => router.push('/issues' as never)}
+          onSetupIssues={() => router.push('/issues')}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         />
       </SafeAreaView>

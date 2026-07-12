@@ -213,6 +213,13 @@ jobs:
             echo "::error::Found legacy fileURLToPath CLI guard. Use isCliEntry() from shared/cli.ts."
             exit 1
           fi
+          # Slice 78 (audit C26): `as never` on an argument/href permanently
+          # silences ALL future type errors at that call site (never is
+          # assignable to every parameter). apps/ went to zero — keep it there.
+          if grep -rn ' as never' apps/ --include='*.ts' --include='*.tsx'; then
+            echo "::error::Found 'as never' cast in apps/. Plain hrefs/args typecheck — fix the type instead of silencing it (slice 78)."
+            exit 1
+          fi
       - run: pnpm install --frozen-lockfile
       - name: Cache turbo
         uses: actions/cache@v5
