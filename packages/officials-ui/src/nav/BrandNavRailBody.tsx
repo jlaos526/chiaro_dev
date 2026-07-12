@@ -3,7 +3,7 @@
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native'
 import { useBrandTokens } from '../brand-hooks.ts'
 
-export type RailRouteKey = 'home' | 'officials' | 'settings'
+export type RailRouteKey = 'home' | 'officials' | 'issues' | 'settings'
 
 export interface RailUser {
   displayName: string | null
@@ -21,6 +21,9 @@ export interface BrandNavRailBodyProps {
 const NAV_ITEMS: Array<{ key: RailRouteKey; label: string }> = [
   { key: 'home', label: 'Home' },
   { key: 'officials', label: 'Officials' },
+  // Slice 79.5 (audit U4): the issue-priorities flow previously had NO nav
+  // entry anywhere — reachable only via home-card CTAs and deep links.
+  { key: 'issues', label: 'Issue priorities' },
   { key: 'settings', label: 'Settings' },
 ]
 

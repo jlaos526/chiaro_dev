@@ -20,6 +20,14 @@ export interface AuthFormProps {
   crossLinkHref?: string
   /** Optional prefill for the email field (e.g. carry-over from sign-up → sign-in). */
   initialEmail?: string
+  /**
+   * Slice 79.5 (demo readiness): when provided, the success-notice banner
+   * (the "check your email" path) gains a "Resend email" action calling this
+   * with the submitted email — a lost confirmation email otherwise bricks the
+   * account (no other recovery path exists yet). Throws surface in the error
+   * banner.
+   */
+  onResend?: (email: string) => Promise<void>
   testID?: string
 }
 
@@ -71,6 +79,20 @@ export function AuthForm(props: AuthFormProps): React.JSX.Element {
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [resendState, setResendState] = useState<'idle' | 'sending' | 'sent'>('idle')
+
+  async function handleResend(): Promise<void> {
+    if (!props.onResend || resendState === 'sending') return
+    setError(null)
+    setResendState('sending')
+    try {
+      await props.onResend(email)
+      setResendState('sent')
+    } catch (e: unknown) {
+      setResendState('idle')
+      setError(e instanceof Error ? e.message : 'Could not resend the email. Please try again.')
+    }
+  }
 
   async function handleSubmit(): Promise<void> {
     setError(null)
@@ -169,6 +191,24 @@ export function AuthForm(props: AuthFormProps): React.JSX.Element {
           <Text style={[styles.noticeBannerText, { color: semantic.alert.success.fg }]}>
             {notice}
           </Text>
+          {props.onResend ? (
+            <Pressable
+              onPress={handleResend}
+              disabled={resendState !== 'idle'}
+              accessibilityRole="button"
+              accessibilityLabel="Resend email"
+              testID="auth-resend"
+              style={styles.resend}
+            >
+              <Text style={[styles.resendText, { color: semantic.alert.success.fg }]}>
+                {resendState === 'sent'
+                  ? 'Email re-sent ✓'
+                  : resendState === 'sending'
+                    ? 'Resending…'
+                    : 'Resend email'}
+              </Text>
+            </Pressable>
+          ) : null}
         </View>
       ) : null}
 
@@ -231,6 +271,8 @@ const styles = StyleSheet.create({
   noticeBannerText: {
     fontSize: 12,
   },
+  resend: { marginTop: 6, alignSelf: 'flex-start' },
+  resendText: { fontSize: 12, fontWeight: '700', textDecorationLine: 'underline' },
   cta: {
     height: 42,
     borderRadius: 10,

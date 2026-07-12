@@ -19,6 +19,14 @@ export default function SignUpPage(): React.JSX.Element {
     router.refresh()
   }
 
+  // Slice 79.5 (demo readiness): a lost confirmation email otherwise bricks
+  // the account — no password-reset flow exists yet (named follow-up).
+  async function handleResend(email: string) {
+    const supabase = createSupabaseBrowserClient()
+    const { error } = await supabase.auth.resend({ type: 'signup', email })
+    if (error) throw new Error(error.message)
+  }
+
   function goToSignIn() {
     router.push('/sign-in')
   }
@@ -29,6 +37,7 @@ export default function SignUpPage(): React.JSX.Element {
       <AuthScreen
         mode="sign-up"
         onSubmit={handleSubmit}
+        onResend={handleResend}
         onCrossLinkPress={goToSignIn}
         crossLinkHref="/sign-in"
         showBranding={false}

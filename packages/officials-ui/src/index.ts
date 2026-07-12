@@ -248,6 +248,7 @@ export { BrandModeThemeRow } from './settings/brand-mode-theme-row.tsx'
 // Slice 39 — settings architecture
 export { SettingsRow, type SettingsRowProps } from './settings/SettingsRow.tsx'
 export { SettingsScreen, type SettingsScreenProps } from './settings/SettingsScreen.tsx'
+export { LegalBody, PRIVACY_COPY, TERMS_COPY, type LegalCopy } from './legal/LegalBody.tsx'
 export { SettingsSection, type SettingsSectionProps } from './settings/SettingsSection.tsx'
 export { SettingsNavRow, type SettingsNavRowProps } from './settings/SettingsNavRow.tsx'
 export { SettingsActionRow, type SettingsActionRowProps } from './settings/SettingsActionRow.tsx'
@@ -259,7 +260,11 @@ export {
 } from './settings/SettingsComingSoonRow.tsx'
 
 // Slice 39 — calibrate
-export { CalibrateScreen, type CalibrateScreenProps } from './calibrate/CalibrateScreen.tsx'
+export {
+  CalibrateScreen,
+  SAMPLE_CALIBRATE_ADDRESS,
+  type CalibrateScreenProps,
+} from './calibrate/CalibrateScreen.tsx'
 
 // Slice 47 — generic page shells
 export { BrandPageScreen, type BrandPageScreenProps } from './screens/BrandPageScreen.tsx'

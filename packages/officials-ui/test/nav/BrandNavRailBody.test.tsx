@@ -27,7 +27,7 @@ describe('BrandNavRailBody', () => {
     expect(getByText('S')).toBeTruthy()
   })
 
-  it('renders 3 nav items (Home / Officials / Settings) + Sign out', () => {
+  it('renders 4 nav items (Home / Officials / Issue priorities / Settings) + Sign out', () => {
     const { getByText } = render(
       <BrandNavRailBody
         user={user}
@@ -39,6 +39,8 @@ describe('BrandNavRailBody', () => {
     )
     expect(getByText('Home')).toBeTruthy()
     expect(getByText('Officials')).toBeTruthy()
+    // Slice 79.5 (audit U4): the issues flow finally has a nav entry.
+    expect(getByText('Issue priorities')).toBeTruthy()
     expect(getByText('Settings')).toBeTruthy()
     expect(getByText('Sign out')).toBeTruthy()
   })
@@ -86,6 +88,8 @@ describe('BrandNavRailBody', () => {
     )
     fireEvent.click(getByText('Officials'))
     expect(onNavigate).toHaveBeenCalledWith('officials')
+    fireEvent.click(getByText('Issue priorities'))
+    expect(onNavigate).toHaveBeenCalledWith('issues')
   })
 
   it('invokes onSignOut on Sign out press', () => {

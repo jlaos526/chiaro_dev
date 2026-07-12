@@ -45,6 +45,7 @@ export type BrandNavRailProps = RailDesktopProps | RailMobileProps
 function pathnameToKey(pathname: string): RailRouteKey | null {
   if (pathname === '/') return 'home'
   if (pathname === '/officials' || pathname.startsWith('/officials/')) return 'officials'
+  if (pathname === '/issues' || pathname.startsWith('/issues/')) return 'issues'
   if (pathname === '/settings' || pathname.startsWith('/settings/')) return 'settings'
   return null
 }
@@ -52,6 +53,7 @@ function pathnameToKey(pathname: string): RailRouteKey | null {
 const KEY_TO_PATH: Record<RailRouteKey, string> = {
   home: '/',
   officials: '/officials',
+  issues: '/issues',
   settings: '/settings',
 }
 

@@ -7,6 +7,14 @@ import { WEB_VIEWPORT_FILL } from '../screens/_viewport-fill.ts'
 import { NativeFormShell } from '../screens/_native-form-shell.tsx'
 import { BrandTextInput } from '../inputs/BrandTextInput.tsx'
 
+/**
+ * Slice 79.5 (demo readiness): a public, non-residential address for the
+ * "try a sample address" affordance — San Francisco City Hall. Geocodes
+ * cleanly and lands in CA, the state with the fullest ingested data
+ * (state legislators, bills, finance).
+ */
+export const SAMPLE_CALIBRATE_ADDRESS = '1 Dr Carlton B Goodlett Pl, San Francisco, CA 94102'
+
 export interface CalibrateScreenProps {
   title?: string
   description?: string
@@ -19,6 +27,13 @@ export interface CalibrateScreenProps {
    *  failure for friendly error display. Mobile-only in practice; web doesn't
    *  pass this prop. */
   onGpsSubmit?: () => Promise<void>
+  /** Slice 79.5 (demo readiness): when provided, renders a muted "try a
+   *  sample address" affordance under the CTA that fills the input with this
+   *  address and submits it through the SAME flow — reviewers exploring the
+   *  live demo won't type a real residence. */
+  sampleAddress?: string
+  /** Label for the sample-address affordance. */
+  sampleLabel?: string
   submitLabel?: string
   loadingLabel?: string
   gpsLabel?: string
@@ -32,6 +47,8 @@ export function CalibrateScreen({
   onSubmit,
   onSkip,
   onGpsSubmit,
+  sampleAddress,
+  sampleLabel = 'Or try a sample address',
   submitLabel = 'Calibrate',
   loadingLabel = 'Calibrating…',
   gpsLabel = 'Use my current location',
@@ -62,6 +79,20 @@ export function CalibrateScreen({
       await onGpsSubmit()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not get your location.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleSample() {
+    if (!sampleAddress) return
+    setAddress(sampleAddress)
+    setError(null)
+    setLoading(true)
+    try {
+      await onSubmit(sampleAddress)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Something went wrong. Try again.')
     } finally {
       setLoading(false)
     }
@@ -112,6 +143,17 @@ export function CalibrateScreen({
           {loading ? loadingLabel : submitLabel}
         </Text>
       </Pressable>
+      {sampleAddress ? (
+        <Pressable
+          onPress={loading ? undefined : handleSample}
+          accessibilityRole="button"
+          accessibilityState={{ disabled: loading }}
+          aria-disabled={loading}
+          style={styles.skip}
+        >
+          <Text style={[styles.sampleText, { color: semantic.link.fg }]}>{sampleLabel}</Text>
+        </Pressable>
+      ) : null}
       {onSkip ? (
         <Pressable onPress={onSkip} accessibilityRole="button" style={styles.skip}>
           <Text style={[styles.skipText, { color: semantic.text.muted }]}>Skip for now</Text>
@@ -163,4 +205,5 @@ const styles = StyleSheet.create({
   gpsButtonText: { fontSize: 15, fontWeight: '600' },
   skip: { alignItems: 'center', paddingVertical: 8 },
   skipText: { fontSize: 14 },
+  sampleText: { fontSize: 14, fontWeight: '600' },
 })

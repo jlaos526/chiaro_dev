@@ -40,4 +40,24 @@ describe('OfficialMeta', () => {
     const { getByText } = render(<OfficialMeta official={official} />)
     expect(getByText(/Next election/)).toBeTruthy()
   })
+
+  it('renders State House + district code for state_house (slice 79.5 U4)', () => {
+    const official = makeOfficial({
+      chamber: 'state_house',
+      district: { id: 'did', code: 'CA-SH-15', tier: 'state_house', state: 'CA', name: 'AD 15' },
+    })
+    const { getByText } = render(<OfficialMeta official={official} />)
+    expect(getByText(/State House/)).toBeTruthy()
+    expect(getByText(/CA-SH-15/)).toBeTruthy()
+  })
+
+  it('renders State Senate + district code for state_senate', () => {
+    const official = makeOfficial({
+      chamber: 'state_senate',
+      district: { id: 'did', code: 'CA-SS-11', tier: 'state_senate', state: 'CA', name: 'SD 11' },
+    })
+    const { getByText } = render(<OfficialMeta official={official} />)
+    expect(getByText(/State Senate/)).toBeTruthy()
+    expect(getByText(/CA-SS-11/)).toBeTruthy()
+  })
 })
