@@ -43,7 +43,8 @@ export function BioPortrait({ fullName, portraitUrl, size }: BioPortraitProps): 
     )
   }
 
-  // Pattern B (see MetricCardShell): on web, paint the gradient through a
+  // Pattern B (Gotcha #19f — last surviving site since slice 77 deleted the
+  // MetricCardShell family): on web, paint the gradient through a
   // raw <div> wrapper via the CSS `background` shorthand (RNW's StyleSheet
   // normalizer strips `linear-gradient(...)` from `backgroundColor`). The
   // inner View must be transparent for the gradient to show through. Native

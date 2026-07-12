@@ -51,11 +51,10 @@ describe('helpers re-exported from package root', () => {
   })
 })
 
-describe('legacy COLORS surface still exported', () => {
-  // Belt-and-suspenders — already covered by back-compat.test.ts in Task 1.
-  it('COLORS import path still resolves', async () => {
-    const mod = await import('../src/index.ts')
-    expect(mod.COLORS).toBeDefined()
+describe('surviving legacy surface (slice 77 — COLORS deleted, MAP_COLORS lives)', () => {
+  it('MAP_COLORS import path still resolves; COLORS is gone', async () => {
+    const mod = (await import('../src/index.ts')) as Record<string, unknown>
     expect(mod.MAP_COLORS).toBeDefined()
+    expect(mod.COLORS).toBeUndefined()
   })
 })

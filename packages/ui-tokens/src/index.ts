@@ -1,4 +1,6 @@
-export { COLORS, type BrandColor } from './colors.ts'
+// Legacy COLORS + BrandColor DELETED in slice 77 (audit C28): fully dead
+// since slice 60 closed the dark-mode track — every consumer migrated to
+// BRAND.semantic.* via useBrandTokens() across slices 33-37 + 60.
 export { MAP_COLORS, MAP_COLORS_DARK, type MapColor } from './map-colors.ts'
 export {
   DISTRICT_TIER_COLOR,
@@ -18,21 +20,10 @@ export {
   SCORECARD_LEAN_LABEL,
   type ScorecardLean,
 } from './scorecard.ts'
-export {
-  type CategoryId,
-  CATEGORY_LABEL,
-  CATEGORY_ACCENT,
-  CATEGORY_ACCENT_DARK,
-  CATEGORY_CARD_BG,
-  CATEGORY_CARD_BG_DARK,
-  SUB_CASCADE_ACCENT,
-  SUB_CASCADE_ACCENT_DARK,
-} from './category.ts'
-export {
-  FINANCE_SUB_SECTION_SHADES,
-  FINANCE_SUB_SECTION_SHADES_DARK,
-  type FinanceSubSectionShade,
-} from './finance-shades.ts'
+// Slice 77 (audit C24): CategoryId/CATEGORY_LABEL/CATEGORY_ACCENT(_DARK)/
+// SUB_CASCADE_ACCENT(_DARK) + the whole finance-shades module deleted with
+// their only consumers (the orphaned MetricCardShell family).
+export { CATEGORY_CARD_BG, CATEGORY_CARD_BG_DARK } from './category.ts'
 export {
   type AlignmentTier,
   ALIGNMENT_LABEL,
@@ -47,8 +38,7 @@ export {
 } from './alignment.ts'
 export { titleCaseIssueArea } from './issue-area.ts'
 
-// Brand design system (slice brand-design 2026-05-26). New surface — see
-// docs/brand-book.md. Legacy COLORS above is @deprecated for new code.
+// Brand design system (slice brand-design 2026-05-26). See docs/brand-book.md.
 export {
   BRAND,
   BRAND_PALETTE,

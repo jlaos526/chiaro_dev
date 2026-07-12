@@ -12,11 +12,8 @@ import { BioHeaderClient } from './BioHeaderClient'
 import { RepAlignmentSectionClient } from './RepAlignmentSectionClient'
 import { firstElectedYear as deriveFirstElectedYear } from '@/lib/derivations/service-record'
 import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
-import { isStateLevel, STATE_NAMES } from '@chiaro/officials'
+import { CURRENT_CONGRESS, CURRENT_CYCLE, isStateLevel, STATE_NAMES } from '@chiaro/officials'
 import type { Database } from '@chiaro/db'
-
-const CURRENT_CYCLE = '2024'
-const CURRENT_CONGRESS = '119'
 
 interface Params {
   id: string

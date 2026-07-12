@@ -9,6 +9,8 @@ import {
   useOfficialScorecardRatings,
   useOfficialLeadershipHistory,
   isStateLevel,
+  CURRENT_CONGRESS,
+  CURRENT_CYCLE,
   STATE_NAMES,
 } from '@chiaro/officials'
 import { supabase } from '@/lib/supabase'
@@ -26,9 +28,6 @@ import {
   useBrandTokens,
 } from '@chiaro/officials-ui'
 import { BackButton } from '@chiaro/officials-ui/src/nav/BackButton.tsx'
-
-const CURRENT_CYCLE = '2024'
-const CURRENT_CONGRESS = '119'
 
 function parseDistrictCode(
   chamber: string,

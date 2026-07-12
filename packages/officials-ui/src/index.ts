@@ -33,10 +33,7 @@ export {
   type ComingSoonCardProps,
   type ComingSoonCategory,
 } from './cards/ComingSoonCard.tsx'
-export { ComplianceIcon, type ComplianceIconProps } from './cards/ComplianceIcon.tsx'
 export { DistrictBadge, type DistrictBadgeProps } from './cards/DistrictBadge.tsx'
-export { MetricCardShell, type MetricCardShellProps } from './cards/MetricCardShell.tsx'
-export { PillChevron, type PillChevronProps } from './cards/PillChevron.tsx'
 
 // cards/AlignmentChip (Task 6 — accepts `onPress` callback so consumers wire
 // platform-specific router navigation)
@@ -50,21 +47,11 @@ export { BioServiceCard, type BioServiceCardProps } from './bio/BioServiceCard.t
 export { BioContactLinks, type BioContactLinksProps } from './bio/BioContactLinks.tsx'
 export { BioAlignmentChipRow, type BioAlignmentChipRowProps } from './bio/BioAlignmentChipRow.tsx'
 
-// finance/* atoms (Task 6)
-export {
-  FinanceSubSectionHeading,
-  type FinanceSubSectionHeadingProps,
-} from './finance/FinanceSubSectionHeading.tsx'
-export {
-  FinanceSummaryStrip,
-  type FinanceSummaryStripProps,
-} from './finance/FinanceSummaryStrip.tsx'
-export {
-  TopAmountBreakdown,
-  type TopAmountBreakdownProps,
-  type TopAmountRow,
-  type TopAmountNoun,
-} from './finance/TopAmountBreakdown.tsx'
+// finance/* atoms: the slice-4-era MetricCardShell/FinanceSummaryStrip/
+// TopAmountBreakdown/FinanceSubSectionHeading/ComplianceIcon/PillChevron
+// family was DELETED in slice 77 (audit C24) — orphaned since slice 6's
+// Federal*Card redesign, it had zero production consumers yet absorbed
+// reskin work in slices 41/42/43/57/61.
 
 // federal/* lists (Task 8) — pure-display components, all data passed via props
 export { FederalKPIList, type FederalKPIListProps } from './federal/FederalKPIList.tsx'
