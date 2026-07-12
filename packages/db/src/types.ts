@@ -929,27 +929,6 @@ export type Database = {
         }
         Relationships: []
       }
-      push_tokens: {
-        Row: {
-          created_at: string
-          platform: Database["public"]["Enums"]["push_platform"]
-          token: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          platform: Database["public"]["Enums"]["push_platform"]
-          token: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          platform?: Database["public"]["Enums"]["push_platform"]
-          token?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       scorecard_orgs: {
         Row: {
           id: string
@@ -3187,7 +3166,6 @@ export type Database = {
         | "state_house"
         | "state_senate"
         | "state_legislature"
-      push_platform: "ios" | "android" | "web"
       vote_position: "yes" | "no" | "present" | "not_voting"
     }
     CompositeTypes: {
@@ -3364,7 +3342,6 @@ export const Constants = {
         "state_senate",
         "state_legislature",
       ],
-      push_platform: ["ios", "android", "web"],
       vote_position: ["yes", "no", "present", "not_voting"],
     },
   },
