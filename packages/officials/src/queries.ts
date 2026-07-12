@@ -213,6 +213,11 @@ export async function fetchOfficialStateScorecardRatings(
     .select('*, org:state_scorecard_orgs!state_scorecard_ratings_scorecard_id_fkey(*)')
     .eq('official_id', officialId)
     .order('ingested_at', { ascending: false })
+    // Slice 75 (audit C20): interim cap — the fetch pulls ALL sessions' rows
+    // and dedupes latest-per-org in JS, growing every session. 50 covers ~10
+    // sessions of the ≤5-org catalog; server-side distinct-on is the eventual
+    // fix if history browsing becomes a feature.
+    .limit(50)
   if (error) throw error
   // De-dupe to one rating per scorecard_id, keeping the latest by ingested_at.
   const seen = new Set<string>()
@@ -377,6 +382,9 @@ export async function fetchOfficialStateFinancialDisclosures(
     .eq('official_id', officialId)
     .order('filing_year', { ascending: false })
     .order('ingested_at', { ascending: false })
+    // Slice 75 (audit C20): NY FDS writes 1 placeholder + N line items per
+    // filing per year (slice 20) — intended growth, cap above show-more depth.
+    .limit(300)
   if (error) throw error
   return (data ?? []) as StateFinancialDisclosureRow[]
 }
@@ -417,6 +425,10 @@ export async function fetchOfficialHoldings(
     .eq('official_id', officialId)
     .order('filing_year', { ascending: false })
     .order('value_max', { ascending: false, nullsFirst: false })
+    // Slice 75 (audit C20): FDs accumulate per filing_year (wealthy members
+    // file hundreds of holdings/year — slice 26 ingests every line item);
+    // 300 is sized well above the show-more depth. Stock precedent: limit(100).
+    .limit(300)
   if (error) throw error
   return data ?? []
 }
@@ -431,6 +443,7 @@ export async function fetchOfficialDisclosureOther(
     .eq('official_id', officialId)
     .order('filing_year', { ascending: false })
     .order('category', { ascending: true })
+    .limit(300) // slice 75 (audit C20) — see fetchOfficialHoldings
   if (error) throw error
   return data ?? []
 }

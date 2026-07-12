@@ -1,5 +1,12 @@
 begin;
-select plan(27);
+select plan(28);
+
+-- Slice 75 (audit C19, migration 0064): subject-first lookups need an index —
+-- the (bill_id, subject) PK can't serve them (mirrors federal 0014).
+select has_index(
+  'public', 'state_bill_subjects', 'state_bill_subjects_subject_idx',
+  'state_bill_subjects has the subject-leading index (0064)'
+);
 
 -- ─── state_bills ───
 select has_table('public', 'state_bills', 'state_bills table exists');

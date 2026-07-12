@@ -6,6 +6,7 @@ import type { StateFinanceIndividualDonorRow } from '@chiaro/officials'
 import { useBrandTokens } from '../brand-hooks.ts'
 
 const INITIAL_ROW_COUNT = 5
+const PAGE_SIZE = 25 // slice 75 (audit C11) — incremental paging, see StateVotesEvidence
 
 function fmtAmount(n: number): string {
   return `$${n.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
@@ -28,7 +29,8 @@ export interface StateDonorsEvidenceProps {
 }
 
 export function StateDonorsEvidence({ donors }: StateDonorsEvidenceProps): React.JSX.Element {
-  const [expanded, setExpanded] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(INITIAL_ROW_COUNT)
+  const expanded = visibleCount > INITIAL_ROW_COUNT
   const { semantic } = useBrandTokens()
 
   const emptyStyle = [styles.empty, { color: semantic.text.muted }]
@@ -46,7 +48,8 @@ export function StateDonorsEvidence({ donors }: StateDonorsEvidenceProps): React
       </View>
     )
   }
-  const visible = expanded ? donors : donors.slice(0, INITIAL_ROW_COUNT)
+  const visible = donors.slice(0, visibleCount)
+  const remaining = Math.max(0, donors.length - visibleCount)
   const hasMore = donors.length > INITIAL_ROW_COUNT
   return (
     <View testID="state-donors-evidence">
@@ -64,14 +67,18 @@ export function StateDonorsEvidence({ donors }: StateDonorsEvidenceProps): React
       })}
       {hasMore && (
         <Pressable
-          onPress={() => setExpanded((e) => !e)}
+          onPress={() =>
+            remaining > 0
+              ? setVisibleCount((c) => c + PAGE_SIZE)
+              : setVisibleCount(INITIAL_ROW_COUNT)
+          }
           style={moreButtonStyle}
           accessibilityRole="button"
           accessibilityState={{ expanded }}
           aria-expanded={expanded}
         >
           <Text style={moreTextStyle}>
-            {expanded ? 'show less' : `show more (${donors.length - INITIAL_ROW_COUNT} more)`}
+            {remaining > 0 ? `show more (${remaining} more)` : 'show less'}
           </Text>
         </Pressable>
       )}

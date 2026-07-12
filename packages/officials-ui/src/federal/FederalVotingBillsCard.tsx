@@ -4,8 +4,11 @@ import { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import {
   useOfficialCosponsoredBills,
+  useOfficialCosponsoredBillsCount,
   useOfficialMissedVotes,
+  useOfficialMissedVotesCount,
   useOfficialSponsoredBills,
+  useOfficialSponsoredBillsCount,
 } from '@chiaro/bills'
 import { useOfficialMetrics } from '@chiaro/officials'
 import { useBrandTokens } from '../brand-hooks.ts'
@@ -27,16 +30,33 @@ export function FederalVotingBillsCard({
 }: FederalVotingBillsCardProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   const client = useChiaroClient()
-  const metrics = useOfficialMetrics(client, officialId)
-  const sponsored = useOfficialSponsoredBills(client, officialId, congress)
-  const cosponsored = useOfficialCosponsoredBills(client, officialId, congress)
-  const missed = useOfficialMissedVotes(client, officialId, congress)
-
   const [openSponsored, setOpenSponsored] = useState(false)
   const [openCosponsored, setOpenCosponsored] = useState(false)
   const [openMissed, setOpenMissed] = useState(false)
 
-  if (sponsored.isLoading || cosponsored.isLoading || missed.isLoading || metrics.isLoading) {
+  const metrics = useOfficialMetrics(client, officialId)
+  // Slice 75 (audit C12): closed subsections need only COUNTS for their
+  // labels — head-only count queries transfer zero rows. The full-row hooks
+  // gate on first expand (TanStack keeps the data cached across re-collapse),
+  // so a page open stopped downloading e.g. ~400 cosponsored bill rows just
+  // to print "400 cosponsored".
+  const sponsoredCountQ = useOfficialSponsoredBillsCount(client, officialId, congress)
+  const cosponsoredCountQ = useOfficialCosponsoredBillsCount(client, officialId, congress)
+  const missedCountQ = useOfficialMissedVotesCount(client, officialId, congress)
+  const sponsored = useOfficialSponsoredBills(client, officialId, congress, {
+    enabled: openSponsored,
+  })
+  const cosponsored = useOfficialCosponsoredBills(client, officialId, congress, {
+    enabled: openCosponsored,
+  })
+  const missed = useOfficialMissedVotes(client, officialId, congress, { enabled: openMissed })
+
+  if (
+    sponsoredCountQ.isLoading ||
+    cosponsoredCountQ.isLoading ||
+    missedCountQ.isLoading ||
+    metrics.isLoading
+  ) {
     return (
       <View
         style={[
@@ -56,9 +76,9 @@ export function FederalVotingBillsCard({
     )
   }
 
-  const sponsoredCount = sponsored.data?.length ?? 0
-  const cosponsoredCount = cosponsored.data?.length ?? 0
-  const missedCount = missed.data?.length ?? 0
+  const sponsoredCount = sponsoredCountQ.data ?? 0
+  const cosponsoredCount = cosponsoredCountQ.data ?? 0
+  const missedCount = missedCountQ.data ?? 0
   const attendance = metrics.data?.attendance_pct ?? null
 
   const allEmpty = sponsoredCount === 0 && cosponsoredCount === 0 && missedCount === 0
@@ -111,7 +131,11 @@ export function FederalVotingBillsCard({
         open={openSponsored}
         onToggle={() => setOpenSponsored((v) => !v)}
       >
-        <FederalSponsoredBillsList rows={sponsored.data ?? []} />
+        {sponsored.isLoading ? (
+          <Text style={[styles.muted, { color: semantic.text.muted }]}>Loading bills…</Text>
+        ) : (
+          <FederalSponsoredBillsList rows={sponsored.data ?? []} />
+        )}
       </CardSubsection>
 
       <CardSubsection
@@ -119,7 +143,11 @@ export function FederalVotingBillsCard({
         open={openCosponsored}
         onToggle={() => setOpenCosponsored((v) => !v)}
       >
-        <FederalCosponsoredBillsList rows={cosponsored.data ?? []} />
+        {cosponsored.isLoading ? (
+          <Text style={[styles.muted, { color: semantic.text.muted }]}>Loading bills…</Text>
+        ) : (
+          <FederalCosponsoredBillsList rows={cosponsored.data ?? []} />
+        )}
       </CardSubsection>
 
       <CardSubsection
@@ -127,7 +155,11 @@ export function FederalVotingBillsCard({
         open={openMissed}
         onToggle={() => setOpenMissed((v) => !v)}
       >
-        <FederalMissedVotesList rows={missed.data ?? []} />
+        {missed.isLoading ? (
+          <Text style={[styles.muted, { color: semantic.text.muted }]}>Loading votes…</Text>
+        ) : (
+          <FederalMissedVotesList rows={missed.data ?? []} />
+        )}
       </CardSubsection>
     </View>
   )

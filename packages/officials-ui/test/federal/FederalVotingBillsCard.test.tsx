@@ -8,6 +8,16 @@ const useMetricsMock = vi.fn()
 const useSponsoredMock = vi.fn()
 const useCosponsoredMock = vi.fn()
 const useMissedMock = vi.fn()
+// Slice 75 (audit C12): labels/summary come from head-only count hooks.
+const useSponsoredCountMock = vi.fn()
+const useCosponsoredCountMock = vi.fn()
+const useMissedCountMock = vi.fn()
+
+function setCounts(sponsored: number, cosponsored: number, missed: number, isLoading = false) {
+  useSponsoredCountMock.mockReturnValue({ data: sponsored, isLoading, isSuccess: !isLoading })
+  useCosponsoredCountMock.mockReturnValue({ data: cosponsored, isLoading, isSuccess: !isLoading })
+  useMissedCountMock.mockReturnValue({ data: missed, isLoading, isSuccess: !isLoading })
+}
 
 vi.mock('@chiaro/officials', async () => {
   const actual = await vi.importActual<object>('@chiaro/officials')
@@ -24,6 +34,9 @@ vi.mock('@chiaro/bills', async () => {
     useOfficialSponsoredBills: (...args: unknown[]) => useSponsoredMock(...args),
     useOfficialCosponsoredBills: (...args: unknown[]) => useCosponsoredMock(...args),
     useOfficialMissedVotes: (...args: unknown[]) => useMissedMock(...args),
+    useOfficialSponsoredBillsCount: (...args: unknown[]) => useSponsoredCountMock(...args),
+    useOfficialCosponsoredBillsCount: (...args: unknown[]) => useCosponsoredCountMock(...args),
+    useOfficialMissedVotesCount: (...args: unknown[]) => useMissedCountMock(...args),
   }
 })
 
@@ -47,11 +60,15 @@ afterEach(() => {
   useSponsoredMock.mockReset()
   useCosponsoredMock.mockReset()
   useMissedMock.mockReset()
+  useSponsoredCountMock.mockReset()
+  useCosponsoredCountMock.mockReset()
+  useMissedCountMock.mockReset()
 })
 
 describe('FederalVotingBillsCard', () => {
   it('renders loading state', () => {
     useMetricsMock.mockReturnValue({ data: undefined, isLoading: true, isSuccess: false })
+    setCounts(0, 0, 0)
     useSponsoredMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
     useCosponsoredMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
     useMissedMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
@@ -61,6 +78,7 @@ describe('FederalVotingBillsCard', () => {
 
   it('renders empty state when all empty', () => {
     useMetricsMock.mockReturnValue({ data: null, isLoading: false, isSuccess: true })
+    setCounts(0, 0, 0)
     useSponsoredMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
     useCosponsoredMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
     useMissedMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
@@ -74,6 +92,7 @@ describe('FederalVotingBillsCard', () => {
       isLoading: false,
       isSuccess: true,
     })
+    setCounts(2, 1, 0)
     useSponsoredMock.mockReturnValue({
       data: [{ id: 'b1' }, { id: 'b2' }],
       isLoading: false,
@@ -97,6 +116,7 @@ describe('FederalVotingBillsCard', () => {
       isLoading: false,
       isSuccess: true,
     })
+    setCounts(1, 0, 0)
     useSponsoredMock.mockReturnValue({
       data: [
         {
@@ -135,6 +155,7 @@ describe('FederalVotingBillsCard — mode awareness', () => {
       isLoading: false,
       isSuccess: true,
     })
+    setCounts(1, 0, 0)
     useSponsoredMock.mockReturnValue({ data: [{ id: 'b1' }], isLoading: false, isSuccess: true })
     useCosponsoredMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
     useMissedMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })

@@ -6,6 +6,10 @@ import type { StateVoteWithPosition } from '@chiaro/state-bills'
 import { useBrandTokens } from '../brand-hooks.ts'
 
 const INITIAL_ROW_COUNT = 5
+// Slice 75 (audit C11): show-more used to mount EVERY row at once (no
+// virtualized lists exist in the repo) — a guaranteed freeze on mid-range
+// Android for data-rich legislators. Incremental paging instead.
+const PAGE_SIZE = 25
 
 function positionLabel(p: StateVoteWithPosition['position']): string {
   if (p === 'yes') return 'yes'
@@ -21,7 +25,8 @@ export interface StateVotesEvidenceProps {
 }
 
 export function StateVotesEvidence({ votes }: StateVotesEvidenceProps): React.JSX.Element {
-  const [expanded, setExpanded] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(INITIAL_ROW_COUNT)
+  const expanded = visibleCount > INITIAL_ROW_COUNT
   const { semantic } = useBrandTokens()
 
   const emptyStyle = [styles.empty, { color: semantic.text.muted }]
@@ -43,7 +48,8 @@ export function StateVotesEvidence({ votes }: StateVotesEvidenceProps): React.JS
       </View>
     )
   }
-  const visible = expanded ? votes : votes.slice(0, INITIAL_ROW_COUNT)
+  const visible = votes.slice(0, visibleCount)
+  const remaining = Math.max(0, votes.length - visibleCount)
   const hasMore = votes.length > INITIAL_ROW_COUNT
   return (
     <View testID="state-votes-evidence">
@@ -80,14 +86,18 @@ export function StateVotesEvidence({ votes }: StateVotesEvidenceProps): React.JS
       })}
       {hasMore && (
         <Pressable
-          onPress={() => setExpanded((e) => !e)}
+          onPress={() =>
+            remaining > 0
+              ? setVisibleCount((c) => c + PAGE_SIZE)
+              : setVisibleCount(INITIAL_ROW_COUNT)
+          }
           accessibilityRole="button"
           accessibilityState={{ expanded }}
           aria-expanded={expanded}
           style={moreButtonStyle}
         >
           <Text style={moreTextStyle}>
-            {expanded ? 'show less' : `show more (${votes.length - INITIAL_ROW_COUNT} more)`}
+            {remaining > 0 ? `show more (${remaining} more)` : 'show less'}
           </Text>
         </Pressable>
       )}

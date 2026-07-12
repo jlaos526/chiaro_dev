@@ -6,13 +6,15 @@ import type { StateBillWithSponsors } from '@chiaro/state-bills'
 import { useBrandTokens } from '../brand-hooks.ts'
 
 const INITIAL_ROW_COUNT = 5
+const PAGE_SIZE = 25 // slice 75 (audit C11) — incremental paging, see StateVotesEvidence
 
 export interface StateBillsEvidenceProps {
   bills: StateBillWithSponsors[]
 }
 
 export function StateBillsEvidence({ bills }: StateBillsEvidenceProps): React.JSX.Element {
-  const [expanded, setExpanded] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(INITIAL_ROW_COUNT)
+  const expanded = visibleCount > INITIAL_ROW_COUNT
   const { semantic } = useBrandTokens()
 
   const emptyStyle = [styles.empty, { color: semantic.text.muted }]
@@ -29,7 +31,8 @@ export function StateBillsEvidence({ bills }: StateBillsEvidenceProps): React.JS
       </View>
     )
   }
-  const visible = expanded ? bills : bills.slice(0, INITIAL_ROW_COUNT)
+  const visible = bills.slice(0, visibleCount)
+  const remaining = Math.max(0, bills.length - visibleCount)
   const hasMore = bills.length > INITIAL_ROW_COUNT
   return (
     <View testID="state-bills-evidence">
@@ -53,14 +56,18 @@ export function StateBillsEvidence({ bills }: StateBillsEvidenceProps): React.JS
       })}
       {hasMore && (
         <Pressable
-          onPress={() => setExpanded((e) => !e)}
+          onPress={() =>
+            remaining > 0
+              ? setVisibleCount((c) => c + PAGE_SIZE)
+              : setVisibleCount(INITIAL_ROW_COUNT)
+          }
           accessibilityRole="button"
           accessibilityState={{ expanded }}
           aria-expanded={expanded}
           style={moreButtonStyle}
         >
           <Text style={moreTextStyle}>
-            {expanded ? 'show less' : `show more (${bills.length - INITIAL_ROW_COUNT} more)`}
+            {remaining > 0 ? `show more (${remaining} more)` : 'show less'}
           </Text>
         </Pressable>
       )}
