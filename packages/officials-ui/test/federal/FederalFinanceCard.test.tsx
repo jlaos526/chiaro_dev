@@ -37,7 +37,8 @@ describe('FederalFinanceCard', () => {
   it('renders loading state', () => {
     useFinanceMock.mockReturnValue({ data: undefined, isLoading: true, isSuccess: false })
     const { getByText } = wrap(<FederalFinanceCard officialId="oid" cycle="2024" />)
-    expect(getByText(/Loading finance/i)).toBeTruthy()
+    // Slice 80: DetailCardShell owns the loading branch with uniform copy.
+    expect(getByText('Loading…')).toBeTruthy()
   })
 
   it('renders empty state when no finance data', () => {

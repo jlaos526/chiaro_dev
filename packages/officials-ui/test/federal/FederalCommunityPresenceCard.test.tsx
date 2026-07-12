@@ -41,7 +41,36 @@ describe('FederalCommunityPresenceCard', () => {
     useOfficesMock.mockReturnValue({ data: undefined, isLoading: true, isSuccess: false })
     useTownHallsMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
     const { getByText } = wrap(<FederalCommunityPresenceCard officialId="oid" congress="119" />)
-    expect(getByText(/Loading community presence/i)).toBeTruthy()
+    // Slice 80: DetailCardShell owns the loading branch with uniform copy.
+    expect(getByText('Loading…')).toBeTruthy()
+  })
+
+  it('renders the error branch with Retry that refetches the hooks (U2)', () => {
+    const officesRefetch = vi.fn()
+    const hallsRefetch = vi.fn()
+    useOfficesMock.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isSuccess: false,
+      isError: true,
+      refetch: officesRefetch,
+    })
+    useTownHallsMock.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isSuccess: true,
+      isError: false,
+      refetch: hallsRefetch,
+    })
+    const { getByText, queryByText } = wrap(
+      <FederalCommunityPresenceCard officialId="oid" congress="119" />,
+    )
+    expect(getByText(/Couldn't load this section\./)).toBeTruthy()
+    // U2: error is DISTINCT from empty — the old empty copy must NOT render.
+    expect(queryByText(/No community-presence data/i)).toBeNull()
+    fireEvent.click(getByText('Retry'))
+    expect(officesRefetch).toHaveBeenCalledTimes(1)
+    expect(hallsRefetch).toHaveBeenCalledTimes(1)
   })
 
   it('renders empty state when no halls + no offices', () => {

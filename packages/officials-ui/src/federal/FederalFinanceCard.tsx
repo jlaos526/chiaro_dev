@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text } from 'react-native'
 import { useOfficialFinance } from '@chiaro/officials'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
+import { DetailCardShell } from '../cards/DetailCardShell.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { FederalDonorsList } from './FederalDonorsList.tsx'
 import { FederalPACsList } from './FederalPACsList.tsx'
@@ -33,106 +34,56 @@ export function FederalFinanceCard({
   const [openDonors, setOpenDonors] = useState(false)
   const [openPACs, setOpenPACs] = useState(false)
 
-  if (finance.isLoading) {
-    return (
-      <View
-        style={[
-          styles.card,
-          { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
-        ]}
-      >
-        <Text
-          style={[styles.title, { color: semantic.text.primary }]}
-          accessibilityRole="header"
-          accessibilityLevel={2}
-        >
-          Finance ({cycle})
-        </Text>
-        <Text style={[styles.muted, { color: semantic.text.muted }]}>Loading finance…</Text>
-      </View>
-    )
-  }
-
   const f = finance.data ?? null
-  if (!f) {
-    return (
-      <View
-        style={[
-          styles.card,
-          { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
-        ]}
-      >
-        <Text
-          style={[styles.title, { color: semantic.text.primary }]}
-          accessibilityRole="header"
-          accessibilityLevel={2}
-        >
-          Finance ({cycle})
-        </Text>
-        <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
-          No finance data available for this legislator and cycle.
-        </Text>
-      </View>
-    )
-  }
-
-  const totalRaised = f.summary?.total_raised == null ? null : Number(f.summary.total_raised)
-  const donorCount = f.individualDonors.length
-  const pacCount = f.pacs.length
+  const rawTotal = f?.summary?.total_raised
+  const totalRaised = rawTotal == null ? null : Number(rawTotal)
+  const donorCount = f?.individualDonors.length ?? 0
+  const pacCount = f?.pacs.length ?? 0
 
   return (
-    <View
-      style={[
-        styles.card,
-        { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
-      ]}
+    <DetailCardShell
+      title={`Finance (${cycle})`}
+      isLoading={finance.isLoading}
+      isError={finance.isError}
+      onRetry={() => {
+        void finance.refetch()
+      }}
+      isEmpty={!f}
+      emptyText="No finance data available for this legislator and cycle."
     >
-      <Text
-        style={[styles.title, { color: semantic.text.primary }]}
-        accessibilityRole="header"
-        accessibilityLevel={2}
-      >
-        Finance ({cycle})
-      </Text>
-      <Text style={[styles.summary, { color: semantic.text.muted }]}>
-        {fmtAmount(totalRaised)} raised
-        {' · '}
-        {`${donorCount} donor${donorCount === 1 ? '' : 's'}`}
-        {' · '}
-        {`${pacCount} PAC${pacCount === 1 ? '' : 's'}`}
-      </Text>
+      {/* Children are constructed even when the shell renders another branch,
+          so the data body is guarded on `f` (null while loading/empty). */}
+      {f ? (
+        <>
+          <Text style={[styles.summary, { color: semantic.text.muted }]}>
+            {fmtAmount(totalRaised)} raised
+            {' · '}
+            {`${donorCount} donor${donorCount === 1 ? '' : 's'}`}
+            {' · '}
+            {`${pacCount} PAC${pacCount === 1 ? '' : 's'}`}
+          </Text>
 
-      <CardSubsection
-        label={`Top individual donors (${donorCount})`}
-        open={openDonors}
-        onToggle={() => setOpenDonors((v) => !v)}
-      >
-        <FederalDonorsList finance={f} />
-      </CardSubsection>
+          <CardSubsection
+            label={`Top individual donors (${donorCount})`}
+            open={openDonors}
+            onToggle={() => setOpenDonors((v) => !v)}
+          >
+            <FederalDonorsList finance={f} />
+          </CardSubsection>
 
-      <CardSubsection
-        label={`Top PACs (${pacCount})`}
-        open={openPACs}
-        onToggle={() => setOpenPACs((v) => !v)}
-      >
-        <FederalPACsList finance={f} />
-      </CardSubsection>
-    </View>
+          <CardSubsection
+            label={`Top PACs (${pacCount})`}
+            open={openPACs}
+            onToggle={() => setOpenPACs((v) => !v)}
+          >
+            <FederalPACsList finance={f} />
+          </CardSubsection>
+        </>
+      ) : null}
+    </DetailCardShell>
   )
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
-  muted: { fontSize: 13 },
   summary: { fontSize: 13, marginBottom: 12 },
 })

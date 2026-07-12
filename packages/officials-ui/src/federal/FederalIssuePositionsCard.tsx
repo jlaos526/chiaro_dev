@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import { useOfficialScorecardRatings } from '@chiaro/officials'
 import { useMySelections, useIssueCatalog, useRepWatchlistFlags } from '@chiaro/issues'
 import { useBrandTokens } from '../brand-hooks.ts'
+import { DetailCardShell } from '../cards/DetailCardShell.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { computePriorityOrgSlugs } from '../issues/priority-orgs.ts'
 import { WatchlistFlag } from '../issues/WatchlistFlag.tsx'
@@ -13,6 +14,8 @@ export interface FederalIssuePositionsCardProps {
   officialId: string
 }
 
+const EMPTY_TEXT = 'No issue-position ratings available for this legislator yet.'
+
 export function FederalIssuePositionsCard({
   officialId,
 }: FederalIssuePositionsCardProps): React.JSX.Element {
@@ -20,8 +23,9 @@ export function FederalIssuePositionsCard({
   const client = useChiaroClient()
   const ratings = useOfficialScorecardRatings(client, officialId)
   // The user's selected issues → the scorecard org slugs they care about. These
-  // queries never gate the card: while they load (or for logged-out users) the
-  // priority set is empty and the card renders exactly as it did pre-slice-52.
+  // queries never gate the card (loading / empty / error): while they load (or
+  // for logged-out users) the priority set is empty and the card renders
+  // exactly as it did pre-slice-52.
   const selections = useMySelections(client)
   const catalog = useIssueCatalog(client)
   const priorityOrgSlugs = computePriorityOrgSlugs(selections.data, catalog.data)
@@ -40,87 +44,43 @@ export function FederalIssuePositionsCard({
       </View>
     ) : null
 
-  if (ratings.isLoading) {
-    return (
-      <View
-        style={[
-          styles.card,
-          { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
-        ]}
-      >
-        <Text
-          style={[styles.title, { color: semantic.text.primary }]}
-          accessibilityRole="header"
-          accessibilityLevel={2}
-        >
-          Issue Positions
-        </Text>
-        <Text style={[styles.muted, { color: semantic.text.muted }]}>Loading issue positions…</Text>
-      </View>
-    )
-  }
-
   const rows = ratings.data ?? []
-  if (rows.length === 0) {
-    return (
-      <View
-        style={[
-          styles.card,
-          { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
-        ]}
-      >
-        <Text
-          style={[styles.title, { color: semantic.text.primary }]}
-          accessibilityRole="header"
-          accessibilityLevel={2}
-        >
-          Issue Positions
-        </Text>
-        {flagsSection}
-        <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
-          No issue-position ratings available for this legislator yet.
-        </Text>
-      </View>
-    )
-  }
-
   const leans = new Set(rows.map((r) => r.org?.lean ?? 'centrist'))
+
   return (
-    <View
-      style={[
-        styles.card,
-        { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
-      ]}
+    <DetailCardShell
+      title="Issue Positions"
+      isLoading={ratings.isLoading}
+      isError={ratings.isError}
+      onRetry={() => {
+        void ratings.refetch()
+      }}
+      // Flags render even with no ratings (slice 53), so the shell's empty
+      // branch only fires when BOTH ratings and flags are absent.
+      isEmpty={rows.length === 0 && flags.length === 0}
+      emptyText={EMPTY_TEXT}
     >
-      <Text
-        style={[styles.title, { color: semantic.text.primary }]}
-        accessibilityRole="header"
-        accessibilityLevel={2}
-      >
-        Issue Positions
-      </Text>
       {flagsSection}
-      <Text style={[styles.summary, { color: semantic.text.muted }]}>
-        {rows.length} org{rows.length === 1 ? '' : 's'} rated · {leans.size} lean group
-        {leans.size === 1 ? '' : 's'}
-      </Text>
-      <FederalScorecardRatingsList rows={rows} priorityOrgSlugs={priorityOrgSlugs} />
-    </View>
+      {rows.length === 0 ? (
+        // Flags-only case: keep the verbatim no-ratings note under the flags
+        // (the pre-shell empty branch rendered flags + this note together).
+        <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
+          {EMPTY_TEXT}
+        </Text>
+      ) : (
+        <>
+          <Text style={[styles.summary, { color: semantic.text.muted }]}>
+            {rows.length} org{rows.length === 1 ? '' : 's'} rated · {leans.size} lean group
+            {leans.size === 1 ? '' : 's'}
+          </Text>
+          <FederalScorecardRatingsList rows={rows} priorityOrgSlugs={priorityOrgSlugs} />
+        </>
+      )}
+    </DetailCardShell>
   )
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
   muted: { fontSize: 13 },
   summary: { fontSize: 13, marginBottom: 12 },
 })

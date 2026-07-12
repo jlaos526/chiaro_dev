@@ -1,22 +1,21 @@
 'use client'
 
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text } from 'react-native'
 import type { Database } from '@chiaro/db'
 import { useBrandTokens } from '../brand-hooks.ts'
+import { EventRowList, FORMAT_LABEL } from '../cards/EventRowList.tsx'
 
 type TownHallRow = Database['public']['Tables']['town_halls']['Row']
-
-const FORMAT_LABEL: Record<string, string> = {
-  in_person: 'In person',
-  virtual: 'Virtual',
-  phone: 'Phone',
-  hybrid: 'Hybrid',
-}
 
 export interface FederalTownHallsListProps {
   rows: TownHallRow[]
 }
 
+/**
+ * Thin wrapper over `EventRowList` (slice 80, audit C25) — the format map
+ * lives in the shared `FORMAT_LABEL` next to the generic; this list only
+ * owns its empty copy and the row-field mapping.
+ */
 export function FederalTownHallsList({ rows }: FederalTownHallsListProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   if (rows.length === 0) {
@@ -27,34 +26,22 @@ export function FederalTownHallsList({ rows }: FederalTownHallsListProps): React
     )
   }
   return (
-    <View style={styles.list}>
-      {rows.map((r) => (
-        <Pressable
-          key={r.id}
-          onPress={() => Linking.openURL(r.source_url).catch(() => {})}
-          style={[styles.row, { backgroundColor: semantic.bg.app }]}
-        >
-          <Text style={[styles.title, { color: semantic.text.primary }]}>
-            {r.event_date}
-            {r.city ? ` · ${r.city}, ${r.state ?? ''}` : r.state ? ` · ${r.state}` : ''}
-          </Text>
-          <Text style={[styles.meta, { color: semantic.text.muted }]}>
-            {r.format ? (FORMAT_LABEL[r.format] ?? r.format) : 'Format n/a'}
-            {r.attendance_estimate != null && ` · ~${r.attendance_estimate} attendees`}
-          </Text>
-        </Pressable>
-      ))}
-    </View>
+    <EventRowList
+      rows={rows}
+      keyOf={(r) => r.id}
+      urlOf={(r) => r.source_url}
+      titleOf={(r) =>
+        `${r.event_date}${r.city ? ` · ${r.city}, ${r.state ?? ''}` : r.state ? ` · ${r.state}` : ''}`
+      }
+      metaOf={(r) => [
+        `${r.format ? (FORMAT_LABEL[r.format] ?? r.format) : 'Format n/a'}${
+          r.attendance_estimate != null ? ` · ~${r.attendance_estimate} attendees` : ''
+        }`,
+      ]}
+    />
   )
 }
 
 const styles = StyleSheet.create({
   muted: { fontSize: 13, fontStyle: 'italic', padding: 8 },
-  list: { gap: 6, padding: 8 },
-  row: {
-    borderRadius: 6,
-    padding: 8,
-  },
-  title: { fontSize: 13, fontWeight: '500' },
-  meta: { fontSize: 12, marginTop: 2 },
 })

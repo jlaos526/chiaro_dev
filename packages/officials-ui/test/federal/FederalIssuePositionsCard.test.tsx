@@ -88,7 +88,8 @@ describe('FederalIssuePositionsCard', () => {
   it('renders loading state', () => {
     useScorecardsMock.mockReturnValue({ data: undefined, isLoading: true, isSuccess: false })
     const { getByText } = wrap(<FederalIssuePositionsCard officialId="oid" />)
-    expect(getByText(/Loading issue positions/i)).toBeTruthy()
+    // Slice 80: DetailCardShell owns the loading branch with uniform copy.
+    expect(getByText('Loading…')).toBeTruthy()
   })
 
   it('renders empty state when no ratings', () => {

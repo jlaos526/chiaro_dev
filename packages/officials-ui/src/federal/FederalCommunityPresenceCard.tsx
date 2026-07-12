@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text } from 'react-native'
 import { useOfficialDistrictOffices, useOfficialTownHalls } from '@chiaro/officials'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
+import { DetailCardShell } from '../cards/DetailCardShell.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { FederalDistrictOfficesList } from './FederalDistrictOfficesList.tsx'
 import { FederalTownHallsList } from './FederalTownHallsList.tsx'
@@ -27,49 +28,23 @@ export function FederalCommunityPresenceCard({
   const [openHalls, setOpenHalls] = useState(false)
   const [openOffices, setOpenOffices] = useState(false)
 
-  const cardStyle = [
-    styles.card,
-    { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
-  ]
-  const titleStyle = [styles.title, { color: semantic.text.primary }]
-  const mutedStyle = [styles.muted, { color: semantic.text.muted }]
-  const summaryStyle = [styles.summary, { color: semantic.text.muted }]
-
-  if (offices.isLoading || halls.isLoading) {
-    return (
-      <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
-          Community Presence
-        </Text>
-        <Text style={mutedStyle}>Loading community presence…</Text>
-      </View>
-    )
-  }
-
   const hallsCount = halls.data?.length ?? 0
   // Federal `district_offices` lacks `kind` column — count all rows uniformly.
   const officesCount = offices.data?.length ?? 0
-  const allEmpty = hallsCount === 0 && officesCount === 0
-
-  if (allEmpty) {
-    return (
-      <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
-          Community Presence
-        </Text>
-        <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
-          No community-presence data available for this legislator yet.
-        </Text>
-      </View>
-    )
-  }
 
   return (
-    <View style={cardStyle}>
-      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
-        Community Presence
-      </Text>
-      <Text style={summaryStyle}>
+    <DetailCardShell
+      title="Community Presence"
+      isLoading={offices.isLoading || halls.isLoading}
+      isError={offices.isError || halls.isError}
+      onRetry={() => {
+        void offices.refetch()
+        void halls.refetch()
+      }}
+      isEmpty={hallsCount === 0 && officesCount === 0}
+      emptyText="No community-presence data available for this legislator yet."
+    >
+      <Text style={[styles.summary, { color: semantic.text.muted }]}>
         {`${hallsCount} town hall${hallsCount === 1 ? '' : 's'}`}
         {' · '}
         {`${officesCount} office${officesCount === 1 ? '' : 's'}`}
@@ -90,18 +65,10 @@ export function FederalCommunityPresenceCard({
       >
         <FederalDistrictOfficesList rows={offices.data ?? []} />
       </CardSubsection>
-    </View>
+    </DetailCardShell>
   )
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  title: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
-  muted: { fontSize: 13 },
   summary: { fontSize: 13, marginBottom: 12 },
 })

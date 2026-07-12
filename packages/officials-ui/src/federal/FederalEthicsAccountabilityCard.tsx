@@ -11,6 +11,7 @@ import {
 import type { BrandSemantic } from '@chiaro/ui-tokens'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
+import { DetailCardShell } from '../cards/DetailCardShell.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { FederalStockTransactionsList } from './FederalStockTransactionsList.tsx'
 import { FederalHoldingsList } from './FederalHoldingsList.tsx'
@@ -41,25 +42,6 @@ export function FederalEthicsAccountabilityCard({
   const [openHoldings, setOpenHoldings] = useState(false)
   const [openOther, setOpenOther] = useState(false)
 
-  const cardStyle = [
-    styles.card,
-    { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
-  ]
-  const titleStyle = [styles.title, { color: semantic.text.primary }]
-  const mutedStyle = [styles.muted, { color: semantic.text.muted }]
-  const summaryStyle = [styles.summary, { color: semantic.text.muted }]
-
-  if (metrics.isLoading || stock.isLoading || holdings.isLoading || other.isLoading) {
-    return (
-      <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
-          Ethics & Accountability
-        </Text>
-        <Text style={mutedStyle}>Loading ethics & accountability…</Text>
-      </View>
-    )
-  }
-
   const m = metrics.data ?? null
   const compliancePct = m?.stock_act_compliance_pct ?? null
   const stockCount = stock.data?.length ?? 0
@@ -69,27 +51,23 @@ export function FederalEthicsAccountabilityCard({
   const allEmpty =
     stockCount === 0 && compliancePct == null && holdingsCount === 0 && otherCount === 0
 
-  if (allEmpty) {
-    return (
-      <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
-          Ethics & Accountability
-        </Text>
-        <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
-          No stock-trade or STOCK-Act-compliance records on file.
-        </Text>
-      </View>
-    )
-  }
-
   const compColor = complianceColor(compliancePct, semantic)
 
   return (
-    <View style={cardStyle}>
-      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
-        Ethics & Accountability
-      </Text>
-      <Text style={summaryStyle}>
+    <DetailCardShell
+      title="Ethics & Accountability"
+      isLoading={metrics.isLoading || stock.isLoading || holdings.isLoading || other.isLoading}
+      isError={metrics.isError || stock.isError || holdings.isError || other.isError}
+      onRetry={() => {
+        void metrics.refetch()
+        void stock.refetch()
+        void holdings.refetch()
+        void other.refetch()
+      }}
+      isEmpty={allEmpty}
+      emptyText="No stock-trade or STOCK-Act-compliance records on file."
+    >
+      <Text style={[styles.summary, { color: semantic.text.muted }]}>
         {`${stockCount} stock trade${stockCount === 1 ? '' : 's'}`}
         {' · '}
         {`${lateCount} late filing${lateCount === 1 ? '' : 's'}`}
@@ -132,19 +110,11 @@ export function FederalEthicsAccountabilityCard({
       >
         <FederalDisclosureOtherList rows={other.data ?? []} />
       </CardSubsection>
-    </View>
+    </DetailCardShell>
   )
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  title: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
-  muted: { fontSize: 13 },
   summary: { fontSize: 13, marginBottom: 12 },
   complianceTile: {
     borderRadius: 6,
