@@ -1,6 +1,7 @@
 import { resolveUserId, type ChiaroClient } from '@chiaro/supabase-client'
 import type { Database } from '@chiaro/db'
 import type {
+  OfficialWithCardData,
   OfficialWithDistrict,
   StateFinanceSummaryRow,
   StateFinanceIndividualDonorRow,
@@ -18,10 +19,17 @@ import type {
 const SELECT_WITH_DISTRICT =
   '*, district:districts!officials_district_id_fkey(id,tier,state,code,name)'
 
+// Slice 79 (audit C22): the home card's per-row data (role/tenure metrics +
+// alignment-chip ratings) rides as embeds so OfficialsCard rows don't fire 2
+// hooks each. The org hint mirrors fetchOfficialScorecardRatings.
+const SELECT_WITH_DISTRICT_AND_CARD_DATA =
+  `${SELECT_WITH_DISTRICT}, metrics:official_metrics(salary_role,tenure_years), ` +
+  'ratings:scorecard_ratings(*, org:scorecard_orgs!scorecard_ratings_scorecard_id_fkey(issue_area,scoring_max))'
+
 export async function fetchMyOfficials(
   client: ChiaroClient,
   userId?: string,
-): Promise<OfficialWithDistrict[]> {
+): Promise<OfficialWithCardData[]> {
   const uid = await resolveUserId(client, userId)
   if (!uid) return []
 
@@ -34,7 +42,7 @@ export async function fetchMyOfficials(
 
   const { data, error } = await client
     .from('officials')
-    .select(SELECT_WITH_DISTRICT)
+    .select(SELECT_WITH_DISTRICT_AND_CARD_DATA)
     .eq('in_office', true)
     .in(
       'district_id',
@@ -44,7 +52,7 @@ export async function fetchMyOfficials(
     .order('last_name', { ascending: true })
     // Slice 78 (audit C26): .returns<T>() instead of `as unknown as T` — the
     // builder chain stays type-checked up to the embed override.
-    .returns<OfficialWithDistrict[]>()
+    .returns<OfficialWithCardData[]>()
   if (error) throw error
   return data ?? []
 }

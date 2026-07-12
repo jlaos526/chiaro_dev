@@ -66,6 +66,9 @@ beforeAll(async () => {
   // slice-79 finance-embed block's leftovers (keyed by test opensecrets_id)
   // before the officials delete below can succeed.
   await svc.from('finance_summaries').delete().eq('opensecrets_id', 'S79INTEG')
+  // scorecard_ratings FKs officials with RESTRICT; deleting the test org
+  // CASCADEs its ratings, clearing the path for the officials delete.
+  await svc.from('scorecard_orgs').delete().eq('slug', 's79-integ-org')
   await svc.from('officials').delete().in('bioguide_id', ['P000197', 'F000062', 'P000145'])
   // Same defensive pre-clean for the state official keyed by openstates_person_id.
   await svc
@@ -184,6 +187,42 @@ beforeAll(async () => {
     .eq('openstates_person_id', 'ocd-person/00000000-0000-0000-0000-000000000001-int')
     .single()
   stateAsmId = stateAsmRow.data!.id
+
+  // Slice 79 (audit C22): a metrics row + one scorecard rating for Pelosi so
+  // the fetchMyOfficials card-data embeds return real rows.
+  const pelosiSeedRow = await svc
+    .from('officials')
+    .select('id')
+    .eq('bioguide_id', 'P000197')
+    .single()
+  const pelosiSeedId = pelosiSeedRow.data!.id
+  const { error: omErr } = await svc.from('official_metrics').insert({
+    official_id: pelosiSeedId,
+    congress: '119',
+    salary_role: 'Speaker of the House',
+    tenure_years: 37,
+  })
+  expect(omErr).toBeNull()
+  const { data: s79Org, error: orgErr } = await svc
+    .from('scorecard_orgs')
+    .insert({
+      slug: 's79-integ-org',
+      name: 'S79 Integ Org',
+      issue_area: 'environment',
+      methodology_url: 'https://x',
+      scoring_max: 100,
+    })
+    .select('id')
+    .single()
+  expect(orgErr).toBeNull()
+  const { error: srErr } = await svc.from('scorecard_ratings').insert({
+    scorecard_id: s79Org!.id,
+    official_id: pelosiSeedId,
+    congress: '119',
+    score: 95,
+    source_url: 'https://x',
+  })
+  expect(srErr).toBeNull()
 
   // Seed 1 state_bill + sponsorship + 1 state_vote + position so the slice-5D
   // state-bills queries return real rows for this official.
@@ -325,6 +364,8 @@ afterAll(async () => {
   // FK RESTRICT — must precede officials delete (slice 26).
   await svc.from('federal_holdings').delete().eq('source', 'integ')
   await svc.from('federal_disclosure_other').delete().eq('source', 'integ')
+  // Slice 79: org delete CASCADEs its ratings (which RESTRICT officials).
+  await svc.from('scorecard_orgs').delete().eq('slug', 's79-integ-org')
   await svc.from('officials').delete().in('bioguide_id', ['P000197', 'F000062', 'P000145'])
   // State official keyed by openstates_person_id (no bioguide_id on state rows).
   await svc
@@ -378,6 +419,23 @@ describeLive('fetchMyOfficials', () => {
     const stateAsm = officials.find((o) => o.chamber === 'state_house')!
     expect(stateAsm.district_code).toBe('15')
     expect(stateAsm.title).toBe('Assemblymember')
+  })
+
+  it('embeds metrics + scorecard ratings per row (slice 79 C22 card data)', async () => {
+    const officials = await fetchMyOfficials(anon)
+    const pelosi = officials.find((o) => o.bioguide_id === 'P000197')!
+    expect(pelosi.metrics).toMatchObject({
+      salary_role: 'Speaker of the House',
+      tenure_years: 37,
+    })
+    expect(pelosi.ratings).toHaveLength(1)
+    expect(pelosi.ratings[0]!.org).toEqual({ issue_area: 'environment', scoring_max: 100 })
+    expect(pelosi.ratings[0]!.score).toBe(95)
+    // Officials without metric/rating rows carry null/empty embeds — the
+    // one-to-one metrics embed is object-or-null, never an array.
+    const padilla = officials.find((o) => o.bioguide_id === 'P000145')!
+    expect(padilla.metrics).toBeNull()
+    expect(padilla.ratings).toEqual([])
   })
 
   it('federal officials keep bioguide_id and have null openstates_person_id', async () => {

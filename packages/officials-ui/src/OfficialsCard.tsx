@@ -5,9 +5,7 @@ import {
   selectTopAlignmentChips,
   STATE_NAMES,
   useMyOfficials,
-  useOfficialMetrics,
-  useOfficialScorecardRatings,
-  type OfficialWithDistrict,
+  type OfficialWithCardData,
 } from '@chiaro/officials'
 import { useBrandTokens } from './brand-hooks.ts'
 import { AlignmentChip } from './cards/AlignmentChip.tsx'
@@ -61,26 +59,25 @@ function OfficialRow({
   chipHref,
   rowHref,
 }: {
-  o: OfficialWithDistrict
+  o: OfficialWithCardData
   onSelect: (target: OfficialsCardSelectTarget) => void
   chipHref?: (target: { officialId: string; subCascadeSlug: string }) => string
   rowHref?: (target: { officialId: string }) => string
 }): React.JSX.Element {
   const { semantic } = useBrandTokens()
-  const client = useChiaroClient()
-  const scorecards = useOfficialScorecardRatings(client, o.id)
-  const metrics = useOfficialMetrics(client, o.id)
 
+  // Slice 79 (audit C22): role/tenure + alignment-chip data ride as embeds on
+  // useMyOfficials — no per-row hooks (was 2 requests per row: 2 + 2N → 2).
   const stateName = STATE_NAMES[o.state] ?? o.state
-  const chips = selectTopAlignmentChips(scorecards.data ?? [])
-  const salaryRole = metrics.data?.salary_role
+  const chips = selectTopAlignmentChips(o.ratings ?? [])
+  const salaryRole = o.metrics?.salary_role
   const currentRole =
     salaryRole && salaryRole !== 'Member'
       ? salaryRole
       : o.chamber === 'federal_house'
         ? 'Representative'
         : 'Senator'
-  const tenure = metrics.data?.tenure_years
+  const tenure = o.metrics?.tenure_years
 
   const { districtNumber, atLarge } = parseDistrict(o.district?.code ?? null)
   const handlePress = () => onSelect({ officialId: o.id })
