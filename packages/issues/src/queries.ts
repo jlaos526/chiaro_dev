@@ -1,30 +1,29 @@
 import type { ChiaroClient } from '@chiaro/supabase-client'
 import type {
   IssueTopic,
-  IssueLens,
   RepAlignment,
   RepWatchlistFlag,
   UserIssueSelectionRow,
 } from './types.ts'
 
 export async function fetchCatalog(client: ChiaroClient): Promise<IssueTopic[]> {
-  const { data: topics, error: te } = await client
+  // Slice 79 (audit C18): one request — lenses ride as an embed on topics.
+  // The embedded `lenses.active` filter (no `!inner`) trims lens rows WITHOUT
+  // dropping lens-less topics, matching the old two-query + client-side-group
+  // behavior. Per-embed ordering via the alias referencedTable. The FK hint is
+  // REQUIRED: user_issue_selections FKs both tables, so PostgREST also detects
+  // a many-to-many candidate between topics and lenses through it and errors
+  // as ambiguous without the hint.
+  const { data, error } = await client
     .from('issue_topics')
-    .select('*')
+    .select('*, lenses:issue_lenses!issue_lenses_topic_slug_fkey(*)')
     .eq('active', true)
+    .eq('lenses.active', true)
     .order('display_order')
-  if (te) throw te
-  const { data: lenses, error: le } = await client
-    .from('issue_lenses')
-    .select('*')
-    .eq('active', true)
-    .order('display_order')
-    .returns<IssueLens[]>()
-  if (le) throw le
-  return (topics ?? []).map((t) => ({
-    ...t,
-    lenses: (lenses ?? []).filter((l) => l.topic_slug === t.slug),
-  })) as IssueTopic[]
+    .order('display_order', { referencedTable: 'lenses' })
+    .returns<IssueTopic[]>()
+  if (error) throw error
+  return data ?? []
 }
 
 export async function fetchMySelections(client: ChiaroClient): Promise<UserIssueSelectionRow[]> {

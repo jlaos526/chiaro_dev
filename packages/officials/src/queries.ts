@@ -115,50 +115,44 @@ export interface OfficialFinance {
   topOrgs: FinanceTopOrganizationRow[]
 }
 
+type FinanceSummaryJoinRow = FinanceSummaryRow & {
+  industries: FinanceIndustryRow[]
+  pacs: FinancePACRow[]
+  individualDonors: FinanceIndividualDonorRow[]
+  topOrgs: FinanceTopOrganizationRow[]
+}
+
 export async function fetchOfficialFinance(
   client: ChiaroClient,
   officialId: string,
   cycle: string,
 ): Promise<OfficialFinance | null> {
-  const { data: summary, error } = await client
+  // Slice 79 (audit C18): one request — the 4 child tables ride as embeds on
+  // the summary row (was a summary fetch + a 4-query Promise.all keyed on its
+  // id). Per-embed ordering uses the alias as referencedTable; proven against
+  // real PostgREST in queries.integration.test.ts.
+  const { data, error } = await client
     .from('finance_summaries')
-    .select('*')
+    .select(
+      '*, industries:finance_industry_top(*), pacs:finance_pac_contributions(*), individualDonors:finance_individual_donors(*), topOrgs:finance_top_organizations(*)',
+    )
     .eq('official_id', officialId)
     .eq('cycle', cycle)
+    .order('rank', { referencedTable: 'industries', ascending: true })
+    .order('amount', { referencedTable: 'pacs', ascending: false })
+    .order('rank', { referencedTable: 'individualDonors', ascending: true })
+    .order('rank', { referencedTable: 'topOrgs', ascending: true })
     .maybeSingle()
+    .returns<FinanceSummaryJoinRow | null>()
   if (error) throw error
-  if (!summary) return null
-  const summaryRow = summary as FinanceSummaryRow
-
-  const [industriesRes, pacsRes, donorsRes, orgsRes] = await Promise.all([
-    client
-      .from('finance_industry_top')
-      .select('*')
-      .eq('finance_summary_id', summaryRow.id)
-      .order('rank', { ascending: true }),
-    client
-      .from('finance_pac_contributions')
-      .select('*')
-      .eq('finance_summary_id', summaryRow.id)
-      .order('amount', { ascending: false }),
-    client
-      .from('finance_individual_donors')
-      .select('*')
-      .eq('finance_summary_id', summaryRow.id)
-      .order('rank', { ascending: true }),
-    client
-      .from('finance_top_organizations')
-      .select('*')
-      .eq('finance_summary_id', summaryRow.id)
-      .order('rank', { ascending: true }),
-  ])
-
+  if (!data) return null
+  const { industries, pacs, individualDonors, topOrgs, ...summary } = data
   return {
-    summary: summaryRow,
-    industries: (industriesRes.data ?? []) as FinanceIndustryRow[],
-    pacs: (pacsRes.data ?? []) as FinancePACRow[],
-    individualDonors: (donorsRes.data ?? []) as FinanceIndividualDonorRow[],
-    topOrgs: (orgsRes.data ?? []) as FinanceTopOrganizationRow[],
+    summary: summary as FinanceSummaryRow,
+    industries: industries ?? [],
+    pacs: pacs ?? [],
+    individualDonors: individualDonors ?? [],
+    topOrgs: topOrgs ?? [],
   }
 }
 
@@ -191,15 +185,20 @@ export async function fetchOfficialStateDonors(
   client: ChiaroClient,
   officialId: string,
 ): Promise<StateFinanceIndividualDonorRow[]> {
-  const summary = await fetchOfficialStateFinanceSummary(client, officialId)
-  if (!summary) return []
+  // Slice 79 (audit C18): one request — donors ride as an embed on the
+  // most-recent summary row (was a summary fetch + a second query keyed on
+  // its id). Rank-ordered via the alias referencedTable.
   const { data, error } = await client
-    .from('state_finance_individual_donors')
-    .select('*')
-    .eq('state_finance_summary_id', summary.id)
-    .order('rank', { ascending: true })
+    .from('state_finance_summaries')
+    .select('id, donors:state_finance_individual_donors(*)')
+    .eq('official_id', officialId)
+    .order('ingested_at', { ascending: false })
+    .order('rank', { referencedTable: 'donors', ascending: true })
+    .limit(1)
+    .maybeSingle()
+    .returns<{ id: string; donors: StateFinanceIndividualDonorRow[] } | null>()
   if (error) throw error
-  return data ?? []
+  return data?.donors ?? []
 }
 
 /**
@@ -337,45 +336,37 @@ export async function fetchOfficialStateDistrictOffices(
 }
 
 /**
- * Two-step fetcher (PostgREST cannot filter on joined columns per slice 5G):
- * 1. Find hearing_ids from state_committee_hearing_attendance where official_id matches
- * 2. Optionally infer most-recent session from those hearings
- * 3. Fetch hearings with .in('id', hearingIds) + session filter
+ * Slice 79 (audit C18): one request anchored on hearings — the filtered
+ * `!inner` attendance embed constrains parents server-side (the old 3-step
+ * "PostgREST cannot filter on joined columns" comment predates `!inner`).
+ * When no session is passed, rows arrive date-desc so the first row's
+ * session is the most recent; the latest-session filter happens client-side
+ * on the already-fetched rows (still one request).
  */
 export async function fetchOfficialStateCommitteeHearings(
   client: ChiaroClient,
   officialId: string,
   session?: string,
 ): Promise<StateCommitteeHearingRow[]> {
-  const attRows = await client
-    .from('state_committee_hearing_attendance')
-    .select('hearing_id')
-    .eq('official_id', officialId)
-  if (attRows.error) throw attRows.error
-  const hearingIds = Array.from(new Set((attRows.data ?? []).map((r) => r.hearing_id)))
-  if (hearingIds.length === 0) return []
-
-  let effectiveSession = session
-  if (!effectiveSession) {
-    const recent = await client
-      .from('state_committee_hearings')
-      .select('session')
-      .in('id', hearingIds)
-      .order('hearing_date', { ascending: false })
-      .limit(1)
-    if (recent.error) throw recent.error
-    effectiveSession = recent.data?.[0]?.session
-    if (!effectiveSession) return []
-  }
-
-  const { data, error } = await client
+  let query = client
     .from('state_committee_hearings')
-    .select('*')
-    .in('id', hearingIds)
-    .eq('session', effectiveSession)
+    .select('*, attendance:state_committee_hearing_attendance!inner(official_id)')
+    .eq('attendance.official_id', officialId)
+  if (session) query = query.eq('session', session)
+  const { data, error } = await query
     .order('hearing_date', { ascending: false })
+    // Cap per the slice-75 C20 convention: date-desc means the latest session
+    // (all we keep in the no-session path) is always inside the window.
+    .limit(200)
+    .returns<Array<StateCommitteeHearingRow & { attendance: unknown }>>()
   if (error) throw error
-  return (data ?? []) as StateCommitteeHearingRow[]
+  const rows = (data ?? []).map(({ attendance: _attendance, ...hearing }) => {
+    return hearing as StateCommitteeHearingRow
+  })
+  if (session) return rows
+  const latestSession = rows[0]?.session
+  if (!latestSession) return []
+  return rows.filter((r) => r.session === latestSession)
 }
 
 export async function fetchOfficialStateFinancialDisclosures(
