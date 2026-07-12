@@ -17,9 +17,9 @@ export async function getMyLocation(
     .select('home_address_text, home_location, calibrated_at')
     .eq('id', uid)
     .maybeSingle()
+    .returns<UserLocationRow | null>()
   if (error) throw error
-  if (!data) return null
-  return data as unknown as UserLocationRow
+  return data
 }
 
 export async function getMyHomePoint(
@@ -60,8 +60,9 @@ export async function getMyDistricts(client: ChiaroClient): Promise<DistrictRow[
   const { data, error } = await client
     .from('my_districts_geojson')
     .select('id, tier, state, code, name, geometry')
+    .returns<DistrictRow[]>()
   if (error) throw error
-  return shareDedupedGeometry((data ?? []) as unknown as DistrictRow[])
+  return shareDedupedGeometry(data ?? [])
 }
 
 // The my_districts_geojson view NULLs the geometry of rows that duplicate an

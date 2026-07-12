@@ -23,7 +23,7 @@ export default function EditAddressPage(): React.JSX.Element {
 
   useEffect(() => {
     const supabase = createSupabaseBrowserClient()
-    getMyLocation(supabase as never)
+    getMyLocation(supabase)
       .then((loc) => {
         if (loc) {
           setAddress(loc.home_address_text)

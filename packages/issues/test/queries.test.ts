@@ -21,28 +21,27 @@ describe('queries', () => {
     })
   })
   it('fetchCatalog groups lenses under topics', async () => {
-    const from = vi.fn((table: string) => ({
-      select: () => ({
-        eq: () => ({
-          order: () =>
-            Promise.resolve({
-              data:
-                table === 'issue_topics'
-                  ? [{ slug: 'environment', display_name: 'Environment', lenses: undefined }]
-                  : [
-                      {
-                        topic_slug: 'environment',
-                        slug: 'conservation',
-                        lens_type: 'stance',
-                        measurement_sources: [],
-                        quiz_questions: [],
-                      },
-                    ],
-              error: null,
-            }),
-        }),
-      }),
-    }))
+    const from = vi.fn((table: string) => {
+      const result = Promise.resolve({
+        data:
+          table === 'issue_topics'
+            ? [{ slug: 'environment', display_name: 'Environment', lenses: undefined }]
+            : [
+                {
+                  topic_slug: 'environment',
+                  slug: 'conservation',
+                  lens_type: 'stance',
+                  measurement_sources: [],
+                  quiz_questions: [],
+                },
+              ],
+        error: null,
+      })
+      // Slice 78: the lenses chain ends `.order().returns()` now — the mock
+      // terminal is awaitable either way.
+      const terminal = Object.assign(result, { returns: () => result })
+      return { select: () => ({ eq: () => ({ order: () => terminal }) }) }
+    })
     const out = await fetchCatalog(clientWith({ from }))
     expect(out[0]?.lenses).toHaveLength(1)
   })

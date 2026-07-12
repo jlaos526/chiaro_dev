@@ -19,10 +19,11 @@ export async function fetchCatalog(client: ChiaroClient): Promise<IssueTopic[]> 
     .select('*')
     .eq('active', true)
     .order('display_order')
+    .returns<IssueLens[]>()
   if (le) throw le
   return (topics ?? []).map((t) => ({
     ...t,
-    lenses: ((lenses ?? []) as unknown as IssueLens[]).filter((l) => l.topic_slug === t.slug),
+    lenses: (lenses ?? []).filter((l) => l.topic_slug === t.slug),
   })) as IssueTopic[]
 }
 

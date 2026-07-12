@@ -42,8 +42,11 @@ export async function fetchMyOfficials(
     )
     .order('chamber', { ascending: true })
     .order('last_name', { ascending: true })
+    // Slice 78 (audit C26): .returns<T>() instead of `as unknown as T` — the
+    // builder chain stays type-checked up to the embed override.
+    .returns<OfficialWithDistrict[]>()
   if (error) throw error
-  return (data ?? []) as unknown as OfficialWithDistrict[]
+  return data ?? []
 }
 
 export async function fetchOfficial(
@@ -55,8 +58,9 @@ export async function fetchOfficial(
     .select(SELECT_WITH_DISTRICT)
     .eq('id', id)
     .single()
+    .returns<OfficialWithDistrict>()
   if (error) throw error
-  return data as unknown as OfficialWithDistrict
+  return data
 }
 
 type OfficialMetricsRow = Database['public']['Tables']['official_metrics']['Row']
@@ -98,8 +102,9 @@ export async function fetchOfficialScorecardRatings(
     .select('*, org:scorecard_orgs!scorecard_ratings_scorecard_id_fkey(*)')
     .eq('official_id', officialId)
     .order('issue_area', { referencedTable: 'scorecard_orgs', ascending: true })
+    .returns<ScorecardRatingWithOrg[]>()
   if (error) throw error
-  return (data ?? []) as unknown as ScorecardRatingWithOrg[]
+  return data ?? []
 }
 
 export interface OfficialFinance {
@@ -218,11 +223,12 @@ export async function fetchOfficialStateScorecardRatings(
     // sessions of the ≤5-org catalog; server-side distinct-on is the eventual
     // fix if history browsing becomes a feature.
     .limit(50)
+    .returns<StateScorecardRatingWithOrg[]>()
   if (error) throw error
   // De-dupe to one rating per scorecard_id, keeping the latest by ingested_at.
   const seen = new Set<string>()
   const out: StateScorecardRatingWithOrg[] = []
-  for (const row of (data ?? []) as unknown as StateScorecardRatingWithOrg[]) {
+  for (const row of data ?? []) {
     if (seen.has(row.scorecard_id)) continue
     seen.add(row.scorecard_id)
     out.push(row)

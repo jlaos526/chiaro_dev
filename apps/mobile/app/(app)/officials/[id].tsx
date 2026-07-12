@@ -85,7 +85,7 @@ export default function OfficialDetailScreen() {
 
   // Cross-route guard: state-level IDs land on /state-officials/[id]
   if (isStateLevel(officialQ.data.chamber)) {
-    return <Redirect href={`/state-officials/${officialId}` as never} />
+    return <Redirect href={`/state-officials/${officialId}`} />
   }
 
   const official = officialQ.data
@@ -128,9 +128,7 @@ export default function OfficialDetailScreen() {
             twitterHandle={official.twitter_handle}
             chips={chips}
             onChipPress={(chip) =>
-              router.push(
-                `/officials/${officialId}?cat=issue-positions&sub=${chip.subCascadeSlug}` as never,
-              )
+              router.push(`/officials/${officialId}?cat=issue-positions&sub=${chip.subCascadeSlug}`)
             }
           />
           {/* Personalized rep alignment strip (slice 52) */}
@@ -138,7 +136,7 @@ export default function OfficialDetailScreen() {
             <RepAlignmentSection
               officialId={official.id}
               repName={official.full_name}
-              onSetup={() => router.push('/issues' as never)}
+              onSetup={() => router.push('/issues')}
             />
           </View>
           {/* Federal officials redesign (slice 6) — 6 cards in vertical cascade */}

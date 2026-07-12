@@ -23,7 +23,7 @@ export default function ProfileEdit() {
     setLoading(true)
     try {
       await updateMyProfile(supabase, parsed.data)
-      router.replace('/(app)' as never)
+      router.replace('/(app)')
     } catch (err) {
       setError(
         err instanceof ProfileError
