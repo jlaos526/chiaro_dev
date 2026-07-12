@@ -6,7 +6,9 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createClient } from '@supabase/supabase-js'
 import {
+  fetchOfficialCosponsoredStateBills,
   fetchOfficialMissedStateVotes,
+  fetchOfficialSponsoredStateBills,
   fetchOfficialStateVotes,
   fetchOfficialStateVotesOnSubject,
 } from '../src/queries.ts'
@@ -136,6 +138,18 @@ d('state-bills vote queries (slice 75 embed shapes, real PostgREST)', () => {
     ])
     expect(sErr).toBeNull()
 
+    // Sponsorships for the slice-79 single-request sponsored/cosponsored
+    // fetchers. o2's rows on the SAME bills prove (a) the `me` !inner filter
+    // doesn't leak other officials' bills in, and (b) the unfiltered
+    // `sponsors` alias still carries the bill's FULL sponsor list.
+    const { error: spErr } = await svc.from('state_bill_sponsors').insert([
+      { bill_id: b1, official_id: o1, role: 'sponsor' },
+      { bill_id: b1, official_id: o2, role: 'cosponsor' },
+      { bill_id: b2, official_id: o1, role: 'cosponsor' },
+      { bill_id: b2, official_id: o2, role: 'sponsor' },
+    ])
+    expect(spErr).toBeNull()
+
     const { data: votes, error: vErr } = await svc
       .from('state_votes')
       .insert([
@@ -196,6 +210,22 @@ d('state-bills vote queries (slice 75 embed shapes, real PostgREST)', () => {
     expect(mine).toHaveLength(1)
     expect(mine[0]!.vote.question).toContain('v2')
     expect(mine[0]!.position).toBe('not_voting')
+  })
+
+  it('fetchOfficialSponsoredStateBills: one request; me-filter constrains, sponsors alias carries the full list', async () => {
+    const rows = await fetchOfficialSponsoredStateBills(svc as unknown as ChiaroClient, o1)
+    expect(rows.map((b) => b.number)).toEqual([101])
+    // The unfiltered `sponsors` alias: BOTH officials' rows, not just o1's.
+    expect(rows[0]!.sponsors).toHaveLength(2)
+    expect(rows[0]!.subjects).toEqual(['education'])
+    // The filtering `me` embed is stripped before return (shape unchanged).
+    expect('me' in rows[0]!).toBe(false)
+  })
+
+  it('fetchOfficialCosponsoredStateBills: role isolation via the me alias', async () => {
+    const rows = await fetchOfficialCosponsoredStateBills(svc as unknown as ChiaroClient, o1)
+    expect(rows.map((b) => b.number)).toEqual([102])
+    expect(rows[0]!.sponsors).toHaveLength(2)
   })
 
   it('fetchOfficialStateVotesOnSubject: nested bill!inner subjects filter constrains parents', async () => {

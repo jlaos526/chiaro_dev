@@ -3,19 +3,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createElement, type ReactElement, type ReactNode } from 'react'
 import type { ChiaroClient } from '@chiaro/supabase-client'
-import type { OfficialWithDistrict } from '@chiaro/officials'
+import type { OfficialWithCardData } from '@chiaro/officials'
 
 const useMyOfficialsMock = vi.fn()
-const useScorecardsMock = vi.fn()
-const useMetricsMock = vi.fn()
 
+// Slice 79 (audit C22): OfficialsCard rows no longer fire per-row
+// scorecards/metrics hooks — that data rides as embeds on useMyOfficials.
 vi.mock('@chiaro/officials', async () => {
   const actual = await vi.importActual<object>('@chiaro/officials')
   return {
     ...actual,
     useMyOfficials: (...args: unknown[]) => useMyOfficialsMock(...args),
-    useOfficialScorecardRatings: (...args: unknown[]) => useScorecardsMock(...args),
-    useOfficialMetrics: (...args: unknown[]) => useMetricsMock(...args),
   }
 })
 
@@ -36,16 +34,17 @@ function wrap(ui: ReactElement) {
 
 afterEach(() => {
   useMyOfficialsMock.mockReset()
-  useScorecardsMock.mockReset()
-  useMetricsMock.mockReset()
 })
 
 function mkOfficial(
-  chamber: OfficialWithDistrict['chamber'],
+  chamber: OfficialWithCardData['chamber'],
   fullName: string,
   id = 'oid-' + fullName,
-): OfficialWithDistrict {
+  extra: Partial<Pick<OfficialWithCardData, 'metrics' | 'ratings'>> = {},
+): OfficialWithCardData {
   return {
+    metrics: null,
+    ratings: [],
     id,
     full_name: fullName,
     first_name: fullName,
@@ -65,14 +64,13 @@ function mkOfficial(
     fec_candidate_id: null,
     portrait_url: null,
     district: { id: 'did', tier: chamber, state: 'CA', code: 'CA-12', name: 'CA-12' },
-  } as unknown as OfficialWithDistrict
+    ...extra,
+  } as unknown as OfficialWithCardData
 }
 
 describe('OfficialsCard', () => {
   it('shows loading state', () => {
     useMyOfficialsMock.mockReturnValue({ data: null, isLoading: true, error: null })
-    useScorecardsMock.mockReturnValue({ data: [] })
-    useMetricsMock.mockReturnValue({ data: null })
     const { getByText } = wrap(
       <OfficialsCard onSelect={vi.fn()} onSeeAll={vi.fn()} onCalibrate={vi.fn()} />,
     )
@@ -87,8 +85,6 @@ describe('OfficialsCard', () => {
       error: new Error('boom'),
       refetch,
     })
-    useScorecardsMock.mockReturnValue({ data: [] })
-    useMetricsMock.mockReturnValue({ data: null })
     const { getByText } = wrap(
       <OfficialsCard onSelect={vi.fn()} onSeeAll={vi.fn()} onCalibrate={vi.fn()} />,
     )
@@ -99,8 +95,6 @@ describe('OfficialsCard', () => {
 
   it('shows calibrate prompt when no officials and invokes onCalibrate', () => {
     useMyOfficialsMock.mockReturnValue({ data: [], isLoading: false, error: null })
-    useScorecardsMock.mockReturnValue({ data: [] })
-    useMetricsMock.mockReturnValue({ data: null })
     const onCalibrate = vi.fn()
     const { getByText } = wrap(
       <OfficialsCard onSelect={vi.fn()} onSeeAll={vi.fn()} onCalibrate={onCalibrate} />,
@@ -115,8 +109,6 @@ describe('OfficialsCard', () => {
       isLoading: false,
       error: null,
     })
-    useScorecardsMock.mockReturnValue({ data: [] })
-    useMetricsMock.mockReturnValue({ data: null })
     const onSelect = vi.fn()
     const { getByText } = wrap(
       <OfficialsCard onSelect={onSelect} onSeeAll={vi.fn()} onCalibrate={vi.fn()} />,
@@ -131,8 +123,6 @@ describe('OfficialsCard', () => {
       isLoading: false,
       error: null,
     })
-    useScorecardsMock.mockReturnValue({ data: [] })
-    useMetricsMock.mockReturnValue({ data: null })
     const onSelect = vi.fn()
     const { getByText } = wrap(
       <OfficialsCard onSelect={onSelect} onSeeAll={vi.fn()} onCalibrate={vi.fn()} />,
@@ -147,8 +137,6 @@ describe('OfficialsCard', () => {
       isLoading: false,
       error: null,
     })
-    useScorecardsMock.mockReturnValue({ data: [] })
-    useMetricsMock.mockReturnValue({ data: null })
     const onSeeAll = vi.fn()
     const { getByText } = wrap(
       <OfficialsCard onSelect={vi.fn()} onSeeAll={onSeeAll} onCalibrate={vi.fn()} />,
@@ -159,25 +147,25 @@ describe('OfficialsCard', () => {
 
   it('fires onSelect with subCascadeSlug when alignment chip is pressed', () => {
     useMyOfficialsMock.mockReturnValue({
-      data: [mkOfficial('federal_house', 'Pelosi', 'oid-pelosi')],
+      data: [
+        mkOfficial('federal_house', 'Pelosi', 'oid-pelosi', {
+          ratings: [
+            {
+              id: 'r1',
+              scorecard_id: 's1',
+              official_id: 'oid-pelosi',
+              congress: '119',
+              score: 95,
+              source_url: 'https://example.org',
+              ingested_at: '2026-01-01',
+              org: { issue_area: 'environment', scoring_max: 100 },
+            } as unknown as OfficialWithCardData['ratings'][number],
+          ],
+        }),
+      ],
       isLoading: false,
       error: null,
     })
-    useScorecardsMock.mockReturnValue({
-      data: [
-        {
-          id: 'r1',
-          scorecard_id: 's1',
-          official_id: 'oid-pelosi',
-          congress: '119',
-          score: 95,
-          source_url: 'https://example.org',
-          ingested_at: '2026-01-01',
-          org: { issue_area: 'environment', scoring_max: 100 },
-        },
-      ],
-    })
-    useMetricsMock.mockReturnValue({ data: null })
     const onSelect = vi.fn()
     const { getByRole } = wrap(
       <OfficialsCard onSelect={onSelect} onSeeAll={vi.fn()} onCalibrate={vi.fn()} />,
@@ -197,8 +185,6 @@ describe('OfficialsCard — smart-anchor (row link)', () => {
       isLoading: false,
       error: null,
     })
-    useScorecardsMock.mockReturnValue({ data: [] })
-    useMetricsMock.mockReturnValue({ data: null })
     const { container } = wrap(
       <OfficialsCard
         onSelect={vi.fn()}
@@ -217,8 +203,6 @@ describe('OfficialsCard — smart-anchor (row link)', () => {
       isLoading: false,
       error: null,
     })
-    useScorecardsMock.mockReturnValue({ data: [] })
-    useMetricsMock.mockReturnValue({ data: null })
     const onSelect = vi.fn()
     const { container } = wrap(
       <OfficialsCard
@@ -241,8 +225,6 @@ describe('OfficialsCard — smart-anchor (row link)', () => {
       isLoading: false,
       error: null,
     })
-    useScorecardsMock.mockReturnValue({ data: [] })
-    useMetricsMock.mockReturnValue({ data: null })
     const onSelect = vi.fn()
     const { container } = wrap(
       <OfficialsCard
@@ -267,8 +249,6 @@ describe('OfficialsCard — smart-anchor (See all + calibrate links)', () => {
       isLoading: false,
       error: null,
     })
-    useScorecardsMock.mockReturnValue({ data: [] })
-    useMetricsMock.mockReturnValue({ data: null })
     const { container } = wrap(
       <OfficialsCard
         onSelect={vi.fn()}
@@ -287,8 +267,6 @@ describe('OfficialsCard — smart-anchor (See all + calibrate links)', () => {
       isLoading: false,
       error: null,
     })
-    useScorecardsMock.mockReturnValue({ data: [] })
-    useMetricsMock.mockReturnValue({ data: null })
     const onSeeAll = vi.fn()
     const { container } = wrap(
       <OfficialsCard
@@ -311,8 +289,6 @@ describe('OfficialsCard — smart-anchor (See all + calibrate links)', () => {
       isLoading: false,
       error: null,
     })
-    useScorecardsMock.mockReturnValue({ data: [] })
-    useMetricsMock.mockReturnValue({ data: null })
     const onSeeAll = vi.fn()
     const { container } = wrap(
       <OfficialsCard
@@ -336,8 +312,6 @@ describe('OfficialsCard — smart-anchor (See all + calibrate links)', () => {
 
   it('renders calibrate prompt as real <a href> on web when calibrateHref provided', () => {
     useMyOfficialsMock.mockReturnValue({ data: [], isLoading: false, error: null })
-    useScorecardsMock.mockReturnValue({ data: [] })
-    useMetricsMock.mockReturnValue({ data: null })
     const { container } = wrap(
       <OfficialsCard
         onSelect={vi.fn()}
@@ -366,8 +340,6 @@ function wrapWithMode(ui: ReactElement, mode: 'light' | 'dark') {
 describe('OfficialsCard — mode awareness', () => {
   it('renders under both light and dark wrappers without throwing', () => {
     useMyOfficialsMock.mockReturnValue({ data: [], isLoading: false, error: null })
-    useScorecardsMock.mockReturnValue({ data: [] })
-    useMetricsMock.mockReturnValue({ data: null })
     expect(() =>
       wrapWithMode(
         <OfficialsCard onSelect={vi.fn()} onSeeAll={vi.fn()} onCalibrate={vi.fn()} />,

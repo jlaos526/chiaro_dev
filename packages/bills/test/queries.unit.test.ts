@@ -8,8 +8,8 @@ import {
 
 // Minimal mock of the PostgREST query-builder chain. Every chainable method
 // returns `this`; awaiting the builder resolves to the configured result.
-// `firstResult` answers the FIRST awaited sub-query in each fetcher; any
-// later `from(...)` call resolves to `{ data: [], error: null }`.
+// `firstResult` answers the FIRST awaited query in each fetcher; any later
+// `from(...)` call resolves to `{ data: [], error: null }`.
 function mockClient(firstResult: { data: unknown; error: unknown }): ChiaroClient {
   let callIndex = 0
   function makeBuilder(result: { data: unknown; error: unknown }) {
@@ -19,6 +19,7 @@ function mockClient(firstResult: { data: unknown; error: unknown }): ChiaroClien
     builder.eq = chain
     builder.in = chain
     builder.order = chain
+    builder.returns = chain
     // Thenable: `await builder` yields `result`.
     builder.then = (resolve: (v: unknown) => unknown) => resolve(result)
     return builder
@@ -34,14 +35,14 @@ function mockClient(firstResult: { data: unknown; error: unknown }): ChiaroClien
 
 const FIRST_ERROR = { data: null, error: { message: 'boom' } }
 
-describe('B7: first sub-query errors propagate (no swallow)', () => {
-  it('fetchOfficialSponsoredBills throws when bill_sponsors lookup errors', async () => {
+describe('B7: query errors propagate (no swallow)', () => {
+  it('fetchOfficialSponsoredBills throws when the bills query errors', async () => {
     await expect(
       fetchOfficialSponsoredBills(mockClient(FIRST_ERROR), 'off1', '119'),
     ).rejects.toMatchObject({ message: 'boom' })
   })
 
-  it('fetchOfficialCosponsoredBills throws when bill_sponsors lookup errors', async () => {
+  it('fetchOfficialCosponsoredBills throws when the bills query errors', async () => {
     await expect(
       fetchOfficialCosponsoredBills(mockClient(FIRST_ERROR), 'off1', '119'),
     ).rejects.toMatchObject({ message: 'boom' })

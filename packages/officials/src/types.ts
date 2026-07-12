@@ -51,6 +51,26 @@ export interface OfficialWithDistrict extends OfficialRow {
   }
 }
 
+/**
+ * Slice 79 (audit C22): the home-card row data rides as embeds on
+ * fetchMyOfficials so OfficialsCard's rows don't fire 2 hooks each
+ * (2 + 2N requests → 2). `metrics` is a one-to-one embed
+ * (official_metrics PK = official_id) so PostgREST returns object-or-null;
+ * `ratings` matches the derivations.ts `Rating` shape consumed by
+ * selectTopAlignmentChips.
+ */
+export interface OfficialWithCardData extends OfficialWithDistrict {
+  metrics: Pick<
+    Database['public']['Tables']['official_metrics']['Row'],
+    'salary_role' | 'tenure_years'
+  > | null
+  ratings: Array<
+    Database['public']['Tables']['scorecard_ratings']['Row'] & {
+      org: Pick<Database['public']['Tables']['scorecard_orgs']['Row'], 'issue_area' | 'scoring_max'>
+    }
+  >
+}
+
 export function isStateLevel(chamber: OfficialChamber): boolean {
   return chamber === 'state_house' || chamber === 'state_senate' || chamber === 'state_legislature'
 }

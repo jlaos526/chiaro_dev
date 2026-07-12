@@ -94,14 +94,18 @@ function compareByChamber(orderMap: Record<string, number>) {
     (orderMap[a.chamber] ?? 99) - (orderMap[b.chamber] ?? 99)
 }
 
-export interface OfficialsByLevel {
-  federal: OfficialWithDistrict[]
-  state: OfficialWithDistrict[]
+export interface OfficialsByLevel<T extends OfficialWithDistrict = OfficialWithDistrict> {
+  federal: T[]
+  state: T[]
 }
 
-export function groupOfficialsByLevel(officials: OfficialWithDistrict[]): OfficialsByLevel {
-  const federal: OfficialWithDistrict[] = []
-  const state: OfficialWithDistrict[] = []
+// Generic (slice 79): preserves richer input types — e.g. OfficialWithCardData
+// from fetchMyOfficials — through the grouping instead of widening to the base.
+export function groupOfficialsByLevel<T extends OfficialWithDistrict>(
+  officials: T[],
+): OfficialsByLevel<T> {
+  const federal: T[] = []
+  const state: T[] = []
   for (const o of officials) {
     if (isFederalLevel(o.chamber)) federal.push(o)
     else if (isStateLevel(o.chamber)) state.push(o)

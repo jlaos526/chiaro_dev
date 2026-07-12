@@ -12,7 +12,30 @@ import { BioHeaderClient } from './BioHeaderClient'
 import { RepAlignmentSectionClient } from './RepAlignmentSectionClient'
 import { firstElectedYear as deriveFirstElectedYear } from '@/lib/derivations/service-record'
 import { selectTopAlignmentChips } from '@/lib/derivations/alignment'
-import { CURRENT_CONGRESS, CURRENT_CYCLE, isStateLevel, STATE_NAMES } from '@chiaro/officials'
+import { HydrationBoundary, QueryClient, dehydrate } from '@tanstack/react-query'
+import {
+  CURRENT_CONGRESS,
+  CURRENT_CYCLE,
+  isStateLevel,
+  STATE_NAMES,
+  officialsKeys,
+  fetchOfficialMetrics,
+  fetchOfficialScorecardRatings,
+  fetchOfficialLeadershipHistory,
+  fetchOfficialFinance,
+  fetchOfficialTownHalls,
+  fetchOfficialDistrictOffices,
+  fetchOfficialStockTransactions,
+  fetchOfficialHoldings,
+  fetchOfficialDisclosureOther,
+} from '@chiaro/officials'
+import {
+  billsKeys,
+  votesKeys,
+  fetchOfficialSponsoredBillsCount,
+  fetchOfficialCosponsoredBillsCount,
+  fetchOfficialMissedVotesCount,
+} from '@chiaro/bills'
 import type { Database } from '@chiaro/db'
 
 interface Params {
@@ -91,27 +114,79 @@ export default async function OfficialPage({
   // Cross-route guard: state IDs land on /state-officials/[id]
   if (isStateLevel(official.chamber)) redirect(`/state-officials/${id}`)
 
-  // Parallel fetch: district code + leadership history + scorecard ratings.
-  const [districtRes, leadershipRes, scorecardsRes] = await Promise.all([
+  // Slice 79 (audit C4): per-request QueryClient — every query the 6 cards
+  // fire unconditionally on mount is prefetched HERE (server sits next to
+  // Supabase) and dehydrated, so the client hooks hydrate instantly instead
+  // of firing ~11 PostgREST round-trips after the bundle loads. Same key
+  // factories + fetchers as the hooks — the contract that keeps them in sync.
+  // Leadership + scorecards use fetchQuery because the bio composition below
+  // needs the data too (audit C18c: the old page hand-fetched them AND the
+  // cards re-fetched identical data client-side); `.catch(() => [])`
+  // preserves the old error-tolerance (empty section, not a 500). The
+  // S75-gated full-row bill/vote queries and the per-user issue RPCs are
+  // deliberately NOT prefetched (spec D1).
+  const qc = new QueryClient()
+  const [districtRes, leadershipRows, scorecards] = await Promise.all([
     supabase
       .from('districts')
       .select('code')
       .eq('id', official.district_id)
       .single<Pick<DistrictRow, 'code'>>(),
-    supabase
-      .from('officials_leadership_history')
-      .select('*')
-      .eq('official_id', id)
-      .order('start_date', { ascending: false }),
-    supabase
-      .from('scorecard_ratings')
-      .select('*, org:scorecard_orgs(issue_area, scoring_max)')
-      .eq('official_id', id),
+    qc
+      .fetchQuery({
+        queryKey: officialsKeys.leadershipHistory(id),
+        queryFn: () => fetchOfficialLeadershipHistory(supabase, id),
+      })
+      .catch(() => [] as LeadershipRow[]),
+    qc
+      .fetchQuery({
+        queryKey: officialsKeys.scorecards(id),
+        queryFn: () => fetchOfficialScorecardRatings(supabase, id),
+      })
+      .catch(() => []),
+    qc.prefetchQuery({
+      queryKey: officialsKeys.metrics(id),
+      queryFn: () => fetchOfficialMetrics(supabase, id),
+    }),
+    qc.prefetchQuery({
+      queryKey: officialsKeys.finance(id, CURRENT_CYCLE),
+      queryFn: () => fetchOfficialFinance(supabase, id, CURRENT_CYCLE),
+    }),
+    qc.prefetchQuery({
+      queryKey: officialsKeys.townHalls(id, CURRENT_CONGRESS),
+      queryFn: () => fetchOfficialTownHalls(supabase, id, CURRENT_CONGRESS),
+    }),
+    qc.prefetchQuery({
+      queryKey: officialsKeys.districtOffices(id),
+      queryFn: () => fetchOfficialDistrictOffices(supabase, id),
+    }),
+    qc.prefetchQuery({
+      queryKey: officialsKeys.stockTransactions(id),
+      queryFn: () => fetchOfficialStockTransactions(supabase, id),
+    }),
+    qc.prefetchQuery({
+      queryKey: officialsKeys.holdings(id),
+      queryFn: () => fetchOfficialHoldings(supabase, id),
+    }),
+    qc.prefetchQuery({
+      queryKey: officialsKeys.disclosureOther(id),
+      queryFn: () => fetchOfficialDisclosureOther(supabase, id),
+    }),
+    qc.prefetchQuery({
+      queryKey: billsKeys.officialSponsoredCount(id, CURRENT_CONGRESS),
+      queryFn: () => fetchOfficialSponsoredBillsCount(supabase, id, CURRENT_CONGRESS),
+    }),
+    qc.prefetchQuery({
+      queryKey: billsKeys.officialCosponsoredCount(id, CURRENT_CONGRESS),
+      queryFn: () => fetchOfficialCosponsoredBillsCount(supabase, id, CURRENT_CONGRESS),
+    }),
+    qc.prefetchQuery({
+      queryKey: votesKeys.officialMissedCount(id, CURRENT_CONGRESS),
+      queryFn: () => fetchOfficialMissedVotesCount(supabase, id, CURRENT_CONGRESS),
+    }),
   ])
 
   const district = districtRes.data
-  const leadershipRows: LeadershipRow[] = (leadershipRes.data ?? []) as LeadershipRow[]
-  const scorecards = scorecardsRes.data ?? []
   const chips = selectTopAlignmentChips(scorecards as Parameters<typeof selectTopAlignmentChips>[0])
   const currentRole =
     leadershipRows.find((r) => r.end_date == null)?.role ??
@@ -126,24 +201,26 @@ export default async function OfficialPage({
   })
 
   return (
-    <main>
-      <BioHeaderClient officialId={official.id} {...bioProps} chips={chips} />
-      {/* Personalized rep alignment strip (slice 52) */}
-      <div style={{ marginBottom: 12 }}>
-        <RepAlignmentSectionClient officialId={official.id} repName={official.full_name} />
-      </div>
-      {/* Federal officials redesign (slice 6) — 6 cards in vertical cascade */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <FederalServiceRecordCard
-          officialId={id}
-          {...(official.chamber === 'federal_senate' ? { hideLivesInDistrict: true } : {})}
-        />
-        <FederalCommunityPresenceCard officialId={id} congress={CURRENT_CONGRESS} />
-        <FederalFinanceCard officialId={id} cycle={CURRENT_CYCLE} />
-        <FederalIssuePositionsCard officialId={id} />
-        <FederalEthicsAccountabilityCard officialId={id} />
-        <FederalVotingBillsCard officialId={id} congress={CURRENT_CONGRESS} />
-      </div>
-    </main>
+    <HydrationBoundary state={dehydrate(qc)}>
+      <main>
+        <BioHeaderClient officialId={official.id} {...bioProps} chips={chips} />
+        {/* Personalized rep alignment strip (slice 52) */}
+        <div style={{ marginBottom: 12 }}>
+          <RepAlignmentSectionClient officialId={official.id} repName={official.full_name} />
+        </div>
+        {/* Federal officials redesign (slice 6) — 6 cards in vertical cascade */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <FederalServiceRecordCard
+            officialId={id}
+            {...(official.chamber === 'federal_senate' ? { hideLivesInDistrict: true } : {})}
+          />
+          <FederalCommunityPresenceCard officialId={id} congress={CURRENT_CONGRESS} />
+          <FederalFinanceCard officialId={id} cycle={CURRENT_CYCLE} />
+          <FederalIssuePositionsCard officialId={id} />
+          <FederalEthicsAccountabilityCard officialId={id} />
+          <FederalVotingBillsCard officialId={id} congress={CURRENT_CONGRESS} />
+        </div>
+      </main>
+    </HydrationBoundary>
   )
 }

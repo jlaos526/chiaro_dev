@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react'
+import { fireEvent, render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { Linking } from 'react-native'
 import { SmartAnchor } from '../../src/primitives/SmartAnchor.tsx'
@@ -105,5 +105,31 @@ describe('SmartAnchor', () => {
     const event = new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 })
     a.dispatchEvent(event)
     expect(spy).toHaveBeenCalledWith('https://example.com')
+  })
+
+  it('fires onPrefetch on mouseenter and focus (slice 79 C7)', () => {
+    const onPrefetch = vi.fn()
+    const { container } = render(
+      <SmartAnchor href="/issues" onPress={vi.fn()} onPrefetch={onPrefetch}>
+        CTA
+      </SmartAnchor>,
+    )
+    const a = container.querySelector('a') as HTMLAnchorElement
+    fireEvent.mouseEnter(a)
+    expect(onPrefetch).toHaveBeenCalledTimes(1)
+    fireEvent.focus(a)
+    expect(onPrefetch).toHaveBeenCalledTimes(2)
+  })
+
+  it('onPrefetch never fires onPress and hover is inert without it', () => {
+    const onPress = vi.fn()
+    const { container } = render(
+      <SmartAnchor href="/issues" onPress={onPress}>
+        CTA
+      </SmartAnchor>,
+    )
+    const a = container.querySelector('a') as HTMLAnchorElement
+    expect(() => fireEvent.mouseEnter(a)).not.toThrow()
+    expect(onPress).not.toHaveBeenCalled()
   })
 })

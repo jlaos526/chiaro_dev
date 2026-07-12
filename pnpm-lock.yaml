@@ -385,6 +385,9 @@ importers:
         specifier: ^3.23.0
         version: 3.25.76
     devDependencies:
+      '@supabase/supabase-js':
+        specifier: ^2.105.0
+        version: 2.105.3
       '@tanstack/react-query':
         specifier: ^5.59.0
         version: 5.100.10(react@19.1.0)
@@ -7654,7 +7657,7 @@ snapshots:
       wrap-ansi: 7.0.0
       ws: 8.20.0
     optionalDependencies:
-      expo-router: 6.0.23(ln4f72wuw34bueassjj7csmnki)
+      expo-router: 6.0.23(t5lwiwdtgycyzos5jscl2qlk4y)
       react-native: 0.81.5(@babel/core@7.29.0)(@react-native/metro-config@0.85.3(@babel/core@7.29.0))(@types/react@19.1.17)(react@19.1.0)
     transitivePeerDependencies:
       - bufferutil

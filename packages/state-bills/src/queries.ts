@@ -18,57 +18,46 @@ type StateBillJoinRow = StateBillRow & {
   subjects: { subject: string }[]
 }
 
+/**
+ * Slice 79 (audit C18): one request anchored on state_bills — the filtered
+ * `me` `!inner` embed constrains parent rows server-side, replacing the
+ * 2-step id-list waterfall whose bill_id set re-crossed the wire in a GET
+ * `.in()`. The bill's FULL sponsor list still rides on the separate
+ * unfiltered `sponsors` alias (the S75 dual-alias pattern from
+ * fetchOfficialStateVotesOnSubject: one alias filters, the other carries row
+ * data). `me` is stripped before normalizeBill so the return shape is
+ * unchanged.
+ */
+async function fetchOfficialStateBillsByRole(
+  client: ChiaroClient,
+  officialId: string,
+  role: 'sponsor' | 'cosponsor',
+): Promise<StateBillWithSponsors[]> {
+  const { data, error } = await client
+    .from('state_bills')
+    .select(`${SELECT_BILL_WITH_SPONSORS}, me:state_bill_sponsors!inner(role)`)
+    .eq('me.official_id', officialId)
+    .eq('me.role', role)
+    .order('latest_action_date', { ascending: false })
+    .returns<Array<StateBillJoinRow & { me: unknown }>>()
+  if (error) throw error
+  return (data ?? []).map(({ me: _me, ...row }) =>
+    normalizeBill(row as StateBillJoinRow),
+  ) as StateBillWithSponsors[]
+}
+
 export async function fetchOfficialSponsoredStateBills(
   client: ChiaroClient,
   officialId: string,
 ): Promise<StateBillWithSponsors[]> {
-  // Two-step: find sponsor bill_ids, then fetch bills with joined sponsors+subjects.
-  const { data: bsRows, error: bsErr } = await client
-    .from('state_bill_sponsors')
-    .select('bill_id')
-    .eq('official_id', officialId)
-    .eq('role', 'sponsor')
-  if (bsErr) throw bsErr
-  if (!bsRows || bsRows.length === 0) return []
-
-  const { data, error } = await client
-    .from('state_bills')
-    .select(SELECT_BILL_WITH_SPONSORS)
-    .in(
-      'id',
-      bsRows.map((r) => r.bill_id),
-    )
-    .order('latest_action_date', { ascending: false })
-  if (error) throw error
-  return (data ?? []).map((row) =>
-    normalizeBill(row as StateBillJoinRow),
-  ) as StateBillWithSponsors[]
+  return fetchOfficialStateBillsByRole(client, officialId, 'sponsor')
 }
 
 export async function fetchOfficialCosponsoredStateBills(
   client: ChiaroClient,
   officialId: string,
 ): Promise<StateBillWithSponsors[]> {
-  const { data: bsRows, error: bsErr } = await client
-    .from('state_bill_sponsors')
-    .select('bill_id')
-    .eq('official_id', officialId)
-    .eq('role', 'cosponsor')
-  if (bsErr) throw bsErr
-  if (!bsRows || bsRows.length === 0) return []
-
-  const { data, error } = await client
-    .from('state_bills')
-    .select(SELECT_BILL_WITH_SPONSORS)
-    .in(
-      'id',
-      bsRows.map((r) => r.bill_id),
-    )
-    .order('latest_action_date', { ascending: false })
-  if (error) throw error
-  return (data ?? []).map((row) =>
-    normalizeBill(row as StateBillJoinRow),
-  ) as StateBillWithSponsors[]
+  return fetchOfficialStateBillsByRole(client, officialId, 'cosponsor')
 }
 
 /**

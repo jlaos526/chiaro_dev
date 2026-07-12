@@ -1,7 +1,11 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@chiaro/db'
-import { fetchOfficialSponsoredBills, fetchOfficialMissedVotes } from '../src/queries.ts'
+import {
+  fetchOfficialSponsoredBills,
+  fetchOfficialCosponsoredBills,
+  fetchOfficialMissedVotes,
+} from '../src/queries.ts'
 
 const URL = 'http://127.0.0.1:54321'
 const ANON = process.env.SUPABASE_ANON_KEY!
@@ -151,6 +155,17 @@ describeLive('fetchOfficialSponsoredBills', () => {
   it('returns only sponsored (not cosponsored)', async () => {
     const bills = await fetchOfficialSponsoredBills(anon, officialId, '119')
     expect(bills.map((b) => b.id)).toEqual([billA])
+    // Slice 79 (audit C18): the filtering `sponsors` embed is stripped before
+    // return — BillRow shape unchanged for consumers.
+    expect(bills[0] && 'sponsors' in bills[0]).toBe(false)
+  })
+})
+
+describeLive('fetchOfficialCosponsoredBills — slice 79 single-request inversion', () => {
+  it('returns only cosponsored, role isolation via the !inner embed filter', async () => {
+    const bills = await fetchOfficialCosponsoredBills(anon, officialId, '119')
+    expect(bills.map((b) => b.id)).toEqual([billB])
+    expect(bills[0] && 'sponsors' in bills[0]).toBe(false)
   })
 })
 

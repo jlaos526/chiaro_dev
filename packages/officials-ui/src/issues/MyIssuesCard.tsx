@@ -24,6 +24,11 @@ export interface MyIssuesCardProps {
    * Native (or web without it): the plain `<BrandButton onPress={onEdit}>`.
    */
   editHref?: string
+  /**
+   * Slice 79 (audit C7): hover/focus route prefetch for the edit CTA — web
+   * wrappers pass `() => router.prefetch(editHref)`. Web-only; native ignores.
+   */
+  onEditPrefetch?: () => void
 }
 
 /** Resolve a lens's type from the catalog ('stance' | 'watchlist' | undefined). */
@@ -89,6 +94,7 @@ export function MyIssuesCard({
   catalog,
   onEdit,
   editHref,
+  onEditPrefetch,
 }: MyIssuesCardProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
 
@@ -102,6 +108,7 @@ export function MyIssuesCard({
         <SmartAnchor
           href={editHref}
           onPress={onEdit}
+          {...(onEditPrefetch ? { onPrefetch: onEditPrefetch } : {})}
           accessibilityLabel={label}
           style={{ display: 'inline-block', cursor: 'pointer' }}
         >

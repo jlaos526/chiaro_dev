@@ -1,27 +1,38 @@
 import type { ChiaroClient } from '@chiaro/supabase-client'
 import type { BillRow, VoteRow, VotePositionEnum } from './types.ts'
 
+/**
+ * Slice 79 (audit C18): one request anchored on bills — the filtered `!inner`
+ * sponsors embed constrains parent rows server-side, replacing the 2-step
+ * id-list waterfall whose bill_id set re-crossed the wire in a GET `.in()`
+ * (latent URL-length failure for prolific sponsors). Server-side ORDER BY on
+ * the parent's own introduced_date is preserved. The embed itself is stripped
+ * before return so the BillRow[] shape is unchanged.
+ */
+async function fetchOfficialBillsByRole(
+  client: ChiaroClient,
+  officialId: string,
+  congress: string,
+  role: 'sponsor' | 'cosponsor',
+): Promise<BillRow[]> {
+  const { data, error } = await client
+    .from('bills')
+    .select('*, sponsors:bill_sponsors!inner(role)')
+    .eq('sponsors.official_id', officialId)
+    .eq('sponsors.role', role)
+    .eq('congress', congress)
+    .order('introduced_date', { ascending: false })
+    .returns<Array<BillRow & { sponsors: unknown }>>()
+  if (error) throw error
+  return (data ?? []).map(({ sponsors: _sponsors, ...bill }) => bill as BillRow)
+}
+
 export async function fetchOfficialSponsoredBills(
   client: ChiaroClient,
   officialId: string,
   congress: string,
 ): Promise<BillRow[]> {
-  const { data: ids, error: idsErr } = await client
-    .from('bill_sponsors')
-    .select('bill_id')
-    .eq('official_id', officialId)
-    .eq('role', 'sponsor')
-  if (idsErr) throw idsErr
-  const billIds = (ids ?? []).map((r: { bill_id: string }) => r.bill_id)
-  if (billIds.length === 0) return []
-  const { data, error } = await client
-    .from('bills')
-    .select('*')
-    .in('id', billIds)
-    .eq('congress', congress)
-    .order('introduced_date', { ascending: false })
-  if (error) throw error
-  return (data ?? []) as BillRow[]
+  return fetchOfficialBillsByRole(client, officialId, congress, 'sponsor')
 }
 
 export async function fetchOfficialCosponsoredBills(
@@ -29,22 +40,7 @@ export async function fetchOfficialCosponsoredBills(
   officialId: string,
   congress: string,
 ): Promise<BillRow[]> {
-  const { data: ids, error: idsErr } = await client
-    .from('bill_sponsors')
-    .select('bill_id')
-    .eq('official_id', officialId)
-    .eq('role', 'cosponsor')
-  if (idsErr) throw idsErr
-  const billIds = (ids ?? []).map((r: { bill_id: string }) => r.bill_id)
-  if (billIds.length === 0) return []
-  const { data, error } = await client
-    .from('bills')
-    .select('*')
-    .in('id', billIds)
-    .eq('congress', congress)
-    .order('introduced_date', { ascending: false })
-  if (error) throw error
-  return (data ?? []) as BillRow[]
+  return fetchOfficialBillsByRole(client, officialId, congress, 'cosponsor')
 }
 
 /**

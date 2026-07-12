@@ -4,8 +4,10 @@ import type { Database } from '@chiaro/db'
 import {
   fetchMyOfficials,
   fetchOfficial,
+  fetchOfficialFinance,
   fetchOfficialHoldings,
   fetchOfficialDisclosureOther,
+  fetchOfficialStateDonors,
 } from '../src/queries.ts'
 
 const URL = process.env.SUPABASE_URL ?? 'http://127.0.0.1:54321'
@@ -33,6 +35,7 @@ let districtHouseCA12: string
 let districtStateHouseCA: string
 let stateAsmId: string
 let stateFinanceSummaryId: string
+let pelosiMetricsOfficialId: string
 
 beforeAll(async () => {
   if (!live) return
@@ -60,6 +63,30 @@ beforeAll(async () => {
   // RESTRICT — must drop these rows by source='integ' before officials.
   await svc.from('federal_holdings').delete().eq('source', 'integ')
   await svc.from('federal_disclosure_other').delete().eq('source', 'integ')
+  // finance_summaries FKs officials with ON DELETE RESTRICT too — sweep the
+  // slice-79 finance-embed block's leftovers (keyed by test opensecrets_id)
+  // before the officials delete below can succeed.
+  await svc.from('finance_summaries').delete().eq('opensecrets_id', 'S79INTEG')
+  // scorecard_ratings FKs officials with RESTRICT; deleting the test org
+  // CASCADEs its ratings, clearing the path for the officials delete.
+  await svc.from('scorecard_orgs').delete().eq('slug', 's79-integ-org')
+  // official_metrics.official_id is RESTRICT (migration 0026, NOT the 0022
+  // cascade) — the slice-79 metrics seed must be swept before officials, or
+  // the delete below silently no-ops and the districts sweep fails in turn
+  // (leftover federal_senate:CA breaks the NEXT run's district insert).
+  const leftoverIds = await svc
+    .from('officials')
+    .select('id')
+    .in('bioguide_id', ['P000197', 'F000062', 'P000145'])
+  if (leftoverIds.data && leftoverIds.data.length > 0) {
+    await svc
+      .from('official_metrics')
+      .delete()
+      .in(
+        'official_id',
+        leftoverIds.data.map((o) => o.id),
+      )
+  }
   await svc.from('officials').delete().in('bioguide_id', ['P000197', 'F000062', 'P000145'])
   // Same defensive pre-clean for the state official keyed by openstates_person_id.
   await svc
@@ -178,6 +205,43 @@ beforeAll(async () => {
     .eq('openstates_person_id', 'ocd-person/00000000-0000-0000-0000-000000000001-int')
     .single()
   stateAsmId = stateAsmRow.data!.id
+
+  // Slice 79 (audit C22): a metrics row + one scorecard rating for Pelosi so
+  // the fetchMyOfficials card-data embeds return real rows.
+  const pelosiSeedRow = await svc
+    .from('officials')
+    .select('id')
+    .eq('bioguide_id', 'P000197')
+    .single()
+  const pelosiSeedId = pelosiSeedRow.data!.id
+  pelosiMetricsOfficialId = pelosiSeedId
+  const { error: omErr } = await svc.from('official_metrics').insert({
+    official_id: pelosiSeedId,
+    congress: '119',
+    salary_role: 'Speaker of the House',
+    tenure_years: 37,
+  })
+  expect(omErr).toBeNull()
+  const { data: s79Org, error: orgErr } = await svc
+    .from('scorecard_orgs')
+    .insert({
+      slug: 's79-integ-org',
+      name: 'S79 Integ Org',
+      issue_area: 'environment',
+      methodology_url: 'https://x',
+      scoring_max: 100,
+    })
+    .select('id')
+    .single()
+  expect(orgErr).toBeNull()
+  const { error: srErr } = await svc.from('scorecard_ratings').insert({
+    scorecard_id: s79Org!.id,
+    official_id: pelosiSeedId,
+    congress: '119',
+    score: 95,
+    source_url: 'https://x',
+  })
+  expect(srErr).toBeNull()
 
   // Seed 1 state_bill + sponsorship + 1 state_vote + position so the slice-5D
   // state-bills queries return real rows for this official.
@@ -319,6 +383,13 @@ afterAll(async () => {
   // FK RESTRICT — must precede officials delete (slice 26).
   await svc.from('federal_holdings').delete().eq('source', 'integ')
   await svc.from('federal_disclosure_other').delete().eq('source', 'integ')
+  // Slice 79: org delete CASCADEs its ratings (which RESTRICT officials); the
+  // metrics row is RESTRICT too (migration 0026) — both must go first or the
+  // officials delete silently no-ops and the districts FX sweep fails after it.
+  await svc.from('scorecard_orgs').delete().eq('slug', 's79-integ-org')
+  if (pelosiMetricsOfficialId) {
+    await svc.from('official_metrics').delete().eq('official_id', pelosiMetricsOfficialId)
+  }
   await svc.from('officials').delete().in('bioguide_id', ['P000197', 'F000062', 'P000145'])
   // State official keyed by openstates_person_id (no bioguide_id on state rows).
   await svc
@@ -372,6 +443,23 @@ describeLive('fetchMyOfficials', () => {
     const stateAsm = officials.find((o) => o.chamber === 'state_house')!
     expect(stateAsm.district_code).toBe('15')
     expect(stateAsm.title).toBe('Assemblymember')
+  })
+
+  it('embeds metrics + scorecard ratings per row (slice 79 C22 card data)', async () => {
+    const officials = await fetchMyOfficials(anon)
+    const pelosi = officials.find((o) => o.bioguide_id === 'P000197')!
+    expect(pelosi.metrics).toMatchObject({
+      salary_role: 'Speaker of the House',
+      tenure_years: 37,
+    })
+    expect(pelosi.ratings).toHaveLength(1)
+    expect(pelosi.ratings[0]!.org).toEqual({ issue_area: 'environment', scoring_max: 100 })
+    expect(pelosi.ratings[0]!.score).toBe(95)
+    // Officials without metric/rating rows carry null/empty embeds — the
+    // one-to-one metrics embed is object-or-null, never an array.
+    const padilla = officials.find((o) => o.bioguide_id === 'P000145')!
+    expect(padilla.metrics).toBeNull()
+    expect(padilla.ratings).toEqual([])
   })
 
   it('federal officials keep bioguide_id and have null openstates_person_id', async () => {
@@ -501,6 +589,7 @@ describeLive('state_scorecard_* RLS + fetchOfficialStateScorecardRatings', () =>
 describeLive('state_community_* RLS + 3 fetchers', () => {
   let officialIdLocal: string
   let hearingId: string
+  let oldHearingId: string
   let townHallId: string
   let officeId: string
   let unauth: SupabaseClient<Database>
@@ -568,16 +657,36 @@ describeLive('state_community_* RLS + 3 fetchers', () => {
     if (h.error) throw h.error
     hearingId = h.data!.id
 
-    await svc.from('state_committee_hearing_attendance').insert({
-      hearing_id: hearingId,
-      official_id: officialIdLocal,
-    })
+    // Second hearing in an OLDER session attended by the same official —
+    // proves the slice-79 one-request fetcher still returns only the
+    // most-recent session when no session arg is passed.
+    const hOld = await svc
+      .from('state_committee_hearings')
+      .insert({
+        openstates_committee_id: 'ocd-org/integ',
+        state: 'CA',
+        session: '20232024',
+        hearing_date: '2024-02-15',
+        source_url: 'https://x',
+      })
+      .select('id')
+      .single()
+    if (hOld.error) throw hOld.error
+    oldHearingId = hOld.data!.id
+
+    await svc.from('state_committee_hearing_attendance').insert([
+      { hearing_id: hearingId, official_id: officialIdLocal },
+      { hearing_id: oldHearingId, official_id: officialIdLocal },
+    ])
   })
 
   afterAll(async () => {
     if (!svc) return
-    await svc.from('state_committee_hearing_attendance').delete().eq('hearing_id', hearingId)
-    await svc.from('state_committee_hearings').delete().eq('id', hearingId)
+    await svc
+      .from('state_committee_hearing_attendance')
+      .delete()
+      .in('hearing_id', [hearingId, oldHearingId])
+    await svc.from('state_committee_hearings').delete().in('id', [hearingId, oldHearingId])
     await svc.from('state_district_offices').delete().eq('id', officeId)
     await svc.from('state_town_halls').delete().eq('id', townHallId)
   })
@@ -602,6 +711,23 @@ describeLive('state_community_* RLS + 3 fetchers', () => {
     expect(rows.length).toBeGreaterThanOrEqual(1)
     const found = rows.find((r) => r.id === hearingId)
     expect(found).toBeDefined()
+    // Slice 79: the attendance embed is stripped before return — row shape
+    // stays plain StateCommitteeHearingRow for consumers.
+    expect(found && 'attendance' in found).toBe(false)
+  })
+
+  it('fetchOfficialStateCommitteeHearings without session returns only the most-recent session', async () => {
+    const { fetchOfficialStateCommitteeHearings } = await import('../src/queries.ts')
+    const rows = await fetchOfficialStateCommitteeHearings(anon, officialIdLocal)
+    expect(rows.some((r) => r.id === hearingId)).toBe(true)
+    expect(rows.some((r) => r.id === oldHearingId)).toBe(false)
+    expect(rows.every((r) => r.session === '20252026')).toBe(true)
+  })
+
+  it('fetchOfficialStateCommitteeHearings with an explicit session returns that session', async () => {
+    const { fetchOfficialStateCommitteeHearings } = await import('../src/queries.ts')
+    const rows = await fetchOfficialStateCommitteeHearings(anon, officialIdLocal, '20232024')
+    expect(rows.map((r) => r.id)).toEqual([oldHearingId])
   })
 })
 
@@ -837,5 +963,94 @@ describeLive('fetchOfficialDisclosureOther — slice 26 federal_disclosure_other
     expect(integRows[0]!.external_id).toBe('do-2024-gift')
     expect(integRows[1]!.external_id).toBe('do-2024-travel')
     expect(integRows[2]!.external_id).toBe('do-2023-gift')
+  })
+})
+
+describeLive('fetchOfficialFinance — slice 79 single-request embed', () => {
+  let financeOfficialId: string
+  let summaryId: string
+
+  beforeAll(async () => {
+    // Self-healing: sweep leftovers from a prior crashed run before insert.
+    await svc.from('finance_summaries').delete().eq('opensecrets_id', 'S79INTEG')
+
+    const off = await svc.from('officials').select('id').eq('bioguide_id', 'P000197').single()
+    if (off.error) throw off.error
+    financeOfficialId = off.data!.id
+
+    const { data: s, error } = await svc
+      .from('finance_summaries')
+      .insert({
+        official_id: financeOfficialId,
+        // Test-only cycle — never collides with real ingests on the
+        // (official_id, cycle) unique constraint.
+        cycle: '2098',
+        total_raised: 1000000,
+        total_disbursed: 900000,
+        opensecrets_id: 'S79INTEG',
+        source_url: 'https://x',
+      })
+      .select('id')
+      .single()
+    if (error) throw error
+    summaryId = s!.id
+
+    // Children inserted in NON-final order so the assertions below prove the
+    // per-embed server-side ORDER BY (alias as referencedTable), not insert
+    // order accidentally matching.
+    const ins = await Promise.all([
+      svc.from('finance_industry_top').insert([
+        { finance_summary_id: summaryId, rank: 2, industry: 'Real Estate', amount: 40000 },
+        { finance_summary_id: summaryId, rank: 1, industry: 'Tech', amount: 90000 },
+      ]),
+      svc.from('finance_pac_contributions').insert([
+        { finance_summary_id: summaryId, pac_name: 'Small PAC', amount: 1000 },
+        { finance_summary_id: summaryId, pac_name: 'Big PAC', amount: 9000 },
+      ]),
+      svc.from('finance_individual_donors').insert([
+        { finance_summary_id: summaryId, rank: 2, donor_name: 'Donor Two', amount: 2000 },
+        { finance_summary_id: summaryId, rank: 1, donor_name: 'Donor One', amount: 3000 },
+      ]),
+      svc.from('finance_top_organizations').insert([
+        { finance_summary_id: summaryId, rank: 2, org_name: 'Org Two', amount: 5000 },
+        { finance_summary_id: summaryId, rank: 1, org_name: 'Org One', amount: 7000 },
+      ]),
+    ])
+    for (const r of ins) expect(r.error).toBeNull()
+  })
+
+  afterAll(async () => {
+    if (!svc || !summaryId) return
+    // Children CASCADE on summary delete.
+    await svc.from('finance_summaries').delete().eq('id', summaryId)
+  })
+
+  it('composes summary + 4 children from one request, each embed server-ordered', async () => {
+    const fin = await fetchOfficialFinance(anon, financeOfficialId, '2098')
+    expect(fin).not.toBeNull()
+    expect(fin!.summary.id).toBe(summaryId)
+    // The embed arrays must NOT leak into the summary row (shape unchanged
+    // for OfficialFinance consumers).
+    expect('industries' in fin!.summary).toBe(false)
+    expect(fin!.industries.map((i) => i.rank)).toEqual([1, 2])
+    expect(fin!.pacs.map((p) => p.pac_name)).toEqual(['Big PAC', 'Small PAC'])
+    expect(fin!.individualDonors.map((d) => d.rank)).toEqual([1, 2])
+    expect(fin!.topOrgs.map((o) => o.rank)).toEqual([1, 2])
+  })
+
+  it('returns null when no summary exists for the cycle', async () => {
+    expect(await fetchOfficialFinance(anon, financeOfficialId, '2097')).toBeNull()
+  })
+})
+
+describeLive('fetchOfficialStateDonors — slice 79 single-request embed', () => {
+  it('returns donors rank-ordered from the embedded most-recent summary', async () => {
+    const donors = await fetchOfficialStateDonors(anon, stateAsmId)
+    expect(donors.map((d) => d.donor_name)).toEqual(['IT Donor', 'OG Donor'])
+  })
+
+  it('returns [] for an official with no state finance summary', async () => {
+    const off = await svc.from('officials').select('id').eq('bioguide_id', 'P000197').single()
+    expect(await fetchOfficialStateDonors(anon, off.data!.id)).toEqual([])
   })
 })

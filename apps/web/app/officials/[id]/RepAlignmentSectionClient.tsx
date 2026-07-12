@@ -19,6 +19,7 @@ export function RepAlignmentSectionClient({
       {...(repName ? { repName } : {})}
       onSetup={() => router.push('/issues')}
       setupHref="/issues"
+      onSetupPrefetch={() => router.prefetch('/issues')}
     />
   )
 }
