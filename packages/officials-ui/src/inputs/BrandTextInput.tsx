@@ -14,10 +14,12 @@ export interface BrandTextInputProps {
   placeholder?: string
   error?: string
   disabled?: boolean
-  /** Web HTML autocomplete attribute (e.g. 'email', 'current-password',
-   *  'new-password'). Forwarded as-is to the underlying input on both
-   *  platforms (RN's autoComplete accepts the same web values). */
-  autoComplete?: string
+  /** Autocomplete hint forwarded to the underlying input on both platforms.
+   *  Slice 80 (S78 leftover): typed as the subset valid in BOTH RN
+   *  TextInput's literal union AND the web attribute — kills the last
+   *  `as never` in the package. Widen the union if a new consumer needs
+   *  another value (must exist in RN's TextInputProps['autoComplete']). */
+  autoComplete?: 'email' | 'current-password' | 'new-password' | 'username' | 'name' | 'off'
   /** Slice 51: HTML `required` attribute on web (triggers browser "please fill
    *  in" tooltip on unfocused-blank submit). Forwarded to RN TextInput on
    *  native via `aria-required` (ornamental — no native tooltip equivalent). */
@@ -203,10 +205,7 @@ export function BrandTextInput({
         secureTextEntry={type === 'password'}
         keyboardType={type === 'email' ? 'email-address' : 'default'}
         autoCapitalize={type === 'email' || type === 'password' ? 'none' : 'sentences'}
-        // RN's TextInput autoComplete is a literal-string union (no plain
-        // `string` overlap); the values we pass ('email', 'current-password',
-        // 'new-password') are all valid members so this cast is safe.
-        autoComplete={autoComplete as never}
+        autoComplete={autoComplete}
         editable={!disabled}
         style={[styles.input, { color: semantic.text.primary }]}
         accessibilityLabel={label}

@@ -1,20 +1,20 @@
 'use client'
 
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text } from 'react-native'
 import type { StateTownHallRow } from '@chiaro/officials'
 import { useBrandTokens } from '../brand-hooks.ts'
-
-const FORMAT_LABEL: Record<string, string> = {
-  in_person: 'In person',
-  virtual: 'Virtual',
-  phone: 'Phone',
-  hybrid: 'Hybrid',
-}
+import { EventRowList, FORMAT_LABEL } from '../cards/EventRowList.tsx'
 
 export interface StateTownHallsListProps {
   rows: StateTownHallRow[]
 }
 
+/**
+ * Thin wrapper over `EventRowList` (slice 80, audit C25) — the format map
+ * lives in the shared `FORMAT_LABEL` next to the generic; this list only
+ * owns its empty copy and the row-field mapping. The slice-57 B6 null
+ * `source_url` guard now lives in the generic's `urlOf` path.
+ */
 export function StateTownHallsList({ rows }: StateTownHallsListProps): React.JSX.Element {
   const { semantic } = useBrandTokens()
   if (rows.length === 0) {
@@ -25,35 +25,20 @@ export function StateTownHallsList({ rows }: StateTownHallsListProps): React.JSX
     )
   }
   return (
-    <View style={styles.list}>
-      {rows.map((r) => {
-        const url = r.source_url ?? null
-        const Row = url ? Pressable : View
-        return (
-          <Row
-            key={r.id}
-            {...(url ? { onPress: () => Linking.openURL(url).catch(() => {}) } : {})}
-            style={[styles.row, { backgroundColor: semantic.bg.elevated }]}
-          >
-            <Text style={[styles.title, { color: semantic.text.primary }]}>
-              {r.event_date}
-              {r.city ? ` · ${r.city}, ${r.state}` : ` · ${r.state}`}
-            </Text>
-            <Text style={[styles.meta, { color: semantic.text.muted }]}>
-              {r.format ? (FORMAT_LABEL[r.format] ?? r.format) : 'Format n/a'}
-              {r.attendance_estimate != null && ` · ~${r.attendance_estimate} attendees`}
-            </Text>
-          </Row>
-        )
-      })}
-    </View>
+    <EventRowList
+      rows={rows}
+      keyOf={(r) => r.id}
+      urlOf={(r) => r.source_url ?? null}
+      titleOf={(r) => `${r.event_date}${r.city ? ` · ${r.city}, ${r.state}` : ` · ${r.state}`}`}
+      metaOf={(r) => [
+        `${r.format ? (FORMAT_LABEL[r.format] ?? r.format) : 'Format n/a'}${
+          r.attendance_estimate != null ? ` · ~${r.attendance_estimate} attendees` : ''
+        }`,
+      ]}
+    />
   )
 }
 
 const styles = StyleSheet.create({
   muted: { fontSize: 13, fontStyle: 'italic', padding: 8 },
-  list: { gap: 6, padding: 8 },
-  row: { borderRadius: 6, padding: 8 },
-  title: { fontSize: 13, fontWeight: '500' },
-  meta: { fontSize: 12, marginTop: 2 },
 })

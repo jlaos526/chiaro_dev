@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text } from 'react-native'
 import { useOfficialStateEthicsComplaints, useOfficialStateOfficialEvents } from '@chiaro/officials'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
+import { DetailCardShell } from '../cards/DetailCardShell.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { StateEthicsComplaintsList } from './StateEthicsComplaintsList.tsx'
 import { StateOfficialEventsList } from './StateOfficialEventsList.tsx'
@@ -22,25 +23,6 @@ export function StateConductCard({ officialId }: StateConductCardProps): React.J
   const [openComplaints, setOpenComplaints] = useState(false)
   const [openEvents, setOpenEvents] = useState(false)
 
-  const cardStyle = [
-    styles.card,
-    { backgroundColor: semantic.bg.app, borderColor: semantic.border.default },
-  ]
-  const titleStyle = [styles.title, { color: semantic.text.primary }]
-  const mutedStyle = [styles.muted, { color: semantic.text.muted }]
-  const summaryStyle = [styles.summary, { color: semantic.text.muted }]
-
-  if (complaints.isLoading || events.isLoading) {
-    return (
-      <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
-          Conduct & Sanctions
-        </Text>
-        <Text style={mutedStyle}>Loading conduct records…</Text>
-      </View>
-    )
-  }
-
   // Header counts: per NULL-vs-0 convention — em-dash when unknown,
   // numeric (incl. 0) when known.
   const complaintCount = complaints.data?.length ?? null
@@ -48,25 +30,19 @@ export function StateConductCard({ officialId }: StateConductCardProps): React.J
   const eventCount = events.data?.length ?? null
   const allEmpty = (complaintCount ?? 0) === 0 && (eventCount ?? 0) === 0
 
-  if (allEmpty) {
-    return (
-      <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
-          Conduct & Sanctions
-        </Text>
-        <Text style={[mutedStyle, { fontStyle: 'italic' }]}>
-          No ethics complaints or conduct events on record for this legislator.
-        </Text>
-      </View>
-    )
-  }
-
   return (
-    <View style={cardStyle}>
-      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
-        Conduct & Sanctions
-      </Text>
-      <Text style={summaryStyle}>
+    <DetailCardShell
+      title="Conduct & Sanctions"
+      isLoading={complaints.isLoading || events.isLoading}
+      isError={complaints.isError || events.isError}
+      onRetry={() => {
+        void complaints.refetch()
+        void events.refetch()
+      }}
+      isEmpty={allEmpty}
+      emptyText="No ethics complaints or conduct events on record for this legislator."
+    >
+      <Text style={[styles.summary, { color: semantic.text.muted }]}>
         {complaintCount != null
           ? `${complaintCount} complaint${complaintCount === 1 ? '' : 's'} (${openCount} open)`
           : '—'}
@@ -89,18 +65,10 @@ export function StateConductCard({ officialId }: StateConductCardProps): React.J
       >
         <StateOfficialEventsList rows={events.data ?? []} />
       </CardSubsection>
-    </View>
+    </DetailCardShell>
   )
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  title: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
-  muted: { fontSize: 13 },
   summary: { fontSize: 13, marginBottom: 12 },
 })

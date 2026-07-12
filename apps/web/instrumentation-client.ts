@@ -1,3 +1,5 @@
+// Slice 80: migrated from sentry.client.config.ts — @sentry/nextjs 10
+// deprecates the old filename in favor of Next 15.3+'s instrumentation-client.
 import * as Sentry from '@sentry/nextjs'
 import { beforeSend, beforeBreadcrumb } from './sentry.scrub'
 
@@ -13,3 +15,7 @@ Sentry.init({
   beforeSend,
   beforeBreadcrumb,
 })
+
+// Required export with the instrumentation-client convention; with tracing
+// disabled (tracesSampleRate 0) it is a no-op hook.
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart

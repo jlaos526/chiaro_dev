@@ -6,14 +6,22 @@ import { readBrandModeCookie } from '@/lib/brand-mode-cookie'
 import { ClientBrandModeWiring } from '@/lib/brand-mode-client-wiring'
 
 // Brand font (slice 70, audit C6). next/font self-hosts the woff2 at build
-// time (no runtime Google request, size-adjusted fallback metrics ≈ zero
-// CLS) and exposes it via the --font-inter CSS variable — the contract
-// BRAND_TYPE_FAMILY_WEB and the officials-ui primitives consume. General
-// RNW <Text> (defaults to the System font) is the S80 remainder.
+// time (no runtime Google request) and exposes it via the --font-inter CSS
+// variable — the contract BRAND_TYPE_FAMILY_WEB and the officials-ui
+// primitives consume. General RNW <Text> (defaults to the System font) is
+// still deferred (S80 D5).
+// Slice 80 (Lighthouse baseline CLS 0.38 on /sign-in): 'swap' let raw HTML
+// elements (smart-anchor <a>s, BrandTextInput fields — they inherit the body
+// font) first-paint in the wider fallback, wrapping the auth top bar one
+// line taller; the Inter swap then shrank it and slid the whole 100vh
+// container up (~21px shift, puppeteer-measured 0.352). 'optional' never
+// re-lays-out: the font is self-hosted + preloaded so it virtually always
+// makes first paint; on a very slow load the metric-adjusted fallback
+// simply stays for that navigation.
 const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
-  display: 'swap',
+  display: 'optional',
   variable: '--font-inter',
 })
 

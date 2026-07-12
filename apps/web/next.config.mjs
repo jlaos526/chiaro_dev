@@ -76,7 +76,9 @@ export default withSentryConfig(nextConfig, {
   silent: !process.env.CI,
   widenClientFileUpload: true,
   hideSourceMaps: true,
-  disableLogger: true,
+  // Slice 80: `disableLogger` is deprecated in @sentry/nextjs 10 — same
+  // logger tree-shake now lives under webpack.treeshake (S70 follow-up).
+  webpack: { treeshake: { removeDebugLogging: true } },
   // Proxy browser events through this origin so ad-blockers (which blocklist
   // *.sentry.io) don't drop the error-only telemetry (audit C51). The
   // middleware matcher excludes /monitoring so beacons skip auth entirely.

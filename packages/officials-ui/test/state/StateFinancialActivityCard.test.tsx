@@ -36,7 +36,8 @@ describe('StateFinancialActivityCard', () => {
   it('renders loading', () => {
     useDisclosuresMock.mockReturnValue({ data: undefined, isLoading: true })
     const { getByText } = wrap(<StateFinancialActivityCard officialId="oid" />)
-    expect(getByText(/Loading financial disclosures/i)).toBeTruthy()
+    // Slice 80: DetailCardShell owns the loading branch with uniform copy.
+    expect(getByText('Loading…')).toBeTruthy()
   })
 
   it('renders empty when no disclosures', () => {

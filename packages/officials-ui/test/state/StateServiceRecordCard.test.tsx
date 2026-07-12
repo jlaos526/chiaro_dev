@@ -191,7 +191,8 @@ describe('StateServiceRecordCard', () => {
     useSponsoredMock.mockReturnValue({ data: undefined, isLoading: true })
     useVotesMock.mockReturnValue({ data: undefined, isLoading: true })
     const { getByText, queryByText } = wrap(<StateServiceRecordCard official={stateOfficial} />)
-    expect(getByText(/loading service record/i)).toBeTruthy()
+    // Slice 80: DetailCardShell owns the loading branch with uniform copy.
+    expect(getByText('Loading…')).toBeTruthy()
     expect(queryByText('Bills sponsored')).toBeNull()
   })
 })

@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react'
+import { fireEvent, render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { ReactElement } from 'react'
@@ -67,8 +67,33 @@ describe('StateFinanceCard', () => {
     useSummaryMock.mockReturnValue({ data: undefined, isLoading: true })
     useDonorsMock.mockReturnValue({ data: undefined, isLoading: true })
     const { getByText, queryByText } = wrap(<StateFinanceCard official={stateOfficial} />)
-    expect(getByText(/loading finance/i)).toBeTruthy()
+    // Slice 80: DetailCardShell owns the loading branch with uniform copy.
+    expect(getByText('Loading…')).toBeTruthy()
     expect(queryByText(/no state finance data yet/i)).toBeNull()
+  })
+
+  it('renders the error branch with Retry that refetches the hooks (U2)', () => {
+    const summaryRefetch = vi.fn()
+    const donorsRefetch = vi.fn()
+    useSummaryMock.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+      refetch: summaryRefetch,
+    })
+    useDonorsMock.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+      refetch: donorsRefetch,
+    })
+    const { getByText, queryByText } = wrap(<StateFinanceCard official={stateOfficial} />)
+    expect(getByText(/Couldn't load this section\./)).toBeTruthy()
+    // U2: error is DISTINCT from empty — the old empty copy must NOT render.
+    expect(queryByText(/No state finance data/i)).toBeNull()
+    fireEvent.click(getByText('Retry'))
+    expect(summaryRefetch).toHaveBeenCalledTimes(1)
+    expect(donorsRefetch).toHaveBeenCalledTimes(1)
   })
 
   it('renders summary + source pill', () => {

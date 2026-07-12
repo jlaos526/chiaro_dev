@@ -45,7 +45,8 @@ describe('StateCommunityPresenceCard', () => {
     useOfficesMock.mockReturnValue({ data: [], isLoading: false })
     useHearingsMock.mockReturnValue({ data: [], isLoading: false })
     const { getByText } = wrap(<StateCommunityPresenceCard officialId="oid" />)
-    expect(getByText(/Loading community presence/i)).toBeTruthy()
+    // Slice 80: DetailCardShell owns the loading branch with uniform copy.
+    expect(getByText('Loading…')).toBeTruthy()
   })
 
   it('renders empty state when no data across all three', () => {

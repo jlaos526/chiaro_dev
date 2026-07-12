@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import { isStateLevel, useOfficialMetrics, type OfficialWithDistrict } from '@chiaro/officials'
 import { useOfficialSponsoredStateBills, useOfficialStateVotes } from '@chiaro/state-bills'
 import { useBrandTokens } from '../brand-hooks.ts'
+import { DetailCardShell } from '../cards/DetailCardShell.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { StateBillsEvidence } from './StateBillsEvidence.tsx'
 import { StateVotesEvidence } from './StateVotesEvidence.tsx'
@@ -46,29 +47,6 @@ export function StateServiceRecordCard({
 
   if (!isStateLevel(official.chamber)) return null
 
-  if (metrics.isLoading || sponsored.isLoading || votes.isLoading) {
-    return (
-      <View
-        testID="state-service-record-card"
-        style={[
-          styles.card,
-          { backgroundColor: semantic.bg.app, borderColor: semantic.border.default },
-        ]}
-      >
-        <Text
-          style={[styles.title, { color: semantic.text.primary }]}
-          accessibilityRole="header"
-          accessibilityLevel={2}
-        >
-          Service Record
-        </Text>
-        <Text style={[styles.subtitle, { color: semantic.text.muted, marginTop: 8 }]}>
-          Loading service record…
-        </Text>
-      </View>
-    )
-  }
-
   const m = metrics.data
   const partyUnity = m?.party_unity_state == null ? 'Not yet computed' : `${m.party_unity_state}%`
   const attendance = m?.attendance_pct == null ? '—' : `${m.attendance_pct}%`
@@ -79,34 +57,33 @@ export function StateServiceRecordCard({
   const rowValueColor = { color: semantic.text.primary }
 
   return (
-    <View
+    <DetailCardShell
+      title="Service Record"
+      isLoading={metrics.isLoading || sponsored.isLoading || votes.isLoading}
+      isError={metrics.isError || sponsored.isError || votes.isError}
+      onRetry={() => {
+        void metrics.refetch()
+        void sponsored.refetch()
+        void votes.refetch()
+      }}
+      // This card has no empty branch by design: NULL metrics render as "—"
+      // (slice-57 B3) and the evidence headings render with (0) counts.
+      isEmpty={false}
+      emptyText=""
       testID="state-service-record-card"
-      style={[
-        styles.card,
-        { backgroundColor: semantic.bg.app, borderColor: semantic.border.default },
-      ]}
     >
-      <View style={{ marginBottom: 12 }}>
-        <Text
-          style={[styles.title, headingStyle]}
-          accessibilityRole="header"
-          accessibilityLevel={2}
-        >
-          Service Record
-        </Text>
-        <View
-          style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            gap: 6,
-            alignItems: 'baseline',
-            marginTop: 2,
-          }}
-        >
-          <Text style={subtitleStyle}>{chamberLabel(official.chamber)}</Text>
-          <Text style={subtitleStyle}>·</Text>
-          <Text style={subtitleStyle}>{official.party}</Text>
-        </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          gap: 6,
+          alignItems: 'baseline',
+          marginBottom: 12,
+        }}
+      >
+        <Text style={subtitleStyle}>{chamberLabel(official.chamber)}</Text>
+        <Text style={subtitleStyle}>·</Text>
+        <Text style={subtitleStyle}>{official.party}</Text>
       </View>
 
       <View style={{ gap: 8 }}>
@@ -217,7 +194,7 @@ export function StateServiceRecordCard({
         </Text>
         <StateVotesEvidence votes={votes.data ?? []} />
       </View>
-    </View>
+    </DetailCardShell>
   )
 }
 
@@ -247,15 +224,6 @@ function ScalarRow({
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-  },
-  title: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
   subtitle: {
     fontSize: 12,
   },

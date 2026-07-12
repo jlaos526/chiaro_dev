@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text } from 'react-native'
 import {
   useOfficialCosponsoredBills,
   useOfficialCosponsoredBillsCount,
@@ -13,6 +13,7 @@ import {
 import { useOfficialMetrics } from '@chiaro/officials'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
+import { DetailCardShell } from '../cards/DetailCardShell.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { FederalCosponsoredBillsList } from './FederalCosponsoredBillsList.tsx'
 import { FederalMissedVotesList } from './FederalMissedVotesList.tsx'
@@ -51,73 +52,38 @@ export function FederalVotingBillsCard({
   })
   const missed = useOfficialMissedVotes(client, officialId, congress, { enabled: openMissed })
 
-  if (
-    sponsoredCountQ.isLoading ||
-    cosponsoredCountQ.isLoading ||
-    missedCountQ.isLoading ||
-    metrics.isLoading
-  ) {
-    return (
-      <View
-        style={[
-          styles.card,
-          { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
-        ]}
-      >
-        <Text
-          style={[styles.title, { color: semantic.text.primary }]}
-          accessibilityRole="header"
-          accessibilityLevel={2}
-        >
-          Voting & Bills ({congress}th Congress)
-        </Text>
-        <Text style={[styles.muted, { color: semantic.text.muted }]}>Loading voting & bills…</Text>
-      </View>
-    )
-  }
-
   const sponsoredCount = sponsoredCountQ.data ?? 0
   const cosponsoredCount = cosponsoredCountQ.data ?? 0
   const missedCount = missedCountQ.data ?? 0
   const attendance = metrics.data?.attendance_pct ?? null
 
-  const allEmpty = sponsoredCount === 0 && cosponsoredCount === 0 && missedCount === 0
-  if (allEmpty) {
-    return (
-      <View
-        style={[
-          styles.card,
-          { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
-        ]}
-      >
-        <Text
-          style={[styles.title, { color: semantic.text.primary }]}
-          accessibilityRole="header"
-          accessibilityLevel={2}
-        >
-          Voting & Bills ({congress}th Congress)
-        </Text>
-        <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
-          No bill or voting-record data on file for this Congress.
-        </Text>
-      </View>
-    )
-  }
-
+  // Shell gating covers the UNCONDITIONAL queries only (metrics + the 3
+  // counts); the enabled-gated full-row hooks keep their in-subsection
+  // loading text below.
   return (
-    <View
-      style={[
-        styles.card,
-        { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
-      ]}
+    <DetailCardShell
+      title={`Voting & Bills (${congress}th Congress)`}
+      isLoading={
+        sponsoredCountQ.isLoading ||
+        cosponsoredCountQ.isLoading ||
+        missedCountQ.isLoading ||
+        metrics.isLoading
+      }
+      isError={
+        sponsoredCountQ.isError ||
+        cosponsoredCountQ.isError ||
+        missedCountQ.isError ||
+        metrics.isError
+      }
+      onRetry={() => {
+        void sponsoredCountQ.refetch()
+        void cosponsoredCountQ.refetch()
+        void missedCountQ.refetch()
+        void metrics.refetch()
+      }}
+      isEmpty={sponsoredCount === 0 && cosponsoredCount === 0 && missedCount === 0}
+      emptyText="No bill or voting-record data on file for this Congress."
     >
-      <Text
-        style={[styles.title, { color: semantic.text.primary }]}
-        accessibilityRole="header"
-        accessibilityLevel={2}
-      >
-        Voting & Bills ({congress}th Congress)
-      </Text>
       <Text style={[styles.summary, { color: semantic.text.muted }]}>
         {`${sponsoredCount} sponsored`}
         {' · '}
@@ -161,18 +127,11 @@ export function FederalVotingBillsCard({
           <FederalMissedVotesList rows={missed.data ?? []} />
         )}
       </CardSubsection>
-    </View>
+    </DetailCardShell>
   )
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  title: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
   muted: { fontSize: 13 },
   summary: { fontSize: 13, marginBottom: 12 },
 })

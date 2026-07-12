@@ -73,7 +73,8 @@ describe('FederalVotingBillsCard', () => {
     useCosponsoredMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
     useMissedMock.mockReturnValue({ data: [], isLoading: false, isSuccess: true })
     const { getByText } = wrap(<FederalVotingBillsCard officialId="oid" congress="119" />)
-    expect(getByText(/Loading voting & bills/i)).toBeTruthy()
+    // Slice 80: DetailCardShell owns the loading branch with uniform copy.
+    expect(getByText('Loading…')).toBeTruthy()
   })
 
   it('renders empty state when all empty', () => {

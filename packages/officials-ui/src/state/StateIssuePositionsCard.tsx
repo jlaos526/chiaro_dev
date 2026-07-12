@@ -9,6 +9,7 @@ import {
 import { useMySelections, useIssueCatalog, useRepWatchlistFlags } from '@chiaro/issues'
 import { SCORECARD_LEAN_LABEL, type ScorecardLean } from '@chiaro/ui-tokens'
 import { useBrandTokens, useScorecardLeanColor } from '../brand-hooks.ts'
+import { DetailCardShell } from '../cards/DetailCardShell.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { IssuePriorityTag } from '../issues/IssuePriorityTag.tsx'
 import { computePriorityOrgSlugs, sortPriorityFirst } from '../issues/priority-orgs.ts'
@@ -26,6 +27,8 @@ const LEAN_GROUP_ORDER: ScorecardLean[] = [
   'libertarian',
   'centrist',
 ]
+
+const EMPTY_TEXT = 'No issue-position ratings available for this legislator yet.'
 
 function leanLabel(lean: string): string {
   return (SCORECARD_LEAN_LABEL as Record<string, string>)[lean] ?? lean
@@ -47,7 +50,7 @@ export function StateIssuePositionsCard({
   }
   const leanColor = (lean: string, fallback: string): string =>
     (leanColors as Record<string, string>)[lean] ?? fallback
-  const { data, isLoading } = useOfficialStateScorecardRatings(client, officialId)
+  const ratings = useOfficialStateScorecardRatings(client, officialId)
   // The user's selected issues → scorecard org slugs they care about. These
   // queries never gate the card: while they load (or for logged-out users) the
   // priority set is empty and the card renders exactly as it did pre-slice-52.
@@ -73,43 +76,16 @@ export function StateIssuePositionsCard({
       </View>
     ) : null
 
-  const cardStyle = [
-    styles.card,
-    { backgroundColor: semantic.bg.elevated, borderColor: semantic.border.default },
-  ]
-  const titleStyle = [styles.title, { color: semantic.text.primary }]
   const mutedStyle = [styles.muted, { color: semantic.text.muted }]
   const ratingRowStyle = [styles.ratingRow, { borderBottomColor: semantic.border.default }]
   const orgNameStyle = [styles.orgName, { color: semantic.text.primary }]
   const issueAreaStyle = [styles.issueArea, { color: semantic.text.muted }]
   const scoreStyle = [styles.score, { color: semantic.text.primary }]
 
-  if (isLoading) {
-    return (
-      <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
-          Issue Positions
-        </Text>
-        <Text style={mutedStyle}>Loading issue positions…</Text>
-      </View>
-    )
-  }
-  if (!data || data.length === 0) {
-    return (
-      <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
-          Issue Positions
-        </Text>
-        {flagsSection}
-        <Text style={[mutedStyle, { fontStyle: 'italic' }]}>
-          No issue-position ratings available for this legislator yet.
-        </Text>
-      </View>
-    )
-  }
+  const rows = ratings.data ?? []
 
   const byLean = new Map<string, StateScorecardRatingWithOrg[]>()
-  for (const r of data) {
+  for (const r of rows) {
     const key = r.org.lean
     if (!byLean.has(key)) byLean.set(key, [])
     byLean.get(key)!.push(r)
@@ -149,21 +125,6 @@ export function StateIssuePositionsCard({
     </View>
   )
 
-  // Priority path: when the user has selected issues that map to orgs present
-  // here, drop the lean grouping and float matched rows to the top with a tag.
-  if (priorityOrgSlugs.size > 0) {
-    const ordered = sortPriorityFirst(data, (r) => r.org.slug, priorityOrgSlugs)
-    return (
-      <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
-          Issue Positions
-        </Text>
-        {flagsSection}
-        {ordered.map((r) => renderRatingRow(r, priorityOrgSlugs.has(r.org.slug)))}
-      </View>
-    )
-  }
-
   // Render canonical order first, then any unknown leans last (defensive).
   const orderedLeans: string[] = [
     ...LEAN_GROUP_ORDER.filter((l) => byLean.has(l)),
@@ -171,35 +132,46 @@ export function StateIssuePositionsCard({
   ]
 
   return (
-    <View style={cardStyle}>
-      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
-        Issue Positions
-      </Text>
+    <DetailCardShell
+      title="Issue Positions"
+      // The priority/watchlist queries never gate the card — only ratings do.
+      isLoading={ratings.isLoading}
+      isError={ratings.isError}
+      onRetry={() => {
+        void ratings.refetch()
+      }}
+      // Flags render even with no ratings (slice 53), so the shell's empty
+      // branch only fires when BOTH ratings and flags are absent.
+      isEmpty={rows.length === 0 && flags.length === 0}
+      emptyText={EMPTY_TEXT}
+    >
       {flagsSection}
-      {orderedLeans.map((lean) => (
-        <View key={lean} style={{ marginBottom: 12 }}>
-          <Text style={[styles.leanHeader, { color: leanColor(lean, semantic.text.muted) }]}>
-            {leanLabel(lean)}
-          </Text>
-          {byLean.get(lean)!.map((r) => renderRatingRow(r, false))}
-        </View>
-      ))}
-    </View>
+      {rows.length === 0 ? (
+        // Flags-only case: keep the verbatim no-ratings note under the flags
+        // (the pre-shell empty branch rendered flags + this note together).
+        <Text style={[mutedStyle, { fontStyle: 'italic' }]}>{EMPTY_TEXT}</Text>
+      ) : priorityOrgSlugs.size > 0 ? (
+        // Priority path: when the user has selected issues that map to orgs
+        // present here, drop the lean grouping and float matched rows to the
+        // top with a tag.
+        sortPriorityFirst(rows, (r) => r.org.slug, priorityOrgSlugs).map((r) =>
+          renderRatingRow(r, priorityOrgSlugs.has(r.org.slug)),
+        )
+      ) : (
+        orderedLeans.map((lean) => (
+          <View key={lean} style={{ marginBottom: 12 }}>
+            <Text style={[styles.leanHeader, { color: leanColor(lean, semantic.text.muted) }]}>
+              {leanLabel(lean)}
+            </Text>
+            {byLean.get(lean)!.map((r) => renderRatingRow(r, false))}
+          </View>
+        ))
+      )}
+    </DetailCardShell>
   )
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 12,
-  },
   muted: {
     fontSize: 13,
   },

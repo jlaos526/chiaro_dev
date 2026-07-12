@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text } from 'react-native'
 import {
   useOfficialStateCommitteeHearings,
   useOfficialStateDistrictOffices,
@@ -9,6 +9,7 @@ import {
 } from '@chiaro/officials'
 import { useBrandTokens } from '../brand-hooks.ts'
 import { CardSubsection } from '../cards/CardSubsection.tsx'
+import { DetailCardShell } from '../cards/DetailCardShell.tsx'
 import { useChiaroClient } from '../client-context.tsx'
 import { StateCommitteeHearingsList } from './StateCommitteeHearingsList.tsx'
 import { StateDistrictOfficesList } from './StateDistrictOfficesList.tsx'
@@ -31,25 +32,6 @@ export function StateCommunityPresenceCard({
   const [openHearings, setOpenHearings] = useState(false)
   const [openOffices, setOpenOffices] = useState(false)
 
-  const cardStyle = [
-    styles.card,
-    { backgroundColor: semantic.bg.app, borderColor: semantic.border.default },
-  ]
-  const titleStyle = [styles.title, { color: semantic.text.primary }]
-  const mutedStyle = [styles.muted, { color: semantic.text.muted }]
-  const summaryStyle = [styles.summary, { color: semantic.text.muted }]
-
-  if (halls.isLoading || offices.isLoading || hearings.isLoading) {
-    return (
-      <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
-          Community Presence
-        </Text>
-        <Text style={mutedStyle}>Loading community presence…</Text>
-      </View>
-    )
-  }
-
   // Header counts: per NULL-vs-0 convention — em-dash when unknown
   // (data === undefined), numeric (including 0) when known.
   const hallCount = halls.data?.length ?? null
@@ -58,26 +40,20 @@ export function StateCommunityPresenceCard({
 
   const allEmpty = (hallCount ?? 0) === 0 && (officeCount ?? 0) === 0 && (hearingCount ?? 0) === 0
 
-  if (allEmpty) {
-    return (
-      <View style={cardStyle}>
-        <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
-          Community Presence
-        </Text>
-        <Text style={[styles.muted, { color: semantic.text.muted, fontStyle: 'italic' }]}>
-          No community-presence data available for this legislator yet.
-        </Text>
-      </View>
-    )
-  }
-
   return (
-    <View style={cardStyle}>
-      <Text style={titleStyle} accessibilityRole="header" accessibilityLevel={2}>
-        Community Presence
-      </Text>
-
-      <Text style={summaryStyle}>
+    <DetailCardShell
+      title="Community Presence"
+      isLoading={halls.isLoading || offices.isLoading || hearings.isLoading}
+      isError={halls.isError || offices.isError || hearings.isError}
+      onRetry={() => {
+        void halls.refetch()
+        void offices.refetch()
+        void hearings.refetch()
+      }}
+      isEmpty={allEmpty}
+      emptyText="No community-presence data available for this legislator yet."
+    >
+      <Text style={[styles.summary, { color: semantic.text.muted }]}>
         {hallCount != null ? `${hallCount} town hall${hallCount === 1 ? '' : 's'}` : '—'}
         {' · '}
         {hearingCount != null
@@ -110,18 +86,10 @@ export function StateCommunityPresenceCard({
       >
         <StateDistrictOfficesList rows={offices.data ?? []} />
       </CardSubsection>
-    </View>
+    </DetailCardShell>
   )
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  title: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
-  muted: { fontSize: 13 },
   summary: { fontSize: 13, marginBottom: 12 },
 })
