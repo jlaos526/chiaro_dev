@@ -26,7 +26,17 @@ without a session until the S83 Playwright harness can capture authenticated pag
   (Inter font swap + the auth card mounting after hydration are the likely
   contributors). This is exactly S80 card-shell territory; carry it into that
   slice as a measurable target (< 0.1).
-  - **RESOLVED in S80 (2026-07-12, same day):** puppeteer layout-shift probe
+  - **RESOLVED — LIVE-VERIFIED (2026-07-12, PRs #55 + #56): perf 63 → 84,
+    CLS 0.382 → 0 on the production origin.** Two mechanisms, found in order:
+    (1) the Inter `display:'swap'` amplifier (below, PR #55); (2) **the real
+    root cause (PR #56): react-native-web's atomic stylesheet was never in
+    the SSR HTML** — every page first painted as unstyled block divs until
+    hydration injected it (~650 ms live; a frame sampler showed the container
+    `static/y=21` → `relative/y=0`). Fixed with `RNWServerStyles`
+    (`useServerInsertedHTML` streaming `StyleSheet.getSheet()` into the head,
+    first-flush guarded). This also removes a sitewide slow-connection FOUC
+    present since slice 10. Post-fix live probe: zero layout-shift entries.
+  - Original same-day investigation note (PR #55, superseded in part): puppeteer layout-shift probe
     against a local prod build pinned the exact mechanism — raw HTML elements
     (smart-anchor `<a>`s, BrandTextInput fields) inherit the body's next/font
     Inter; under `display: 'swap'` they first-paint in the wider fallback,
