@@ -75,6 +75,7 @@ export function LensPickerScreen({ catalog, onNext }: LensPickerScreenProps): Re
                         aria-pressed={selected}
                         accessibilityLabel={`${lens.label} (${badgeLabel(lens.lens_type)})`}
                         dataSet={{ lensRow: '' }}
+                        testID="issue-lens-option"
                         style={[
                           styles.lensRow,
                           {

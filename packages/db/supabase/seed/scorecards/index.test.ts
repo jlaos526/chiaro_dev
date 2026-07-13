@@ -53,6 +53,19 @@ afterEach(async () => {
   await client.end()
 })
 
+const EXPECTED_ORG_SLUGS = [
+  'aclu',
+  'ada',
+  'afl-cio',
+  'heritage-action',
+  'lcv',
+  'naacp',
+  'nra',
+  'planned-parenthood',
+  'sierra-club',
+  'us-chamber',
+]
+
 describe('ingestScorecards', () => {
   it('upserts 10 scorecard_orgs and rates known officials from fixture CSVs', async () => {
     const stats = await ingestScorecards({ fixturesDir: FIXTURES })
@@ -64,19 +77,15 @@ describe('ingestScorecards', () => {
       expect(stats[slug]!.ratings).toBe(1)
     }
 
-    const orgs = await client.query('select slug from public.scorecard_orgs order by slug')
-    expect(orgs.rows.map((r: any) => r.slug).sort()).toEqual([
-      'aclu',
-      'ada',
-      'afl-cio',
-      'heritage-action',
-      'lcv',
-      'naacp',
-      'nra',
-      'planned-parenthood',
-      'sierra-club',
-      'us-chamber',
-    ])
+    // Scoped to the 10 slugs THIS test seeds (Gotcha #30 lesson: never
+    // assert the whole table — sibling integration suites (s79-integ-org)
+    // and the slice-83 e2e seed (e2e-env-org) add orgs to the shared local
+    // DB, and interrupted runs leave them behind).
+    const orgs = await client.query(
+      'select slug from public.scorecard_orgs where slug = any($1) order by slug',
+      [EXPECTED_ORG_SLUGS],
+    )
+    expect(orgs.rows.map((r: any) => r.slug).sort()).toEqual(EXPECTED_ORG_SLUGS)
 
     const ratings = await client.query(`
       select sc.slug, sr.score
