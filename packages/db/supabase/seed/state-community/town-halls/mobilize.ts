@@ -6,6 +6,7 @@ import {
   inferChamberFromTitle,
   deriveFormat,
 } from './mobilize-helpers.ts'
+import { fetchWithRetry } from '../../shared/http.ts'
 import { resolveOpenstatesPersonId } from '../../shared/officials.ts'
 import type { SkipReason } from '../../shared/instrumentation.ts'
 
@@ -295,7 +296,10 @@ async function fetchAndNormalize(
     pageCount += 1
     let body: MobilizeListResponse
     try {
-      const resp = await fetch(url)
+      // Slice 81 (audit C36): bounded retry — a transient page failure used
+      // to break the pagination loop and silently truncate the nationwide
+      // sweep (only an --instrument run surfaced it via the onSkip below).
+      const resp = await fetchWithRetry(url)
       if (!resp.ok) {
         onSkip?.({
           adapter: 'mobilize',

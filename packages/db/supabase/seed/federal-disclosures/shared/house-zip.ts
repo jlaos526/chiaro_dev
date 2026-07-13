@@ -1,7 +1,17 @@
 import { Buffer } from 'node:buffer'
 import { Open } from 'unzipper'
+import { fetchWithRetry, loadCachedUrl } from '../../shared/http.ts'
 
 const BASE_URL = 'https://disclosures-clerk.house.gov/public_disc'
+
+/**
+ * Per-attempt timeout for the yearly bulk ZIP (audit C36 — this fetch
+ * previously had NO timeout, so a hung Clerk-portal connection stalled
+ * the run indefinitely). Generous because the payload is potentially
+ * hundreds of MB and the signal also covers the body download; the goal
+ * is bounded-not-infinite, not tight.
+ */
+const ZIP_TIMEOUT_MS = 600_000
 
 export interface HouseFiling {
   filingId: string
@@ -30,18 +40,34 @@ type CentralFile = Awaited<ReturnType<typeof Open.buffer>>['files'][number]
  * returns `{ filings: [] }` if the index is unrecognized. Adapter tests
  * inject mock fetchers anyway — production drift is the operator
  * follow-up signal (slice 22 onSkip already wires fetch failures).
+ *
+ * Slice 81 (audit C36 + C37): the production path fetches through the
+ * shared on-disk cache (`loadCachedUrl`) — the yearly bulk ZIP is
+ * immutable once published, so re-runs after parser fixes skip the
+ * multi-hundred-MB re-download (`CHIARO_NO_FETCH_CACHE=1` bypasses).
+ * An injected `fetcher` (test seam) bypasses the disk cache and rides
+ * plain `fetchWithRetry` so tests stay hermetic.
  */
 export async function fetchHouseDisclosureZip(opts: {
   year: number
   formType: 'ptr' | 'fd'
   fetcher?: typeof fetch
 }): Promise<HouseZipManifest> {
-  const fetcher = opts.fetcher ?? fetch
   const path = opts.formType === 'ptr' ? 'ptr-pdfs' : 'financial-pdfs'
   const url = `${BASE_URL}/${path}/${opts.year}.zip`
-  const res = await fetcher(url, { headers: { 'User-Agent': 'ChiaroBot/1.0' } })
-  if (!res.ok) throw new Error(`House ZIP fetch failed: ${res.status} (${url})`)
-  const buf = Buffer.from(await res.arrayBuffer())
+  const init = { headers: { 'User-Agent': 'ChiaroBot/1.0' } }
+  let buf: Buffer
+  if (opts.fetcher) {
+    const res = await fetchWithRetry(url, {
+      fetcher: opts.fetcher,
+      init,
+      timeoutMs: ZIP_TIMEOUT_MS,
+    })
+    if (!res.ok) throw new Error(`House ZIP fetch failed: ${res.status} (${url})`)
+    buf = Buffer.from(await res.arrayBuffer())
+  } else {
+    buf = await loadCachedUrl(url, { init, timeoutMs: ZIP_TIMEOUT_MS })
+  }
   const zip = await Open.buffer(buf)
 
   const pdfFiles = new Map<string, CentralFile>()

@@ -1,3 +1,6 @@
+import { mkdtemp, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { describe, expect, it, vi, beforeEach, afterEach, type MockInstance } from 'vitest'
 
 // Mock pdf-parse at the module level — pdf-parse runs a side-effect
@@ -43,9 +46,19 @@ describe('extractPdfText', () => {
 
 describe('fetchPdf', () => {
   let fetchSpy: MockInstance | undefined
+  let cacheDir: string
 
-  afterEach(() => {
+  // fetchPdf reads/writes the slice-81 on-disk cache on its production
+  // path — point it at a throwaway dir so tests never touch ~/.cache/chiaro.
+  beforeEach(async () => {
+    cacheDir = await mkdtemp(join(tmpdir(), 'pdfcache-'))
+    process.env.CHIARO_FETCH_CACHE_DIR = cacheDir
+  })
+
+  afterEach(async () => {
     fetchSpy?.mockRestore()
+    delete process.env.CHIARO_FETCH_CACHE_DIR
+    await rm(cacheDir, { recursive: true, force: true })
   })
 
   it('returns Buffer when fetch is 2xx', async () => {
@@ -71,8 +84,26 @@ describe('fetchPdf', () => {
 
   it('throws when fetch rejects (network / timeout)', async () => {
     const blocked = stubFetchBlocked()
-    await expect(fetchPdf('https://example.com/timeout.pdf')).rejects.toThrow('blocked in test')
+    // retries: 0 — thrown fetch errors are retried since slice 81 (audit
+    // C36); a single attempt keeps this test sleep-free. Retry behavior
+    // itself is covered in shared/http.test.ts.
+    await expect(fetchPdf('https://example.com/timeout.pdf', { retries: 0 })).rejects.toThrow(
+      'blocked in test',
+    )
     blocked.mockRestore()
+  })
+
+  it('serves a repeat fetch of the same URL from the on-disk cache', async () => {
+    const fakeBytes = new Uint8Array([0x25, 0x50, 0x44, 0x46])
+    fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      status: 200,
+      arrayBuffer: async () => fakeBytes.buffer,
+    } as never)
+    await fetchPdf('https://example.com/cached.pdf')
+    const second = await fetchPdf('https://example.com/cached.pdf')
+    expect(second.length).toBe(4)
+    expect(fetchSpy).toHaveBeenCalledTimes(1) // second call never hit the network
   })
 
   it('uses custom timeoutMs when provided', async () => {

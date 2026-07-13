@@ -1,11 +1,15 @@
 import type { Client } from 'pg'
 import type { NormalizedDistrictOffice } from '../shared.ts'
+import { fetchWithRetry } from '../../shared/http.ts'
 import type { SkipReason } from '../../shared/instrumentation.ts'
 
 /**
  * Fetch-timeout for per-member detail-page HTTP requests in the
  * production path. 5s aligns with slice 15/16/17 per-parser constants
- * that were hoisted in slice 18 Task 5 (audit M4).
+ * that were hoisted in slice 18 Task 5 (audit M4). Since slice 81
+ * (audit C36) it rides through the shared fetchWithRetry helper, so the
+ * documented MI House TLS flake gets bounded retries instead of a
+ * silent per-member skip on the first transient failure.
  */
 export const FETCH_TIMEOUT_MS = 5000
 
@@ -128,7 +132,7 @@ export async function fetchPerMemberOffices(
     try {
       html = opts.fetcher
         ? await opts.fetcher(url)
-        : await (await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) })).text()
+        : await (await fetchWithRetry(url, { timeoutMs: FETCH_TIMEOUT_MS })).text()
     } catch (e) {
       opts.onSkip?.({
         adapter: opts.adapter,

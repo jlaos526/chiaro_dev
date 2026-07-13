@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio'
+import { fetchWithRetry } from '../../shared/http.ts'
 import { BROWSER_USER_AGENT } from '../../state-ethics/events/ballotpedia-recalls-helpers.ts'
 
 const BASE_URL = 'https://efdsearch.senate.gov'
@@ -8,13 +9,21 @@ export interface SenateSession {
   cookie: string
 }
 
+/**
+ * 2-step agreement-gate flow (slice 26). Slice 81 (audit C36): both the
+ * GET and the POST ride the shared fetchWithRetry — previously they had
+ * neither timeout nor retry, so a hung efdsearch connection stalled the
+ * run indefinitely. The POST is safe to retry: it just marks the session
+ * as agreement-accepted (idempotent; the string body replays cleanly).
+ */
 export async function acceptSenateAgreement(opts: {
   fetcher?: typeof fetch
 }): Promise<SenateSession> {
-  const fetcher = opts.fetcher ?? fetch
+  const seam = opts.fetcher ? { fetcher: opts.fetcher } : {}
   // Step 1: GET landing page; extract CSRF token + cookie
-  const res = await fetcher(`${BASE_URL}/search/`, {
-    headers: { 'User-Agent': BROWSER_USER_AGENT },
+  const res = await fetchWithRetry(`${BASE_URL}/search/`, {
+    ...seam,
+    init: { headers: { 'User-Agent': BROWSER_USER_AGENT } },
   })
   if (!res.ok) throw new Error(`Senate landing fetch failed: ${res.status}`)
   const html = await res.text()
@@ -28,15 +37,18 @@ export async function acceptSenateAgreement(opts: {
     csrfmiddlewaretoken: csrfToken,
     prohibition_agreement: '1',
   })
-  const post = await fetcher(`${BASE_URL}/search/home/`, {
-    method: 'POST',
-    headers: {
-      'User-Agent': BROWSER_USER_AGENT,
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Cookie: cookie,
-      Referer: `${BASE_URL}/search/`,
+  const post = await fetchWithRetry(`${BASE_URL}/search/home/`, {
+    ...seam,
+    init: {
+      method: 'POST',
+      headers: {
+        'User-Agent': BROWSER_USER_AGENT,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Cookie: cookie,
+        Referer: `${BASE_URL}/search/`,
+      },
+      body: form.toString(),
     },
-    body: form.toString(),
   })
   if (!post.ok) throw new Error(`Senate agreement POST failed: ${post.status}`)
   return { csrfToken, cookie }
