@@ -11,6 +11,7 @@ import { fetchSwornComplaintOrders } from '../tx-tec/shared.ts'
 export const txTecEvents: StateEthicsAdapter<NormalizedOfficialEvent> = {
   slug: 'tx-tec',
   component: 'events',
+  status: 'production',
   covered_states: ['TX'],
   async fetchEvents(opts): Promise<NormalizedOfficialEvent[]> {
     if (opts.fetcher) return opts.fetcher()

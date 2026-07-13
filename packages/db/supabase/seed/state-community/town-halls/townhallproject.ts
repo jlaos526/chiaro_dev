@@ -68,6 +68,7 @@ const ALL_STATES = [
 export const townhallproject: StateCommunityAdapter<NormalizedTownHall> = {
   slug: 'townhallproject',
   component: 'halls',
+  status: 'deprecated',
   covered_states: ALL_STATES,
   async fetchEvents(opts) {
     if (opts.fetcher) return opts.fetcher()

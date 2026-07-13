@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { Client } from 'pg'
-import { ingestStateScorecards } from './state-scorecards-ingest.ts'
+import { ADAPTERS_DEFAULT, ingestStateScorecards } from './state-scorecards-ingest.ts'
 import type { StateScorecardAdapter } from './state-scorecards/shared.ts'
+import { ADAPTER_STATUSES, formatAdapterStatusSummary } from './shared/adapter-status.ts'
 
 const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 let client: Client
@@ -18,6 +19,7 @@ afterEach(async () => {
 function mkAdapter(overrides: Partial<StateScorecardAdapter>): StateScorecardAdapter {
   return {
     slug: 'test',
+    status: 'production',
     name_template: (s) => `Test ${s}`,
     issue_area: 'test',
     lean: 'centrist',
@@ -184,5 +186,25 @@ describe('ingestStateScorecards', () => {
         adapters,
       }),
     ).rejects.toThrow(/boom/)
+  })
+})
+
+// Audit C35: stub/deprecated adapters are registered on purpose (dispatch
+// unchanged) but must be visibly annotated so a zero-row "green" run can't
+// masquerade as healthy coverage. Counts are pinned — they change ONLY when
+// an operator wires a stub to production (or deprecates an adapter).
+describe('adapter status registry (C35)', () => {
+  it('every registered adapter carries a valid status; summary renders counts + slugs', () => {
+    for (const a of ADAPTERS_DEFAULT) {
+      expect(ADAPTER_STATUSES).toContain(a.status)
+    }
+    const summary = formatAdapterStatusSummary(
+      ADAPTERS_DEFAULT.map((a) => ({ label: a.slug, status: a.status })),
+    )
+    expect(summary).toContain(
+      'production 2 · stub 1 · deprecated 2 — stub/deprecated adapters return 0 rows BY DESIGN (audit C35)',
+    )
+    expect(summary).toContain('stub: planned-parenthood')
+    expect(summary).toContain('deprecated: aclu, afp')
   })
 })

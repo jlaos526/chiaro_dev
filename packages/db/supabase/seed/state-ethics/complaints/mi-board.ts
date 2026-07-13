@@ -18,6 +18,7 @@ import type { StateEthicsAdapter, NormalizedEthicsComplaint } from '../shared.ts
 export const miBoardComplaints: StateEthicsAdapter<NormalizedEthicsComplaint> = {
   slug: 'mi-board',
   component: 'complaints',
+  status: 'deprecated',
   covered_states: [],
   async fetchEvents(): Promise<NormalizedEthicsComplaint[]> {
     return []

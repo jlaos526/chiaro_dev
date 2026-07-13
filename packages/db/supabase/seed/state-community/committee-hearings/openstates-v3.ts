@@ -72,6 +72,7 @@ function cacheDir(): string {
 export const openstatesV3Hearings: StateCommunityAdapter<NormalizedCommitteeHearing> = {
   slug: 'openstates-v3',
   component: 'hearings',
+  status: 'production',
   covered_states: ALL_STATES,
 
   async fetchEvents(opts) {

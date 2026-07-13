@@ -13,6 +13,7 @@ import { fetchMiHouseOffices } from './house.ts'
 export const miLegislatureOffices: StateCommunityAdapter<NormalizedDistrictOffice> = {
   slug: 'mi-legislature',
   component: 'offices',
+  status: 'production',
   covered_states: ['MI'],
   async fetchEvents(opts): Promise<NormalizedDistrictOffice[]> {
     if (opts.fetcher) return opts.fetcher()

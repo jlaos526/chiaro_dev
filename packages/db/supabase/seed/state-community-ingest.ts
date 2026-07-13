@@ -29,11 +29,13 @@ import {
   formatSkipSummary,
   type SkipSummary,
 } from './shared/instrumentation.ts'
+import { formatAdapterStatusSummary } from './shared/adapter-status.ts'
 
 const DB_URL =
   process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 
-const ADAPTERS_DEFAULT: StateCommunityAdapter[] = [
+/** Exported for the registry-status test (audit C35); dispatch behavior unchanged. */
+export const ADAPTERS_DEFAULT: StateCommunityAdapter[] = [
   // halls first (Mobilize nationwide baseline replaces dead TownHallProject;
   // per-state augment runs after). townhallproject.ts is retained as a
   // no-op stub (file kept for backwards-compat; @deprecated JSDoc).
@@ -101,6 +103,7 @@ export async function ingestStateCommunity(
       const adapterStats: StateCommunityStats = {
         component: adapter.component,
         adapter_slug: adapter.slug,
+        status: adapter.status,
         rowsUpserted: 0,
         officialsMatched: 0,
         officialsUnmatched: [],
@@ -207,6 +210,16 @@ if (isCliEntry(import.meta.url)) {
         const tag = s.errors.length > 0 ? `errors=${s.errors.length}` : 'ok'
         console.log(`  ${s.component}:${s.adapter_slug}: ${s.rowsUpserted} rows / ${tag}`)
       }
+      // Stub-vs-production visibility (audit C35): a "green" run can otherwise
+      // hide that a zero-row adapter is a stub or deprecated by design.
+      console.log(
+        formatAdapterStatusSummary(
+          stats.byAdapter.map((s) => ({
+            label: `${s.component}:${s.adapter_slug}`,
+            status: s.status,
+          })),
+        ),
+      )
       if (stats.skipSummary) {
         console.log('')
         console.log(formatSkipSummary(stats.skipSummary))

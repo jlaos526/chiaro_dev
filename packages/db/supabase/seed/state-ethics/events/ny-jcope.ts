@@ -12,6 +12,7 @@ import { fetchEnforcementActions } from '../ny-coelig/shared.ts'
 export const nyJcopeEvents: StateEthicsAdapter<NormalizedOfficialEvent> = {
   slug: 'ny-jcope',
   component: 'events',
+  status: 'production',
   covered_states: ['NY'],
   async fetchEvents(opts): Promise<NormalizedOfficialEvent[]> {
     if (opts.fetcher) return opts.fetcher()

@@ -122,6 +122,7 @@ export async function fetchAllPages(
 export const nyJcopeDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosure> = {
   slug: 'ny-jcope',
   component: 'disclosures',
+  status: 'production',
   covered_states: ['NY'],
   async fetchEvents(opts): Promise<NormalizedFinancialDisclosure[]> {
     // Adapter-level fixture injection (returns pre-resolved rows). Typed

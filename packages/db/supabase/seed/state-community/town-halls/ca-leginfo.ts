@@ -18,6 +18,7 @@ import type { StateCommunityAdapter, NormalizedTownHall } from '../shared.ts'
 export const caLeginfoTownHalls: StateCommunityAdapter<NormalizedTownHall> = {
   slug: 'ca-leginfo',
   component: 'halls',
+  status: 'deprecated',
   covered_states: [],
   async fetchEvents(): Promise<NormalizedTownHall[]> {
     return []

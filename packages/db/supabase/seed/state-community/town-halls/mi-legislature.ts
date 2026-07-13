@@ -16,6 +16,7 @@ import type { StateCommunityAdapter, NormalizedTownHall } from '../shared.ts'
 export const miLegislatureTownHalls: StateCommunityAdapter<NormalizedTownHall> = {
   slug: 'mi-legislature',
   component: 'halls',
+  status: 'deprecated',
   covered_states: [],
   async fetchEvents(): Promise<NormalizedTownHall[]> {
     return []

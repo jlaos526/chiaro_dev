@@ -16,6 +16,7 @@ import {
   formatSkipSummary,
   type SkipSummary,
 } from './shared/instrumentation.ts'
+import { formatAdapterStatusSummary } from './shared/adapter-status.ts'
 import { openstatesEndReason } from './state-ethics/events/openstates-end-reason.ts'
 import { ballotpediaRecalls } from './state-ethics/events/ballotpedia-recalls.ts'
 import {
@@ -43,7 +44,8 @@ import {
 const DB_URL =
   process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 
-const ADAPTERS_DEFAULT: StateEthicsAdapter[] = [
+/** Exported for the registry-status test (audit C35); dispatch behavior unchanged. */
+export const ADAPTERS_DEFAULT: StateEthicsAdapter[] = [
   // disclosures
   caFppcDisclosures,
   nyJcopeDisclosures,
@@ -113,6 +115,7 @@ export async function ingestStateEthics(
       const adapterStats: StateEthicsStats = {
         component: adapter.component,
         adapter_slug: adapter.slug,
+        status: adapter.status,
         rowsUpserted: 0,
         officialsMatched: 0,
         officialsUnmatched: [],
@@ -195,6 +198,16 @@ if (isCliEntry(import.meta.url)) {
         const tag = s.errors.length > 0 ? `errors=${s.errors.length}` : 'ok'
         console.log(`  ${s.component}:${s.adapter_slug}: ${s.rowsUpserted} rows / ${tag}`)
       }
+      // Stub-vs-production visibility (audit C35): a "green" run can otherwise
+      // hide that a zero-row adapter is a stub or deprecated by design.
+      console.log(
+        formatAdapterStatusSummary(
+          stats.byAdapter.map((s) => ({
+            label: `${s.component}:${s.adapter_slug}`,
+            status: s.status,
+          })),
+        ),
+      )
       if (stats.skipSummary) {
         console.log('')
         console.log(formatSkipSummary(stats.skipSummary))

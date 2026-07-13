@@ -34,6 +34,7 @@ const RATE_LIMIT_MS = 1000
 export const miBoardDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosure> = {
   slug: 'mi-board',
   component: 'disclosures',
+  status: 'production',
   covered_states: ['MI'],
   async fetchEvents(opts): Promise<NormalizedFinancialDisclosure[]> {
     if (opts.fetcher) return opts.fetcher()

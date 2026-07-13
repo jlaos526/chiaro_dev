@@ -1,4 +1,5 @@
 import type { Client } from 'pg'
+import type { AdapterStatus } from '../shared/adapter-status.ts'
 import type { SkipReason } from '../shared/instrumentation.ts'
 
 export type CommunityComponent = 'halls' | 'offices' | 'hearings'
@@ -49,6 +50,14 @@ export type StateCommunityEvent =
 export interface StateCommunityAdapter<E extends StateCommunityEvent = StateCommunityEvent> {
   slug: string
   component: CommunityComponent
+  /**
+   * Lifecycle status (audit C35): 'production' = real parser wired;
+   * 'stub' = returns [] pending operator wiring; 'deprecated' =
+   * wrong-premise/dead source kept for back-compat. Surfaced in the
+   * orchestrator's end-of-run [adapters] summary so a zero-row stub
+   * can't be mistaken for healthy coverage.
+   */
+  status: AdapterStatus
   covered_states: string[]
   fetchEvents(opts: {
     client: Client
@@ -67,6 +76,8 @@ export interface StateCommunityAdapter<E extends StateCommunityEvent = StateComm
 export interface StateCommunityStats {
   component: CommunityComponent
   adapter_slug: string
+  /** Lifecycle status of the adapter that produced this row (audit C35). */
+  status: AdapterStatus
   rowsUpserted: number
   officialsMatched: number
   officialsUnmatched: string[]

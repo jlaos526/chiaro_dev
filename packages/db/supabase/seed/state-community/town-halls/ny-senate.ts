@@ -104,6 +104,7 @@ function extractCityFromLocation(text: string): string | undefined {
 export const nySenateTownHalls: StateCommunityAdapter<NormalizedTownHall> = {
   slug: 'ny-senate',
   component: 'halls',
+  status: 'production',
   covered_states: ['NY'],
   async fetchEvents(opts): Promise<NormalizedTownHall[]> {
     // Adapter-level fixture injection (returns pre-resolved rows)

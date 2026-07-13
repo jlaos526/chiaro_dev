@@ -1,4 +1,5 @@
 import type { Client } from 'pg'
+import { fetchWithRetry as sharedFetchWithRetry } from '../shared/http.ts'
 
 export type EnrichableState = 'CA' | 'NY' | 'FL' | 'TX' | 'MI'
 
@@ -58,19 +59,19 @@ export async function updateStateBillAugment(
   return (result.rowCount ?? 0) > 0
 }
 
-/** HTTP retry helper. 5x exponential backoff: 500ms, 1s, 2s, 4s, 8s. */
+/**
+ * HTTP retry helper. 5x exponential backoff: 500ms, 1s, 2s, 4s, 8s.
+ *
+ * Since slice 81 (audit C36) a thin wrapper around the canonical
+ * `seed/shared/http.ts` fetchWithRetry (same name/signature kept for the
+ * 5 enrich-adapter callers). Observable deltas, all safe for those
+ * callers (every one maps ANY failure to `null` via `!res.ok` + catch):
+ * - non-404 4xx is returned immediately instead of being retried 6× and
+ *   then thrown (the old loop retried on any non-ok status);
+ * - retries exhausted on 5xx returns the last Response instead of
+ *   throwing (`!res.ok` guards still fire);
+ * - each attempt now has a 15s timeout (was unbounded — audit C36).
+ */
 export async function fetchWithRetry(url: string, init?: RequestInit): Promise<Response> {
-  const delays = [500, 1000, 2000, 4000, 8000]
-  let lastErr: unknown = null
-  for (const delay of [0, ...delays]) {
-    if (delay > 0) await new Promise((r) => setTimeout(r, delay))
-    try {
-      const res = await fetch(url, init)
-      if (res.ok || res.status === 404) return res // 404 isn't transient
-      lastErr = new Error(`HTTP ${res.status} ${res.statusText} for ${url}`)
-    } catch (err) {
-      lastErr = err
-    }
-  }
-  throw lastErr ?? new Error(`fetchWithRetry exhausted for ${url}`)
+  return sharedFetchWithRetry(url, { retries: 5, backoffMs: 500, ...(init ? { init } : {}) })
 }

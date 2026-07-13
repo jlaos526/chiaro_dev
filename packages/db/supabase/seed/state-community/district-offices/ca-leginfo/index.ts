@@ -15,6 +15,7 @@ import { fetchCaAssemblyOffices } from './assembly.ts'
 export const caLeginfoOffices: StateCommunityAdapter<NormalizedDistrictOffice> = {
   slug: 'ca-leginfo',
   component: 'offices',
+  status: 'production',
   covered_states: ['CA'],
   async fetchEvents(opts): Promise<NormalizedDistrictOffice[]> {
     if (opts.fetcher) return opts.fetcher()

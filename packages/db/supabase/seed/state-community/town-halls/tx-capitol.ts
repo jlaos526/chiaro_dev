@@ -16,6 +16,7 @@ import type { StateCommunityAdapter, NormalizedTownHall } from '../shared.ts'
 export const txCapitolTownHalls: StateCommunityAdapter<NormalizedTownHall> = {
   slug: 'tx-capitol',
   component: 'halls',
+  status: 'deprecated',
   covered_states: [],
   async fetchEvents(): Promise<NormalizedTownHall[]> {
     return []

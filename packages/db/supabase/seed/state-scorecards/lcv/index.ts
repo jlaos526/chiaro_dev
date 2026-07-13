@@ -21,6 +21,7 @@ const PRODUCTION_FETCHERS: Record<string, LcvFetcher> = {
 
 export const lcv: StateScorecardAdapter = {
   slug: 'lcv',
+  status: 'production',
   name_template: (s) => `League of Conservation Voters ${US_STATE_NAMES[s] ?? s}`,
   issue_area: 'environment',
   lean: 'progressive',

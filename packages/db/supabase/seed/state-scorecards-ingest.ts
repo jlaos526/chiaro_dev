@@ -11,11 +11,13 @@ import { lcv } from './state-scorecards/lcv/index.ts'
 import { nra } from './state-scorecards/nra.ts'
 import { plannedParenthood } from './state-scorecards/planned-parenthood.ts'
 import { afp } from './state-scorecards/afp.ts'
+import { formatAdapterStatusSummary } from './shared/adapter-status.ts'
 
 const DB_URL =
   process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 
-const ADAPTERS_DEFAULT: StateScorecardAdapter[] = [aclu, lcv, nra, plannedParenthood, afp]
+/** Exported for the registry-status test (audit C35); dispatch behavior unchanged. */
+export const ADAPTERS_DEFAULT: StateScorecardAdapter[] = [aclu, lcv, nra, plannedParenthood, afp]
 
 export interface IngestStateScorecardsOpts {
   session: string
@@ -56,6 +58,7 @@ export async function ingestStateScorecards(
     for (const adapter of adapters) {
       const orgStats: StateScorecardStats = {
         org_slug: adapter.slug,
+        status: adapter.status,
         orgsUpserted: 0,
         ratingsUpserted: 0,
         officialsMatched: 0,
@@ -151,6 +154,13 @@ if (isCliEntry(import.meta.url)) {
           `  ${s.org_slug}: ${s.orgsUpserted} orgs / ${s.ratingsUpserted} ratings / ${tag}`,
         )
       }
+      // Stub-vs-production visibility (audit C35): a "green" run can otherwise
+      // hide that a zero-row adapter is a stub or deprecated by design.
+      console.log(
+        formatAdapterStatusSummary(
+          stats.byOrg.map((s) => ({ label: s.org_slug, status: s.status })),
+        ),
+      )
       process.exit(stats.adaptersOk === stats.adaptersAttempted ? 0 : 1)
     })
     .catch((err) => {

@@ -17,6 +17,7 @@ import type { StateEthicsAdapter, NormalizedFinancialDisclosure } from '../share
 export const caFppcDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosure> = {
   slug: 'ca-fppc',
   component: 'disclosures',
+  status: 'deprecated',
   covered_states: ['CA'],
   async fetchEvents(opts) {
     if (opts.fetcher) return opts.fetcher()

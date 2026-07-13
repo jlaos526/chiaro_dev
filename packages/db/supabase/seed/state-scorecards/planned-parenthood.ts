@@ -10,6 +10,7 @@ const US_STATE_NAMES: Record<string, string> = {
 
 export const plannedParenthood: StateScorecardAdapter = {
   slug: 'planned-parenthood',
+  status: 'stub',
   name_template: (s) => `Planned Parenthood Action Fund ${US_STATE_NAMES[s] ?? s}`,
   issue_area: 'reproductive-rights',
   lean: 'progressive',

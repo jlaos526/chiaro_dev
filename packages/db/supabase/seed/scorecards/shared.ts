@@ -1,3 +1,5 @@
+import { fetchWithRetry as sharedFetchWithRetry } from '../shared/http.ts'
+
 export interface NormalizedRating {
   bioguideId: string
   score: number
@@ -16,26 +18,29 @@ export interface ScorecardAdapter {
   fetchRatings(congress: string, opts?: { fixturePath?: string }): Promise<NormalizedRating[]>
 }
 
+/**
+ * Since slice 81 (audit C36) a thin wrapper around the canonical
+ * `seed/shared/http.ts` fetchWithRetry (name/signature kept for
+ * back-compat; `retries` = TOTAL attempts, matching the old loop). Only
+ * ok responses are returned; any non-ok outcome throws `<url>: <status>`
+ * as before. Observable deltas (no current callers — the 10 scorecard
+ * adapters read committed CSV fixtures): non-429 4xx no longer burns the
+ * remaining retry attempts before throwing, 5xx exhaustion throws
+ * `<url>: <status>` instead of the old `Unreachable: <url>`, and each
+ * attempt now has a 15s timeout (was unbounded).
+ */
 export async function fetchWithRetry(
   url: string,
   opts: RequestInit = {},
   retries = 3,
 ): Promise<Response> {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const res = await fetch(url, opts)
-      if (res.ok) return res
-      if (res.status === 429 || res.status >= 500) {
-        await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, i)))
-        continue
-      }
-      throw new Error(`${url}: ${res.status}`)
-    } catch (err) {
-      if (i === retries - 1) throw err
-      await new Promise((r) => setTimeout(r, 1000 * Math.pow(2, i)))
-    }
-  }
-  throw new Error(`Unreachable: ${url}`)
+  const res = await sharedFetchWithRetry(url, {
+    retries: Math.max(0, retries - 1),
+    backoffMs: 1000,
+    init: opts,
+  })
+  if (!res.ok) throw new Error(`${url}: ${res.status}`)
+  return res
 }
 
 // Shared CSV parser: header = first line, expected columns `bioguide,score`.

@@ -1,5 +1,9 @@
 import { fetch } from 'undici'
 
+// NOTE: bespoke TIGER-only helper — new call sites should use the canonical
+// seed/shared/http.ts fetchWithRetry (slice 81, audit C36). This one stays
+// as-is for its tagged-union FetchResult (ok/gap/error) consumed by the
+// slice-55 tiger-cache.ts path.
 // fetchWithRetry returns a tagged union so callers can distinguish:
 //   ok    — body downloaded, proceed
 //   gap   — permanent (404/410); Census hasn't published this file yet.
