@@ -1,4 +1,5 @@
 import type { Client } from 'pg'
+import type { AdapterStatus } from '../shared/adapter-status.ts'
 import type { SkipReason } from '../shared/instrumentation.ts'
 
 export type EthicsComponent = 'disclosures' | 'complaints' | 'events'
@@ -56,6 +57,14 @@ export type StateEthicsEvent =
 export interface StateEthicsAdapter<E extends StateEthicsEvent = StateEthicsEvent> {
   slug: string
   component: EthicsComponent
+  /**
+   * Lifecycle status (audit C35): 'production' = real parser wired;
+   * 'stub' = returns [] pending operator wiring; 'deprecated' =
+   * wrong-premise/dead source kept for back-compat. Surfaced in the
+   * orchestrator's end-of-run [adapters] summary so a zero-row stub
+   * can't be mistaken for healthy coverage.
+   */
+  status: AdapterStatus
   covered_states: string[]
   fetchEvents(opts: {
     client: Client
@@ -73,6 +82,8 @@ export interface StateEthicsAdapter<E extends StateEthicsEvent = StateEthicsEven
 export interface StateEthicsStats {
   component: EthicsComponent
   adapter_slug: string
+  /** Lifecycle status of the adapter that produced this row (audit C35). */
+  status: AdapterStatus
   rowsUpserted: number
   officialsMatched: number
   officialsUnmatched: string[]

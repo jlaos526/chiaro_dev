@@ -19,6 +19,7 @@ import type { StateScorecardAdapter, NormalizedStateRating } from './shared.ts'
  */
 export const afp: StateScorecardAdapter = {
   slug: 'afp',
+  status: 'deprecated',
   name_template: (s) => `Americans for Prosperity ${s}`,
   issue_area: 'conservative-policy',
   lean: 'conservative',

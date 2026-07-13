@@ -15,6 +15,7 @@ import type { StateEthicsAdapter, NormalizedFinancialDisclosure } from '../share
 export const txTecDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosure> = {
   slug: 'tx-tec',
   component: 'disclosures',
+  status: 'deprecated',
   covered_states: [],
   async fetchEvents(): Promise<NormalizedFinancialDisclosure[]> {
     return []

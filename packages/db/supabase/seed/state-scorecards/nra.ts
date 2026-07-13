@@ -177,6 +177,7 @@ export async function fetchNraRatingsForState(
 
 export const nra: StateScorecardAdapter = {
   slug: 'nra',
+  status: 'production',
   name_template: (s) => `NRA-PVF (${US_STATE_NAMES[s] ?? s})`,
   issue_area: 'second-amendment',
   lean: 'conservative',

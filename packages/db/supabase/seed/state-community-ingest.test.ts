@@ -1,7 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { Client } from 'pg'
-import { ingestStateCommunity } from './state-community-ingest.ts'
+import { ADAPTERS_DEFAULT, ingestStateCommunity } from './state-community-ingest.ts'
 import type { StateCommunityAdapter, NormalizedDistrictOffice } from './state-community/shared.ts'
+import { ADAPTER_STATUSES, formatAdapterStatusSummary } from './shared/adapter-status.ts'
 
 const DB_URL = 'postgresql://postgres:postgres@127.0.0.1:54322/postgres'
 let client: Client
@@ -18,6 +19,7 @@ function mkAdapter(overrides: Partial<StateCommunityAdapter>): StateCommunityAda
   return {
     slug: 'test',
     component: 'halls',
+    status: 'production',
     covered_states: ['CA'],
     async fetchEvents() {
       return []
@@ -48,6 +50,8 @@ describe('ingestStateCommunity', () => {
     expect(stats.adaptersAttempted).toBe(2)
     expect(stats.adaptersOk).toBe(2)
     expect(stats.byAdapter).toHaveLength(2)
+    // Adapter status threads through to per-adapter stats (audit C35).
+    expect(stats.byAdapter.every((s) => s.status === 'production')).toBe(true)
   })
 
   it('--component filter restricts to that component', async () => {
@@ -283,5 +287,27 @@ describe('ingestStateCommunity offices idempotency (C33)', () => {
       [officialId],
     )
     expect(r.rows[0]!.c).toBe(1) // untouched: dry-run skips both clear + insert
+  })
+})
+
+// Audit C35: stub/deprecated adapters are registered on purpose (dispatch
+// unchanged) but must be visibly annotated so a zero-row "green" run can't
+// masquerade as healthy coverage. Counts are pinned — they change ONLY when
+// an operator wires a stub to production (or deprecates an adapter).
+describe('adapter status registry (C35)', () => {
+  it('every registered adapter carries a valid status; summary renders counts + slugs', () => {
+    for (const a of ADAPTERS_DEFAULT) {
+      expect(ADAPTER_STATUSES).toContain(a.status)
+    }
+    const summary = formatAdapterStatusSummary(
+      ADAPTERS_DEFAULT.map((a) => ({ label: `${a.component}:${a.slug}`, status: a.status })),
+    )
+    expect(summary).toContain(
+      'production 7 · stub 1 · deprecated 4 — stub/deprecated adapters return 0 rows BY DESIGN (audit C35)',
+    )
+    expect(summary).toContain('stub: offices:tx-capitol')
+    expect(summary).toContain(
+      'deprecated: halls:ca-leginfo, halls:fl-doe, halls:tx-capitol, halls:mi-legislature',
+    )
   })
 })

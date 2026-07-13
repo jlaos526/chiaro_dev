@@ -3,6 +3,7 @@ import type { StateCommunityAdapter, NormalizedDistrictOffice } from '../shared.
 export const txCapitolOffices: StateCommunityAdapter<NormalizedDistrictOffice> = {
   slug: 'tx-capitol',
   component: 'offices',
+  status: 'stub',
   covered_states: ['TX'],
   async fetchEvents(opts) {
     if (opts.fetcher) return opts.fetcher()

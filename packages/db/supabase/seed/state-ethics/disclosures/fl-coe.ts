@@ -3,6 +3,7 @@ import type { StateEthicsAdapter, NormalizedFinancialDisclosure } from '../share
 export const flCoeDisclosures: StateEthicsAdapter<NormalizedFinancialDisclosure> = {
   slug: 'fl-coe',
   component: 'disclosures',
+  status: 'stub',
   covered_states: ['FL'],
   async fetchEvents(opts) {
     if (opts.fetcher) return opts.fetcher()

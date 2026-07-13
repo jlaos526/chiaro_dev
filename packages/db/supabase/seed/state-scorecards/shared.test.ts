@@ -12,6 +12,7 @@ let officialId: string
 
 const TEST_ADAPTER: StateScorecardAdapter = {
   slug: 'aclu',
+  status: 'production',
   name_template: (s) => `ACLU of ${s}`,
   issue_area: 'civil-liberties',
   lean: 'progressive',

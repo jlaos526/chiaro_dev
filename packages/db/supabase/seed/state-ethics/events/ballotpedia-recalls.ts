@@ -240,6 +240,7 @@ export async function fetchBallotpediaRecallEvents(
 export const ballotpediaRecalls: StateEthicsAdapter<NormalizedOfficialEvent> = {
   slug: 'ballotpedia',
   component: 'events',
+  status: 'production',
   covered_states: ALL_STATES,
   async fetchEvents(opts) {
     if (opts.fetcher) return opts.fetcher()

@@ -15,6 +15,7 @@ import { fetchFlHouseOffices } from './house.ts'
 export const flDoeOffices: StateCommunityAdapter<NormalizedDistrictOffice> = {
   slug: 'fl-doe',
   component: 'offices',
+  status: 'production',
   covered_states: ['FL'],
   async fetchEvents(opts): Promise<NormalizedDistrictOffice[]> {
     if (opts.fetcher) return opts.fetcher()

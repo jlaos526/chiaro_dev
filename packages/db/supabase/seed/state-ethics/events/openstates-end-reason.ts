@@ -103,6 +103,7 @@ interface OpenStatesPerson {
 export const openstatesEndReason: StateEthicsAdapter<NormalizedOfficialEvent> = {
   slug: 'openstates-end-reason',
   component: 'events',
+  status: 'production',
   covered_states: ALL_STATES,
 
   async fetchEvents(opts) {

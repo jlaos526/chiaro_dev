@@ -329,6 +329,7 @@ async function fetchAndNormalize(
 export const mobilize: StateCommunityAdapter<NormalizedTownHall> = {
   slug: 'mobilize',
   component: 'halls',
+  status: 'production',
   covered_states: ALL_STATES,
 
   async fetchEvents(opts) {

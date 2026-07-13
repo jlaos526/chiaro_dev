@@ -1,4 +1,5 @@
 import type { Client } from 'pg'
+import type { AdapterStatus } from '../shared/adapter-status.ts'
 import type { SkipReason } from '../shared/instrumentation.ts'
 
 export type ScorecardLean =
@@ -17,6 +18,14 @@ export interface NormalizedStateRating {
 
 export interface StateScorecardAdapter {
   slug: string
+  /**
+   * Lifecycle status (audit C35): 'production' = real parser wired;
+   * 'stub' = returns [] pending operator wiring; 'deprecated' =
+   * wrong-premise/dead source kept for back-compat. Surfaced in the
+   * orchestrator's end-of-run [adapters] summary so a zero-row stub
+   * can't be mistaken for healthy coverage.
+   */
+  status: AdapterStatus
   name_template: (state: string) => string
   issue_area: string
   lean: ScorecardLean
@@ -36,6 +45,8 @@ export interface StateScorecardAdapter {
 
 export interface StateScorecardStats {
   org_slug: string
+  /** Lifecycle status of the adapter that produced this row (audit C35). */
+  status: AdapterStatus
   orgsUpserted: number
   ratingsUpserted: number
   officialsMatched: number

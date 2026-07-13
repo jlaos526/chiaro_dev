@@ -22,6 +22,7 @@ import type { StateScorecardAdapter, NormalizedStateRating } from './shared.ts'
  */
 export const aclu: StateScorecardAdapter = {
   slug: 'aclu',
+  status: 'deprecated',
   name_template: (s) => `ACLU of ${s}`,
   issue_area: 'civil-liberties',
   lean: 'progressive',
