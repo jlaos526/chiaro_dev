@@ -296,3 +296,89 @@ jobs:
       - name: Stop Supabase
         if: always()
         run: pnpm db:stop
+
+  # Slice 83 (audit U8): E2E journeys against a production `next start` +
+  # a fresh local Supabase (fixture seeds, NO TIGER — spec D2). Deliberately
+  # NOT in the branch-protection required contexts v1: a new E2E layer earns
+  # blocking rights after a stability week (spec D4); the checks-table merge
+  # gate covers it meanwhile.
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: supabase/setup-cli@v2
+        with:
+          version: 2.98.1
+      - run: pnpm install --frozen-lockfile
+      - name: Start Supabase + reset
+        run: |
+          pnpm db:start
+          pnpm db:reset
+      - name: Capture local keys
+        id: supabase-status
+        working-directory: packages/db
+        run: |
+          ANON_KEY=$(supabase status --output env | grep '^ANON_KEY' | cut -d'=' -f2- | tr -d '"')
+          SERVICE_ROLE_KEY=$(supabase status --output env | grep '^SERVICE_ROLE_KEY' | cut -d'=' -f2- | tr -d '"')
+          echo "anon_key=$ANON_KEY" >> "$GITHUB_OUTPUT"
+          echo "::add-mask::$SERVICE_ROLE_KEY"
+          echo "service_role_key=$SERVICE_ROLE_KEY" >> "$GITHUB_OUTPUT"
+      - name: Seed E2E fixtures + issue catalog
+        run: |
+          node apps/web/e2e/seed-e2e.mjs
+          pnpm seed:issue-catalog
+        env:
+          SUPABASE_DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+          SUPABASE_URL: http://127.0.0.1:54321
+          SUPABASE_SERVICE_ROLE_KEY: ${{ steps.supabase-status.outputs.service_role_key }}
+      - name: Serve Edge Function
+        working-directory: packages/db
+        run: |
+          printf 'GEOCODIO_KEY=%s\n' "$GEOCODIO_KEY" > /tmp/edge-env.env
+          supabase functions serve calibrate-location --env-file /tmp/edge-env.env &
+          sleep 5
+        env:
+          GEOCODIO_KEY: ${{ secrets.GEOCODIO_KEY }}
+      - name: Build web against the local stack
+        working-directory: apps/web
+        # NEXT_PUBLIC_* are inlined at build time — the build must come AFTER
+        # supabase status yields the keys (spec D1).
+        run: npx next build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ steps.supabase-status.outputs.anon_key }}
+      - name: Start web
+        working-directory: apps/web
+        run: |
+          npx next start -p 3000 &
+          for i in $(seq 1 30); do
+            curl -sf -o /dev/null http://localhost:3000/sign-in && break
+            sleep 2
+          done
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install Chromium
+        working-directory: apps/web
+        run: npx playwright install chromium --with-deps
+      - name: Run E2E journeys
+        working-directory: apps/web
+        run: npx playwright test
+      - name: Upload E2E artifacts (screenshots + traces)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-artifacts-${{ github.run_id }}
+          path: apps/web/e2e-artifacts/
+          retention-days: 7
+      - name: Stop Supabase
+        if: always()
+        run: pnpm db:stop

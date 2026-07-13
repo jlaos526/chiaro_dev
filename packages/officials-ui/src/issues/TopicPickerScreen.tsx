@@ -68,6 +68,7 @@ export function TopicPickerScreen({ topics, onNext }: TopicPickerScreenProps): R
                   aria-pressed={selected}
                   accessibilityLabel={topic.display_name}
                   dataSet={{ topicCard: '' }}
+                  testID="issue-topic-option"
                   style={[
                     styles.card,
                     {
